@@ -5,7 +5,7 @@ Dự án này thực hiện việc thu thập, tiền xử lý, chuẩn hóa d�
 ## 1. Giới thiệu
 
 COCOMO II (COnstructive COst MOdel) là một mô hình ước lượng chi phí và nỗ lực phát triển phần mềm được phát triển bởi Barry Boehm. Mô hình này giúp các nhà quản lý dự án ước tính thời gian, nhân lực cần thiết để phát triển một sản phẩm phần mềm dựa trên nhiều yếu tố khác nhau.
-
+       
 Dự án này tập trung vào việc:
 - Thu thập dữ liệu từ nhiều nguồn (CSV, ARFF) 
 - Tiền xử lý và chuẩn hóa dữ liệu theo các schema khác nhau (LOC, FP, UCP)
