@@ -1,0 +1,24 @@
+# requirements.txt for Software Effort Estimation Service
+
+# Web framework
+fastapi>=0.95.0
+uvicorn>=0.22.0
+jinja2>=3.1.2
+python-multipart>=0.0.6
+aiofiles>=23.1.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.23.5
+scikit-learn>=1.2.2
+joblib>=1.2.0
+
+# NLP
+nltk>=3.8.1
+spacy>=3.5.3
+# Run 'python -m spacy download en_core_web_sm' after installing
+
+# Utilities
+pydantic>=2.0.0
+requests>=2.29.0
+python-dotenv>=1.0.0

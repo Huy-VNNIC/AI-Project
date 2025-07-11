@@ -77,6 +77,14 @@ class MultiModelIntegration:
                     print(f"Added default values for COCOMO II model")
                 
                 result = model.estimate_effort(project_data)
+                
+                # Ensure we have 'effort_pm' in the result
+                if 'effort_pm' not in result and 'effort' in result:
+                    result['effort_pm'] = result['effort']
+                elif 'effort_pm' not in result:
+                    # If neither effort nor effort_pm is present, use a default value
+                    result['effort_pm'] = 1.0
+                
                 result["suitability"] = suitability
                 model_results.append(result)
                 print(f"Model {model.model_name}: Effort = {result['effort_pm']:.2f} person-months, Confidence = {result['confidence']:.2f}, Suitability = {suitability:.2f}")
@@ -111,16 +119,21 @@ class MultiModelIntegration:
         for result in model_results:
             # Trọng số là tích của độ tin cậy và độ phù hợp
             weight = result["confidence"] * result["suitability"]
-            weighted_effort += result["effort_pm"] * weight
-            weighted_time += result["time_months"] * weight
+            
+            # Đảm bảo chúng ta sử dụng effort_pm thay vì effort
+            effort_pm = result.get("effort_pm", result.get("effort", 0))
+            
+            weighted_effort += effort_pm * weight
+            weighted_time += result.get("time_months", 0) * weight
             weighted_team_size += result.get("team_size", 0) * weight
             total_weight += weight
         
         if total_weight == 0:
             # Nếu tổng trọng số = 0, sử dụng trung bình đơn giản
-            weighted_effort = sum(r["effort_pm"] for r in model_results) / len(model_results)
-            weighted_time = sum(r["time_months"] for r in model_results) / len(model_results)
-            weighted_team_size = sum(r.get("team_size", 0) for r in model_results) / len(model_results)
+            effort_values = [result.get("effort_pm", result.get("effort", 0)) for result in model_results]
+            weighted_effort = sum(effort_values) / len(model_results)
+            weighted_time = sum(result.get("time_months", 0) for result in model_results) / len(model_results)
+            weighted_team_size = sum(result.get("team_size", 0) for result in model_results) / len(model_results)
         else:
             weighted_effort /= total_weight
             weighted_time /= total_weight
@@ -131,9 +144,11 @@ class MultiModelIntegration:
         for result in model_results:
             weight = result["confidence"] * result["suitability"]
             contribution = (weight / total_weight) if total_weight > 0 else (1 / len(model_results))
+            effort_pm = result.get("effort_pm", result.get("effort", 0))
+            
             contributions.append({
                 "model": result["model"],
-                "effort_pm": result["effort_pm"],
+                "effort_pm": effort_pm,
                 "contribution": contribution,
                 "weight": weight
             })
@@ -162,10 +177,13 @@ class MultiModelIntegration:
         sorted_results = sorted(model_results, key=lambda r: r["suitability"], reverse=True)
         best_result = sorted_results[0]
         
+        # Đảm bảo chúng ta sử dụng effort_pm thay vì effort
+        effort_pm = best_result.get("effort_pm", best_result.get("effort", 0))
+        
         # Thêm thông tin về mô hình tốt nhất
         result = {
-            "effort_pm": best_result["effort_pm"],
-            "time_months": best_result["time_months"],
+            "effort_pm": effort_pm,
+            "time_months": best_result.get("time_months", 0),
             "team_size": best_result.get("team_size", 0),
             "method": "best_model",
             "best_model": best_result["model"],

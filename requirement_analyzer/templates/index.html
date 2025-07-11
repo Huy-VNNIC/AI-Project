@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Effort Estimation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/static/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Software Effort Estimation Tool</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#helpModal">
+                            <i class="bi bi-question-circle"></i> Help
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h4><i class="bi bi-calculator"></i> Software Effort Estimation</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab">
+                                    <i class="bi bi-file-text"></i> Text Input
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload" type="button" role="tab">
+                                    <i class="bi bi-upload"></i> Upload Document
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="tasks-tab" data-bs-toggle="tab" data-bs-target="#tasks" type="button" role="tab">
+                                    <i class="bi bi-list-check"></i> Task List
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="integration-tab" data-bs-toggle="tab" data-bs-target="#integration" type="button" role="tab">
+                                    <i class="bi bi-link"></i> Jira/Trello
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content p-3" id="myTabContent">
+                            <!-- Text Input Tab -->
+                            <div class="tab-pane fade show active" id="text" role="tabpanel">
+                                <form id="textForm">
+                                    <div class="mb-3">
+                                        <label for="requirementsText" class="form-label">Requirements Document Text</label>
+                                        <textarea class="form-control" id="requirementsText" rows="10" placeholder="Paste your requirements document here..."></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="methodSelect" class="form-label">Integration Method</label>
+                                        <select class="form-select" id="methodSelect">
+                                            <option value="weighted_average" selected>Weighted Average</option>
+                                            <option value="best_model">Best Model</option>
+                                            <option value="stacking">Stacking</option>
+                                            <option value="bayesian_average">Bayesian Average</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Estimate Effort</button>
+                                </form>
+                            </div>
+                            
+                            <!-- Upload Document Tab -->
+                            <div class="tab-pane fade" id="upload" role="tabpanel">
+                                <form id="uploadForm" enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label for="requirementsFile" class="form-label">Requirements Document File</label>
+                                        <input class="form-control" type="file" id="requirementsFile" accept=".txt,.doc,.docx,.pdf,.md">
+                                        <div class="form-text">Supported formats: .txt, .doc, .docx, .pdf, .md</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="uploadMethodSelect" class="form-label">Integration Method</label>
+                                        <select class="form-select" id="uploadMethodSelect">
+                                            <option value="weighted_average" selected>Weighted Average</option>
+                                            <option value="best_model">Best Model</option>
+                                            <option value="stacking">Stacking</option>
+                                            <option value="bayesian_average">Bayesian Average</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Upload & Estimate</button>
+                                </form>
+                            </div>
+                            
+                            <!-- Task List Tab -->
+                            <div class="tab-pane fade" id="tasks" role="tabpanel">
+                                <div class="mb-3">
+                                    <button id="addTaskBtn" class="btn btn-success"><i class="bi bi-plus-circle"></i> Add Task</button>
+                                </div>
+                                <div id="taskList" class="mb-3">
+                                    <!-- Tasks will be added here dynamically -->
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tasksMethodSelect" class="form-label">Integration Method</label>
+                                    <select class="form-select" id="tasksMethodSelect">
+                                        <option value="weighted_average" selected>Weighted Average</option>
+                                        <option value="best_model">Best Model</option>
+                                        <option value="stacking">Stacking</option>
+                                        <option value="bayesian_average">Bayesian Average</option>
+                                    </select>
+                                </div>
+                                <button id="estimateTasksBtn" class="btn btn-primary">Estimate Effort</button>
+                            </div>
+                            
+                            <!-- Integration Tab -->
+                            <div class="tab-pane fade" id="integration" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card">
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title">Import from Jira</h5>
+                                                <p class="card-text">Import your project requirements from Jira issues.</p>
+                                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#jiraModal">
+                                                    <i class="bi bi-cloud-download"></i> Import from Jira
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card">
+                                            <div class="card-body text-center">
+                                                <h5 class="card-title">Import from Trello</h5>
+                                                <p class="card-text">Import your project requirements from Trello cards.</p>
+                                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#trelloModal">
+                                                    <i class="bi bi-cloud-download"></i> Import from Trello
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results Card (initially hidden) -->
+                <div id="resultsCard" class="card mb-4 d-none">
+                    <div class="card-header bg-success text-white">
+                        <h4><i class="bi bi-graph-up"></i> Estimation Results</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">Summary</div>
+                                    <div class="card-body">
+                                        <table class="table">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Total Effort:</td>
+                                                    <td id="totalEffort" class="fw-bold">-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Duration:</td>
+                                                    <td id="duration">-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Team Size:</td>
+                                                    <td id="teamSize">-</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Confidence Level:</td>
+                                                    <td id="confidenceLevel">-</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card mb-3">
+                                    <div class="card-header">Model Estimates</div>
+                                    <div class="card-body">
+                                        <canvas id="modelsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="accordion" id="detailsAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#modelDetails">
+                                                Model Details
+                                            </button>
+                                        </h2>
+                                        <div id="modelDetails" class="accordion-collapse collapse" data-bs-parent="#detailsAccordion">
+                                            <div class="accordion-body">
+                                                <div id="modelDetailsContent"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#analysisDetails">
+                                                Analysis Details
+                                            </button>
+                                        </h2>
+                                        <div id="analysisDetails" class="accordion-collapse collapse" data-bs-parent="#detailsAccordion">
+                                            <div class="accordion-body">
+                                                <div id="analysisDetailsContent"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Template (hidden) -->
+    <template id="taskTemplate">
+        <div class="card mb-3 task-item">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-11">
+                        <div class="mb-2">
+                            <label class="form-label">Task Title</label>
+                            <input type="text" class="form-control task-title" placeholder="Enter task title">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control task-description" placeholder="Enter task description"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select task-priority">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Complexity</label>
+                                <select class="form-select task-complexity">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-center justify-content-center">
+                        <button type="button" class="btn btn-danger delete-task-btn"><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Jira Modal -->
+    <div class="modal fade" id="jiraModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import from Jira</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="jiraUrl" class="form-label">Jira URL</label>
+                        <input type="text" class="form-control" id="jiraUrl" placeholder="https://your-domain.atlassian.net">
+                    </div>
+                    <div class="mb-3">
+                        <label for="jiraApiToken" class="form-label">API Token</label>
+                        <input type="password" class="form-control" id="jiraApiToken">
+                    </div>
+                    <div class="mb-3">
+                        <label for="jiraProject" class="form-label">Project Key</label>
+                        <input type="text" class="form-control" id="jiraProject" placeholder="PROJ">
+                    </div>
+                    <div class="mb-3">
+                        <label for="jiraMethodSelect" class="form-label">Integration Method</label>
+                        <select class="form-select" id="jiraMethodSelect">
+                            <option value="weighted_average" selected>Weighted Average</option>
+                            <option value="best_model">Best Model</option>
+                            <option value="stacking">Stacking</option>
+                            <option value="bayesian_average">Bayesian Average</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-info">
+                        <small>Note: This feature requires the Jira API to be properly configured. Your API token should have appropriate permissions.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="jiraImportBtn">Import & Estimate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trello Modal -->
+    <div class="modal fade" id="trelloModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Import from Trello</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="trelloApiKey" class="form-label">API Key</label>
+                        <input type="text" class="form-control" id="trelloApiKey">
+                    </div>
+                    <div class="mb-3">
+                        <label for="trelloToken" class="form-label">Token</label>
+                        <input type="password" class="form-control" id="trelloToken">
+                    </div>
+                    <div class="mb-3">
+                        <label for="trelloBoardId" class="form-label">Board ID</label>
+                        <input type="text" class="form-control" id="trelloBoardId">
+                    </div>
+                    <div class="mb-3">
+                        <label for="trelloMethodSelect" class="form-label">Integration Method</label>
+                        <select class="form-select" id="trelloMethodSelect">
+                            <option value="weighted_average" selected>Weighted Average</option>
+                            <option value="best_model">Best Model</option>
+                            <option value="stacking">Stacking</option>
+                            <option value="bayesian_average">Bayesian Average</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-info">
+                        <small>Note: You can find your Board ID in the URL of your Trello board (e.g., https://trello.com/b/BOARD_ID/board-name).</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="trelloImportBtn">Import & Estimate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">How to Use This Tool</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5>Software Effort Estimation Tool</h5>
+                    <p>This tool helps you estimate the effort required for your software development projects using multiple estimation models, including COCOMO II, Function Points, and Use Case Points.</p>
+                    
+                    <h6>Input Methods</h6>
+                    <ol>
+                        <li><strong>Text Input</strong>: Paste your requirements document directly into the text area.</li>
+                        <li><strong>Upload Document</strong>: Upload a requirements document file (.txt, .doc, .docx, .pdf, .md).</li>
+                        <li><strong>Task List</strong>: Manually add tasks with title, description, priority, and complexity.</li>
+                        <li><strong>Integration</strong>: Import tasks directly from Jira or Trello (requires API credentials).</li>
+                    </ol>
+                    
+                    <h6>Integration Methods</h6>
+                    <ul>
+                        <li><strong>Weighted Average</strong>: Combines estimates from all models with weights based on historical accuracy.</li>
+                        <li><strong>Best Model</strong>: Uses the estimate from the model that has historically performed best for similar projects.</li>
+                        <li><strong>Stacking</strong>: Uses a meta-model that learns how to combine the individual model estimates.</li>
+                        <li><strong>Bayesian Average</strong>: Uses Bayesian statistics to combine the estimates with uncertainty ranges.</li>
+                    </ul>
+                    
+                    <h6>Results</h6>
+                    <p>The results include:</p>
+                    <ul>
+                        <li>Total effort estimate in person-months</li>
+                        <li>Estimated duration in months</li>
+                        <li>Recommended team size</li>
+                        <li>Confidence level of the estimate</li>
+                        <li>Detailed breakdown of estimates from each model</li>
+                        <li>Analysis of the requirements document</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

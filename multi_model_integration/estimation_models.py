@@ -24,6 +24,18 @@ class EstimationModel(ABC):
         """
         pass
     
+    def estimate(self, project_data):
+        """
+        Phương thức tương thích để gọi estimate_effort
+        
+        Args:
+            project_data (dict): Thông tin dự án
+            
+        Returns:
+            dict: Kết quả ước lượng
+        """
+        return self.estimate_effort(project_data)
+    
     @property
     @abstractmethod
     def model_name(self):
