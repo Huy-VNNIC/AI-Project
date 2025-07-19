@@ -1,0 +1,15 @@
+# Generated analysis charts and images
+*.png
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Generated CSV results (these are recreated each run)
+comparison_results.csv
+comparison_metrics.csv
+
+# Temporary files
+/tmp/
+*.tmp
