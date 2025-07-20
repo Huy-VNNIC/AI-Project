@@ -4,6 +4,7 @@
 
 ---
 
+
 ### 1. THÔNG TIN ĐỀ TÀI
 
 **Tên đề tài:** Cải tiến mô hình ước lượng nỗ lực phát triển phần mềm COCOMO II bằng kỹ thuật học máy
@@ -18,19 +19,19 @@
 
 #### 2.1 Danh sách thành viên nhóm:
 
-1. **Trưởng nhóm:** Nguyễn Minh Huy
+1. **Trưởng nhóm:** Đặng Nhật Minh 
    - Mã số sinh viên: [Mã SV]
    - Lớp: [Lớp]
    - Email: [Email]
    - Vai trò: Trưởng nhóm, phụ trách phát triển mô hình học máy và tích hợp hệ thống
 
-2. **Thành viên:** [Tên thành viên 2]
+2. **Thành viên:** Nguyễn Nhật Huy 
    - Mã số sinh viên: [Mã SV]
    - Lớp: [Lớp]
    - Email: [Email]
    - Vai trò: Phụ trách thu thập và tiền xử lý dữ liệu
 
-3. **Thành viên:** [Tên thành viên 3]
+3. **Thành viên:** Nguyễn Hưu Hưng 
    - Mã số sinh viên: [Mã SV]
    - Lớp: [Lớp]
    - Email: [Email]
