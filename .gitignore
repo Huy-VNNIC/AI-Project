@@ -1,0 +1,79 @@
+# Virtual environments
+venv/
+venv_new/
+env/
+ENV/
+env.bak/
+venv.bak/
+.env
+.venv
+env/
+virtualenv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# NLTK downloaded data
+nltk_data/
+
+# IDE related files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Dataset files and large files
+*.csv
+*.xlsx
+*.xls
+*.zip
+*.tar
+*.gz
+*.rar
+*.pkl
+!models/**/*.pkl  # Keep model files in the models directory
+
+# Logs and results
+logs/
+*.log
+*.out
+/results/
+
+# Local configuration files
+local_settings.py
+settings_local.py
+*.local.py
+
+# Test coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/

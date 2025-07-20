@@ -226,6 +226,10 @@ def import_from_jira(data: Dict[str, Any] = Body(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.get("/debug", response_class=HTMLResponse)
+def debug_page(request: Request):
+    return templates.TemplateResponse("debug.html", {"request": request})
+
 def start_server(host="0.0.0.0", port=8000):
     """
     Khởi động server API
