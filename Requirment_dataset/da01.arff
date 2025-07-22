@@ -1,0 +1,21 @@
+@relation pandasdata
+
+@attribute reqs_statement string
+@attribute  action_part string
+@attribute actor_part string
+@attribute label{irrelevant,relevant}
+
+@data
+"user_submit_job_associate_cost_execution_time_deadline","submit_job_associate_cost_execution_time_deadline","user","relevant"
+"user_establish_cost_unit_time_and_submit_job","establish_cost_unit_time_and_submit_job","user","relevant"
+"user_monitor_job_submit_status","monitor_job_submit_status","user","relevant"
+"user_cancel_job_submit","cancel_job_submit","user","relevant"
+"user_check_credit_balance","check_credit_balance","user","relevant"
+"user_check_usage_history","check_usage_history","user","relevant"
+"user_check_node_cluster_status","check_node_cluster_status","user","relevant"
+"user_check_usage_pattern_cluster_history","check_usage_pattern_cluster_history","user","relevant"
+"user_check_job_submit_status","check_job_submit_status","user","relevant"
+"user_check_node_load_cluster","check_node_load_cluster","user","relevant"
+"user_can_change_cost_structure_cluster","can_change_cost_structure_cluster","user","relevant"
+"user_can_change_the_schedule_policy_cluster","can_change_the_schedule_policy_cluster","user","relevant"
+"user_take_a_photo_of_a_new_student","take_a_photo_of_a_new_student","user","irrelevant"

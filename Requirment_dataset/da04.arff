@@ -1,0 +1,14 @@
+@relation pandasdata
+
+@attribute reqs_statement string
+@attribute  action_part string
+@attribute actor_part string
+@attribute label{irrelevant,relevant}
+
+@data
+"User_can_see_detailed_information_about_SGP","can_see_detailed_information_about_SGP","User","relevant"
+"User_can_apply_for_SGP","can_apply_for_SGP","User","relevant"
+"User_can_update_application_form_for_SGP","can_update_application_form_for_SGP","User","relevant"
+"User_can_update_personal_data","can_update_personal_data","User","irrelevant"
+"User_can_upload_application_related_documents","can_upload_application_related_documents","User","irrelevant"
+"User_can_take_english_proficiency_test","can_take_english_proficiency_test","User","irrelevant"
