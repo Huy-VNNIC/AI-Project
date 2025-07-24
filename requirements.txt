@@ -1,6 +1,8 @@
 # requirements.txt for Software Effort Estimation Service
 
-# Web framework
+# Web frameworks
+flask>=2.2.3
+flask-cors>=3.0.10
 fastapi>=0.95.0
 uvicorn>=0.22.0
 jinja2>=3.1.2
@@ -12,13 +14,20 @@ pandas>=2.0.0
 numpy>=1.23.5
 scikit-learn>=1.2.2
 joblib>=1.2.0
+xgboost>=1.7.5
 
 # NLP
 nltk>=3.8.1
 spacy>=3.5.3
-# Run 'python -m spacy download en_core_web_sm' after installing
+transformers>=4.28.1
+
+# Deep Learning
+tensorflow>=2.12.0
+torch>=2.0.0
 
 # Utilities
 pydantic>=2.0.0
 requests>=2.29.0
 python-dotenv>=1.0.0
+matplotlib>=3.7.1
+seaborn>=0.12.2
