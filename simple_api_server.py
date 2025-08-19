@@ -1,21 +1,37 @@
 #!/usr/bin/env python3
 """
 Simplified API for testing the effort estimation functionality
+with feedback and self-improvement capabilities
 """
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import sys
 import os
+import json
+import logging
 
 # Add the project directory to the path
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename='api_server.log'
+)
+logger = logging.getLogger('api_server')
+
 try:
     from requirement_analyzer.ml_requirement_analyzer import MLRequirementAnalyzer
     print("Successfully imported MLRequirementAnalyzer")
+    
+    # Import feedback related modules
+    from feedback_api import register_feedback_api
+    print("Successfully imported feedback modules")
 except Exception as e:
-    print(f"Error importing MLRequirementAnalyzer: {e}")
+    print(f"Error importing required modules: {e}")
+    logger.error(f"Error importing required modules: {e}")
     sys.exit(1)
 
 # Initialize Flask app
@@ -25,6 +41,10 @@ CORS(app)  # Enable CORS for all routes
 # Initialize the analyzer
 analyzer = MLRequirementAnalyzer()
 print("MLRequirementAnalyzer initialized")
+
+# Register feedback API routes
+register_feedback_api(app)
+print("Feedback API routes registered")
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
@@ -142,6 +162,66 @@ def suggest_team():
         print(f"Error in team suggestion endpoint: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/feedback-overview', methods=['GET'])
+def feedback_overview():
+    """Provide an overview of collected feedback and model improvements"""
+    try:
+        from feedback_collector import get_feedback_statistics
+        
+        stats = get_feedback_statistics()
+        
+        # Add some additional insights
+        insights = []
+        
+        if stats['total_feedback'] > 0:
+            if stats['avg_estimation_error'] > 25:
+                insights.append("High estimation error detected. Models may need improvement.")
+            elif stats['avg_estimation_error'] < 10:
+                insights.append("Low estimation error. Models are performing well.")
+                
+            insights.append(f"Collected feedback from {stats['total_feedback']} projects/tasks.")
+            
+            if 'last_feedback' in stats and stats['last_feedback']:
+                insights.append(f"Last feedback received on {stats['last_feedback'][:10]}.")
+        else:
+            insights.append("No feedback data collected yet.")
+        
+        return jsonify({
+            "statistics": stats,
+            "insights": insights,
+            "models": {
+                "retrained": os.path.exists(os.path.join("models", "retrained")),
+                "last_training": get_last_training_date()
+            }
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error in feedback overview endpoint: {e}")
+        return jsonify({"error": str(e)}), 500
+
+def get_last_training_date():
+    """Get the date of the last model retraining"""
+    try:
+        history_file = os.path.join("models", "retrained", "training_history.json")
+        
+        if os.path.exists(history_file):
+            with open(history_file, 'r') as f:
+                history = json.load(f)
+                if history:
+                    return history[-1].get('datetime', 'Unknown')
+        
+        return None
+    except Exception:
+        return None
+
 if __name__ == "__main__":
-    print("Starting simplified API server...")
+    print("Starting simplified API server with feedback capabilities...")
+    print("Available API endpoints:")
+    print(" - /api/health - Health check")
+    print(" - /api/analyze - Analyze requirements")
+    print(" - /api/estimate - Estimate effort")
+    print(" - /api/team - Suggest team composition")
+    print(" - /api/feedback - Submit feedback on actual effort")
+    print(" - /api/feedback/stats - Get feedback statistics")
+    print(" - /api/feedback-overview - Get feedback overview and insights")
     app.run(debug=True, host='0.0.0.0', port=5000)

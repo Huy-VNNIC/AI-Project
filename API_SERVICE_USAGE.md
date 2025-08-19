@@ -28,6 +28,11 @@ The service will start on http://0.0.0.0:8000 by default.
 - `POST /estimate`: Estimate effort from a requirements document
 - `POST /upload-requirements`: Upload and analyze a requirements file
 - `POST /estimate-from-tasks`: Estimate effort from a list of tasks
+
+### Feedback and Model Improvement
+- `POST /api/feedback`: Submit feedback about actual effort after project completion
+- `GET /api/feedback/stats`: Get statistics about collected feedback data
+- `GET /api/feedback-overview`: Get overview and insights about model performance
 - `POST /trello-import`: Import and estimate from Trello boards
 - `POST /jira-import`: Import and estimate from Jira issues
 
@@ -82,6 +87,53 @@ The following estimation methods are available:
 - `function_points`: Function Point Analysis
 - `use_case_points`: Use Case Points
 - `neural_network`: Neural Network model
+
+## Feedback System
+
+The API includes a feedback loop system that allows continuous improvement of estimation models based on actual project outcomes.
+
+### Submitting Feedback
+
+After a project is completed, submit the actual effort to improve future estimations:
+
+```bash
+curl -X POST http://localhost:5000/api/feedback \
+  -H "Content-Type: application/json" \
+  -d '{
+    "project_id": "project123",
+    "task_id": "task456",
+    "requirement_text": "Implement user authentication system with login, registration, and password reset functionality.",
+    "estimated_effort": 2.5,
+    "actual_effort": 3.0,
+    "effort_unit": "PERSON_MONTH"
+  }'
+```
+
+### Viewing Feedback Statistics
+
+To get statistics about collected feedback:
+
+```bash
+curl -X GET http://localhost:5000/api/feedback/stats
+```
+
+### Feedback Overview and Insights
+
+To get an overview of model performance and insights:
+
+```bash
+curl -X GET http://localhost:5000/api/feedback-overview
+```
+
+### Model Retraining
+
+Models are automatically retrained monthly with collected feedback. To manually trigger retraining:
+
+```bash
+python scheduled_retraining.py --force
+```
+
+For more details, see [FEEDBACK_SYSTEM.md](FEEDBACK_SYSTEM.md).
 
 ## Troubleshooting
 

@@ -26,12 +26,22 @@ AI-Project/
 ├── cocomo_setup.sh                            # Script thiết lập và chạy demo
 ├── usage_guide.md                             # Hướng dẫn sử dụng mô hình
 ├── README.md                                  # Tài liệu này
+├── README_FEEDBACK_SYSTEM.md                  # Tài liệu về hệ thống feedback
+├── README_PRODUCTION.md                       # Hướng dẫn triển khai production
+├── feedback_api.py                            # API endpoints cho hệ thống feedback
+├── feedback_collector.py                      # Thu thập và lưu trữ dữ liệu feedback
+├── feedback_feature_extractor.py              # Trích xuất features từ dữ liệu feedback
+├── model_retrainer.py                         # Huấn luyện lại mô hình với feedback
+├── scheduled_retraining.py                    # Tự động huấn luyện lại theo lịch
+├── run_estimation_service.py                  # API service cho ước lượng nỗ lực
+├── run_estimation_service.sh                  # Script khởi động dịch vụ
 │
 ├── datasets/                                  # Dữ liệu thô từ nhiều nguồn
 │   ├── defectPred/                            # Dữ liệu dự đoán lỗi
 │   │   ├── ck/ant/                            # Dữ liệu Ant (LOC-based)
 │   │   └── BugCatchers/                       # Dữ liệu Apache, ArgoUML, Eclipse
 │   ├── effortEstimation/                      # Dữ liệu ước lượng nỗ lực
+│   ├── feedback/                              # Dữ liệu feedback từ người dùng
 │   └── ...
 │
 ├── processed_data/                            # Dữ liệu đã xử lý
@@ -41,14 +51,14 @@ AI-Project/
 │   └── metadata.json                          # Metadata về quá trình xử lý
 │
 ├── models/                                    # Mô hình đã huấn luyện
-│   └── cocomo_ii_extended/                    # Mô hình COCOMO II mở rộng
-│       ├── Linear_Regression.pkl              # Mô hình Linear Regression
-│       ├── Decision_Tree.pkl                  # Mô hình Decision Tree
-│       ├── Random_Forest.pkl                  # Mô hình Random Forest
-│       ├── Decision_Tree_(Tuned).pkl          # Mô hình Decision Tree đã tinh chỉnh
-│       ├── Random_Forest_(Tuned).pkl          # Mô hình Random Forest đã tinh chỉnh
-│       ├── preprocessor.pkl                   # Bộ tiền xử lý dữ liệu
-│       └── config.json                        # Cấu hình mô hình
+│   ├── cocomo_ii_extended/                    # Mô hình COCOMO II mở rộng
+│   │   ├── Linear_Regression.pkl              # Mô hình Linear Regression
+│   │   ├── Decision_Tree.pkl                  # Mô hình Decision Tree
+│   │   ├── Random_Forest.pkl                  # Mô hình Random Forest
+│   │   ├── Decision_Tree_(Tuned).pkl          # Mô hình Decision Tree đã tinh chỉnh
+│   │   ├── Random_Forest_(Tuned).pkl          # Mô hình Random Forest đã tinh chỉnh
+│   │   └── preprocessor.pkl                   # Bộ tiền xử lý dữ liệu
+│   └── retrained/                             # Mô hình đã huấn luyện lại với feedback
 ```
 
 Quá trình tiền xử lý dữ liệu được thực hiện trong notebook `cocomo_ii_data_preprocessing_enhanced.ipynb` với các bước chính:
@@ -130,7 +140,37 @@ Các hướng phát triển tiếp theo:
 - Phát triển giao diện web để dễ dàng sử dụng
 - Tích hợp với các công cụ quản lý dự án
 
-## 8. Tham khảo
+## 8. Hệ thống Feedback & Tự cải thiện
+
+Hệ thống feedback cho phép người dùng cung cấp dữ liệu về nỗ lực thực tế sau khi dự án hoàn thành. Những dữ liệu này được thu thập và sử dụng để huấn luyện lại các mô hình ước lượng định kỳ, giúp cải thiện độ chính xác của hệ thống theo thời gian.
+
+### Các thành phần chính
+
+1. **Feedback Collection**: API endpoint để người dùng gửi dữ liệu nỗ lực thực tế
+2. **Feature Extraction**: Tự động trích xuất đặc trưng từ yêu cầu và dữ liệu feedback
+3. **Model Retraining**: Định kỳ huấn luyện lại mô hình với dữ liệu feedback mới
+4. **Performance Monitoring**: Theo dõi sai số ước lượng và cải thiện mô hình theo thời gian
+
+### Sử dụng hệ thống
+
+1. Chạy API service với script `run_estimation_service.sh`:
+   ```bash
+   ./run_estimation_service.sh --port 8001 --production
+   ```
+
+2. Truy cập giao diện web tại `http://localhost:3000/feedback` để:
+   - Xem thống kê về độ chính xác ước lượng
+   - Gửi dữ liệu nỗ lực thực tế cho dự án đã hoàn thành
+   - Theo dõi sự cải thiện của mô hình theo thời gian
+
+3. Tự động huấn luyện lại mô hình với cron job:
+   ```bash
+   0 0 1 * * /path/to/retrain_models_with_feedback.sh
+   ```
+
+Xem thêm chi tiết trong [README_FEEDBACK_SYSTEM.md](README_FEEDBACK_SYSTEM.md) và [README_PRODUCTION.md](README_PRODUCTION.md).
+
+## 9. Tham khảo
 
 - Boehm, B., et al. (2000). Software Cost Estimation with COCOMO II. Prentice Hall.
 - Attarzadeh, I., & Ow, S. H. (2011). Improving estimation accuracy of the COCOMO II using an adaptive fuzzy logic model. IEEE International Conference on Fuzzy Systems.
