@@ -17,6 +17,52 @@ The system consists of two main components:
    - React components
    - API integration with the AI service
 
+## Prerequisites
+- Python 3.8+
+- Node.js 14++
+- npm or yarn
+- Virtual environment for Python
+- Required Python packages (listed in `requirements.txt`)
+- Required Node.js packages (listed in `package.json`)
+- A database for storing feedback (e.g., SQLite, PostgreSQL)
+- A web server (e.g., Nginx) for serving the frontend in production
+## Setup Instructions
+### 1. Clone the Repositories
+
+```bash
+git clone
+git clone
+
+cd AI-Project
+```
+cd AI-Prediction-Platform
+```
+### 2. Set Up the Python Environment
+
+```bash
+cd AI-Project
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+pip install -r requirements.txt
+```
+### 3. Set Up the Node.js Environment
+
+```bash
+cd ../AI-Prediction-Platform
+npm install
+# or
+yarn install
+```
+### 4. Configure Environment Variables
+Create a `.env.local` file in the `AI-Prediction-Platform` directory with the following content:
+
+```
+AI_SERVICE_URL=http://localhost:8001
+```
+### 5. Database Setup
+Ensure your database is set up and accessible. Update the database connection settings in the AI service configuration if necessary.
+
+
 ## Starting the System
 
 ### 1. Start the AI Service
