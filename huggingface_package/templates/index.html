@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Effort Estimation Service</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="bg-white shadow rounded-lg p-6 mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">AI Effort Estimation Service</h1>
+            <p class="text-gray-600 mt-2">Accurate software development effort estimation using machine learning</p>
+        </header>
+
+        <div class="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Try It Out</h2>
+            <div class="mb-4">
+                <label for="requirement" class="block text-gray-700 font-medium mb-2">Enter your requirement:</label>
+                <textarea id="requirement" rows="5" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+            <button id="estimate-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Get Estimation
+            </button>
+            <div id="results" class="mt-4 hidden">
+                <h3 class="font-semibold text-lg">Estimation Results:</h3>
+                <div id="results-content" class="mt-2 p-4 bg-gray-100 rounded-lg"></div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">System Statistics</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-medium text-gray-700">Total Feedback</h3>
+                    <p class="text-2xl font-bold">{{ stats.total_feedback if stats else 0 }}</p>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-medium text-gray-700">Average Error</h3>
+                    <p class="text-2xl font-bold">{{ "%.1f"|format(stats.avg_estimation_error|float) + "%" if stats and stats.avg_estimation_error else "N/A" }}</p>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h3 class="font-medium text-gray-700">Last Feedback</h3>
+                    <p class="text-md">{{ stats.last_feedback if stats and stats.last_feedback else "No data" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Available Tools</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="/requirement-analyzer" class="bg-blue-100 hover:bg-blue-200 p-6 rounded-lg transition duration-300">
+                    <h3 class="font-semibold text-xl mb-2">Requirement Analyzer</h3>
+                    <p class="text-gray-700">Analyze software requirements and estimate development effort based on detailed text analysis.</p>
+                    <button class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg">
+                        Open Tool
+                    </button>
+                </a>
+                <a href="/feedback" class="bg-green-100 hover:bg-green-200 p-6 rounded-lg transition duration-300">
+                    <h3 class="font-semibold text-xl mb-2">Feedback & Model Improvement</h3>
+                    <p class="text-gray-700">View feedback statistics and see how the models improve over time with user data.</p>
+                    <button class="mt-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg">
+                        View Statistics
+                    </button>
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-4">API Documentation</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="text-xl font-medium">Effort Estimation</h3>
+                    <p class="text-gray-600">POST /api/estimate</p>
+                    <pre class="bg-gray-100 p-4 rounded-lg mt-2 overflow-x-auto">
+{
+  "requirement_text": "Your requirement description here"
+}
+                    </pre>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-medium">Submit Feedback</h3>
+                    <p class="text-gray-600">POST /api/feedback</p>
+                    <pre class="bg-gray-100 p-4 rounded-lg mt-2 overflow-x-auto">
+{
+  "project_id": "project123",
+  "task_id": "task456",
+  "requirement_text": "Requirement text here",
+  "estimated_effort": 2.5,
+  "actual_effort": 3.0,
+  "effort_unit": "PERSON_MONTH"
+}
+                    </pre>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-medium">Get Feedback Statistics</h3>
+                    <p class="text-gray-600">GET /api/feedback/stats</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('estimate-btn').addEventListener('click', async () => {
+            const requirementText = document.getElementById('requirement').value;
+            if (!requirementText.trim()) {
+                alert('Please enter a requirement text');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/estimate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ requirement_text: requirementText })
+                });
+
+                const data = await response.json();
+                const resultsDiv = document.getElementById('results');
+                const resultsContent = document.getElementById('results-content');
+                
+                if (data.success) {
+                    resultsDiv.classList.remove('hidden');
+                    
+                    let html = '<ul class="space-y-2">';
+                    for (const model in data.predictions) {
+                        html += `<li>
+                            <span class="font-medium">${model}:</span> 
+                            <span>${data.predictions[model].effort.toFixed(2)} ${data.predictions[model].unit}</span>
+                        </li>`;
+                    }
+                    html += '</ul>';
+                    
+                    resultsContent.innerHTML = html;
+                } else {
+                    resultsDiv.classList.remove('hidden');
+                    resultsContent.innerHTML = `<p class="text-red-600">Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while getting estimation.');
+            }
+        });
+    </script>
+</body>
+</html>
