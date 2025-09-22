@@ -17,7 +17,7 @@ sys.path.append(str(parent_dir))
 
 # Import from relative modules
 from estimation_models import COCOMOII, FunctionPoints, UseCasePoints, PlanningPoker
-from multi_model_integration import MultiModelIntegration
+from src.models.multi_model import MultiModelIntegration
 from agile_cocomo import AgileCOCOMO
 
 def format_result(result, title=None):

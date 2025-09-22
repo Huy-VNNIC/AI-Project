@@ -15,15 +15,15 @@ if project_dir not in sys.path:
     sys.path.append(project_dir)
 
 # Import project modules
-from feedback_api import register_feedback_api
-from feedback_collector import get_feedback_statistics
-import cocomo_ii_predictor
-import feedback_feature_extractor
+from src.feedback.feedback_api import register_feedback_api
+from src.feedback.feedback_collector import get_feedback_statistics
+import src.models.cocomo.cocomo_ii_predictor
+import src.feedback.feedback_feature_extractor
 
 # Import requirement analyzer modules
-from requirement_analyzer.analyzer import RequirementAnalyzer
-from requirement_analyzer.estimator import EffortEstimator
-from requirement_analyzer.api import app as req_analyzer_app
+from src.analyzer.analyzer import RequirementAnalyzer
+from src.analyzer.estimator import EffortEstimator
+from src.analyzer.api import app as req_analyzer_app
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,

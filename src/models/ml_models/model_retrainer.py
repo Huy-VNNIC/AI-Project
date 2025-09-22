@@ -17,7 +17,7 @@ from sklearn.linear_model import Ridge
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from feedback_collector import load_existing_feedback
+from src.feedback.feedback_collector import load_existing_feedback
 import preprocess_new_data as preprocessor
 
 # Configure logging

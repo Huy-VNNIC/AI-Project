@@ -33,11 +33,11 @@ logger = logging.getLogger('effort_estimation_service')
 
 # Import required modules
 try:
-    from requirement_analyzer.ml_requirement_analyzer import MLRequirementAnalyzer
-    from feedback_api import register_feedback_api
-    import feedback_collector
-    import model_retrainer
-    from cocomo_ii_predictor import CocomoIIPredictor
+    from src.analyzer.ml_requirement_analyzer import MLRequirementAnalyzer
+    from src.feedback.feedback_api import register_feedback_api
+    import src.feedback.feedback_collector
+    import src.models.ml_models.model_retrainer
+    from src.models.cocomo.cocomo_ii_predictor import CocomoIIPredictor
     logger.info("Successfully imported all required modules")
 except Exception as e:
     logger.critical(f"Error importing required modules: {e}")

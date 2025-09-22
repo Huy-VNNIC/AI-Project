@@ -17,9 +17,9 @@ project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if project_dir not in sys.path:
     sys.path.append(project_dir)
 
-from feedback_collector import add_feedback, get_feedback_statistics
-import feedback_feature_extractor as feature_extractor
-import model_retrainer
+from src.feedback.feedback_collector import add_feedback, get_feedback_statistics
+import src.feedback.feedback_feature_extractor as feature_extractor
+import src.models.ml_models.model_retrainer
 
 # Configure logging
 logging.basicConfig(

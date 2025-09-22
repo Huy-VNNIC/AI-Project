@@ -10,8 +10,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.absolute()
 sys.path.append(str(PROJECT_ROOT))
 
-from requirement_analyzer.analyzer import RequirementAnalyzer
-from requirement_analyzer.estimator import EffortEstimator
+from src.analyzer.analyzer import RequirementAnalyzer
+from src.analyzer.estimator import EffortEstimator
 
 def test_minimal_input():
     """Test with very minimal input"""

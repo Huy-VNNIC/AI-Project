@@ -17,8 +17,8 @@ sys.path.append(str(PROJECT_ROOT))
 
 # Import các module cần thiết
 try:
-    from multi_model_integration.estimation_models import COCOMOII, FunctionPoints, UseCasePoints
-    from multi_model_integration.multi_model_integration import MultiModelIntegration
+    from src.models.multi_model.estimation_models import COCOMOII, FunctionPoints, UseCasePoints
+    from src.models.multi_model.multi_model_integration import MultiModelIntegration
 except ImportError:
     print("Warning: multi_model_integration module not found. Some features may not be available.")
 

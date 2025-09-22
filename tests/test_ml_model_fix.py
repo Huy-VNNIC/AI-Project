@@ -10,8 +10,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.absolute()
 sys.path.append(str(PROJECT_ROOT))
 
-from requirement_analyzer.estimator import EffortEstimator
-from requirement_analyzer.analyzer import RequirementAnalyzer
+from src.analyzer.estimator import EffortEstimator
+from src.analyzer.analyzer import RequirementAnalyzer
 
 def test_model_prediction():
     """Test direct prediction with the ML models"""

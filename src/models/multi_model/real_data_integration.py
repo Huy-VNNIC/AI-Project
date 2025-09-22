@@ -18,7 +18,7 @@ try:
 except ImportError:
     # Khi chạy trực tiếp
     from estimation_models import COCOMOII, FunctionPoints, UseCasePoints, PlanningPoker
-    from multi_model_integration import MultiModelIntegration
+    from src.models.multi_model import MultiModelIntegration
     from agile_cocomo import AgileCOCOMO
 
 # Đường dẫn tới các bộ dữ liệu

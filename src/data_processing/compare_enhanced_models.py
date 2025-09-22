@@ -25,7 +25,7 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error, m
 from demo import cocomo_ii_basic_estimate
 
 # Import module API cho mô hình ML
-from cocomo_ii_api import CocomoIIAPI
+from src.models.cocomo.cocomo_ii_api import CocomoIIAPI
 
 # Thiết lập trực quan hóa
 plt.style.use('seaborn-v0_8-whitegrid')

@@ -22,9 +22,9 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.append(str(PROJECT_ROOT))
 
 # Import các module cần thiết
-from requirement_analyzer.analyzer import RequirementAnalyzer
-from requirement_analyzer.estimator import EffortEstimator
-from requirement_analyzer.task_integration import get_integration
+from src.analyzer.analyzer import RequirementAnalyzer
+from src.analyzer.estimator import EffortEstimator
+from src.analyzer.task_integration import get_integration
 
 # Model cho request API
 class RequirementText(BaseModel):

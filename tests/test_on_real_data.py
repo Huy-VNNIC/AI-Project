@@ -8,7 +8,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from cocomo_ii_api import CocomoIIAPI
+from src.models.cocomo.cocomo_ii_api import CocomoIIAPI
 
 def test_on_real_data():
     # Khởi tạo API

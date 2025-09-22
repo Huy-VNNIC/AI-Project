@@ -3,7 +3,7 @@
 Test script cho COCOMO II API
 """
 
-from cocomo_ii_api import CocomoIIAPI
+from src.models.cocomo.cocomo_ii_api import CocomoIIAPI
 
 def test_api():
     # Khởi tạo API

@@ -9,9 +9,9 @@ import sys
 from pathlib import Path
 
 # Import modules to test
-from multi_model_integration.estimation_models import COCOMOII, FunctionPoints, UseCasePoints, PlanningPoker
-from multi_model_integration.multi_model_integration import MultiModelIntegration
-from multi_model_integration.agile_cocomo import AgileCOCOMO
+from src.models.multi_model.estimation_models import COCOMOII, FunctionPoints, UseCasePoints, PlanningPoker
+from src.models.multi_model.multi_model_integration import MultiModelIntegration
+from src.models.multi_model.agile_cocomo import AgileCOCOMO
 
 class TestMultiModelIntegration(unittest.TestCase):
     """Test cases for Multi-Model Integration"""

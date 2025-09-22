@@ -23,11 +23,11 @@ logging.basicConfig(
 logger = logging.getLogger('api_server')
 
 try:
-    from requirement_analyzer.ml_requirement_analyzer import MLRequirementAnalyzer
+    from src.analyzer.ml_requirement_analyzer import MLRequirementAnalyzer
     print("Successfully imported MLRequirementAnalyzer")
     
     # Import feedback related modules
-    from feedback_api import register_feedback_api
+    from src.feedback.feedback_api import register_feedback_api
     print("Successfully imported feedback modules")
 except Exception as e:
     print(f"Error importing required modules: {e}")
@@ -166,7 +166,7 @@ def suggest_team():
 def feedback_overview():
     """Provide an overview of collected feedback and model improvements"""
     try:
-        from feedback_collector import get_feedback_statistics
+        from src.feedback.feedback_collector import get_feedback_statistics
         
         stats = get_feedback_statistics()
         
