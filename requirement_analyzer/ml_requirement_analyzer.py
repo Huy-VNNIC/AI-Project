@@ -1034,6 +1034,14 @@ class MLRequirementAnalyzer:
         # Extract requirements
         requirements = self.extract_requirements(text)
         
+        # Create LOC model parameters based on cocomo_params
+        loc_params = {
+            'kloc': cocomo_params['size'],
+            'complexity': cocomo_params['complexity'],
+            'tech_score': 1.0 + (0.1 * len(features.get('technologies', []))/10),
+            'experience': 1.0
+        }
+        
         # Comprehensive analysis results
         analysis = {
             'requirements': requirements,
@@ -1054,7 +1062,9 @@ class MLRequirementAnalyzer:
             'effort_estimation_parameters': {
                 'cocomo': cocomo_params,
                 'function_points': fp_params,
-                'use_case_points': ucp_params
+                'use_case_points': ucp_params,
+                'loc_linear': loc_params.copy(),
+                'loc_random_forest': loc_params.copy()
             },
             'ml_features': ml_features
         }

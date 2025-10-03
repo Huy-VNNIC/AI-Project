@@ -291,6 +291,150 @@ class RequirementAnalyzer:
         
         return best_type
     
+    def extract_loc_parameters(self, text):
+        """
+        Trích xuất các tham số liên quan đến LOC từ văn bản
+        
+        Args:
+            text (str): Văn bản cần phân tích
+            
+        Returns:
+            dict: Các tham số LOC được trích xuất
+        """
+        params = {}
+        text_lower = text.lower()
+        
+        # Tìm giá trị KLOC/LOC
+        loc_found = False
+        for pattern in self.size_patterns:
+            matches = re.findall(pattern, text_lower)
+            if matches:
+                loc_found = True
+                for match in matches:
+                    if isinstance(match, tuple):
+                        size = match[0]
+                        unit = match[1] if len(match) > 1 else ""
+                    else:
+                        size = match
+                        unit = ""
+                        
+                    try:
+                        size_value = float(size)
+                        # Chuyển đổi đơn vị
+                        if "k" in unit or "thousand" in text_lower:
+                            params['kloc'] = size_value
+                        else:
+                            params['loc'] = size_value * 1000 if size_value < 100 else size_value
+                            params['kloc'] = params['loc'] / 1000
+                    except:
+                        continue
+                        
+                break  # Dừng sau khi tìm thấy giá trị đầu tiên
+        
+        # Nếu không tìm thấy LOC rõ ràng, ước lượng từ mô tả dự án
+        if not loc_found:
+            # Ước lượng dựa trên độ dài văn bản và số lượng yêu cầu
+            requirements = self.extract_requirements(text)
+            req_count = len(requirements)
+            
+            # Dự án nhỏ (1-5 kloc), trung bình (5-15 kloc), lớn (15+ kloc)
+            if req_count < 5:
+                params['kloc'] = 3.0  # Dự án nhỏ
+            elif req_count < 15:
+                params['kloc'] = 8.0  # Dự án trung bình
+            else:
+                params['kloc'] = 15.0 + (req_count - 15) * 0.5  # Dự án lớn
+            
+            # Điều chỉnh dựa trên phát hiện công nghệ và độ phức tạp
+            tech_count = 0
+            for tech in self.technologies:
+                if tech.lower() in text_lower:
+                    tech_count += 1
+                    
+            if tech_count > 5:
+                params['kloc'] *= 1.2  # Nhiều công nghệ = dự án phức tạp hơn
+        
+        # Tìm mức độ phức tạp
+        complexity = 1.0  # Mặc định: trung bình
+        for pattern in self.complexity_patterns:
+            matches = re.findall(pattern, text_lower)
+            if matches:
+                for match in matches:
+                    if isinstance(match, tuple):
+                        comp_level = match[0].lower()
+                    else:
+                        comp_level = match.lower()
+                    
+                    if any(term in comp_level for term in ['high', 'complex', 'difficult', 'challenging']):
+                        complexity = 1.5  # Cao
+                    elif any(term in comp_level for term in ['low', 'simple', 'easy', 'straightforward']):
+                        complexity = 0.8  # Thấp
+                        
+                break
+                
+        params['complexity'] = complexity
+        
+        # Tìm số lượng developers
+        for pattern in self.resource_patterns:
+            matches = re.findall(pattern, text_lower)
+            if matches:
+                for match in matches:
+                    try:
+                        if isinstance(match, tuple):
+                            dev_count = int(match[0])
+                        else:
+                            dev_count = int(match)
+                        params['developers'] = dev_count
+                    except:
+                        continue
+                break
+        
+        # Nếu không có thông tin về developers, ước lượng từ KLOC
+        if 'developers' not in params and 'kloc' in params:
+            kloc = params['kloc']
+            if kloc < 5:
+                params['developers'] = 3
+            elif kloc < 10:
+                params['developers'] = 5
+            else:
+                params['developers'] = 8 + int(kloc / 10)
+        
+        # Phát hiện kinh nghiệm đội ngũ
+        experience_terms = {
+            'high': ['experienced', 'expert', 'senior', 'proficient', 'skilled', 'veteran', 'kinh nghiệm cao'],
+            'low': ['junior', 'new', 'inexperienced', 'learning', 'trainee', 'beginner', 'intern', 'mới', 'ít kinh nghiệm']
+        }
+        
+        experience = 1.0  # Mặc định: trung bình
+        for level, terms in experience_terms.items():
+            if any(term in text_lower for term in terms):
+                if level == 'high':
+                    experience = 1.3
+                else:
+                    experience = 0.7
+                break
+                
+        params['experience'] = experience
+        
+        # Phát hiện điểm số công nghệ
+        tech_score = 1.0  # Mặc định: trung bình
+        tech_mentions = 0
+        modern_techs = ['cloud', 'microservices', 'container', 'serverless', 'devops', 'ci/cd', 'machine learning',
+                      'artificial intelligence', 'blockchain', 'iot', 'big data']
+                      
+        for tech in modern_techs:
+            if tech in text_lower:
+                tech_mentions += 1
+                
+        if tech_mentions >= 3:
+            tech_score = 1.3  # Cao
+        elif tech_mentions == 0:
+            tech_score = 0.8  # Thấp
+            
+        params['tech_score'] = tech_score
+        
+        return params
+    
     def extract_features(self, text):
         """
         Trích xuất các đặc trưng từ văn bản để sử dụng cho mô hình ước lượng
@@ -562,6 +706,110 @@ class RequirementAnalyzer:
         
         return ucp_params
 
+    def extract_loc_parameters(self, text):
+        """
+        Trích xuất tham số cho mô hình Lines of Code (LOC)
+        
+        Args:
+            text (str): Văn bản yêu cầu
+            
+        Returns:
+            dict: Tham số cho mô hình LOC
+        """
+        # Trích xuất kích thước LOC từ văn bản
+        loc = self._extract_numeric_feature(text, self.size_patterns, default=None)
+        
+        # Nếu không tìm thấy số LOC trực tiếp, ước tính từ các thông tin khác
+        if loc is None:
+            # Đếm số lượng yêu cầu chức năng và phi chức năng
+            features = self.extract_features(text)
+            functional_reqs = features.get('functional_reqs', 0)
+            non_functional_reqs = features.get('non_functional_reqs', 0)
+            
+            # Mức độ phức tạp ảnh hưởng đến số dòng mã trên mỗi yêu cầu
+            complexity = features.get('complexity', 1.0)
+            
+            # Ước tính cơ bản: Mỗi yêu cầu chức năng = ~500 LOC, phi chức năng = ~200 LOC
+            # Điều chỉnh theo độ phức tạp
+            loc_estimate = (functional_reqs * 500 * complexity) + (non_functional_reqs * 200)
+            
+            # Chuyển LOC sang KLOC
+            loc = loc_estimate / 1000
+        else:
+            # Chuyển LOC sang KLOC nếu đã tìm thấy
+            # Kiểm tra nếu giá trị đã là KLOC hay không
+            if loc < 1000:  # Nếu giá trị nhỏ, giả định là KLOC
+                pass
+            else:  # Nếu lớn, chuyển LOC sang KLOC
+                loc = loc / 1000
+        
+        # Đảm bảo giá trị hợp lý
+        loc = max(0.1, min(loc, 10000.0))
+        
+        # Trích xuất các thông số bổ sung cho mô hình LOC
+        
+        # Số lượng lập trình viên (developers)
+        developers = self._extract_numeric_feature(text, 
+            [r'(\d+)\s*developers', r'team\s*size\s*:\s*(\d+)', r'(\d+)\s*team\s*members',
+             r'team\s*of\s*(\d+)', r'(\d+)\s*programmers', r'(\d+)\s*engineers',
+             r'(\d+)\s*person\s*team'], 
+            default=3)
+        
+        # Trích xuất độ phức tạp
+        features = self.extract_features(text)
+        complexity = features.get('complexity', 1.0)
+        
+        # Trích xuất mức độ kinh nghiệm của đội
+        experience_patterns = [
+            r'(high|medium|low)\s*experience',
+            r'experience\s*level\s*:\s*(high|medium|low)',
+            r'(experienced|intermediate|inexperienced)\s*team',
+            r'team\s*with\s*(high|medium|low)\s*experience',
+            r'(senior|mid-level|junior)\s*developers'
+        ]
+        
+        experience_text = self._extract_text_feature(text, experience_patterns, default='medium')
+        
+        # Chuyển đổi văn bản thành giá trị số
+        if experience_text in ['high', 'experienced', 'senior']:
+            experience = 1.2
+        elif experience_text in ['medium', 'intermediate', 'mid-level']:
+            experience = 1.0
+        else:  # low, inexperienced, junior
+            experience = 0.8
+        
+        # Tính toán điểm số ngôn ngữ và công nghệ
+        tech_score = 1.0
+        
+        # Kiểm tra các từ khóa công nghệ phức tạp
+        complex_tech = ['machine learning', 'ai', 'blockchain', 'microservices', 
+                      'distributed', 'real-time', 'high-performance', 'cloud native']
+        
+        for tech in complex_tech:
+            if tech in text.lower():
+                tech_score *= 1.15  # Tăng 15% cho mỗi công nghệ phức tạp
+        
+        # Giới hạn giá trị hợp lý
+        tech_score = min(tech_score, 2.0)
+        
+        # Cập nhật độ phức tạp với công nghệ
+        complexity = complexity * tech_score
+        
+        # Điều chỉnh kinh nghiệm dựa trên văn bản
+        if 'extensive experience' in text.lower() or 'many years experience' in text.lower():
+            experience *= 1.2
+        elif 'little experience' in text.lower() or 'new technology' in text.lower():
+            experience *= 0.8
+            
+        return {
+            'kloc': loc,  # Nghìn dòng mã
+            'loc': loc * 1000,  # Dòng mã
+            'complexity': complexity,  # Độ phức tạp
+            'developers': developers,  # Số lượng lập trình viên
+            'experience': experience,  # Kinh nghiệm đội ngũ
+            'tech_score': tech_score  # Điểm công nghệ
+        }
+    
     def extract_machine_learning_features(self, text):
         """
         Trích xuất các đặc trưng cho mô hình máy học từ văn bản yêu cầu
@@ -1014,26 +1262,170 @@ class RequirementAnalyzer:
         # Kết hợp số thực thể, với mức tối thiểu là 3
         return max(3, len(filtered_entities))
         
+    def extract_parameters(self, text):
+        """
+        Trích xuất các tham số từ văn bản yêu cầu để sử dụng cho việc ước lượng nỗ lực
+        
+        Args:
+            text (str): Văn bản yêu cầu
+            
+        Returns:
+            dict: Các tham số đã trích xuất cho việc ước lượng
+        """
+        # Phân tích toàn bộ tài liệu yêu cầu
+        params = self.analyze_requirements_document(text)
+        
+        # Trích xuất thêm thông tin về mức độ phức tạp
+        doc = nlp(text)
+        complexity_words = ['complex', 'complicated', 'difficult', 'advanced', 'sophisticated',
+                          'phức tạp', 'khó', 'cao cấp', 'tiên tiến', 'phức hợp']
+                          
+        complexity_level = 1.0  # Mặc định: Trung bình
+        for word in complexity_words:
+            if word in text.lower():
+                complexity_level = 1.5  # Cao
+                break
+                
+        simplicity_words = ['simple', 'easy', 'straightforward', 'basic', 'fundamental',
+                          'đơn giản', 'cơ bản', 'dễ dàng', 'đơn giản']
+                          
+        for word in simplicity_words:
+            if word in text.lower():
+                complexity_level = 0.8  # Thấp
+                break
+                
+        # Trích xuất thông tin về độ tin cậy cần thiết
+        reliability_words = ['reliable', 'robust', 'stable', 'secure', 'safe', 'critical',
+                          'đáng tin cậy', 'ổn định', 'an toàn', 'bảo mật', 'quan trọng']
+                          
+        reliability = 1.0  # Mặc định: Trung bình
+        for word in reliability_words:
+            if word in text.lower():
+                reliability = 1.2  # Cao
+                break
+                
+        # Cập nhật các tham số
+        params['complexity'] = complexity_level
+        params['reliability'] = reliability
+        
+        # Trích xuất các tham số LOC nếu chưa có
+        if 'loc_linear' not in params or 'loc_random_forest' not in params:
+            loc_params = self.extract_loc_parameters(text)
+            params['loc_linear'] = loc_params
+            params['loc_random_forest'] = loc_params
+            
+        return params
+    
     def analyze_requirements_document(self, text):
         """
         Phân tích toàn bộ tài liệu yêu cầu và trích xuất tất cả thông tin cần thiết
         """
-        # Trích xuất các tham số cho từng mô hình
-        cocomo_params = self.extract_cocomo_parameters(text)
-        fp_params = self.extract_function_points_parameters(text)
-        ucp_params = self.extract_use_case_points_parameters(text)
-        
-        # Trích xuất đặc trưng cho mô hình máy học
-        ml_features = self.extract_machine_learning_features(text)
-        
-        # Tạo dictionary chứa tất cả thông tin
-        all_params = {
-            'cocomo': cocomo_params,
-            'function_points': fp_params,
-            'use_case_points': ucp_params,
-            'ml_features': ml_features,
-            'requirements': self.extract_requirements(text),
-            'features': self.extract_features(text)
-        }
-        
-        return all_params
+        try:
+            # Đảm bảo văn bản hợp lệ
+            if text is None:
+                text = "Empty requirement document"
+            elif not isinstance(text, str):
+                text = str(text)
+            
+            # Đảm bảo độ dài tối thiểu để xử lý
+            if len(text.strip()) < 10:
+                text = text + "\nDefault software project with standard requirements."
+            
+            # Trích xuất các tham số cho từng mô hình
+            try:
+                cocomo_params = self.extract_cocomo_parameters(text)
+            except Exception as e:
+                print(f"Error extracting COCOMO parameters: {e}")
+                cocomo_params = {'size': 5.0, 'eaf': 1.0}
+            
+            try:
+                fp_params = self.extract_function_points_parameters(text)
+            except Exception as e:
+                print(f"Error extracting Function Points parameters: {e}")
+                fp_params = {
+                    'external_inputs': 3, 'external_outputs': 2,
+                    'external_inquiries': 2, 'internal_files': 1,
+                    'external_files': 1, 'complexity_multiplier': 1.0
+                }
+            
+            try:
+                ucp_params = self.extract_use_case_points_parameters(text)
+            except Exception as e:
+                print(f"Error extracting Use Case Points parameters: {e}")
+                ucp_params = {
+                    'simple_actors': 2, 'average_actors': 1, 'complex_actors': 1,
+                    'simple_uc': 3, 'average_uc': 2, 'complex_uc': 1,
+                    'complexity_factor': 1.0
+                }
+            
+            # Trích xuất đặc trưng cho mô hình máy học
+            try:
+                ml_features = self.extract_machine_learning_features(text)
+            except Exception as e:
+                print(f"Error extracting ML features: {e}")
+                ml_features = {}
+            
+            # Trích xuất yêu cầu
+            try:
+                requirements = self.extract_requirements(text)
+            except Exception as e:
+                print(f"Error extracting requirements: {e}")
+                requirements = []
+            
+            # Trích xuất đặc trưng
+            try:
+                features = self.extract_features(text)
+            except Exception as e:
+                print(f"Error extracting features: {e}")
+                features = {
+                    'complexity': 1.0, 'developers': 3,
+                    'functional_reqs': 5, 'non_functional_reqs': 3,
+                    'num_requirements': 8
+                }
+                
+            # Trích xuất tham số LOC
+            try:
+                loc_params = self.extract_loc_parameters(text)
+            except Exception as e:
+                print(f"Error extracting LOC parameters: {e}")
+                loc_params = {'kloc': 5.0}
+            
+            # Tạo dictionary chứa tất cả thông tin
+            all_params = {
+                'cocomo': cocomo_params,
+                'function_points': fp_params,
+                'use_case_points': ucp_params,
+                'loc_linear': loc_params,
+                'loc_random_forest': loc_params,
+                'ml_features': ml_features,
+                'requirements': requirements,
+                'features': features
+            }
+            
+            return all_params
+            
+        except Exception as e:
+            print(f"Error in analyze_requirements_document: {e}")
+            # Trả về cấu trúc dữ liệu mặc định để đảm bảo API không bị lỗi
+            return {
+                'cocomo': {'size': 5.0, 'eaf': 1.0},
+                'loc_linear': {'kloc': 5.0},
+                'loc_random_forest': {'kloc': 5.0},
+                'function_points': {
+                    'external_inputs': 3, 'external_outputs': 2,
+                    'external_inquiries': 2, 'internal_files': 1,
+                    'external_files': 1, 'complexity_multiplier': 1.0
+                },
+                'use_case_points': {
+                    'simple_actors': 2, 'average_actors': 1, 'complex_actors': 1,
+                    'simple_uc': 3, 'average_uc': 2, 'complex_uc': 1,
+                    'complexity_factor': 1.0
+                },
+                'ml_features': {},
+                'requirements': [],
+                'features': {
+                    'complexity': 1.0, 'developers': 3,
+                    'functional_reqs': 5, 'non_functional_reqs': 3,
+                    'num_requirements': 8
+                }
+            }

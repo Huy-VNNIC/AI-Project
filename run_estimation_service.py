@@ -10,7 +10,7 @@ import logging
 import argparse
 import json
 from datetime import datetime
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, render_template
 from flask_cors import CORS
 import werkzeug.serving
 from waitress import serve
@@ -44,7 +44,9 @@ except Exception as e:
     sys.exit(1)
 
 # Create Flask application
-app = Flask(__name__)
+app = Flask(__name__, 
+           static_folder='static',
+           template_folder='templates')
 CORS(app)
 
 # Initialize analyzers and predictors
@@ -55,6 +57,11 @@ logger.info("Initialized requirement analyzer and effort predictor")
 # Register feedback API routes from the dedicated module
 register_feedback_api(app)
 logger.info("Registered feedback API routes")
+
+# Home page
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 # Health check endpoint
 @app.route('/api/health', methods=['GET'])
@@ -131,7 +138,7 @@ def analyze_requirements():
 @app.route('/api/estimate', methods=['POST'])
 def estimate_effort():
     """
-    Estimate effort based on requirements text using ML models
+    Estimate effort based on requirements text using multiple integrated models
     
     Expected payload:
     {
@@ -151,40 +158,106 @@ def estimate_effort():
             return jsonify({"error": "Missing requirements text"}), 400
         
         requirements_text = data['requirements']
-        model_type = data.get('model_type', 'retrained') # Options: original, retrained, cocomo
+        method = data.get('method', 'weighted_average') # Options: weighted_average, ml_priority, traditional_priority
         
-        # Analyze requirements
+        # Phân tích yêu cầu
+        logger.info(f"Analyzing requirements document")
         analysis = analyzer.analyze_requirements_document(requirements_text)
-        features = analysis['ml_features']
         
-        # Get estimates from appropriate model
-        if model_type == 'cocomo':
-            # Use COCOMO II model for estimation
-            estimate = cocomo_predictor.estimate_effort(features)
-            model_used = 'cocomo_ii'
-        else:
-            # Use ML model for estimation (original or retrained)
-            estimate = get_ml_estimation(features, use_retrained=(model_type == 'retrained'))
-            model_used = f"ml_{model_type}"
+        try:
+            # Import và sử dụng EffortEstimator để có được các ước lượng từ tất cả các mô hình
+            from requirement_analyzer.estimator import EffortEstimator
+            estimator = EffortEstimator()
+            
+            # Ước lượng nỗ lực tích hợp từ tất cả các mô hình
+            logger.info(f"Estimating effort using integrated models with method: {method}")
+            # Sử dụng integrated_estimate thay vì _integrated_estimate
+            estimation = estimator.integrated_estimate(analysis, {'method': method})
+            
+            # Log kết quả các mô hình
+            logger.info(f"Models used: {list(estimation.get('model_estimates', {}).keys())}")
+        except Exception as est_error:
+            logger.error(f"Error using integrated models, falling back to single models: {est_error}")
+            # Fallback to original models
+            features = analysis['ml_features']
+            model_type = data.get('model_type', 'retrained')
+            
+            # Get estimates from appropriate model
+            if model_type == 'cocomo':
+                # Use COCOMO II model for estimation
+                estimate = cocomo_predictor.estimate_effort(features)
+                model_used = 'cocomo_ii'
+            else:
+                # Use ML model for estimation (original or retrained)
+                estimate = get_ml_estimation(features, use_retrained=(model_type == 'retrained'))
+                model_used = f"ml_{model_type}"
+                
+            # Create fallback response with the old format of flattened properties
+            effort_value = estimate['effort_months']
+            model_key = model_used
+            
+            fallback_response = {
+                "estimation": {
+                    "total_effort": round(effort_value, 2),
+                    "duration": round(effort_value / 3, 1),
+                    "team_size": round(effort_value / 10, 1),
+                    "confidence_level": "Low",
+                    "model_estimates": {
+                        model_key: round(float(effort_value), 2),
+                        f"{model_key}_name": "Fallback Model",
+                        f"{model_key}_confidence": 60,
+                        f"{model_key}_type": "Fallback",
+                        f"{model_key}_description": "Fallback model due to integration error"
+                    }
+                },
+                "analysis": {
+                    "requirements": features.get('requirements', []),
+                    "ml_features": features
+                }
+            }
+            
+            return jsonify(fallback_response), 200
         
         # Log success
-        logger.info(f"Successfully estimated effort using {model_used} model")
+        logger.info("Successfully estimated effort using integrated models")
         
-        # Create response with detailed information
+        # Kết quả từ integrated_estimate
+        total_effort = estimation.get('total_effort', 0)
+        confidence = estimation.get('confidence_level', 0)
+        model_estimates = estimation.get('model_estimates', {})
+        
+        # Create response with detailed information in the expected format
         return jsonify({
-            "requirements_count": features.get('num_requirements', 0),
-            "estimated_effort": {
-                "person_months": round(estimate['effort_months'], 2),
-                "person_days": round(estimate['effort_months'] * 22, 2),
-                "confidence": estimate.get('confidence', 0.8)
+            "estimation": {
+                "total_effort": round(total_effort, 2),
+                "duration": round(estimation.get('duration', total_effort / 4), 1),
+                "team_size": round(estimation.get('team_size', total_effort / 15), 1),
+                "confidence_level": confidence,
+                "model_estimates": model_estimates
             },
-            "complexity_factors": {
-                "technical_complexity": features.get('complexity', 0),
-                "size": features.get('size_kloc', 0),
-                "requirement_clarity": features.get('clarity', 0)
-            },
-            "model_used": model_used,
-            "timestamp": datetime.now().isoformat()
+            "analysis": {
+                "cocomo": analysis.get('effort_estimation_parameters', {}).get('cocomo', {}),
+                "function_points": analysis.get('effort_estimation_parameters', {}).get('function_points', {}),
+                "use_case_points": analysis.get('effort_estimation_parameters', {}).get('use_case_points', {}),
+                "ml_features": analysis.get('ml_features', {}),
+                "requirements": analysis.get('requirements', []),
+                "features": {
+                    "size": analysis.get('effort_estimation_parameters', {}).get('cocomo', {}).get('size', 0),
+                    "complexity": analysis.get('effort_estimation_parameters', {}).get('cocomo', {}).get('complexity', 0),
+                    "reliability": analysis.get('effort_estimation_parameters', {}).get('cocomo', {}).get('reliability', 0),
+                    "num_requirements": len(analysis.get('requirements', [])),
+                    "functional_reqs": sum(1 for req in analysis.get('requirements', []) if req.get('type') == 'functional'),
+                    "non_functional_reqs": sum(1 for req in analysis.get('requirements', []) if req.get('type') != 'functional'),
+                    "has_security_requirements": any(req.get('type') == 'security' for req in analysis.get('requirements', [])),
+                    "has_performance_requirements": any(req.get('type') == 'performance' for req in analysis.get('requirements', [])),
+                    "has_interface_requirements": any(req.get('type') == 'interface' for req in analysis.get('requirements', [])),
+                    "has_data_requirements": any(req.get('type') == 'data' for req in analysis.get('requirements', [])),
+                    "entities": analysis.get('ml_features', {}).get('entities', 0),
+                    "technologies": analysis.get('summary', {}).get('technologies_detected', []),
+                    "num_technologies": len(analysis.get('summary', {}).get('technologies_detected', [])),
+                    "text_complexity": analysis.get('ml_features', {}).get('complexity', 0)
+                }
+            }
         }), 200
         
     except Exception as e:

@@ -6,10 +6,10 @@ Mô hình tích hợp đa mô hình ước lượng nỗ lực phần mềm
 import numpy as np
 try:
     # When imported as a package
-    from .estimation_models import COCOMOII, FunctionPoints, UseCasePoints, PlanningPoker
+    from .estimation_models import COCOMOII, FunctionPoints, UseCasePoints
 except ImportError:
     # When run directly
-    from estimation_models import COCOMOII, FunctionPoints, UseCasePoints, PlanningPoker
+    from estimation_models import COCOMOII, FunctionPoints, UseCasePoints
 
 class MultiModelIntegration:
     """
@@ -26,8 +26,7 @@ class MultiModelIntegration:
         self.models = models or [
             COCOMOII(),
             FunctionPoints(),
-            UseCasePoints(),
-            PlanningPoker()
+            UseCasePoints()
         ]
         
         self.integration_methods = {

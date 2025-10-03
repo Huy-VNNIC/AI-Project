@@ -122,16 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <tbody>`;
                 
                 for (const [model, details] of traditionalModels) {
-                    // Skip metadata fields
-                    if (model.includes('_name') || model.includes('_confidence') || 
-                        model.includes('_type') || model.includes('_description')) {
-                        continue;
-                    }
-                    
-                    // Get the model name from metadata if available
-                    const modelNameFromMetadata = data.estimation.model_estimates[`${model}_name`];
-                    const modelName = modelNameFromMetadata || details.name || model;
-                    
+                    const modelName = details.name || model;
                     let effort = '-';
                     
                     // Xử lý dữ liệu đầu ra theo cách đơn giản
@@ -147,25 +138,17 @@ document.addEventListener('DOMContentLoaded', function () {
                         effort = details;
                     }
                     
-                    // Get the confidence from metadata if available
-                    const confidenceFromMetadata = data.estimation.model_estimates[`${model}_confidence`];
                     let confidence = '-';
-                    if (confidenceFromMetadata !== undefined) {
-                        confidence = `${confidenceFromMetadata}%`;
-                    } else if (details.confidence !== undefined) {
+                    if (details.confidence !== undefined) {
                         confidence = `${details.confidence}%`;
                     }
                     
-                    // Get the model type from metadata if available
-                    const typeFromMetadata = data.estimation.model_estimates[`${model}_type`];
-                    let modelType = typeFromMetadata || "Other";
-                    if (!typeFromMetadata) {
-                        if (model === 'fallback') modelType = "Estimate";
-                        else if (model.toLowerCase().includes('cocomo')) modelType = "COCOMO";
-                        else if (model.toLowerCase().includes('function_points')) modelType = "Function Points";
-                        else if (model.toLowerCase().includes('use_case')) modelType = "Use Case";
-                        else if (model.toLowerCase().includes('loc')) modelType = "LOC";
-                    }
+                    let modelType = "Other";
+                    if (model === 'fallback') modelType = "Estimate";
+                    else if (model.toLowerCase().includes('cocomo')) modelType = "COCOMO";
+                    else if (model.toLowerCase().includes('function_points')) modelType = "Function Points";
+                    else if (model.toLowerCase().includes('use_case')) modelType = "Use Case";
+                    else if (model.toLowerCase().includes('loc')) modelType = "LOC";
                     
                     modelHtml += `<tr>
                         <td><strong>${modelName}</strong></td>
@@ -195,26 +178,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     <tbody>`;
                 
                 for (const [model, details] of mlModels) {
-                    // Skip metadata fields
-                    if (model.includes('_name') || model.includes('_confidence') || 
-                        model.includes('_type') || model.includes('_description')) {
-                        continue;
-                    }
-                    
-                    // Get the model name from metadata if available
-                    const modelNameFromMetadata = data.estimation.model_estimates[`${model}_name`];
-                    const modelName = modelNameFromMetadata || details.name || model;
-                    
+                    const modelName = details.name || model;
                     const effort = details.effort || details;
-                    
-                    // Get the confidence from metadata if available
-                    const confidenceFromMetadata = data.estimation.model_estimates[`${model}_confidence`];
-                    let confidence = '-';
-                    if (confidenceFromMetadata !== undefined) {
-                        confidence = `${confidenceFromMetadata}%`;
-                    } else if (details.confidence) {
-                        confidence = `${(details.confidence * 100).toFixed(0)}%`;
-                    }
+                    const confidence = details.confidence ? `${(details.confidence * 100).toFixed(0)}%` : '-';
                     
                     modelHtml += `<tr>
                         <td><strong>${modelName}</strong></td>
@@ -231,22 +197,9 @@ document.addEventListener('DOMContentLoaded', function () {
             modelHtml += '<div class="model-type-header">Model Descriptions</div>';
             modelHtml += '<div class="small">';
             for (const [model, details] of sortedModels) {
-                // Skip metadata fields
-                if (model.includes('_name') || model.includes('_confidence') || 
-                    model.includes('_type') || model.includes('_description')) {
-                    continue;
-                }
-                
-                // Get description from metadata if available
-                const descriptionFromMetadata = data.estimation.model_estimates[`${model}_description`];
-                const description = descriptionFromMetadata || details.description;
-                
-                if (description) {
-                    const modelNameFromMetadata = data.estimation.model_estimates[`${model}_name`];
-                    const displayName = modelNameFromMetadata || details.name || model;
-                    
+                if (details.description) {
                     modelHtml += `<div class="model-description mb-2 p-2 border-start border-3" style="border-color: ${getModelColor(model)} !important;">
-                        <strong>${displayName}:</strong> ${description}
+                        <strong>${details.name || model}:</strong> ${details.description}
                     </div>`;
                 }
             }
@@ -341,6 +294,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error("Error submitting form:", err);
                 alert('An error occurred while submitting the form. Please try again.');
             }
+                }
+                return res.json();
+            })
+            .then(data => {
+                showResults(data);
+            })
+            .catch(error => {
+                console.error("Estimation failed:", error);
+                alert('Estimation failed: ' + error.message);
+            });
         });
     }
 
@@ -481,29 +444,13 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // Chuẩn hóa model_estimates để xử lý cả định dạng mới và cũ
             const normalizedModels = [];
-            const processedModelKeys = new Set(); // Theo dõi các mô hình đã xử lý
             
             // Chuyển đổi cấu trúc dữ liệu để dễ xử lý hơn
             Object.entries(data.estimation.model_estimates).forEach(([key, value]) => {
-                // Bỏ qua các thuộc tính metadata
-                if (key.includes('_name') || key.includes('_confidence') || 
-                    key.includes('_type') || key.includes('_description')) {
-                    return;
-                }
-                
-                processedModelKeys.add(key);
-                
                 // Tạo tên hiển thị thân thiện hơn
                 let displayName = key;
-                
-                // Lấy các metadata của mô hình nếu có
-                const modelName = data.estimation.model_estimates[`${key}_name`] || key;
-                const modelType = data.estimation.model_estimates[`${key}_type`] || '';
-                
                 if (key === 'fallback') {
                     displayName = 'Dự toán';  // Đổi thành tiếng Việt
-                } else if (modelName && typeof modelName === 'string') {
-                    displayName = modelName;
                 } else if (key.toLowerCase().includes('cocomo')) {
                     displayName = 'COCOMO II';
                 } else if (key.toLowerCase().includes('function_points')) {
