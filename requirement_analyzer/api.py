@@ -15,7 +15,13 @@ import sys
 import tempfile
 import pandas as pd
 import json
+import logging
 from pathlib import Path
+
+# Thiết lập logging
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("requirement_analyzer.api")
 
 # Thêm thư mục gốc vào sys.path để import các module khác
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -25,6 +31,7 @@ sys.path.append(str(PROJECT_ROOT))
 from requirement_analyzer.analyzer import RequirementAnalyzer
 from requirement_analyzer.estimator import EffortEstimator
 from requirement_analyzer.task_integration import get_integration
+from requirement_analyzer.utils import preprocess_text_for_estimation, improve_confidence_level
 
 # Model cho request API
 class RequirementText(BaseModel):
@@ -83,26 +90,84 @@ def estimate_effort(req: RequirementText):
     Ước lượng nỗ lực từ tài liệu yêu cầu
     """
     try:
+        # Tiền xử lý và làm sạch văn bản
+        text = preprocess_text_for_estimation(req.text)
+        
         # Phân tích và ước lượng
-        result = estimator.estimate_from_requirements(req.text, req.method)
+        result = estimator.estimate_from_requirements(text, req.method)
+        
+        # Cải thiện độ tin cậy dựa trên chất lượng và độ dài của yêu cầu
+        result = improve_confidence_level(result, text)
+        
         return JSONResponse(content=result)
     except Exception as e:
+        logger.error(f"Error estimating effort: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/upload-requirements")
 async def upload_requirements(file: UploadFile = File(...), method: str = Form("weighted_average")):
     """
     Tải lên tài liệu yêu cầu và ước lượng nỗ lực
+    
+    Supports formats:
+    - .txt, .md: Plain text files
+    - .pdf: PDF documents
+    - .doc, .docx: Microsoft Word documents
     """
     try:
+        # Import parser here to avoid circular imports
+        from requirement_analyzer.document_parser import DocumentParser
+        
+        # Kiểm tra định dạng file
+        filename = file.filename
+        allowed_extensions = ['.txt', '.doc', '.docx', '.pdf', '.md']
+        
+        file_ext = os.path.splitext(filename)[1].lower()
+        if file_ext not in allowed_extensions:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Unsupported file format. Please upload one of: {', '.join(allowed_extensions)}"
+            )
+            
         # Đọc file
         content = await file.read()
-        text = content.decode("utf-8")
+        
+        # Parse the document based on file type
+        try:
+            parser = DocumentParser()
+            text = parser.parse(content, filename)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error parsing document: {str(e)}")
+        
+        # Check if any text was extracted
+        if not text or text.strip() == "":
+            raise HTTPException(status_code=400, detail="No text content found in the document")
+        
+        # Tiền xử lý văn bản để cải thiện chất lượng
+        text = preprocess_text_for_estimation(text)
         
         # Phân tích và ước lượng
         result = estimator.estimate_from_requirements(text, method)
+        
+        # Cải thiện độ tin cậy dựa trên chất lượng và độ dài của yêu cầu
+        result = improve_confidence_level(result, text)
+        
+        # Add document info to result
+        result["document"] = {
+            "filename": filename,
+            "file_type": file_ext,
+            "size_bytes": len(content),
+            "text_length": len(text)
+        }
+        
         return JSONResponse(content=result)
+    except HTTPException:
+        raise  # Re-raise HTTP exceptions
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/estimate-from-tasks")
@@ -114,25 +179,46 @@ def estimate_from_tasks(tasks: TaskList):
         # Chuyển đổi tasks thành văn bản yêu cầu
         requirements_text = "Requirements Document\n\n"
         
+        # Thêm thông tin tổng quan về project
+        requirements_text += "Project Overview:\n"
+        requirements_text += "This project consists of " + str(len(tasks.tasks)) + " requirements/tasks.\n\n"
+        
+        total_complexity = 0
         for i, task in enumerate(tasks.tasks):
             title = task.get("title", f"Task {i+1}")
             description = task.get("description", "")
             priority = task.get("priority", "Medium")
             complexity = task.get("complexity", "Medium")
             
+            # Convert complexity to numeric value for estimation
+            complexity_value = {"Low": 1, "Medium": 2, "High": 3}.get(complexity, 2)
+            total_complexity += complexity_value
+            
             requirements_text += f"Requirement {i+1}: {title}\n"
             requirements_text += f"Description: {description}\n"
             requirements_text += f"Priority: {priority}\n"
             requirements_text += f"Complexity: {complexity}\n\n"
         
+        # Add estimated code size based on tasks and complexity
+        avg_complexity = total_complexity / len(tasks.tasks) if tasks.tasks else 2
+        estimated_loc = int(len(tasks.tasks) * 500 * avg_complexity)
+        requirements_text += f"\nExpected Size:\nEstimated code size: {estimated_loc} lines of code\n"
+        
+        # Tiền xử lý và làm sạch văn bản
+        processed_text = preprocess_text_for_estimation(requirements_text)
+        
         # Phân tích và ước lượng
-        result = estimator.estimate_from_requirements(requirements_text, tasks.method)
+        result = estimator.estimate_from_requirements(processed_text, tasks.method)
+        
+        # Cải thiện độ tin cậy dựa trên chất lượng và số lượng tasks
+        result = improve_confidence_level(result, processed_text)
         
         # Thêm thông tin tasks vào kết quả
         result["tasks"] = tasks.tasks
         
         return JSONResponse(content=result)
     except Exception as e:
+        logger.error(f"Error estimating from tasks: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/trello-import")

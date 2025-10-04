@@ -289,18 +289,98 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Helper: Show loading spinner
+    // Helper: Show loading with improved progress indication
     function showLoading() {
         resultsCard.classList.remove('d-none');
         totalEffort.textContent = duration.textContent = teamSize.textContent = confidenceLevel.textContent = '-';
-        modelDetailsContent.innerHTML = '<div class="spinner-container"><div class="spinner-border text-primary" role="status"></div></div>';
+        
+        // Show an animated loading indicator with steps
+        modelDetailsContent.innerHTML = `
+            <div class="card border-info mb-3">
+                <div class="card-header bg-info text-white">
+                    <i class="bi bi-gear-wide-connected"></i> Processing Request
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             role="progressbar" style="width: 100%"></div>
+                    </div>
+                    
+                    <div id="processingSteps">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                            <span>Analyzing document content...</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2 text-muted">
+                            <i class="bi bi-clock me-2"></i>
+                            <span>Extracting requirements...</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2 text-muted">
+                            <i class="bi bi-clock me-2"></i>
+                            <span>Applying estimation models...</span>
+                        </div>
+                        <div class="d-flex align-items-center text-muted">
+                            <i class="bi bi-clock me-2"></i>
+                            <span>Generating final estimate...</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-center mt-3 mb-0">
+                        <i class="bi bi-info-circle"></i> This may take up to 30 seconds depending on document size.
+                    </p>
+                </div>
+            </div>
+        `;
+        
         analysisDetailsContent.innerHTML = '';
         if (modelsChart) modelsChart.destroy();
+        
+        // Simulate progress through steps (for visual feedback only)
+        setTimeout(() => {
+            try {
+                document.querySelector('#processingSteps div:nth-child(1)').innerHTML = 
+                    '<i class="bi bi-check-circle-fill text-success me-2"></i><span>Document content analyzed</span>';
+                document.querySelector('#processingSteps div:nth-child(2)').innerHTML = 
+                    '<div class="spinner-border spinner-border-sm text-primary me-2"></div><span>Extracting requirements...</span>';
+            } catch (e) {
+                console.log('Animation step skipped, likely due to early response');
+            }
+        }, 800);
+        
+        setTimeout(() => {
+            try {
+                document.querySelector('#processingSteps div:nth-child(2)').innerHTML = 
+                    '<i class="bi bi-check-circle-fill text-success me-2"></i><span>Requirements extracted</span>';
+                document.querySelector('#processingSteps div:nth-child(3)').innerHTML = 
+                    '<div class="spinner-border spinner-border-sm text-primary me-2"></div><span>Applying estimation models...</span>';
+            } catch (e) {
+                console.log('Animation step skipped, likely due to early response');
+            }
+        }, 1600);
+        
+        setTimeout(() => {
+            try {
+                document.querySelector('#processingSteps div:nth-child(3)').innerHTML = 
+                    '<i class="bi bi-check-circle-fill text-success me-2"></i><span>Models applied</span>';
+                document.querySelector('#processingSteps div:nth-child(4)').innerHTML = 
+                    '<div class="spinner-border spinner-border-sm text-primary me-2"></div><span>Generating final estimate...</span>';
+            } catch (e) {
+                console.log('Animation step skipped, likely due to early response');
+            }
+        }, 2400);
     }
 
     // Helper: Hide results
     function hideResults() {
         resultsCard.classList.add('d-none');
+    }
+    
+    // Helper: Hide loading animation
+    function hideLoading() {
+        // This doesn't hide the results card but removes the loading indicators
+        document.querySelectorAll('.spinner-border, .progress-bar-animated').forEach(el => {
+            el.classList.remove('spinner-border', 'progress-bar-animated', 'progress-bar-striped');
+        });
     }
 
     // Text Input Form Submit
@@ -319,7 +399,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 
                 showLoading();
-                fetch('/estimate', {
+                // Get current host including port
+                const currentHost = window.location.origin;
+                
+                fetch(`${currentHost}/estimate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text, method })
@@ -351,28 +434,111 @@ document.addEventListener('DOMContentLoaded', function () {
             const file = requirementsFile.files[0];
             const method = uploadMethodSelect.value;
             if (!file) return alert('Please select a file.');
+            
+            // Check file size - limit to 10MB
+            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+            if (file.size > maxSize) {
+                return alert('File size exceeds the limit (10MB). Please upload a smaller file.');
+            }
+            
+            // Check file extension
+            const fileName = file.name;
+            const fileExt = fileName.split('.').pop().toLowerCase();
+            const allowedExtensions = ['txt', 'doc', 'docx', 'pdf', 'md'];
+            
+            if (!allowedExtensions.includes(fileExt)) {
+                return alert(`Unsupported file format: .${fileExt}\nAllowed formats: ${allowedExtensions.join(', ')}`);
+            }
+            
             showLoading();
             const formData = new FormData();
             formData.append('file', file);
             formData.append('method', method);
-            fetch('/upload-requirements', {
+            
+            // Add upload info to results card
+            modelDetailsContent.innerHTML = `
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-file-earmark"></i> Processing Document</h5>
+                    <p>File: <strong>${fileName}</strong><br>
+                    Size: <strong>${formatBytes(file.size)}</strong><br>
+                    Type: <strong>${file.type || 'Unknown'}</strong></p>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 100%"></div>
+                </div>
+            `;
+            
+            // Get current host including port
+            const currentHost = window.location.origin;
+            
+            fetch(`${currentHost}/upload-requirements`, {
                 method: 'POST',
                 body: formData
             })
             .then(res => {
                 if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
+                    return res.json().then(err => {
+                        throw new Error(err.detail || `HTTP error! Status: ${res.status}`);
+                    });
                 }
                 return res.json();
             })
             .then(data => {
+                // Add document details to results if available
+                if (data.document) {
+                    const docInfo = data.document;
+                    data.analysis = data.analysis || {};
+                    data.analysis.document_info = {
+                        filename: docInfo.filename,
+                        file_type: docInfo.file_type,
+                        size: formatBytes(docInfo.size_bytes),
+                        text_length: docInfo.text_length + " characters"
+                    };
+                }
+                
                 showResults(data);
             })
             .catch(error => {
                 console.error("Upload failed:", error);
-                alert('Upload failed: ' + error.message);
+                hideLoading();
+                
+                // Show more detailed error information
+                modelDetailsContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5><i class="bi bi-exclamation-triangle"></i> Upload Failed</h5>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <hr>
+                        <p class="mb-0">Suggestions:</p>
+                        <ul>
+                            <li>Check if the file is not corrupted</li>
+                            <li>Try another file format (.txt or .md files work best)</li>
+                            <li>Ensure the file contains proper requirement text</li>
+                            <li>Refresh the page and try again</li>
+                        </ul>
+                        <button class="btn btn-outline-danger btn-sm mt-2" onclick="document.getElementById('requirementsFile').click()">
+                            <i class="bi bi-arrow-repeat"></i> Try Another File
+                        </button>
+                    </div>
+                `;
+                
+                // Display the results card to show the error
+                resultsCard.classList.remove('d-none');
             });
         });
+        
+        // Helper function to format bytes to human-readable format
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
     }
 
     // Task List Logic
@@ -410,7 +576,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const method = tasksMethodSelect.value;
             if (!tasks.length) return alert('Please add at least one task.');
             showLoading();
-            fetch('/estimate-from-tasks', {
+            // Get current host including port
+            const currentHost = window.location.origin;
+            
+            fetch(`${currentHost}/estimate-from-tasks`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ tasks, method })
