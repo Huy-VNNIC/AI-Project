@@ -236,8 +236,8 @@ function getModelColor(modelName) {
     return colors.default;
 }
 
-// Show toast notification
-function showToast(message, type = 'info') {
+// Show toast notification - exposed globally for other scripts
+window.showToast = function(message, type = 'info') {
     const toastContainer = document.getElementById('toastContainer');
     
     // Create toast container if it doesn't exist

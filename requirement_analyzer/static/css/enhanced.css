@@ -113,23 +113,47 @@ textarea.form-control {
   background-color: rgba(67, 97, 238, 0.03);
   text-align: center;
   transition: all 0.3s ease;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .file-upload-area:hover {
   background-color: rgba(67, 97, 238, 0.05);
   border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.file-upload-area-active {
+  background-color: rgba(67, 97, 238, 0.1) !important;
+  border-color: var(--primary) !important;
+  border-style: solid !important;
+  box-shadow: 0 0 0 4px rgba(72, 149, 239, 0.2);
+}
+
+.file-upload-success {
+  background-color: rgba(46, 213, 115, 0.1) !important;
+  border-color: #2ed573 !important;
 }
 
 .file-upload-icon {
   font-size: 3rem;
   color: var(--primary);
   margin-bottom: 1rem;
+  transition: all 0.3s ease;
 }
 
 .file-upload-text {
   color: var(--gray-700);
   font-weight: 500;
   margin-bottom: 1rem;
+}
+
+.file-upload-text h4 {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .file-upload-input {
@@ -145,13 +169,41 @@ textarea.form-control {
 .file-info {
   display: none;
   margin-top: 1rem;
-  padding: 1rem;
-  border-radius: 8px;
+  padding: 1.5rem;
+  border-radius: 12px;
   background-color: rgba(67, 97, 238, 0.05);
+  border-left: 4px solid var(--primary);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
 }
 
 .file-info.show {
   display: block;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* File type specific styling */
+.file-type-pdf {
+  border-left-color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.05);
+}
+
+.file-type-doc, .file-type-docx {
+  border-left-color: #3498db;
+  background-color: rgba(52, 152, 219, 0.05);
+}
+
+.file-type-txt {
+  border-left-color: #7f8c8d;
+  background-color: rgba(127, 140, 141, 0.05);
+}
+
+.file-type-md {
+  border-left-color: #2ecc71;
+  background-color: rgba(46, 204, 113, 0.05);
 }
 
 /* Modern button styling */

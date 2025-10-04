@@ -433,21 +433,15 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             const file = requirementsFile.files[0];
             const method = uploadMethodSelect.value;
-            if (!file) return alert('Please select a file.');
             
-            // Check file size - limit to 10MB
-            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
-            if (file.size > maxSize) {
-                return alert('File size exceeds the limit (10MB). Please upload a smaller file.');
-            }
-            
-            // Check file extension
-            const fileName = file.name;
-            const fileExt = fileName.split('.').pop().toLowerCase();
-            const allowedExtensions = ['txt', 'doc', 'docx', 'pdf', 'md'];
-            
-            if (!allowedExtensions.includes(fileExt)) {
-                return alert(`Unsupported file format: .${fileExt}\nAllowed formats: ${allowedExtensions.join(', ')}`);
+            // Validation now handled in file-upload.js
+            if (!file) {
+                if (window.showToast) {
+                    window.showToast('Please select a file.', 'warning');
+                } else {
+                    alert('Please select a file.');
+                }
+                return;
             }
             
             showLoading();
