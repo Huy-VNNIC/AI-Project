@@ -1,0 +1,9 @@
+size
+complexity
+reliability
+num_requirements
+functional_reqs
+non_functional_reqs
+has_security_requirements
+has_performance_requirements
+num_technologies

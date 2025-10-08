@@ -1,0 +1,518 @@
+/* Enhanced styles for the Software Effort Estimation Tool 
+   Date: October 4, 2025
+   Description: Improved UI for file upload and results display
+*/
+
+/* Modern color palette */
+:root {
+  --primary: #4361ee;
+  --primary-light: #4895ef;
+  --secondary: #3f37c9;
+  --success: #4cc9f0;
+  --info: #4895ef;
+  --warning: #f72585;
+  --danger: #e63946;
+  --dark: #2b2d42;
+  --light: #f8f9fa;
+  --gray-100: #f8f9fa;
+  --gray-200: #e9ecef;
+  --gray-300: #dee2e6;
+  --gray-400: #ced4da;
+  --gray-500: #adb5bd;
+  --gray-600: #6c757d;
+  --gray-700: #495057;
+  --gray-800: #343a40;
+  --gray-900: #212529;
+}
+
+/* General improvements */
+body {
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05), 0 6px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1), 0 8px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  border-radius: 12px 12px 0 0;
+  padding: 15px 20px;
+  font-weight: 600;
+}
+
+/* Improved tab styling */
+.nav-tabs {
+  border-bottom: 1px solid var(--gray-300);
+  margin-bottom: 1rem;
+}
+
+.nav-tabs .nav-link {
+  font-weight: 500;
+  padding: 12px 20px;
+  border: none;
+  color: var(--gray-700);
+  transition: all 0.3s ease;
+  border-radius: 8px 8px 0 0;
+  margin-right: 5px;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary);
+  background-color: rgba(67, 97, 238, 0.05);
+  border-bottom: 3px solid var(--primary);
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--primary-light);
+  background-color: rgba(67, 97, 238, 0.05);
+}
+
+.tab-content {
+  padding: 1.5rem;
+}
+
+/* Modern form styling */
+.form-label {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--gray-700);
+}
+
+.form-control, .form-select {
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--gray-300);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px rgba(72, 149, 239, 0.25);
+}
+
+textarea.form-control {
+  min-height: 200px;
+  line-height: 1.5;
+}
+
+/* Enhanced file upload area */
+.file-upload-area {
+  position: relative;
+  padding: 2rem;
+  border: 2px dashed var(--primary-light);
+  border-radius: 12px;
+  background-color: rgba(67, 97, 238, 0.03);
+  text-align: center;
+  transition: all 0.3s ease;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.file-upload-area:hover {
+  background-color: rgba(67, 97, 238, 0.05);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.file-upload-area-active {
+  background-color: rgba(67, 97, 238, 0.1) !important;
+  border-color: var(--primary) !important;
+  border-style: solid !important;
+  box-shadow: 0 0 0 4px rgba(72, 149, 239, 0.2);
+}
+
+.file-upload-success {
+  background-color: rgba(46, 213, 115, 0.1) !important;
+  border-color: #2ed573 !important;
+}
+
+.file-upload-icon {
+  font-size: 3rem;
+  color: var(--primary);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.file-upload-text {
+  color: var(--gray-700);
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.file-upload-text h4 {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.file-upload-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-info {
+  display: none;
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background-color: rgba(67, 97, 238, 0.05);
+  border-left: 4px solid var(--primary);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.file-info.show {
+  display: block;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* File type specific styling */
+.file-type-pdf {
+  border-left-color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.05);
+}
+
+.file-type-doc, .file-type-docx {
+  border-left-color: #3498db;
+  background-color: rgba(52, 152, 219, 0.05);
+}
+
+.file-type-txt {
+  border-left-color: #7f8c8d;
+  background-color: rgba(127, 140, 141, 0.05);
+}
+
+.file-type-md {
+  border-left-color: #2ecc71;
+  background-color: rgba(46, 204, 113, 0.05);
+}
+
+/* Modern button styling */
+.btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary);
+  border-color: var(--secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-success {
+  background-color: var(--success);
+  border-color: var(--success);
+}
+
+.btn-outline-primary {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* Loading animations and progress indicator */
+.progress {
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--gray-200);
+  margin: 1rem 0;
+}
+
+.progress-bar {
+  background-color: var(--primary);
+  border-radius: 4px;
+}
+
+.progress-step {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.progress-step-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-step-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.progress-step.active {
+  background-color: rgba(67, 97, 238, 0.1);
+}
+
+.progress-step.completed {
+  background-color: rgba(76, 201, 240, 0.1);
+}
+
+/* Results display styling */
+.result-card {
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  border-left: 4px solid var(--primary);
+}
+
+.result-header {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.result-header i {
+  margin-right: 0.5rem;
+  color: var(--primary);
+}
+
+.result-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.result-subtitle {
+  font-size: 0.9rem;
+  color: var(--gray-600);
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  margin: 1.5rem 0;
+}
+
+/* Confidence indicators */
+.confidence-indicator {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-weight: 500;
+  border-radius: 50px;
+  font-size: 0.85rem;
+}
+
+.confidence-low {
+  background-color: rgba(230, 57, 70, 0.1);
+  color: #e63946;
+}
+
+.confidence-medium {
+  background-color: rgba(244, 162, 97, 0.1);
+  color: #f4a261;
+}
+
+.confidence-high {
+  background-color: rgba(42, 157, 143, 0.1);
+  color: #2a9d8f;
+}
+
+/* Rating Stars */
+.rating-stars {
+  font-size: 1.5rem;
+  color: var(--gray-400);
+  cursor: pointer;
+}
+
+.rating-stars .rating-star {
+  margin-right: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.rating-stars .rating-star:hover,
+.rating-stars .rating-star.active {
+  color: #ffc107;
+  transform: scale(1.2);
+}
+
+/* Fancy accordion styling */
+.accordion {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.accordion-item {
+  border: none;
+  margin-bottom: 5px;
+}
+
+.accordion-header {
+  background: var(--gray-100);
+}
+
+.accordion-button {
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  background-color: var(--light);
+  color: var(--gray-800);
+  box-shadow: none !important;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--primary);
+  color: white;
+}
+
+.accordion-button:not(.collapsed)::after {
+  filter: brightness(5);
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+}
+
+.accordion-body {
+  padding: 1.5rem;
+  background-color: white;
+}
+
+/* Enhanced tables for result display */
+.results-table {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.results-table thead th {
+  background-color: var(--primary);
+  color: white;
+  font-weight: 500;
+  padding: 12px;
+  border: none;
+  text-align: left;
+}
+
+.results-table tbody td {
+  padding: 12px;
+  border-top: 1px solid var(--gray-200);
+  vertical-align: middle;
+}
+
+.results-table tbody tr:hover {
+  background-color: rgba(67, 97, 238, 0.03);
+}
+
+.model-type-header {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin: 1.5rem 0 1rem;
+  color: var(--dark);
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 0.5rem;
+}
+
+.model-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+
+/* Make model details more presentable */
+#modelDetailsContent, #analysisDetailsContent {
+  background-color: rgba(67, 97, 238, 0.03);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+#modelDetailsContent pre, #analysisDetailsContent pre {
+  background-color: var(--gray-100);
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Animated results */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-value {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tab-content {
+    padding: 1rem 0.5rem;
+  }
+  
+  .card {
+    border-radius: 8px;
+  }
+  
+  .file-upload-area {
+    padding: 1.5rem;
+  }
+  
+  .btn {
+    padding: 0.6rem 1.2rem;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .result-card {
+    padding: 1rem;
+  }
+  
+  .result-value {
+    font-size: 1.5rem;
+  }
+}
