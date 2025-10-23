@@ -71,13 +71,14 @@ def improve_confidence_level(result: Dict[str, Any], text: str) -> Dict[str, Any
     if "model_estimates" in result["estimation"]:
         estimates = []
         for key, value in result["estimation"]["model_estimates"].items():
-            # Skip metadata fields
-            if key.endswith("_name") or key.endswith("_confidence") or key.endswith("_type") or key.endswith("_description"):
-                continue
-                
             # Get the actual estimate value
-            if isinstance(value, dict) and "estimate" in value:
-                estimates.append(value["estimate"])
+            if isinstance(value, dict):
+                # New format: value is a dict with 'effort' key
+                if "effort" in value:
+                    estimates.append(value["effort"])
+                # Old format: value is a dict with 'estimate' key
+                elif "estimate" in value:
+                    estimates.append(value["estimate"])
             elif isinstance(value, (int, float)):
                 estimates.append(value)
                 

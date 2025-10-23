@@ -152,8 +152,19 @@ class LOCModel:
                 # Tính toán nỗ lực
                 effort = a * (adjusted_kloc ** b) * eaf
             
-            # Đảm bảo kết quả luôn dương và thực tế
-            effort = max(0.5, min(effort, adjusted_kloc * 5))  # Giới hạn nỗ lực hợp lý
+            # Đảm bảo kết quả luôn dương và thực tế cho dự án lớn
+            # Cho dự án lớn, đảm bảo tỷ lệ person-month/KLOC tối thiểu hợp lý
+            if adjusted_kloc > 20:  # Dự án lớn hơn 20K LOC
+                min_effort_per_kloc = 2.0  # Ít nhất 2 person-month per KLOC cho dự án lớn
+                min_effort = adjusted_kloc * min_effort_per_kloc
+                effort = max(effort, min_effort)
+            elif adjusted_kloc > 50:  # Dự án rất lớn
+                min_effort_per_kloc = 2.5  # Ít nhất 2.5 person-month per KLOC cho dự án rất lớn
+                min_effort = adjusted_kloc * min_effort_per_kloc
+                effort = max(effort, min_effort)
+                
+            # Đảm bảo kết quả luôn dương
+            effort = max(0.5, effort)
             
             # Xác định độ tin cậy dựa trên loại mô hình và chất lượng dữ liệu
             confidence = 78.0 if self.model_type == "linear" else 82.0
@@ -196,19 +207,41 @@ class LOCModel:
                 # Tính toán nỗ lực
                 effort = a * (kloc ** b) * eaf
                 
+                # Điều chỉnh cho dự án lớn
+                if kloc > 20:  # Dự án lớn hơn 20K LOC
+                    min_effort_per_kloc = 2.0  # Ít nhất 2 person-month per KLOC
+                    min_effort = kloc * min_effort_per_kloc
+                    effort = max(effort, min_effort)
+                elif kloc > 50:  # Dự án rất lớn
+                    min_effort_per_kloc = 2.5  # Ít nhất 2.5 person-month per KLOC
+                    min_effort = kloc * min_effort_per_kloc
+                    effort = max(effort, min_effort)
+                
                 # Tính độ tin cậy
                 confidence = 75.0 if self.model_type == "linear" else 78.0
                 
                 # Điều chỉnh độ tin cậy
                 confidence = max(65.0, min(85.0, confidence))
                 
-                return {"estimate": max(0.5, min(effort, kloc * 5)), "confidence": confidence}
+                return {"estimate": max(0.5, effort), "confidence": confidence}
             except:
                 # Nếu tất cả đều thất bại, sử dụng công thức đơn giản nhất
                 kloc = params.get('kloc', 5.0)
                 if 'loc' in params and 'kloc' not in params:
                     kloc = float(params['loc']) / 1000
-                estimate = 2.4 * (kloc ** 1.05)
+                    
+                # Đảm bảo công thức phù hợp với dự án lớn
+                if kloc <= 20:
+                    estimate = 2.4 * (kloc ** 1.05)
+                else:
+                    # Sử dụng hệ số cao hơn cho dự án lớn
+                    estimate = 2.8 * (kloc ** 1.1)
+                    
+                # Đảm bảo ước lượng hợp lý cho dự án lớn
+                if kloc > 20:
+                    min_effort = kloc * 2.0  # Ít nhất 2 person-month per KLOC
+                    estimate = max(estimate, min_effort)
+                    
                 return {"estimate": estimate, "confidence": 70.0}
     
     def save(self, path):

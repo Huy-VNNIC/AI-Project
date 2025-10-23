@@ -1,0 +1,25 @@
+{
+  "model_weights": {
+    "cocomo": 2.0,
+    "function_points": 1.5,
+    "use_case_points": 1.8,
+    "loc_linear": 1.2,
+    "loc_random_forest": 1.3,
+    "ml_Linear_Regression": 0.8,
+    "ml_Decision_Tree": 0.9,
+    "ml_Random_Forest": 1.0,
+    "ml_Gradient_Boosting": 1.0
+  },
+  "complexity_factors": {
+    "low": 0.8,
+    "medium": 1.0,
+    "high": 1.5,
+    "very_high": 2.0
+  },
+  "size_scaling": {
+    "small": 1.0,
+    "medium": 1.2,
+    "large": 1.5,
+    "very_large": 1.8
+  }
+}

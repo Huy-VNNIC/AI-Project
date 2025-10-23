@@ -521,8 +521,17 @@ class EffortEstimator:
                 print(f"Error: all_params is not a dictionary, got {type(all_params)}")
                 raise ValueError(f"all_params must be a dictionary, got {type(all_params)}")
             
-            # Initialize estimates dictionary
+            # Initialize estimates dictionary and model_results for more detailed info
             estimates = {}
+            model_results = {}
+            
+            # Import module áp dụng trọng số nếu có
+            try:
+                from requirement_analyzer.model_integration import apply_weight_factors
+                has_weight_module = True
+            except ImportError:
+                has_weight_module = False
+            
             
             # Get COCOMO estimate if parameters are available
             if 'cocomo' in all_params:
@@ -707,6 +716,24 @@ class EffortEstimator:
                 'confidence_level': confidence_level,
                 'model_estimates': self._standardize_model_estimates(estimates)
             }
+            
+            # Áp dụng trọng số nếu có module
+            if has_weight_module:
+                try:
+                    # Chuẩn bị model_results từ estimates
+                    model_results = {}
+                    for model_name, estimate_value in estimates.items():
+                        model_results[model_name] = {'effort_pm': estimate_value}
+                    
+                    # Áp dụng trọng số
+                    estimates = apply_weight_factors(estimates, all_params)
+                    
+                    # Cập nhật lại kết quả
+                    for model_name in model_results:
+                        if model_name in estimates:
+                            model_results[model_name]['effort_pm'] = estimates[model_name]
+                except Exception as e:
+                    print(f"Error applying weight factors: {e}")
             
             return result
             
@@ -948,12 +975,14 @@ class EffortEstimator:
                     confidence = value
                     break
             
-            # Format model estimates as flat key-values for the original UI format
-            standardized[model_key] = round(float(effort_value), 2)
-            standardized[f"{model_key}_name"] = prefix
-            standardized[f"{model_key}_confidence"] = confidence
-            standardized[f"{model_key}_type"] = model_type
-            standardized[f"{model_key}_description"] = description
+            # Format model estimates as structured objects for better UI display
+            standardized[model_key] = {
+                'effort': round(float(effort_value), 2),
+                'name': prefix,
+                'confidence': confidence,
+                'type': model_type,
+                'description': description
+            }
             
         return standardized
     
@@ -980,12 +1009,26 @@ class EffortEstimator:
                 estimation_result = self.integrated_estimate(all_params, method)
                 
                 # Use estimation result directly, it already has the right format
+                # Enhanced to ensure consistent structure for model_estimates
+                model_estimates = estimation_result.get('model_estimates', {})
+                
+                # Ensure each model estimate has a proper structure
+                for key, value in model_estimates.items():
+                    if not isinstance(value, dict):
+                        model_estimates[key] = {
+                            'effort': float(value),
+                            'confidence': 70,  # Default confidence
+                            'type': 'Unknown',
+                            'name': key,
+                            'description': f'Estimation from {key}'
+                        }
+                
                 estimation = {
                     'total_effort': estimation_result.get('total_effort', 0),
                     'duration': estimation_result.get('duration', 0),
                     'team_size': estimation_result.get('team_size', 0),
                     'confidence_level': estimation_result.get('confidence_level', 'Low'),
-                    'model_estimates': estimation_result.get('model_estimates', {})
+                    'model_estimates': model_estimates
                 }
                 
             except Exception as e:

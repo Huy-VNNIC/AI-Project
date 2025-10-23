@@ -1,3 +1,15 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b231ef90f3e898cc2c1c5407cd72e146d2d4c128808d7eb8c10dda809a6cd9f1
-size 660
+{
+  "features": [
+    "size",
+    "complexity",
+    "team_size",
+    "experience"
+  ],
+  "numerical_features": [
+    "size",
+    "complexity",
+    "team_size",
+    "experience"
+  ],
+  "categorical_features": []
+}

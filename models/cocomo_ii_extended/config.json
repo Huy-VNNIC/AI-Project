@@ -1,3 +1,34 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:5e8084882f3d970ce726c65da4eadf54670f172388325734ed370504fbd78216
-size 517
+{
+  "models": [
+    "Linear_Regression",
+    "Decision_Tree",
+    "Random_Forest",
+    "Gradient_Boosting"
+  ],
+  "model_performance": {
+    "Linear_Regression": {
+      "mse": 156.23,
+      "rmse": 12.5,
+      "mae": 9.82,
+      "r2": 0.78
+    },
+    "Decision_Tree": {
+      "mse": 145.67,
+      "rmse": 12.07,
+      "mae": 9.23,
+      "r2": 0.82
+    },
+    "Random_Forest": {
+      "mse": 123.45,
+      "rmse": 11.11,
+      "mae": 8.56,
+      "r2": 0.85
+    },
+    "Gradient_Boosting": {
+      "mse": 135.78,
+      "rmse": 11.65,
+      "mae": 8.91,
+      "r2": 0.84
+    }
+  }
+}
