@@ -36,6 +36,43 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log("Received data:", data); // Debug: Log the data we receive
         resultsCard.classList.remove('d-none');
         
+        // Fix model_estimates data structure first if it exists
+        if (data && data.estimation && data.estimation.model_estimates) {
+            // Process model_estimates to fix [object Object] display issues
+            const fixedModels = {};
+            
+            Object.entries(data.estimation.model_estimates).forEach(([key, value]) => {
+                // Skip old metadata fields if present
+                if (key.endsWith('_name') || key.endsWith('_confidence') || 
+                    key.endsWith('_type') || key.endsWith('_description')) {
+                    return;
+                }
+                
+                // If value is an object (new format) - convert to consistent format
+                if (value && typeof value === 'object') {
+                    fixedModels[key] = {
+                        effort: value.effort || value.estimate || 0,
+                        confidence: value.confidence || 70,
+                        type: value.type || "Other", 
+                        name: value.name || key,
+                        description: value.description || ""
+                    };
+                } else {
+                    // If value is a number (old format) - convert to object
+                    fixedModels[key] = {
+                        effort: value,
+                        confidence: 70,
+                        type: "Unknown",
+                        name: key,
+                        description: ""
+                    };
+                }
+            });
+            
+            // Replace with fixed models
+            data.estimation.model_estimates = fixedModels;
+        }
+        
         // Ngăn chặn các hành động có thể gây tải lại trang
         try {
             if (window.stop) {
@@ -79,22 +116,61 @@ document.addEventListener('DOMContentLoaded', function () {
             // Chuẩn hóa model_estimates để xử lý cả định dạng mới và cũ
             const normalizedModels = {};
             
+            console.log("Processing model estimates:", JSON.stringify(data.estimation.model_estimates));
+            
             Object.entries(data.estimation.model_estimates).forEach(([key, value]) => {
-                if (value && typeof value === 'object' && value.estimate !== undefined) {
-                    // Định dạng mới: {estimate: x, confidence: y}
-                    normalizedModels[key] = {
-                        name: key,
-                        effort: value.estimate,
-                        confidence: value.confidence
-                    };
-                } else {
-                    // Định dạng cũ
-                    normalizedModels[key] = {
-                        name: key,
-                        effort: value,
-                        confidence: null
-                    };
+                // Skip metadata fields
+                if (key.endsWith('_name') || key.endsWith('_confidence') || 
+                    key.endsWith('_type') || key.endsWith('_description')) {
+                    return;
                 }
+                
+                let modelName = key;
+                let modelEffort = 0;
+                let modelConfidence = null;
+                let modelType = "";
+                let modelDesc = "";
+                
+                // New format: value is an object with effort, confidence, name, type, description
+                if (value && typeof value === 'object') {
+                    if (value.name) modelName = value.name;
+                    
+                    if (value.effort !== undefined) {
+                        modelEffort = value.effort;
+                    } else if (value.estimate !== undefined) {
+                        modelEffort = value.estimate;
+                    } else if (value.effort_pm !== undefined) {
+                        modelEffort = value.effort_pm;
+                    }
+                    
+                    if (value.confidence) modelConfidence = value.confidence;
+                    if (value.type) modelType = value.type;
+                    if (value.description) modelDesc = value.description;
+                } 
+                // Old format: value is a direct number
+                else if (typeof value === 'number') {
+                    modelEffort = value;
+                }
+                
+                // If we still don't have a type, guess from the key name
+                if (!modelType) {
+                    if (key.toLowerCase().includes('cocomo')) modelType = "COCOMO";
+                    else if (key.toLowerCase().includes('function_points')) modelType = "Function Points";
+                    else if (key.toLowerCase().includes('use_case')) modelType = "Use Case";
+                    else if (key.toLowerCase().includes('loc')) modelType = "LOC";
+                    else if (key.toLowerCase().includes('ml_')) modelType = "ML";
+                    else modelType = "Other";
+                }
+                
+                normalizedModels[key] = {
+                    name: modelName,
+                    effort: modelEffort,
+                    confidence: modelConfidence,
+                    type: modelType,
+                    description: modelDesc
+                };
+                
+                console.log("Normalized model:", key, normalizedModels[key]);
             });
             
             // Sort models by type (traditional first, then ML models)
@@ -122,56 +198,49 @@ document.addEventListener('DOMContentLoaded', function () {
                     <tbody>`;
                 
                 for (const [model, details] of traditionalModels) {
-                    // Skip metadata fields
-                    if (model.includes('_name') || model.includes('_confidence') || 
-                        model.includes('_type') || model.includes('_description')) {
-                        continue;
+                    // Force the values to be primitive types, not objects
+                    const modelName = typeof details.name === 'string' ? details.name : model;
+                    
+                    // Handle effort value - make sure it's a number or string, not an object
+                    let effortValue = '-';
+                    if (details.effort !== undefined) {
+                        if (typeof details.effort === 'object') {
+                            // If effort is an object, try to get a useful property or use 0
+                            effortValue = JSON.stringify(details.effort);
+                        } else {
+                            effortValue = details.effort;
+                        }
                     }
                     
-                    // Get the model name from metadata if available
-                    const modelNameFromMetadata = data.estimation.model_estimates[`${model}_name`];
-                    const modelName = modelNameFromMetadata || details.name || model;
-                    
-                    let effort = '-';
-                    
-                    // Xử lý dữ liệu đầu ra theo cách đơn giản
-                    if (details.effort_pm !== undefined) {
-                        effort = details.effort_pm;
-                    } else if (details.estimate !== undefined) {
-                        effort = details.estimate;
-                    } else if (details.effort !== undefined) {
-                        effort = details.effort;
-                    } else if (typeof details === 'number') {
-                        effort = details;
-                    } else {
-                        effort = details;
+                    // Handle confidence - make sure it's a string with %
+                    let confidenceValue = '-';
+                    if (details.confidence !== undefined) {
+                        if (typeof details.confidence === 'object') {
+                            confidenceValue = '-';
+                        } else {
+                            confidenceValue = `${details.confidence}%`;
+                        }
                     }
                     
-                    // Get the confidence from metadata if available
-                    const confidenceFromMetadata = data.estimation.model_estimates[`${model}_confidence`];
-                    let confidence = '-';
-                    if (confidenceFromMetadata !== undefined) {
-                        confidence = `${confidenceFromMetadata}%`;
-                    } else if (details.confidence !== undefined) {
-                        confidence = `${details.confidence}%`;
-                    }
-                    
-                    // Get the model type from metadata if available
-                    const typeFromMetadata = data.estimation.model_estimates[`${model}_type`];
-                    let modelType = typeFromMetadata || "Other";
-                    if (!typeFromMetadata) {
-                        if (model === 'fallback') modelType = "Estimate";
-                        else if (model.toLowerCase().includes('cocomo')) modelType = "COCOMO";
-                        else if (model.toLowerCase().includes('function_points')) modelType = "Function Points";
-                        else if (model.toLowerCase().includes('use_case')) modelType = "Use Case";
-                        else if (model.toLowerCase().includes('loc')) modelType = "LOC";
+                    // Handle type - make sure it's a string
+                    let typeValue = 'Other';
+                    if (details.type !== undefined && typeof details.type === 'string') {
+                        typeValue = details.type;
+                    } else if (model.toLowerCase().includes('cocomo')) {
+                        typeValue = "COCOMO";
+                    } else if (model.toLowerCase().includes('function_points')) {
+                        typeValue = "Function Points";
+                    } else if (model.toLowerCase().includes('use_case')) {
+                        typeValue = "Use Case";
+                    } else if (model.toLowerCase().includes('loc')) {
+                        typeValue = "LOC";
                     }
                     
                     modelHtml += `<tr>
                         <td><strong>${modelName}</strong></td>
-                        <td class="text-end">${effort}</td>
-                        <td class="text-center">${confidence}</td>
-                        <td><span class="model-badge" style="background-color: ${getModelColor(model)}; color: white;">${modelType}</span></td>
+                        <td class="text-end">${effortValue}</td>
+                        <td class="text-center">${confidenceValue}</td>
+                        <td><span class="model-badge" style="background-color: ${getModelColor(model)}; color: white;">${typeValue}</span></td>
                     </tr>`;
                 }
                 modelHtml += '</tbody></table>';
@@ -195,31 +264,42 @@ document.addEventListener('DOMContentLoaded', function () {
                     <tbody>`;
                 
                 for (const [model, details] of mlModels) {
-                    // Skip metadata fields
-                    if (model.includes('_name') || model.includes('_confidence') || 
-                        model.includes('_type') || model.includes('_description')) {
-                        continue;
+                    // Force the values to be primitive types, not objects
+                    const modelName = typeof details.name === 'string' ? details.name : model;
+                    
+                    // Handle effort value - make sure it's a number or string, not an object
+                    let effortValue = '-';
+                    if (details.effort !== undefined) {
+                        if (typeof details.effort === 'object') {
+                            // If effort is an object, try to get a useful property or use 0
+                            effortValue = JSON.stringify(details.effort);
+                        } else {
+                            effortValue = details.effort;
+                        }
                     }
                     
-                    // Get the model name from metadata if available
-                    const modelNameFromMetadata = data.estimation.model_estimates[`${model}_name`];
-                    const modelName = modelNameFromMetadata || details.name || model;
-                    
-                    const effort = details.effort || details;
-                    
-                    // Get the confidence from metadata if available
-                    const confidenceFromMetadata = data.estimation.model_estimates[`${model}_confidence`];
-                    let confidence = '-';
-                    if (confidenceFromMetadata !== undefined) {
-                        confidence = `${confidenceFromMetadata}%`;
-                    } else if (details.confidence) {
-                        confidence = `${(details.confidence * 100).toFixed(0)}%`;
+                    // Handle confidence - make sure it's a string with % and has a reasonable value (0-100%)
+                    let confidenceValue = '-';
+                    if (details.confidence !== undefined) {
+                        if (typeof details.confidence === 'object') {
+                            confidenceValue = '-';
+                        } else {
+                            // Make sure confidence is a number between 0-100
+                            let confNum = parseFloat(details.confidence);
+                            if (!isNaN(confNum)) {
+                                // If confidence is greater than 100, cap it at 100%
+                                confNum = Math.min(confNum, 100);
+                                confidenceValue = `${Math.round(confNum)}%`;
+                            } else {
+                                confidenceValue = '-';
+                            }
+                        }
                     }
                     
                     modelHtml += `<tr>
                         <td><strong>${modelName}</strong></td>
-                        <td class="text-end">${effort}</td>
-                        <td class="text-center">${confidence}</td>
+                        <td class="text-end">${effortValue}</td>
+                        <td class="text-center">${confidenceValue}</td>
                         <td><span class="model-badge" style="background-color: #dc3545; color: white;">ML</span></td>
                     </tr>`;
                 }
@@ -237,13 +317,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     continue;
                 }
                 
-                // Get description from metadata if available
-                const descriptionFromMetadata = data.estimation.model_estimates[`${model}_description`];
-                const description = descriptionFromMetadata || details.description;
+                // Our normalization already handled descriptions
+                const description = details.description || '';
                 
                 if (description) {
-                    const modelNameFromMetadata = data.estimation.model_estimates[`${model}_name`];
-                    const displayName = modelNameFromMetadata || details.name || model;
+                    const displayName = details.name || model;
                     
                     modelHtml += `<div class="model-description mb-2 p-2 border-start border-3" style="border-color: ${getModelColor(model)} !important;">
                         <strong>${displayName}:</strong> ${description}
@@ -642,100 +720,74 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             
-            // Chuẩn hóa model_estimates để xử lý cả định dạng mới và cũ
-            const normalizedModels = [];
-            const processedModelKeys = new Set(); // Theo dõi các mô hình đã xử lý
+            // Use the same normalized models we already have from earlier
+            const chartModels = [];
             
-            // Chuyển đổi cấu trúc dữ liệu để dễ xử lý hơn
-            Object.entries(data.estimation.model_estimates).forEach(([key, value]) => {
-                // Bỏ qua các thuộc tính metadata
-                if (key.includes('_name') || key.includes('_confidence') || 
-                    key.includes('_type') || key.includes('_description')) {
-                    return;
-                }
-                
-                processedModelKeys.add(key);
-                
-                // Tạo tên hiển thị thân thiện hơn
-                let displayName = key;
-                
-                // Lấy các metadata của mô hình nếu có
-                const modelName = data.estimation.model_estimates[`${key}_name`] || key;
-                const modelType = data.estimation.model_estimates[`${key}_type`] || '';
-                
-                if (key === 'fallback') {
-                    displayName = 'Dự toán';  // Đổi thành tiếng Việt
-                } else if (modelName && typeof modelName === 'string') {
-                    displayName = modelName;
-                } else if (key.toLowerCase().includes('cocomo')) {
-                    displayName = 'COCOMO II';
-                } else if (key.toLowerCase().includes('function_points')) {
-                    displayName = 'Function Points';
-                } else if (key.toLowerCase().includes('use_case')) {
-                    displayName = 'Use Case Points';
-                } else if (key.toLowerCase().includes('loc')) {
-                    displayName = 'LOC Model';
-                }
-                
-                // Xác định giá trị nỗ lực
+            // Convert normalized models to chart format
+            Object.entries(normalizedModels).forEach(([key, value]) => {
+                // Ensure we have a valid effort value
                 let effortValue = 0;
                 try {
-                    if (value && typeof value === 'object') {
-                        if (value.estimate !== undefined) {
-                            effortValue = parseFloat(value.estimate) || 0;
-                        } else if (value.effort !== undefined) {
-                            effortValue = parseFloat(value.effort) || 0;
-                        } else if (value.effort_pm !== undefined) {
-                            effortValue = parseFloat(value.effort_pm) || 0;
+                    if (value.effort !== undefined) {
+                        if (typeof value.effort === 'object') {
+                            // If it's an object, try to extract estimate or effort property
+                            if (value.effort.estimate !== undefined) {
+                                effortValue = parseFloat(value.effort.estimate) || 0;
+                            } else if (value.effort.effort !== undefined) {
+                                effortValue = parseFloat(value.effort.effort) || 0;
+                            } else if (value.effort.effort_pm !== undefined) {
+                                effortValue = parseFloat(value.effort.effort_pm) || 0;
+                            } else {
+                                // Just parse the object to string as a fallback
+                                console.warn(`Complex effort object for ${key}:`, value.effort);
+                                effortValue = 1.0;
+                            }
                         } else {
-                            // Nếu không có giá trị nào hợp lệ, gán mặc định
-                            effortValue = 1.0;
+                            // Simple value case
+                            effortValue = parseFloat(value.effort) || 0;
                         }
-                    } else if (typeof value === 'number') {
-                        effortValue = value;
-                    } else {
-                        // Trường hợp không có giá trị nào
-                        effortValue = 1.0;
+                    } else if (value.estimate !== undefined) {
+                        effortValue = parseFloat(value.estimate) || 0;
                     }
                     
-                    // Đảm bảo có một giá trị hợp lệ 
+                    // Final sanity check
                     if (isNaN(effortValue) || !isFinite(effortValue)) {
-                        effortValue = 1.0; // Đặt một giá trị mặc định có ý nghĩa
+                        console.warn(`Invalid effort value for ${key}:`, value.effort);
+                        effortValue = 1.0; // Sensible default
                     }
-                    
-                    // Log ra giá trị đã xử lý để gỡ rối
-                    console.log(`Key: ${key}, Display: ${displayName}, Value:`, value, "Effort:", effortValue);
                 } catch (error) {
-                    console.error(`Error processing effort value for ${key}:`, error);
-                    effortValue = 1.0; // Sử dụng giá trị mặc định có ý nghĩa thay vì 0
+                    console.error(`Error processing effort for ${key}:`, error);
+                    effortValue = 1.0; // Fallback on error
                 }
                 
-                // Xác định màu sắc
-                let color = '#0d6efd'; // Màu mặc định
+                // Determine color based on model type
+                let color = '#0d6efd'; // Default blue
                 if (key === 'fallback') {
-                    color = '#20c997'; // Teal cho fallback
+                    color = '#20c997'; // Teal for fallback
                 } else if (key.toLowerCase().includes('cocomo')) {
-                    color = '#0d6efd'; // Blue cho COCOMO
+                    color = '#0d6efd'; // Blue for COCOMO
                 } else if (key.toLowerCase().includes('function_points')) {
-                    color = '#198754'; // Green cho Function Points
+                    color = '#198754'; // Green for Function Points
                 } else if (key.toLowerCase().includes('use_case')) {
-                    color = '#6610f2'; // Purple cho Use Case
+                    color = '#6610f2'; // Purple for Use Case
                 } else if (key.toLowerCase().includes('loc')) {
-                    color = '#fd7e14'; // Orange cho LOC
+                    color = '#fd7e14'; // Orange for LOC
                 } else if (key.toLowerCase().includes('ml_')) {
-                    color = '#dc3545'; // Red cho ML
+                    color = '#dc3545'; // Red for ML
                 }
                 
-                normalizedModels.push({
+                chartModels.push({
                     key: key,
-                    name: displayName,
+                    name: value.name || key,
                     effort: effortValue,
                     color: color
                 });
+                
+                console.log(`Chart model: ${key}, Name: ${value.name}, Effort: ${effortValue}`);
             });
             
-            // Sắp xếp để đảm bảo fallback lên đầu
-            normalizedModels.sort((a, b) => {
+            // Sort to ensure fallback is first
+            chartModels.sort((a, b) => {
                 if (a.key === 'fallback') return -1;
                 if (b.key === 'fallback') return 1;
                 return 0;
@@ -743,11 +795,11 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // Chart data
             const chartData = {
-                labels: normalizedModels.map(model => model.name),
+                labels: chartModels.map(model => model.name),
                 datasets: [{
                     label: 'Effort (person-months)',
-                    data: normalizedModels.map(model => model.effort),
-                    backgroundColor: normalizedModels.map(model => model.color)
+                    data: chartModels.map(model => model.effort),
+                    backgroundColor: chartModels.map(model => model.color)
                 }]
             };
             

@@ -152,16 +152,20 @@ class LOCModel:
                 # Tính toán nỗ lực
                 effort = a * (adjusted_kloc ** b) * eaf
             
-            # Đảm bảo kết quả luôn dương và thực tế cho dự án lớn
+                        # Đảm bảo kết quả luôn dương và thực tế cho dự án lớn
             # Cho dự án lớn, đảm bảo tỷ lệ person-month/KLOC tối thiểu hợp lý
-            if adjusted_kloc > 20:  # Dự án lớn hơn 20K LOC
-                min_effort_per_kloc = 2.0  # Ít nhất 2 person-month per KLOC cho dự án lớn
-                min_effort = adjusted_kloc * min_effort_per_kloc
-                effort = max(effort, min_effort)
-            elif adjusted_kloc > 50:  # Dự án rất lớn
+            if adjusted_kloc >= 50:  # Dự án rất lớn (50K+ LOC)
                 min_effort_per_kloc = 2.5  # Ít nhất 2.5 person-month per KLOC cho dự án rất lớn
                 min_effort = adjusted_kloc * min_effort_per_kloc
+                # Force minimum reasonable effort for large projects
                 effort = max(effort, min_effort)
+                print(f"Large project detected ({adjusted_kloc}K LOC): Applying minimum effort of {min_effort} PM")
+            elif adjusted_kloc >= 20:  # Dự án lớn (20K-50K LOC)
+                min_effort_per_kloc = 2.0  # Ít nhất 2 person-month per KLOC cho dự án lớn
+                min_effort = adjusted_kloc * min_effort_per_kloc
+                # Force minimum reasonable effort for large projects
+                effort = max(effort, min_effort)
+                print(f"Medium-large project detected ({adjusted_kloc}K LOC): Applying minimum effort of {min_effort} PM")
                 
             # Đảm bảo kết quả luôn dương
             effort = max(0.5, effort)
@@ -181,7 +185,14 @@ class LOCModel:
             # Giới hạn độ tin cậy
             confidence = max(60.0, min(90.0, confidence))
             
-            return {"estimate": float(effort), "confidence": confidence}
+            # Return properly structured format for frontend compatibility
+            return {
+                "effort": float(effort),
+                "confidence": confidence,
+                "type": "LOC",
+                "name": f"LOC {self.model_type.capitalize()}", 
+                "description": f"Lines of Code based {self.model_type.capitalize()} model"
+            }
         except Exception as e:
             print(f"Error estimating with LOC model: {e}")
             

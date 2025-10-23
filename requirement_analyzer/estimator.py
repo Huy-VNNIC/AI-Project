@@ -819,21 +819,58 @@ class EffortEstimator:
             else:  # random_forest
                 a, b = 2.8, 1.08  # Hệ số cho mô hình Random Forest
             
+            # Apply scaling factors for large projects
+            # Based on industry data, productivity decreases with project size
+            if kloc < 10:
+                # Small project: lower PM/KLOC ratio
+                size_factor = 1.0
+            elif kloc < 50:
+                # Medium project: standard ratio
+                size_factor = 1.2
+            elif kloc < 100:
+                # Large project: higher ratio
+                size_factor = 1.5
+            elif kloc < 250:
+                # Very large project: much higher ratio
+                size_factor = 2.0
+            else:
+                # Extremely large project: highest ratio
+                size_factor = 3.0
+            
             # Điều chỉnh KLOC theo độ phức tạp công nghệ
             adjusted_kloc = kloc * tech_score
             
             # Hệ số điều chỉnh nỗ lực (EAF)
             eaf = complexity * (1.0 + (1.0 - experience) * 0.4) / (developers ** 0.15)
             
+            # Language complexity factor if available
+            lang_factor = 1.0
+            if 'language' in params and params['language']:
+                lang = params['language'].lower()
+                if lang in ['c++', 'java', 'c#']:
+                    lang_factor = 1.2
+                elif lang in ['assembly', 'c']:
+                    lang_factor = 1.5
+            
             # Biến động ngẫu nhiên để tránh giá trị cố định
             import random
-            random_factor = 0.9 + 0.2 * random.random()  # 0.9 đến 1.1
+            random_factor = 0.95 + 0.1 * random.random()  # 0.95 to 1.05
             
-            # Tính toán nỗ lực
-            effort = a * (adjusted_kloc ** b) * eaf * random_factor
+            # Tính toán nỗ lực với các hệ số mới
+            effort = a * (adjusted_kloc ** b) * eaf * random_factor * size_factor * lang_factor
             
-            # Đảm bảo kết quả thực tế
-            return max(0.5, min(effort, kloc * 10))  # Giới hạn hợp lý
+            # Ensure minimum realistic effort for large projects
+            min_pm_per_kloc = 1.5
+            if kloc > 50:
+                min_pm_per_kloc = 2.0
+            if kloc > 100:
+                min_pm_per_kloc = 2.5
+                
+            # Apply minimum effort check
+            min_effort = kloc * min_pm_per_kloc
+            
+            # Đảm bảo kết quả thực tế và không quá nhỏ cho dự án lớn
+            return max(min_effort, min(effort, kloc * 10))  # Giới hạn hợp lý
             
         except Exception as e:
             print(f"Error in dynamic LOC estimation: {e}")
@@ -932,6 +969,30 @@ class EffortEstimator:
         }
         
         for model_key, effort_value in estimates.items():
+            # First, normalize the effort value to ensure consistent format
+            normalized_effort = None
+            
+            # Handle different input formats (number, dict with various property names)
+            if isinstance(effort_value, (int, float)):
+                normalized_effort = float(effort_value)
+            elif isinstance(effort_value, dict):
+                # Try to extract effort from different possible property names
+                if 'effort' in effort_value:
+                    normalized_effort = float(effort_value['effort'])
+                elif 'estimate' in effort_value:
+                    normalized_effort = float(effort_value['estimate'])
+                elif 'effort_pm' in effort_value:
+                    normalized_effort = float(effort_value['effort_pm'])
+                # Add more fields as needed
+            
+            # If still None, fallback to string conversion and try to parse
+            if normalized_effort is None:
+                try:
+                    normalized_effort = float(str(effort_value))
+                except (ValueError, TypeError):
+                    normalized_effort = 1.0  # Fallback default
+                    print(f"Warning: Could not normalize effort value for {model_key}: {effort_value}")
+
             # Determine model prefix
             prefix = None
             for key, value in model_prefixes.items():
@@ -975,9 +1036,10 @@ class EffortEstimator:
                     confidence = value
                     break
             
-            # Format model estimates as structured objects for better UI display
+            # Format model estimates as structured objects for better UI display with all possible fields
             standardized[model_key] = {
-                'effort': round(float(effort_value), 2),
+                'effort': round(normalized_effort, 2),
+                'estimate': round(normalized_effort, 2),  # For compatibility
                 'name': prefix,
                 'confidence': confidence,
                 'type': model_type,
