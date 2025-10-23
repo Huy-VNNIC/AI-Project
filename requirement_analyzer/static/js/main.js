@@ -287,7 +287,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             // Make sure confidence is a number between 0-100
                             let confNum = parseFloat(details.confidence);
                             if (!isNaN(confNum)) {
-                                // If confidence is greater than 100, cap it at 100%
+                                // For ML models, sometimes there's a scaling issue - fix it if needed
+                                if (confNum > 100 && model.startsWith('ml_')) {
+                                    confNum = confNum / 100;
+                                }
+                                // If confidence is still greater than 100, cap it at 100%
                                 confNum = Math.min(confNum, 100);
                                 confidenceValue = `${Math.round(confNum)}%`;
                             } else {
