@@ -46,7 +46,8 @@ git add .
 
 # Commit changes
 echo "Committing changes..."
-git commit -m "Update effort estimation models with improved LOC scaling"
+git commit -m "Update fetures confidence for traditional models"
+
 
 # Push to GitHub
 echo "Pushing to GitHub..."

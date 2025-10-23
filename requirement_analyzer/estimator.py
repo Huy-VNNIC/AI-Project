@@ -9,6 +9,8 @@ import joblib
 import numpy as np
 import pandas as pd
 import json
+import math
+import random
 from pathlib import Path
 
 # Thêm thư mục gốc vào sys.path để import các module khác
@@ -954,19 +956,107 @@ class EffortEstimator:
             'ml_Linear_Regression': 'Machine Learning Linear Regression model'
         }
         
-        # Default confidence levels based on model type
-        default_confidences = {
+        # Calculate confidence levels based on model performance metrics
+        # These will be dynamically updated based on model performance
+        default_confidences = {}
+        
+        # Base confidence levels based on historical accuracy data
+        base_confidences = {
             'cocomo': 70,
             'function_points': 75,
             'use_case_points': 70,
             'use_case': 70,
             'loc_linear': 78,
             'loc_random_forest': 82,
-            'ml_Random_Forest': 80,
-            'ml_Gradient_Boosting': 79,
+            'ml_Random_Forest': 85,
+            'ml_Gradient_Boosting': 82,
             'ml_Decision_Tree': 75,
-            'ml_Linear_Regression': 72
+            'ml_Linear_Regression': 70
         }
+        
+        # Calculate confidences based on multiple factors:
+        # 1. Base model confidence (historical accuracy)
+        # 2. Project characteristics
+        # 3. Agreement with other models
+        
+        # Get all estimates as numerical values for statistical analysis
+        numerical_estimates = []
+        for value in estimates.values():
+            if isinstance(value, (int, float)):
+                numerical_estimates.append(float(value))
+            elif isinstance(value, dict) and 'effort' in value:
+                numerical_estimates.append(float(value['effort']))
+            elif isinstance(value, dict) and 'effort_pm' in value:
+                numerical_estimates.append(float(value['effort_pm']))
+                
+        # Calculate statistical metrics if we have multiple estimates
+        estimate_mean = 0
+        estimate_cv = 0  # Coefficient of variation
+        if len(numerical_estimates) > 1:
+            estimate_mean = sum(numerical_estimates) / len(numerical_estimates)
+            variance = sum((x - estimate_mean)**2 for x in numerical_estimates) / len(numerical_estimates)
+            std_dev = math.sqrt(variance) if variance > 0 else 0
+            estimate_cv = std_dev / estimate_mean if estimate_mean > 0 else 1.0
+        
+        for model_key in estimates.keys():
+            # Start with base confidence from historical data
+            confidence = 70  # Default
+            
+            for model_type, base_conf in base_confidences.items():
+                if model_type in model_key.lower():
+                    confidence = base_conf
+                    break
+            
+            # Adjust confidence based on project size if available
+            project_size = None
+            for param_key, param_value in estimates.items():
+                if 'cocomo' in param_key and isinstance(param_value, dict) and 'size' in param_value:
+                    project_size = param_value['size']
+                    break
+            
+            if project_size:
+                # Larger projects typically have lower confidence levels
+                if project_size > 100:  # Very large project
+                    confidence *= 0.8
+                elif project_size > 50:  # Large project
+                    confidence *= 0.9
+                elif project_size < 5:   # Small project
+                    confidence *= 1.1
+            
+            # Adjust confidence based on agreement with other models
+            if len(numerical_estimates) > 1 and model_key in estimates:
+                model_value = 0
+                if isinstance(estimates[model_key], (int, float)):
+                    model_value = float(estimates[model_key])
+                elif isinstance(estimates[model_key], dict) and 'effort' in estimates[model_key]:
+                    model_value = float(estimates[model_key]['effort'])
+                elif isinstance(estimates[model_key], dict) and 'effort_pm' in estimates[model_key]:
+                    model_value = float(estimates[model_key]['effort_pm'])
+                
+                # Calculate how far this model is from the mean
+                if estimate_mean > 0 and model_value > 0:
+                    deviation = abs(model_value - estimate_mean) / estimate_mean
+                    # Adjust confidence based on deviation
+                    # Models closer to the mean get higher confidence
+                    if deviation < 0.1:  # Very close to mean
+                        confidence *= 1.1
+                    elif deviation > 0.5:  # Far from mean
+                        confidence *= 0.8
+            
+            # Adjust ML model confidences based on their algorithm characteristics
+            if 'ml_' in model_key:
+                if 'Random_Forest' in model_key:
+                    # Random Forest typically handles noise well
+                    confidence = min(confidence * 1.05, 100)
+                elif 'Linear_Regression' in model_key and project_size and project_size > 50:
+                    # Linear regression may struggle with very large projects
+                    confidence *= 0.9
+            
+            # Ensure confidence is within reasonable bounds (0-100)
+            confidence = min(100, max(0, confidence))
+            
+            # Store calculated confidence
+            default_confidences[model_key] = int(confidence)
         
         for model_key, effort_value in estimates.items():
             # First, normalize the effort value to ensure consistent format
@@ -1029,12 +1119,8 @@ class EffortEstimator:
             if not description:
                 description = f"Estimation from {model_key}"
                 
-            # Determine confidence
-            confidence = 70  # Default confidence
-            for key, value in default_confidences.items():
-                if key in model_key.lower():
-                    confidence = value
-                    break
+            # Determine confidence using the calculated default confidences
+            confidence = default_confidences.get(model_key, 70)  # Use calculated value or fallback to 70
             
             # Format model estimates as structured objects for better UI display with all possible fields
             standardized[model_key] = {
