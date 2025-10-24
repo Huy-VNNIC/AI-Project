@@ -46,7 +46,7 @@ git add .
 
 # Commit changes
 echo "Committing changes..."
-git commit -m "fix normailzationModels & Chart"
+git commit -m "Update features methodology and scoring algorithm"
 
 
 # Push to GitHub

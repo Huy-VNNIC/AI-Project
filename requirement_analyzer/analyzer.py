@@ -146,6 +146,81 @@ class RequirementAnalyzer:
             'html', 'css', 'bootstrap', 'tailwind', 'jquery', 'rest', 'graphql', 'soap',
             'microservices', 'serverless', 'blockchain', 'ai', 'ml', 'nlp', 'iot'
         ]
+        
+        # Keywords để phân tích mức độ ưu tiên và quan trọng
+        self.priority_keywords = {
+            'critical': [
+                'critical', 'must have', 'essential', 'mandatory', 'required', 'vital', 
+                'crucial', 'urgent', 'emergency', 'high priority', 'mission critical',
+                'core', 'fundamental', 'baseline', 'minimum viable', 'mvp',
+                'cannot work without', 'system failure', 'blocking', 'showstopper',
+                'quan trọng nhất', 'bắt buộc', 'thiết yếu', 'cốt lõi', 'cấp thiết'
+            ],
+            'high': [
+                'important', 'high', 'priority', 'significant', 'major', 'key',
+                'primary', 'main', 'principal', 'substantial', 'considerable',
+                'should have', 'strongly recommended', 'highly desirable',
+                'business critical', 'customer facing', 'revenue impact',
+                'quan trọng', 'ưu tiên cao', 'chính', 'đáng kể'
+            ],
+            'medium': [
+                'moderate', 'medium', 'normal', 'standard', 'average', 'typical',
+                'could have', 'nice to have', 'useful', 'beneficial', 'helpful',
+                'enhancement', 'improvement', 'optimization', 'convenience',
+                'trung bình', 'bình thường', 'hữu ích', 'cải tiến'
+            ],
+            'low': [
+                'low', 'minor', 'optional', 'future', 'later', 'eventual', 'wish list',
+                'would be nice', 'if time allows', 'bonus', 'extra', 'additional',
+                'cosmetic', 'polish', 'refinement', 'luxury',
+                'thấp', 'tùy chọn', 'sau này', 'bổ sung'
+            ]
+        }
+        
+        # Keywords để phân tích tác động nghiệp vụ
+        self.business_impact_keywords = {
+            'high_impact': [
+                'revenue', 'profit', 'cost saving', 'efficiency', 'productivity',
+                'customer satisfaction', 'user experience', 'competitive advantage',
+                'market share', 'business growth', 'roi', 'return on investment',
+                'compliance', 'regulation', 'legal requirement', 'audit',
+                'doanh thu', 'lợi nhuận', 'hiệu quả', 'khách hàng', 'cạnh tranh'
+            ],
+            'medium_impact': [
+                'process improvement', 'workflow', 'automation', 'integration',
+                'reporting', 'analytics', 'monitoring', 'maintenance',
+                'scalability', 'performance', 'reliability', 'availability',
+                'cải tiến quy trình', 'tự động hóa', 'báo cáo', 'hiệu suất'
+            ],
+            'low_impact': [
+                'documentation', 'training', 'user interface', 'convenience',
+                'aesthetic', 'branding', 'styling', 'layout', 'design',
+                'tài liệu', 'đào tạo', 'giao diện', 'thẩm mỹ', 'thiết kế'
+            ]
+        }
+        
+        # Keywords để phân tích độ phức tạp kỹ thuật
+        self.technical_complexity_keywords = {
+            'high_complexity': [
+                'machine learning', 'artificial intelligence', 'algorithm', 'optimization',
+                'real-time', 'distributed', 'microservices', 'blockchain', 'encryption',
+                'high availability', 'fault tolerance', 'load balancing', 'clustering',
+                'big data', 'data mining', 'analytics', 'integration', 'migration',
+                'thuật toán', 'học máy', 'trí tuệ nhân tạo', 'thời gian thực'
+            ],
+            'medium_complexity': [
+                'database', 'api', 'web service', 'authentication', 'authorization',
+                'notification', 'email', 'file upload', 'search', 'filtering',
+                'crud', 'form validation', 'data validation', 'reporting',
+                'cơ sở dữ liệu', 'dịch vụ web', 'xác thực', 'tìm kiếm'
+            ],
+            'low_complexity': [
+                'display', 'show', 'list', 'view', 'static', 'simple form',
+                'text input', 'dropdown', 'checkbox', 'radio button', 'link',
+                'navigation', 'menu', 'basic ui', 'layout', 'styling',
+                'hiển thị', 'danh sách', 'xem', 'đơn giản', 'giao diện cơ bản'
+            ]
+        }
     
     def preprocess_text(self, text):
         """
@@ -180,17 +255,37 @@ class RequirementAnalyzer:
                    ['shall', 'must', 'will', 'should', 'needs to', 'required to', 'has to',
                    'feature', 'function', 'ability', 'capability', 'can', 'allow', 'enable',
                    'provide', 'support', 'implement', 'develop', 'create', 'build', 'design']):
+                
+                # Phân tích đầy đủ requirement
+                priority = self._analyze_priority(sentence)
+                business_impact = self._analyze_business_impact(sentence)
+                technical_complexity = self._analyze_technical_complexity(sentence)
+                score = self._calculate_requirement_score(priority, business_impact, technical_complexity)
+                
                 requirements.append({
                     'id': f'REQ-{i+1}',
                     'text': sentence,
-                    'type': self._classify_requirement(sentence)
+                    'type': self._classify_requirement(sentence),
+                    'priority': priority,
+                    'business_impact': business_impact,
+                    'technical_complexity': technical_complexity,
+                    'score': score
                 })
             elif len(sentence.split()) > 5 and self._contains_verb_noun_pair(sentence):
                 # Phát hiện câu có cấu trúc động từ-danh từ có thể là yêu cầu
+                priority = self._analyze_priority(sentence)
+                business_impact = self._analyze_business_impact(sentence)
+                technical_complexity = self._analyze_technical_complexity(sentence)
+                score = self._calculate_requirement_score(priority, business_impact, technical_complexity)
+                
                 requirements.append({
                     'id': f'REQ-{i+1}',
                     'text': sentence,
-                    'type': self._classify_requirement(sentence)
+                    'type': self._classify_requirement(sentence),
+                    'priority': priority,
+                    'business_impact': business_impact,
+                    'technical_complexity': technical_complexity,
+                    'score': score
                 })
         
         # Nếu không tìm thấy yêu cầu nào, thử phương pháp khác
@@ -203,21 +298,46 @@ class RequirementAnalyzer:
                     verbs = [token.lemma_ for token in doc if token.pos_ == "VERB"]
                     if any(v in ['develop', 'create', 'build', 'implement', 'design', 'add', 'make', 
                                'provide', 'enable', 'support', 'allow'] for v in verbs):
+                        
+                        priority = self._analyze_priority(sentence)
+                        business_impact = self._analyze_business_impact(sentence)
+                        technical_complexity = self._analyze_technical_complexity(sentence)
+                        score = self._calculate_requirement_score(priority, business_impact, technical_complexity)
+                        
                         requirements.append({
                             'id': f'REQ-{i+1}',
                             'text': sentence,
-                            'type': self._classify_requirement(sentence)
+                            'type': self._classify_requirement(sentence),
+                            'priority': priority,
+                            'business_impact': business_impact,
+                            'technical_complexity': technical_complexity,
+                            'score': score
                         })
         
         # Nếu vẫn không tìm thấy, coi mỗi câu là một yêu cầu
         if not requirements and len(sentences) > 0:
             for i, sentence in enumerate(sentences):
                 if len(sentence.split()) > 5:  # Chỉ lấy câu có ý nghĩa
+                    priority = self._analyze_priority(sentence)
+                    business_impact = self._analyze_business_impact(sentence)
+                    technical_complexity = self._analyze_technical_complexity(sentence)
+                    score = self._calculate_requirement_score(priority, business_impact, technical_complexity)
+                    
                     requirements.append({
                         'id': f'REQ-{i+1}',
                         'text': sentence,
-                        'type': 'general'
+                        'type': 'general',
+                        'priority': priority,
+                        'business_impact': business_impact,
+                        'technical_complexity': technical_complexity,
+                        'score': score
                     })
+        
+        # Sắp xếp requirements theo độ ưu tiên và điểm số
+        requirements.sort(key=lambda x: (
+            {'critical': 4, 'high': 3, 'medium': 2, 'low': 1}.get(x.get('priority', 'medium'), 2),
+            x.get('score', 0)
+        ), reverse=True)
         
         return requirements
     
@@ -234,6 +354,105 @@ class RequirementAnalyzer:
                 has_noun = True
                 
         return has_verb and has_noun
+
+    def _analyze_priority(self, requirement):
+        """
+        Phân tích mức độ ưu tiên của requirement
+        """
+        req_lower = requirement.lower()
+        priority_scores = {}
+        
+        # Tính điểm cho từng mức độ ưu tiên
+        for priority_level, keywords in self.priority_keywords.items():
+            score = 0
+            for keyword in keywords:
+                if keyword in req_lower:
+                    # Điểm cao hơn cho từ khóa dài hơn (cụ thể hơn)
+                    score += len(keyword.split()) * 2
+            priority_scores[priority_level] = score
+        
+        # Phân tích thêm dựa trên cấu trúc câu
+        if any(word in req_lower for word in ['shall', 'must', 'required']):
+            priority_scores['critical'] += 3
+        elif any(word in req_lower for word in ['should', 'ought to']):
+            priority_scores['high'] += 2
+        elif any(word in req_lower for word in ['may', 'could', 'might']):
+            priority_scores['medium'] += 1
+            
+        # Tìm mức độ ưu tiên cao nhất
+        if not any(priority_scores.values()):
+            return 'medium'  # Mặc định
+            
+        return max(priority_scores.items(), key=lambda x: x[1])[0]
+    
+    def _analyze_business_impact(self, requirement):
+        """
+        Phân tích tác động nghiệp vụ của requirement
+        """
+        req_lower = requirement.lower()
+        impact_scores = {}
+        
+        for impact_level, keywords in self.business_impact_keywords.items():
+            score = 0
+            for keyword in keywords:
+                if keyword in req_lower:
+                    score += len(keyword.split())
+            impact_scores[impact_level] = score
+            
+        if not any(impact_scores.values()):
+            return 'medium_impact'
+            
+        return max(impact_scores.items(), key=lambda x: x[1])[0]
+    
+    def _analyze_technical_complexity(self, requirement):
+        """
+        Phân tích độ phức tạp kỹ thuật của requirement
+        """
+        req_lower = requirement.lower()
+        complexity_scores = {}
+        
+        for complexity_level, keywords in self.technical_complexity_keywords.items():
+            score = 0
+            for keyword in keywords:
+                if keyword in req_lower:
+                    score += len(keyword.split())
+            complexity_scores[complexity_level] = score
+            
+        if not any(complexity_scores.values()):
+            return 'medium_complexity'
+            
+        return max(complexity_scores.items(), key=lambda x: x[1])[0]
+    
+    def _calculate_requirement_score(self, priority, business_impact, technical_complexity):
+        """
+        Tính điểm tổng hợp cho requirement dựa trên các yếu tố
+        """
+        priority_weights = {
+            'critical': 10,
+            'high': 7,
+            'medium': 4,
+            'low': 1
+        }
+        
+        impact_weights = {
+            'high_impact': 8,
+            'medium_impact': 5,
+            'low_impact': 2
+        }
+        
+        complexity_weights = {
+            'high_complexity': 8,
+            'medium_complexity': 5,
+            'low_complexity': 2
+        }
+        
+        total_score = (
+            priority_weights.get(priority, 4) * 0.4 +
+            impact_weights.get(business_impact, 5) * 0.35 +
+            complexity_weights.get(technical_complexity, 5) * 0.25
+        )
+        
+        return round(total_score, 2)
 
     def _classify_requirement(self, requirement):
         """
