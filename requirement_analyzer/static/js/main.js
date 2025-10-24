@@ -712,19 +712,49 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
             
-            // Log dữ liệu đầu vào để gỡ rối
-            try {
-                console.log("Chart data input:", JSON.stringify(data?.estimation?.model_estimates));
-            } catch (e) {
-                console.log("Chart data input cannot be stringified", data?.estimation?.model_estimates);
-            }
-            
             if (!data || !data.estimation || !data.estimation.model_estimates) {
                 console.warn("Invalid chart data:", data);
                 return;
             }
+
+            // Create normalized models here inside the function
+            const normalizedModels = {};
+            Object.entries(data.estimation.model_estimates).forEach(([key, value]) => {
+                if (key.endsWith('_name') || key.endsWith('_confidence') || 
+                    key.endsWith('_type') || key.endsWith('_description')) {
+                    return;
+                }
+                
+                let modelName = key;
+                let modelEffort = 0;
+                let modelType = "";
+                
+                if (value && typeof value === 'object') {
+                    if (value.name) modelName = value.name;
+                    if (value.effort !== undefined) modelEffort = value.effort;
+                    else if (value.estimate !== undefined) modelEffort = value.estimate;
+                    else if (value.effort_pm !== undefined) modelEffort = value.effort_pm;
+                    if (value.type) modelType = value.type;
+                } else if (typeof value === 'number') {
+                    modelEffort = value;
+                }
+                
+                if (!modelType) {
+                    if (key.toLowerCase().includes('cocomo')) modelType = "COCOMO";
+                    else if (key.toLowerCase().includes('function_points')) modelType = "Function Points";
+                    else if (key.toLowerCase().includes('use_case')) modelType = "Use Case";
+                    else if (key.toLowerCase().includes('loc')) modelType = "LOC";
+                    else if (key.toLowerCase().includes('ml_')) modelType = "ML";
+                    else modelType = "Other";
+                }
+                
+                normalizedModels[key] = {
+                    name: modelName,
+                    effort: parseFloat(modelEffort) || 0,
+                    type: modelType
+                };
+            });
             
-            // Use the same normalized models we already have from earlier
             const chartModels = [];
             
             // Convert normalized models to chart format
@@ -824,6 +854,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 scales: {
                     y: {
                         type: scaleType,
+                        beginAtZero: scaleType === 'linear',
+                        min: scaleType === 'logarithmic' ? 0.1 : 0,
                         title: {
                             display: true,
                             text: scaleType === 'logarithmic' 
@@ -832,8 +864,18 @@ document.addEventListener('DOMContentLoaded', function () {
                         },
                         ticks: {
                             callback: function(value) {
-                                return value;
+                                if (scaleType === 'logarithmic') {
+                                    return value.toFixed(1);
+                                }
+                                return value.toFixed(0);
                             }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 45
                         }
                     }
                 }

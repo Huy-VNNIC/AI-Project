@@ -46,7 +46,7 @@ git add .
 
 # Commit changes
 echo "Committing changes..."
-git commit -m "Update fetures confidence for traditional models"
+git commit -m "fix normailzationModels & Chart"
 
 
 # Push to GitHub
