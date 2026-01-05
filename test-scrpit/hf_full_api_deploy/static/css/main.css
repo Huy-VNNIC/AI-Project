@@ -1,0 +1,523 @@
+/* Main CSS for the Software Effort Estimation Tool */
+
+body {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Card styling */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    border-radius: 8px 8px 0 0;
+    font-weight: 500;
+}
+
+/* Tab styling */
+.nav-tabs .nav-link {
+    color: #495057;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 0;
+    margin-right: 5px;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    background-color: transparent;
+    border-bottom: 2px solid #007bff;
+    font-weight: 500;
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: transparent;
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Form controls */
+.form-control, .form-select {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 8px 12px;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+textarea.form-control {
+    min-height: 200px;
+}
+
+/* Button styling */
+.btn {
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+
+/* Model badges */
+.model-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-right: 5px;
+}
+
+/* Result tables */
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.results-table th, 
+.results-table td {
+    padding: 10px;
+    border: 1px solid #dee2e6;
+}
+
+.results-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    text-align: left;
+}
+
+.results-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.results-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.model-type-header {
+    background-color: #e9ecef;
+    font-weight: 600;
+    padding: 10px;
+    margin: 15px 0 10px 0;
+    border-radius: 4px;
+    border-left: 4px solid #007bff;
+}
+
+/* Chart container */
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin-bottom: 30px;
+}
+
+/* Scale toggle */
+.scale-toggle {
+    margin-bottom: 15px;
+}
+
+.scale-toggle .btn {
+    padding: 4px 10px;
+    font-size: 0.875rem;
+}
+
+.model-badge {
+    display: inline-block;
+    margin: 5px;
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 20px;
+}
+
+/* Task item */
+.task-item {
+    transition: all 0.2s ease;
+}
+
+.task-item:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.delete-task-btn {
+    padding: 6px 10px;
+    border-radius: 50%;
+}
+
+/* JSON display */
+pre.json {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    overflow-x: auto;
+    font-size: 13px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Loading spinner */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+/* Accordion styling */
+.accordion-button {
+    background-color: #f8f9fa;
+    color: #212529;
+    padding: 15px;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #e7f1ff;
+    color: #0d6efd;
+}
+
+/* Results table */
+.table td:first-child {
+    font-weight: 500;
+    width: 40%;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+.tab-content {
+    min-height: 300px;
+}
+
+.task-item {
+    transition: all 0.3s ease;
+}
+
+.task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+}
+
+.delete-task-btn {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.model-badge {
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Animation for results card */
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+#resultsCard {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.confidence-indicator {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.confidence-level {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+/* Loading spinner */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Pre-formatted JSON */
+pre.json {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    overflow: auto;
+    max-height: 300px;
+}
+
+/* Requirements Analysis Styling */
+.requirements-analysis {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.requirements-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.requirements-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.requirements-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.requirements-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+.requirements-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.priority-badge {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 12px;
+}
+
+.complexity-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+}
+
+.impact-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+}
+
+.requirement-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 8px;
+}
+
+.requirement-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.requirement-score {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.priority-critical {
+    background: linear-gradient(45deg, #dc3545, #e74c3c);
+    color: white;
+}
+
+.priority-high {
+    background: linear-gradient(45deg, #fd7e14, #f39c12);
+    color: white;
+}
+
+.priority-medium {
+    background: linear-gradient(45deg, #17a2b8, #3498db);
+    color: white;
+}
+
+.priority-low {
+    background: linear-gradient(45deg, #6c757d, #95a5a6);
+    color: white;
+}
+
+.summary-stats {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.stats-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    margin: 5px;
+}
+
+.requirement-type-badge {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+/* Calculation Example Styling */
+.calculation-example {
+    font-family: 'Courier New', monospace;
+}
+
+.calculation-steps .step {
+    padding: 8px 0;
+    border-bottom: 1px dotted #ddd;
+    font-size: 0.9rem;
+}
+
+.calculation-steps .step:last-child {
+    border-bottom: none;
+}
+
+.final-score {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.formula-box {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    text-align: center;
+    border: 2px solid #007bff;
+}
+
+.methodology-section .table {
+    font-size: 0.85rem;
+}
+
+.methodology-section .badge {
+    font-size: 0.7rem;
+}
+
+.score-breakdown {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 5px 0;
+}
+
+.score-component {
+    background: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border-left: 3px solid #007bff;
+    font-size: 0.85rem;
+}
+
+/* Academic presentation styling */
+.academic-highlight {
+    background: linear-gradient(90deg, #e3f2fd, #bbdefb);
+    border-left: 4px solid #2196f3;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 0 8px 8px 0;
+}
+
+.weight-explanation {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+.algorithm-step {
+    background: #f8f9fa;
+    border-left: 3px solid #17a2b8;
+    padding: 10px 15px;
+    margin: 8px 0;
+    border-radius: 0 5px 5px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    .requirements-analysis {
+        padding: 15px;
+    }
+    
+    .requirements-list {
+        max-height: 300px;
+    }
+    
+    .calculation-example .row {
+        flex-direction: column;
+    }
+    
+    .methodology-section .col-md-4, 
+    .methodology-section .col-md-6 {
+        margin-bottom: 15px;
+    }
+}

@@ -1,0 +1,6 @@
+# Hugging Face Space Configuration
+
+sdk_version: 3
+app_file: app.py
+pinned: false
+license: mit
