@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  ai-estimation-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: ai-estimation-api
+    ports:
+      - "8000:8000"    # API port
+      - "8080:8000"    # Alternative access port
+    volumes:
+      # Mount models directory (preserve trained models)
+      - ./models:/app/models
+      # Mount datasets for feedback and data storage
+      - ./datasets:/app/datasets
+      - ./data:/app/data
+      # Mount uploads directory for file processing
+      - ./uploads:/app/uploads
+      # Mount logs for debugging
+      - ./logs:/app/logs
+      # Mount processed data
+      - ./processed_data:/app/processed_data
+    environment:
+      - PYTHONPATH=/app
+      - ENV=production
+      - HOST=0.0.0.0
+      - PORT=8000
+      - WORKERS=4
+    restart: unless-stopped
+    networks:
+      - ai-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  ai-network:
+    driver: bridge
+
+volumes:
+  ai_models:
+  ai_logs:
+  ai_uploads:

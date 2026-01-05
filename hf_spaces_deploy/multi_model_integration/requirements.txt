@@ -1,0 +1,10 @@
+numpy>=1.19.0
+pandas>=1.1.0
+matplotlib>=3.3.0
+seaborn>=0.11.0
+scikit-learn>=0.23.0
+joblib>=0.16.0
+pytest>=6.0.0
+ipykernel>=6.0.0
+notebook>=6.0.0
+scipy>=1.5.0

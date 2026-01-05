@@ -4,7 +4,7 @@ API cho service phân tích requirements và ước lượng nỗ lực
 
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Body, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -132,6 +132,41 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 def main_page(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
+@app.get("/favicon.ico")
+async def favicon():
+    """Serve favicon to prevent 404 errors"""
+    favicon_path = Path(__file__).parent / "static" / "favicon.ico"
+    if favicon_path.exists():
+        return FileResponse(favicon_path)
+    # Return empty response if favicon doesn't exist
+    return JSONResponse(content={}, status_code=204)
+
+@app.get("/health")
+def health_check():
+    """
+    Health check endpoint for monitoring
+    """
+    return {"status": "healthy", "service": "ai-estimation-api"}
+
+@app.post("/estimate")
+def estimate_effort_simple(req: RequirementText):
+    """
+    Endpoint đơn giản để ước lượng effort từ văn bản requirements
+    """
+    try:
+        # Sử dụng method được chỉ định hoặc mặc định
+        method = req.method if req.method else "weighted_average"
+        
+        # Tạo advanced_params với method
+        advanced_params = {"method": method}
+        
+        # Ước lượng effort
+        result = estimator.integrated_estimate(req.text, advanced_params=advanced_params)
+        return JSONResponse(content=result)
+    except Exception as e:
+        logger.error(f"Error in estimate_effort_simple: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/analyze")
 def analyze_requirements(req: RequirementText):
     """
@@ -143,9 +178,6 @@ def analyze_requirements(req: RequirementText):
         return JSONResponse(content=analysis)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/estimate")
-def estimate_effort(req: RequirementText):
     """
     Ước lượng nỗ lực từ tài liệu yêu cầu
     """
@@ -515,8 +547,11 @@ def estimate_with_cocomo_parameters(params: COCOMOParameters):
             }
         }
         
+        # Create advanced_params with method
+        advanced_params = {"method": cocomo_dict['method']}
+        
         # Use the estimator's integrated estimation
-        result = estimator.integrated_estimate(project_data, cocomo_dict['method'])
+        result = estimator.integrated_estimate(project_data, advanced_params=advanced_params)
         
         # Add detailed COCOMO results
         cocomo_effort = project_data['cocomo']['size'] * scale_factor * effort_adjustment_factor

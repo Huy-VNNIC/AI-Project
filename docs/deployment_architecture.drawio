@@ -1,0 +1,331 @@
+<mxfile host="app.diagrams.net" modified="2024-12-13T00:00:00.000Z" agent="5.0" version="22.1.0" etag="deployment_v1">
+  <diagram name="Deployment Architecture" id="deployment-architecture">
+    <mxGraphModel dx="1920" dy="1080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Insightimate: AI-Based Software Effort Estimation - Deployment Architecture&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontColor=#1A1A1A;" vertex="1" parent="1">
+          <mxGeometry x="360" y="20" width="1200" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- ============================================ -->
+        <!-- LAYER 1: Client/User Layer -->
+        <!-- ============================================ -->
+        <mxCell id="client-layer-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#4CAF50;strokeWidth=3;opacity=50;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="1840" height="180" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="client-layer-title" value="&lt;b&gt;CLIENT / USER LAYER&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#2E7D32;" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="300" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Web Browser -->
+        <mxCell id="web-browser" value="&lt;b&gt;🌐 Web Browser&lt;/b&gt;&lt;br&gt;&lt;br&gt;HTML/CSS/JavaScript&lt;br&gt;Bootstrap 5.2.3&lt;br&gt;Chart.js&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Text Input&lt;br&gt;• File Upload&lt;br&gt;• COCOMO Form&lt;br&gt;• Interactive Charts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;align=left;verticalAlign=top;fontSize=11;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="140" width="200" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- Mobile App -->
+        <mxCell id="mobile-app" value="&lt;b&gt;📱 Mobile Browser&lt;/b&gt;&lt;br&gt;&lt;br&gt;Responsive Design&lt;br&gt;PWA Support&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Touch Optimized&lt;br&gt;• Offline Mode&lt;br&gt;• Camera Upload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;align=left;verticalAlign=top;fontSize=11;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="320" y="140" width="200" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- API Client -->
+        <mxCell id="api-client" value="&lt;b&gt;🔧 API Clients&lt;/b&gt;&lt;br&gt;&lt;br&gt;REST/HTTP Clients&lt;br&gt;Python requests&lt;br&gt;cURL&lt;br&gt;Postman&lt;br&gt;&lt;br&gt;Endpoints:&lt;br&gt;• /analyze&lt;br&gt;• /estimate-cocomo&lt;br&gt;• /upload-requirements" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;align=left;verticalAlign=top;fontSize=11;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="560" y="140" width="220" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- Task Management Integration -->
+        <mxCell id="task-mgmt-clients" value="&lt;b&gt;📋 Task Management&lt;/b&gt;&lt;br&gt;&lt;br&gt;External Systems:&lt;br&gt;• Jira Integration&lt;br&gt;• Trello Integration&lt;br&gt;&lt;br&gt;Webhooks:&lt;br&gt;• Real-time Sync&lt;br&gt;• Bidirectional Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;align=left;verticalAlign=top;fontSize=11;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="820" y="140" width="200" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- CI/CD Clients -->
+        <mxCell id="cicd-clients" value="&lt;b&gt;🚀 CI/CD Systems&lt;/b&gt;&lt;br&gt;&lt;br&gt;Integration Points:&lt;br&gt;• GitHub Actions&lt;br&gt;• GitLab CI&lt;br&gt;• Jenkins&lt;br&gt;&lt;br&gt;Automated:&lt;br&gt;• Estimation on Commit&lt;br&gt;• PR Analysis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;strokeColor=#1976D2;align=left;verticalAlign=top;fontSize=11;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="140" width="200" height="110" as="geometry" />
+        </mxCell>
+        
+        <!-- ============================================ -->
+        <!-- LAYER 2: API Gateway & Load Balancing -->
+        <!-- ============================================ -->
+        <mxCell id="gateway-layer-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#FF9800;strokeWidth=3;opacity=50;" vertex="1" parent="1">
+          <mxGeometry x="40" y="310" width="1840" height="200" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="gateway-layer-title" value="&lt;b&gt;API GATEWAY &amp; LOAD BALANCING LAYER&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#E65100;" vertex="1" parent="1">
+          <mxGeometry x="60" y="320" width="450" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Nginx / Load Balancer -->
+        <mxCell id="nginx-lb" value="&lt;b&gt;⚖️ NGINX Load Balancer&lt;/b&gt;&lt;br&gt;&lt;br&gt;Configuration:&lt;br&gt;• Round Robin&lt;br&gt;• Least Connections&lt;br&gt;• IP Hash&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• SSL/TLS Termination&lt;br&gt;• Rate Limiting&lt;br&gt;• Request Caching&lt;br&gt;• Compression (gzip)&lt;br&gt;&lt;br&gt;File: nginx.conf" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#F57C00;align=left;verticalAlign=top;fontSize=11;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="360" width="240" height="130" as="geometry" />
+        </mxCell>
+        
+        <!-- API Gateway -->
+        <mxCell id="api-gateway" value="&lt;b&gt;🌉 API Gateway&lt;/b&gt;&lt;br&gt;&lt;br&gt;FastAPI / Flask&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Request Routing&lt;br&gt;• Authentication (JWT)&lt;br&gt;• Rate Limiting&lt;br&gt;• CORS Handling&lt;br&gt;• Request Validation&lt;br&gt;• Response Caching&lt;br&gt;&lt;br&gt;OpenAPI Docs: /docs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#F57C00;align=left;verticalAlign=top;fontSize=11;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="360" y="360" width="240" height="130" as="geometry" />
+        </mxCell>
+        
+        <!-- CDN -->
+        <mxCell id="cdn" value="&lt;b&gt;🌍 CDN (Content Delivery)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Static Assets:&lt;br&gt;• CSS/JS Libraries&lt;br&gt;• Bootstrap CDN&lt;br&gt;• Chart.js CDN&lt;br&gt;• Images &amp; Icons&lt;br&gt;&lt;br&gt;Benefits:&lt;br&gt;• Global Distribution&lt;br&gt;• Low Latency&lt;br&gt;• High Availability" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#F57C00;align=left;verticalAlign=top;fontSize=11;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="640" y="360" width="240" height="130" as="geometry" />
+        </mxCell>
+        
+        <!-- Security Layer -->
+        <mxCell id="security-layer" value="&lt;b&gt;🔒 Security Layer&lt;/b&gt;&lt;br&gt;&lt;br&gt;Components:&lt;br&gt;• WAF (Web App Firewall)&lt;br&gt;• DDoS Protection&lt;br&gt;• SSL/TLS Certificates&lt;br&gt;• API Key Management&lt;br&gt;&lt;br&gt;Protocols:&lt;br&gt;• HTTPS Only&lt;br&gt;• CORS Policy&lt;br&gt;• Rate Limiting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE0B2;strokeColor=#F57C00;align=left;verticalAlign=top;fontSize=11;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="360" width="240" height="130" as="geometry" />
+        </mxCell>
+        
+        <!-- ============================================ -->
+        <!-- LAYER 3: Application/Container Layer -->
+        <!-- ============================================ -->
+        <mxCell id="app-layer-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1F5FE;strokeColor=#0288D1;strokeWidth=3;opacity=50;" vertex="1" parent="1">
+          <mxGeometry x="40" y="550" width="1840" height="320" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="app-layer-title" value="&lt;b&gt;APPLICATION / CONTAINER LAYER (Docker)&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="60" y="560" width="500" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Docker Container 1 - FastAPI -->
+        <mxCell id="docker-fastapi" value="&lt;b&gt;🐳 Docker Container - FastAPI App&lt;/b&gt;&lt;br&gt;&lt;br&gt;Image: python:3.10-slim&lt;br&gt;Port: 7860 (Hugging Face) / 8000&lt;br&gt;&lt;br&gt;Components:&lt;br&gt;• FastAPI Server (app.py)&lt;br&gt;• Uvicorn ASGI Server&lt;br&gt;• Requirement Analyzer&lt;br&gt;• COCOMO II Predictor&lt;br&gt;&lt;br&gt;Dependencies:&lt;br&gt;• requirements.txt&lt;br&gt;• spaCy (en_core_web_sm)&lt;br&gt;• scikit-learn 1.3.0&lt;br&gt;• transformers&lt;br&gt;&lt;br&gt;Environment:&lt;br&gt;• PYTHONUNBUFFERED=1&lt;br&gt;• MODEL_PATH=/app/models&lt;br&gt;&lt;br&gt;File: Dockerfile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="600" width="280" height="250" as="geometry" />
+        </mxCell>
+        
+        <!-- Docker Container 2 - Flask -->
+        <mxCell id="docker-flask" value="&lt;b&gt;🐳 Docker Container - Flask API&lt;/b&gt;&lt;br&gt;&lt;br&gt;Image: python:3.10-slim&lt;br&gt;Port: 5000&lt;br&gt;&lt;br&gt;Components:&lt;br&gt;• Flask Server (api_server.py)&lt;br&gt;• Effort Estimation Service&lt;br&gt;• Model Integration&lt;br&gt;• ML Requirement Analyzer&lt;br&gt;&lt;br&gt;Dependencies:&lt;br&gt;• Flask 2.3+&lt;br&gt;• Flask-CORS&lt;br&gt;• pandas, numpy&lt;br&gt;&lt;br&gt;Environment:&lt;br&gt;• FLASK_ENV=production&lt;br&gt;• PORT=5000&lt;br&gt;&lt;br&gt;File: Dockerfile.production" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="400" y="600" width="280" height="250" as="geometry" />
+        </mxCell>
+        
+        <!-- Docker Container 3 - Background Workers -->
+        <mxCell id="docker-workers" value="&lt;b&gt;🐳 Docker Container - Workers&lt;/b&gt;&lt;br&gt;&lt;br&gt;Image: python:3.10-slim&lt;br&gt;&lt;br&gt;Components:&lt;br&gt;• Model Retrainer&lt;br&gt;• Scheduled Tasks&lt;br&gt;• Feedback Collector&lt;br&gt;• Data Preprocessor&lt;br&gt;&lt;br&gt;Task Queue:&lt;br&gt;• Celery / RQ&lt;br&gt;• Redis Backend&lt;br&gt;&lt;br&gt;Scheduled Jobs:&lt;br&gt;• Daily Model Update&lt;br&gt;• Weekly Retraining&lt;br&gt;• Metrics Collection&lt;br&gt;&lt;br&gt;Files:&lt;br&gt;• model_retrainer.py&lt;br&gt;• scheduled_retraining.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="720" y="600" width="280" height="250" as="geometry" />
+        </mxCell>
+        
+        <!-- Docker Compose -->
+        <mxCell id="docker-compose" value="&lt;b&gt;📋 Docker Compose Orchestration&lt;/b&gt;&lt;br&gt;&lt;br&gt;File: docker-compose.yml&lt;br&gt;&lt;br&gt;Services:&lt;br&gt;• fastapi-app&lt;br&gt;• flask-api&lt;br&gt;• worker-celery&lt;br&gt;• redis&lt;br&gt;• postgres&lt;br&gt;• nginx&lt;br&gt;&lt;br&gt;Networking:&lt;br&gt;• Internal Bridge Network&lt;br&gt;• Service Discovery&lt;br&gt;&lt;br&gt;Volumes:&lt;br&gt;• /models (persistent)&lt;br&gt;• /uploads (persistent)&lt;br&gt;• /logs (persistent)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="600" width="280" height="250" as="geometry" />
+        </mxCell>
+        
+        <!-- Kubernetes Alternative -->
+        <mxCell id="k8s-option" value="&lt;b&gt;☸️ Kubernetes (Optional)&lt;/b&gt;&lt;br&gt;&lt;br&gt;For Production Scale:&lt;br&gt;&lt;br&gt;Resources:&lt;br&gt;• Deployments&lt;br&gt;• Services (ClusterIP)&lt;br&gt;• Ingress Controller&lt;br&gt;• ConfigMaps&lt;br&gt;• Secrets&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Auto-scaling (HPA)&lt;br&gt;• Rolling Updates&lt;br&gt;• Health Checks&lt;br&gt;• Self-healing&lt;br&gt;&lt;br&gt;Monitoring:&lt;br&gt;• Prometheus&lt;br&gt;• Grafana" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="600" width="240" height="250" as="geometry" />
+        </mxCell>
+        
+        <!-- ============================================ -->
+        <!-- LAYER 4: ML Models & Storage -->
+        <!-- ============================================ -->
+        <mxCell id="ml-storage-layer-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#7B1FA2;strokeWidth=3;opacity=50;" vertex="1" parent="1">
+          <mxGeometry x="40" y="910" width="1840" height="260" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="ml-storage-layer-title" value="&lt;b&gt;ML MODELS &amp; STORAGE LAYER&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#4A148C;" vertex="1" parent="1">
+          <mxGeometry x="60" y="920" width="400" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Model Registry -->
+        <mxCell id="model-registry" value="&lt;b&gt;🤖 Model Registry&lt;/b&gt;&lt;br&gt;&lt;br&gt;Trained Models:&lt;br&gt;• Random Forest (Best)&lt;br&gt;• Gradient Boosting&lt;br&gt;• Decision Tree&lt;br&gt;• Linear Regression&lt;br&gt;&lt;br&gt;Model Files:&lt;br&gt;• .pkl (scikit-learn)&lt;br&gt;• .h5 (Keras)&lt;br&gt;• .joblib&lt;br&gt;&lt;br&gt;Versioning:&lt;br&gt;• v1.0, v1.1, v2.0&lt;br&gt;• Rollback Support&lt;br&gt;&lt;br&gt;Path: /models/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="960" width="240" height="190" as="geometry" />
+        </mxCell>
+        
+        <!-- File Storage -->
+        <mxCell id="file-storage" value="&lt;b&gt;📁 File Storage&lt;/b&gt;&lt;br&gt;&lt;br&gt;Persistent Volumes:&lt;br&gt;&lt;br&gt;/uploads/&lt;br&gt;• User Documents&lt;br&gt;• PDF, DOCX, TXT&lt;br&gt;• Temp Processing&lt;br&gt;&lt;br&gt;/static/&lt;br&gt;• CSS, JS files&lt;br&gt;• Images, Icons&lt;br&gt;&lt;br&gt;/logs/&lt;br&gt;• Application Logs&lt;br&gt;• Access Logs&lt;br&gt;• Error Logs&lt;br&gt;&lt;br&gt;Cleanup: 7-day retention" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="360" y="960" width="240" height="190" as="geometry" />
+        </mxCell>
+        
+        <!-- Database -->
+        <mxCell id="database" value="&lt;b&gt;🗄️ PostgreSQL Database&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tables:&lt;br&gt;• projects&lt;br&gt;• estimations&lt;br&gt;• feedback&lt;br&gt;• users&lt;br&gt;• model_history&lt;br&gt;&lt;br&gt;Data:&lt;br&gt;• Estimation Results&lt;br&gt;• User Feedback&lt;br&gt;• Actual vs Predicted&lt;br&gt;• Model Performance&lt;br&gt;&lt;br&gt;Backup:&lt;br&gt;• Daily snapshots&lt;br&gt;• Point-in-time recovery" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="640" y="960" width="240" height="190" as="geometry" />
+        </mxCell>
+        
+        <!-- Cache Layer -->
+        <mxCell id="cache-redis" value="&lt;b&gt;⚡ Redis Cache&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use Cases:&lt;br&gt;• API Response Cache&lt;br&gt;• Session Storage&lt;br&gt;• Rate Limiting&lt;br&gt;• Task Queue (Celery)&lt;br&gt;&lt;br&gt;Data Structures:&lt;br&gt;• Strings (cache)&lt;br&gt;• Hashes (sessions)&lt;br&gt;• Lists (queues)&lt;br&gt;&lt;br&gt;Configuration:&lt;br&gt;• Max Memory: 256MB&lt;br&gt;• Eviction: LRU&lt;br&gt;• TTL: 1-24 hours" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="960" width="240" height="190" as="geometry" />
+        </mxCell>
+        
+        <!-- S3 / Object Storage -->
+        <mxCell id="object-storage" value="&lt;b&gt;☁️ Object Storage (S3/MinIO)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Buckets:&lt;br&gt;&lt;br&gt;models/&lt;br&gt;• Trained Models&lt;br&gt;• Versioned&lt;br&gt;&lt;br&gt;datasets/&lt;br&gt;• LOC-based (947 samples)&lt;br&gt;• FP-based (24 samples)&lt;br&gt;• UCP-based (71 samples)&lt;br&gt;&lt;br&gt;backups/&lt;br&gt;• Database Backups&lt;br&gt;• Model Snapshots&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Versioning Enabled&lt;br&gt;• Lifecycle Policies" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;strokeColor=#6A1B9A;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="960" width="260" height="190" as="geometry" />
+        </mxCell>
+        
+        <!-- ============================================ -->
+        <!-- LAYER 5: Deployment Platforms -->
+        <!-- ============================================ -->
+        <mxCell id="platform-layer-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;strokeWidth=3;opacity=50;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1210" width="1840" height="160" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="platform-layer-title" value="&lt;b&gt;DEPLOYMENT PLATFORMS&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#F57F17;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1220" width="350" height="30" as="geometry" />
+        </mxCell>
+        
+        <!-- Hugging Face Spaces -->
+        <mxCell id="hf-spaces" value="&lt;b&gt;🤗 Hugging Face Spaces&lt;/b&gt;&lt;br&gt;&lt;br&gt;SDK: Docker&lt;br&gt;Port: 7860&lt;br&gt;&lt;br&gt;Repo:&lt;br&gt;nhathuyyne/software-effort-estimation-full-api&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Free Hosting&lt;br&gt;• Auto-deploy on Push&lt;br&gt;• Public Access&lt;br&gt;• Gradio/Streamlit Support&lt;br&gt;&lt;br&gt;Files:&lt;br&gt;• README.md (space card)&lt;br&gt;• Dockerfile&lt;br&gt;• requirements.txt&lt;br&gt;&lt;br&gt;Deploy: deploy.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="1260" width="300" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- AWS -->
+        <mxCell id="aws-platform" value="&lt;b&gt;☁️ AWS (Alternative)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Services:&lt;br&gt;• ECS / EKS (Containers)&lt;br&gt;• EC2 (VMs)&lt;br&gt;• S3 (Storage)&lt;br&gt;• RDS (Database)&lt;br&gt;• CloudFront (CDN)&lt;br&gt;• Route 53 (DNS)&lt;br&gt;• ALB (Load Balancer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="1260" width="240" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Google Cloud -->
+        <mxCell id="gcp-platform" value="&lt;b&gt;☁️ Google Cloud (Alternative)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Services:&lt;br&gt;• GKE (Kubernetes)&lt;br&gt;• Cloud Run (Containers)&lt;br&gt;• GCS (Storage)&lt;br&gt;• Cloud SQL (Database)&lt;br&gt;• Cloud CDN&lt;br&gt;• Cloud Load Balancing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="1260" width="260" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Azure -->
+        <mxCell id="azure-platform" value="&lt;b&gt;☁️ Azure (Alternative)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Services:&lt;br&gt;• AKS (Kubernetes)&lt;br&gt;• Container Instances&lt;br&gt;• Blob Storage&lt;br&gt;• Azure SQL&lt;br&gt;• Azure CDN&lt;br&gt;• App Gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1260" width="240" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Docker Hub -->
+        <mxCell id="docker-hub" value="&lt;b&gt;🐳 Docker Hub&lt;/b&gt;&lt;br&gt;&lt;br&gt;Registry:&lt;br&gt;• Public Images&lt;br&gt;• Automated Builds&lt;br&gt;&lt;br&gt;Images:&lt;br&gt;• insightimate/api:latest&lt;br&gt;• insightimate/worker:latest" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF59D;strokeColor=#F9A825;align=left;verticalAlign=top;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="1260" width="240" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- ============================================ -->
+        <!-- RIGHT SIDEBAR: CI/CD & Monitoring -->
+        <!-- ============================================ -->
+        <mxCell id="cicd-sidebar-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#D32F2F;strokeWidth=3;opacity=50;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="90" width="360" height="280" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="cicd-title" value="&lt;b&gt;CI/CD PIPELINE&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#B71C1C;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="100" width="320" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="cicd-pipeline" value="&lt;b&gt;1. Source Control&lt;/b&gt;&lt;br&gt;• GitHub Repository&lt;br&gt;• Git Hooks&lt;br&gt;&lt;br&gt;&lt;b&gt;2. Build Stage&lt;/b&gt;&lt;br&gt;• Docker Build&lt;br&gt;• Run Tests&lt;br&gt;• Lint Code&lt;br&gt;&lt;br&gt;&lt;b&gt;3. Test Stage&lt;/b&gt;&lt;br&gt;• Unit Tests (pytest)&lt;br&gt;• Integration Tests&lt;br&gt;• Model Validation&lt;br&gt;&lt;br&gt;&lt;b&gt;4. Deploy Stage&lt;/b&gt;&lt;br&gt;• Push to Registry&lt;br&gt;• Deploy to HF Spaces&lt;br&gt;• Health Check&lt;br&gt;&lt;br&gt;Tools:&lt;br&gt;• GitHub Actions&lt;br&gt;• deploy.py script" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFCDD2;strokeColor=#C62828;align=left;verticalAlign=top;fontSize=9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="140" width="320" height="210" as="geometry" />
+        </mxCell>
+        
+        <!-- Monitoring -->
+        <mxCell id="monitoring-sidebar-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8EAF6;strokeColor=#3F51B5;strokeWidth=3;opacity=50;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="390" width="360" height="220" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="monitoring-title" value="&lt;b&gt;MONITORING &amp; LOGGING&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1;fontColor=#1A237E;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="400" width="320" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="monitoring-stack" value="&lt;b&gt;Application Monitoring&lt;/b&gt;&lt;br&gt;• Python logging module&lt;br&gt;• Request/Response logs&lt;br&gt;• Error tracking&lt;br&gt;&lt;br&gt;&lt;b&gt;Performance Metrics&lt;/b&gt;&lt;br&gt;• API Response Time&lt;br&gt;• Model Inference Time&lt;br&gt;• Request Rate&lt;br&gt;• Error Rate&lt;br&gt;&lt;br&gt;&lt;b&gt;System Metrics&lt;/b&gt;&lt;br&gt;• CPU/Memory Usage&lt;br&gt;• Disk I/O&lt;br&gt;• Network Traffic&lt;br&gt;&lt;br&gt;&lt;b&gt;Tools (Optional)&lt;/b&gt;&lt;br&gt;• Prometheus + Grafana&lt;br&gt;• ELK Stack&lt;br&gt;• Sentry (Error Tracking)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C5CAE9;strokeColor=#303F9F;align=left;verticalAlign=top;fontSize=9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="440" width="320" height="150" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Flow Arrows -->
+        
+        <!-- Client to Gateway -->
+        <mxCell id="arrow-client-gateway" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#2E7D32;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="web-browser" target="nginx-lb">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="180" y="280" />
+              <mxPoint x="200" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow-mobile-gateway" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#2E7D32;" edge="1" parent="1" source="mobile-app" target="api-gateway">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="420" y="280" />
+              <mxPoint x="480" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Gateway to App -->
+        <mxCell id="arrow-gateway-app1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#FF6600;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="nginx-lb" target="docker-fastapi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-gateway-app2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#FF6600;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="api-gateway" target="docker-flask">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- App to ML/Storage -->
+        <mxCell id="arrow-app-models" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#7B1FA2;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="docker-fastapi" target="model-registry">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-app-db" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#7B1FA2;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="docker-flask" target="database">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-worker-cache" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#7B1FA2;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="docker-workers" target="cache-redis">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Platform Deployment -->
+        <mxCell id="arrow-app-platform" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#F9A825;dashed=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="docker-compose" target="hf-spaces">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1180" y="1190" />
+              <mxPoint x="230" y="1190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Legend Box -->
+        <mxCell id="legend-box-deploy" value="&lt;b&gt;LEGEND&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#424242;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="640" width="360" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend1-deploy" value="Client Request Flow" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#2E7D32;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1540" y="690" as="sourcePoint" />
+            <mxPoint x="1640" y="690" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend2-deploy" value="API Gateway Routing" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#FF6600;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1540" y="720" as="sourcePoint" />
+            <mxPoint x="1640" y="720" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend3-deploy" value="Data Access" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#7B1FA2;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1540" y="750" as="sourcePoint" />
+            <mxPoint x="1640" y="750" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend4-deploy" value="Deployment Flow" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#F9A825;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1540" y="780" as="sourcePoint" />
+            <mxPoint x="1640" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend-text1-deploy" value="HTTP/HTTPS requests from clients" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="680" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-text2-deploy" value="Internal API communication" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="710" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-text3-deploy" value="Database/Model/Cache access" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="740" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-text4-deploy" value="CI/CD and container orchestration" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="770" width="200" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Key Stats Box -->
+        <mxCell id="stats-deploy" value="&lt;b&gt;DEPLOYMENT STATISTICS&lt;/b&gt;&lt;br&gt;&lt;br&gt;Current Setup:&lt;br&gt;• Platform: Hugging Face Spaces&lt;br&gt;• SDK: Docker&lt;br&gt;• Main Port: 7860&lt;br&gt;• Python: 3.10&lt;br&gt;&lt;br&gt;Container Resources:&lt;br&gt;• CPU: 2 vCPU&lt;br&gt;• Memory: 16 GB&lt;br&gt;• Storage: 50 GB&lt;br&gt;&lt;br&gt;Model Sizes:&lt;br&gt;• Random Forest: ~50 MB&lt;br&gt;• Gradient Boosting: ~40 MB&lt;br&gt;• Total Models: ~200 MB&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;• Cold Start: ~10s&lt;br&gt;• Warm Response: ~100ms&lt;br&gt;• Max Throughput: 100 req/min" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF9C4;strokeColor=#F9A825;align=left;verticalAlign=top;fontSize=9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="820" width="360" height="230" as="geometry" />
+        </mxCell>
+        
+        <!-- Deployment Files Reference -->
+        <mxCell id="deploy-files" value="&lt;b&gt;📄 DEPLOYMENT FILES&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Docker:&lt;/b&gt;&lt;br&gt;• Dockerfile&lt;br&gt;• Dockerfile.production&lt;br&gt;• docker-compose.yml&lt;br&gt;• .dockerignore&lt;br&gt;&lt;br&gt;&lt;b&gt;Configuration:&lt;/b&gt;&lt;br&gt;• requirements.txt&lt;br&gt;• requirements-docker.txt&lt;br&gt;• nginx.conf&lt;br&gt;&lt;br&gt;&lt;b&gt;Deployment Scripts:&lt;/b&gt;&lt;br&gt;• deploy.py&lt;br&gt;• deploy_to_huggingface.sh&lt;br&gt;• deploy-production.sh&lt;br&gt;• manage.sh&lt;br&gt;&lt;br&gt;&lt;b&gt;Documentation:&lt;/b&gt;&lt;br&gt;• README.md&lt;br&gt;• API_DOCUMENTATION.md&lt;br&gt;• DOCKER_README.md&lt;br&gt;• TECHNICAL_DOCS.md" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2F1;strokeColor=#00695C;align=left;verticalAlign=top;fontSize=9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1520" y="1070" width="360" height="280" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

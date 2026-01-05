@@ -1,0 +1,82 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache
+
+# Documentation
+*.md
+!README.md
+docs/
+*.txt
+!requirements.txt
+!requirements-docker.txt
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.tmp
+.temp
+
+# Large files that should be mounted as volumes
+uploads/*
+!uploads/.gitkeep
+logs/*
+!logs/.gitkeep
+datasets/feedback/*
+!datasets/feedback/.gitkeep
+
+# Development files
+*.patch
+test_*.py
+*test.py
+test_results.txt
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Deployment scripts (keep in image for reference)
+# *.sh

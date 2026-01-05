@@ -1,0 +1,325 @@
+<mxfile host="app.diagrams.net" modified="2024-01-15T00:00:00.000Z" agent="5.0" version="22.1.0" etag="architecture_v1">
+  <diagram name="AI Architecture" id="ai-architecture">
+    <mxGraphModel dx="1434" dy="844" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Insightimate: AI-Based Software Effort Estimation System Architecture&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="560" y="20" width="800" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Layer 1: Input Layer -->
+        <mxCell id="input-layer" value="&lt;b&gt;INPUT LAYER&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="1840" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Input Components -->
+        <mxCell id="text-input" value="&lt;b&gt;Text Requirements&lt;/b&gt;&lt;br&gt;Plain Text&lt;br&gt;Natural Language" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="80" y="150" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="doc-input" value="&lt;b&gt;Document Upload&lt;/b&gt;&lt;br&gt;PDF, DOC, DOCX&lt;br&gt;TXT, MD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="320" y="150" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="cocomo-params" value="&lt;b&gt;COCOMO II Params&lt;/b&gt;&lt;br&gt;17 Cost Drivers&lt;br&gt;5 Scale Factors" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="560" y="150" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="task-mgmt" value="&lt;b&gt;Task Management&lt;/b&gt;&lt;br&gt;Jira Integration&lt;br&gt;Trello Integration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="800" y="150" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="historical-data" value="&lt;b&gt;Historical Data&lt;/b&gt;&lt;br&gt;Previous Projects&lt;br&gt;Feedback Database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="150" width="200" height="100" as="geometry" />
+        </mxCell>
+        
+        <!-- Layer 2: Preprocessing -->
+        <mxCell id="preprocess-layer" value="&lt;b&gt;PREPROCESSING &amp; ANALYSIS LAYER&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="1840" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Document Parser -->
+        <mxCell id="doc-parser" value="&lt;b&gt;Document Parser&lt;/b&gt;&lt;br&gt;&lt;br&gt;• PDF Extraction&lt;br&gt;• DOCX Processing&lt;br&gt;• Text Normalization&lt;br&gt;• Encoding Detection&lt;br&gt;&lt;br&gt;&lt;i&gt;document_parser.py&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="370" width="240" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Requirement Analyzer -->
+        <mxCell id="req-analyzer" value="&lt;b&gt;Requirement Analyzer&lt;/b&gt;&lt;br&gt;&lt;br&gt;• NLP Processing (spaCy)&lt;br&gt;• Requirement Extraction&lt;br&gt;• Classification (Functional/Non-Functional)&lt;br&gt;• Priority Analysis&lt;br&gt;• Complexity Assessment&lt;br&gt;• TF-IDF Features&lt;br&gt;&lt;br&gt;&lt;i&gt;analyzer.py&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="360" y="370" width="280" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- ML Requirement Analyzer -->
+        <mxCell id="ml-req-analyzer" value="&lt;b&gt;ML Requirement Analyzer&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Deep Feature Extraction&lt;br&gt;• BERT/Transformers&lt;br&gt;• Requirement Type Classification&lt;br&gt;• Complexity Scoring&lt;br&gt;• COCOMO Parameter Derivation&lt;br&gt;• Size Estimation&lt;br&gt;&lt;br&gt;&lt;i&gt;ml_requirement_analyzer.py&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="680" y="370" width="300" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Preprocessor -->
+        <mxCell id="data-preprocess" value="&lt;b&gt;Data Preprocessor&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Unit Harmonization&lt;br&gt;• Missing Value Imputation&lt;br&gt;• Outlier Detection (IQR)&lt;br&gt;• Log Transformation&lt;br&gt;• Feature Scaling&lt;br&gt;• Schema Normalization&lt;br&gt;&lt;br&gt;&lt;i&gt;utils.py&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="370" width="260" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Layer 3: Feature Engineering -->
+        <mxCell id="feature-layer" value="&lt;b&gt;FEATURE ENGINEERING LAYER&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="580" width="1840" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- LOC Schema -->
+        <mxCell id="loc-schema" value="&lt;b&gt;LOC Schema&lt;/b&gt;&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• KLOC (Size)&lt;br&gt;• Complexity Factor&lt;br&gt;• Developers&lt;br&gt;• Experience&lt;br&gt;• Duration&lt;br&gt;&lt;br&gt;Models:&lt;br&gt;• LOC Linear Model&lt;br&gt;• LOC Random Forest&lt;br&gt;&lt;br&gt;&lt;i&gt;loc_model.py&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="650" width="280" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- FP Schema -->
+        <mxCell id="fp-schema" value="&lt;b&gt;Function Points Schema&lt;/b&gt;&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• External Inputs (EI)&lt;br&gt;• External Outputs (EO)&lt;br&gt;• External Queries (EQ)&lt;br&gt;• Internal Files (ILF)&lt;br&gt;• External Interfaces (EIF)&lt;br&gt;• Adjusted FP&lt;br&gt;• Technical Complexity&lt;br&gt;&lt;br&gt;Calculation:&lt;br&gt;FP = Σ(weighted components)&lt;br&gt;&lt;br&gt;&lt;i&gt;FP-based processing&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="400" y="650" width="280" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- UCP Schema -->
+        <mxCell id="ucp-schema" value="&lt;b&gt;Use Case Points Schema&lt;/b&gt;&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Unadjusted Actor Weight (UAW)&lt;br&gt;• Unadjusted Use Case Weight (UUCW)&lt;br&gt;• Technical Complexity Factor (TCF)&lt;br&gt;• Environmental Complexity (ECF)&lt;br&gt;&lt;br&gt;Formula:&lt;br&gt;UCP = (UAW + UUCW) × TCF × ECF&lt;br&gt;&lt;br&gt;Conversion:&lt;br&gt;Effort = UCP × Productivity Factor&lt;br&gt;&lt;br&gt;&lt;i&gt;UCP-based processing&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="720" y="650" width="300" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Integrated Features -->
+        <mxCell id="integrated-features" value="&lt;b&gt;Integrated Feature Set&lt;/b&gt;&lt;br&gt;&lt;br&gt;Extracted Features (9D):&lt;br&gt;1. size&lt;br&gt;2. complexity&lt;br&gt;3. reliability&lt;br&gt;4. num_requirements&lt;br&gt;5. functional_reqs&lt;br&gt;6. non_functional_reqs&lt;br&gt;7. has_security_requirements&lt;br&gt;8. has_performance_requirements&lt;br&gt;9. num_technologies&lt;br&gt;&lt;br&gt;&lt;i&gt;Feature standardization&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="650" width="300" height="200" as="geometry" />
+        </mxCell>
+        
+        <!-- Layer 4: ML Models -->
+        <mxCell id="ml-layer" value="&lt;b&gt;MACHINE LEARNING MODELS LAYER&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="900" width="1840" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- COCOMO II -->
+        <mxCell id="cocomo-model" value="&lt;b&gt;COCOMO II (Baseline)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Formula:&lt;br&gt;Effort = A × Size^E × Π(EM_i)&lt;br&gt;&lt;br&gt;Parameters:&lt;br&gt;• 17 Cost Drivers&lt;br&gt;• 5 Scale Factors&lt;br&gt;• Project Type Calibration&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;• MMRE: 2.79&lt;br&gt;• PRED(25): 0.012&lt;br&gt;&lt;br&gt;&lt;i&gt;Traditional Parametric&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="80" y="970" width="240" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Linear Regression -->
+        <mxCell id="lr-model" value="&lt;b&gt;Linear Regression&lt;/b&gt;&lt;br&gt;&lt;br&gt;Type: Baseline ML&lt;br&gt;&lt;br&gt;Variants:&lt;br&gt;• Standard LR&lt;br&gt;• Log-Log LR&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Fast Training&lt;br&gt;• Interpretable&lt;br&gt;• Simple&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;• MMRE: 4.50&lt;br&gt;• PRED(25): 0.000&lt;br&gt;&lt;br&gt;&lt;i&gt;sklearn.LinearRegression&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="360" y="970" width="240" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Decision Tree -->
+        <mxCell id="dt-model" value="&lt;b&gt;Decision Tree&lt;/b&gt;&lt;br&gt;&lt;br&gt;Type: Non-linear ML&lt;br&gt;&lt;br&gt;Hyperparameters:&lt;br&gt;• max_depth: 3-15&lt;br&gt;• min_samples_leaf: 2-10&lt;br&gt;• criterion: squared_error&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Rule-based&lt;br&gt;• Non-linear Capture&lt;br&gt;• Easy Interpretation&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;• MMRE: 1.37&lt;br&gt;• PRED(25): 0.173&lt;br&gt;&lt;br&gt;&lt;i&gt;sklearn.DecisionTreeRegressor&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="640" y="970" width="260" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Random Forest -->
+        <mxCell id="rf-model" value="&lt;b&gt;Random Forest ⭐ BEST&lt;/b&gt;&lt;br&gt;&lt;br&gt;Type: Ensemble (Bagging)&lt;br&gt;&lt;br&gt;Hyperparameters:&lt;br&gt;• n_estimators: 50-300&lt;br&gt;• max_features: sqrt/log2&lt;br&gt;• max_depth: 5-20&lt;br&gt;• min_samples_leaf: 2-5&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Variance Reduction&lt;br&gt;• Robust to Outliers&lt;br&gt;• Feature Importance&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;• MMRE: 0.65 ✓&lt;br&gt;• PRED(25): 0.395 ✓&lt;br&gt;• MAE: 12.66 ✓&lt;br&gt;&lt;br&gt;&lt;i&gt;sklearn.RandomForestRegressor&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="940" y="970" width="280" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Gradient Boosting -->
+        <mxCell id="gb-model" value="&lt;b&gt;Gradient Boosting&lt;/b&gt;&lt;br&gt;&lt;br&gt;Type: Ensemble (Boosting)&lt;br&gt;&lt;br&gt;Hyperparameters:&lt;br&gt;• learning_rate: 0.01-0.3&lt;br&gt;• n_estimators: 50-500&lt;br&gt;• max_depth: 3-10&lt;br&gt;• subsample: 0.6-1.0&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Sequential Learning&lt;br&gt;• Error Minimization&lt;br&gt;• High Accuracy&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;• MMRE: 1.10&lt;br&gt;• PRED(25): 0.198&lt;br&gt;• MAE: 16.16&lt;br&gt;&lt;br&gt;&lt;i&gt;sklearn.GradientBoostingRegressor&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="970" width="280" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Model Integration -->
+        <mxCell id="model-integration" value="&lt;b&gt;Multi-Model Integration&lt;/b&gt;&lt;br&gt;&lt;br&gt;Strategy:&lt;br&gt;• Weighted Average&lt;br&gt;• Confidence-based Selection&lt;br&gt;• Schema-specific Routing&lt;br&gt;&lt;br&gt;Weight Management:&lt;br&gt;• Dynamic Weights&lt;br&gt;• Complexity Factors&lt;br&gt;• Size Scaling&lt;br&gt;&lt;br&gt;&lt;i&gt;model_integration.py&lt;/i&gt;&lt;br&gt;&lt;i&gt;estimator.py&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1580" y="970" width="260" height="220" as="geometry" />
+        </mxCell>
+        
+        <!-- Layer 5: Output -->
+        <mxCell id="output-layer" value="&lt;b&gt;OUTPUT &amp; API LAYER&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="1240" width="1840" height="40" as="geometry" />
+        </mxCell>
+        
+        <!-- Estimation Results -->
+        <mxCell id="estimation-output" value="&lt;b&gt;Estimation Results&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Effort (Person-Months)&lt;br&gt;• Duration (Months)&lt;br&gt;• Team Size&lt;br&gt;• Confidence Level&lt;br&gt;• Model Breakdown&lt;br&gt;• Risk Assessment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="120" y="1310" width="260" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- API Services -->
+        <mxCell id="api-services" value="&lt;b&gt;REST API Services&lt;/b&gt;&lt;br&gt;&lt;br&gt;Endpoints:&lt;br&gt;• POST /api/estimate&lt;br&gt;• POST /api/analyze&lt;br&gt;• POST /api/team&lt;br&gt;• POST /api/breakdown&lt;br&gt;• POST /api/report&lt;br&gt;&lt;br&gt;&lt;i&gt;api.py (FastAPI)&lt;/i&gt;&lt;br&gt;&lt;i&gt;api_server.py (Flask)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="440" y="1310" width="280" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- Visualization -->
+        <mxCell id="visualization" value="&lt;b&gt;Visualization &amp; Reports&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Chart.js Plots&lt;br&gt;• Comparison Tables&lt;br&gt;• Model Performance&lt;br&gt;• Risk Matrices&lt;br&gt;• Export to PDF/CSV" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="780" y="1310" width="260" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- Web Interface -->
+        <mxCell id="web-interface" value="&lt;b&gt;Web Interface&lt;/b&gt;&lt;br&gt;&lt;br&gt;Templates:&lt;br&gt;• index.html&lt;br&gt;• cocomo_form.html&lt;br&gt;• debug.html&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Interactive Forms&lt;br&gt;• Real-time Estimation&lt;br&gt;• File Upload&lt;br&gt;• Task Integration" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="1310" width="260" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- Feedback Loop -->
+        <mxCell id="feedback-loop" value="&lt;b&gt;Feedback &amp; Retraining&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Collect Actual Effort&lt;br&gt;• Compare Predictions&lt;br&gt;• Model Retraining&lt;br&gt;• Weight Adjustment&lt;br&gt;• Continuous Improvement&lt;br&gt;&lt;br&gt;&lt;i&gt;feedback_collector.py&lt;/i&gt;&lt;br&gt;&lt;i&gt;model_retrainer.py&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="1310" width="280" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows: Input to Preprocessing -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="text-input" target="doc-parser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="doc-input" target="doc-parser">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="text-input" target="req-analyzer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cocomo-params" target="ml-req-analyzer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows: Preprocessing to Features -->
+        <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000;" edge="1" parent="1" source="req-analyzer" target="loc-schema">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000;" edge="1" parent="1" source="ml-req-analyzer" target="fp-schema">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000;" edge="1" parent="1" source="ml-req-analyzer" target="ucp-schema">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#CC0000;" edge="1" parent="1" source="data-preprocess" target="integrated-features">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows: Features to Models -->
+        <mxCell id="arrow9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC;" edge="1" parent="1" source="loc-schema" target="cocomo-model">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC;" edge="1" parent="1" source="fp-schema" target="lr-model">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=#00CC00;" edge="1" parent="1" source="integrated-features" target="rf-model">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC;" edge="1" parent="1" source="integrated-features" target="dt-model">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#0066CC;" edge="1" parent="1" source="integrated-features" target="gb-model">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows: Models to Integration -->
+        <mxCell id="arrow14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="cocomo-model" target="model-integration">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="lr-model" target="model-integration">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="dt-model" target="model-integration">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=3;strokeColor=#00CC00;" edge="1" parent="1" source="rf-model" target="model-integration">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="gb-model" target="model-integration">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows: Integration to Output -->
+        <mxCell id="arrow19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="model-integration" target="estimation-output">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1710" y="1270" />
+              <mxPoint x="250" y="1270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="model-integration" target="api-services">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1710" y="1270" />
+              <mxPoint x="580" y="1270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="arrow21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeWidth=2;" edge="1" parent="1" source="model-integration" target="visualization">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1710" y="1270" />
+              <mxPoint x="910" y="1270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Feedback Arrow -->
+        <mxCell id="arrow22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;strokeWidth=2;strokeColor=#FF6600;dashed=1;" edge="1" parent="1" source="feedback-loop" target="historical-data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1850" y="1380" />
+              <mxPoint x="1850" y="200" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- Legend -->
+        <mxCell id="legend-box" value="&lt;b&gt;LEGEND&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=12;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="650" width="420" height="30" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend1" value="Data Flow" style="endArrow=classic;html=1;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1440" y="700" as="sourcePoint" />
+            <mxPoint x="1520" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend2" value="Primary Path (RF)" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#00CC00;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1440" y="730" as="sourcePoint" />
+            <mxPoint x="1520" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend3" value="Feedback Loop" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#FF6600;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1440" y="760" as="sourcePoint" />
+            <mxPoint x="1520" y="760" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend4" value="Schema-specific Processing" style="endArrow=classic;html=1;strokeWidth=2;strokeColor=#CC0000;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1440" y="790" as="sourcePoint" />
+            <mxPoint x="1520" y="790" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend-text1" value="Standard processing flow" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="690" width="150" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-text2" value="Best model (Random Forest)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="720" width="180" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-text3" value="Continuous learning loop" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="750" width="150" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-text4" value="LOC/FP/UCP routing" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1530" y="780" width="150" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Key Statistics Box -->
+        <mxCell id="stats-box" value="&lt;b&gt;KEY PERFORMANCE METRICS&lt;/b&gt;&lt;br&gt;&lt;br&gt;Dataset Summary:&lt;br&gt;• LOC-based: 947 samples&lt;br&gt;• FP-based: 24 samples&lt;br&gt;• UCP-based: 71 samples&lt;br&gt;&lt;br&gt;Best Model (Random Forest):&lt;br&gt;• MMRE Improvement: 76.8% vs COCOMO&lt;br&gt;• PRED(25): 32x better than baseline&lt;br&gt;• MAE: 12.66 PM (vs 45.03 PM)&lt;br&gt;• RMSE: 20.01 PM (vs 53.70 PM)&lt;br&gt;&lt;br&gt;Model Comparison:&lt;br&gt;RF &gt; GB &gt; DT &gt; COCOMO &gt; LR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="820" width="420" height="180" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

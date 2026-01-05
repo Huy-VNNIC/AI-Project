@@ -1,0 +1,601 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+% Custom colors
+\definecolor{slidenum}{RGB}{52,152,219}
+\definecolor{keypoint}{RGB}{39,174,96}
+\definecolor{timing}{RGB}{243,156,18}
+
+% Custom commands
+\newcommand{\slide}[1]{\section*{\textcolor{slidenum}{Slide #1}}}
+\newcommand{\timing}[1]{\textcolor{timing}{\textit{[#1]}}}
+\newcommand{\keypoint}[1]{\textcolor{keypoint}{\textbf{#1}}}
+\newcommand{\pause}{\textit{[Pause]}}
+
+\title{\textbf{Presentation Script} \\ Multi-Schema Software Effort Estimation Using Machine Learning}
+\author{Phan Hoang Long}
+\date{December 15, 2025}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ===============================================
+\slide{1: Title Slide}
+\timing{30 seconds}
+
+Good morning/afternoon everyone. My name is Phan Hoang Long, and I'm from the Department of Computer Science at Chungbuk National University.
+
+Today, I'll present my research on \keypoint{Multi-Schema Software Effort Estimation Using Machine Learning}, which proposes an enhanced COCOMO II approach with heterogeneous data integration.
+
+\pause Let's begin.
+
+% ===============================================
+\slide{2: Motivation}
+\timing{2 minutes}
+
+First, let me explain \keypoint{why effort estimation matters}.
+
+\textbf{The Problem:}
+\begin{itemize}
+    \item Inaccurate effort estimation leads to budget overruns and project failures
+    \item Traditional COCOMO II has limited adaptability to modern diverse projects
+    \item Real-world data is heterogeneous and inconsistent across different organizations
+\end{itemize}
+
+\textbf{The Impact is significant:}
+\begin{itemize}
+    \item Studies show that 85\% of software projects face budget issues
+    \item 78\% experience schedule delays
+    \item And 42\% are at risk of complete failure
+\end{itemize}
+
+As you can see in the figure, current challenges in effort estimation are severe.
+
+\textbf{The Research Gap:} There is a lack of unified framework to handle heterogeneous project data across different sizing schemas like Lines of Code, Function Points, and Use Case Points.
+
+\pause This is the problem we're addressing today.
+
+% ===============================================
+\slide{3: Research Contributions}
+\timing{1.5 minutes}
+
+Our research makes \keypoint{three main contributions}:
+
+\textbf{First - Data Integration:} We developed an automatic normalization pipeline for LOC, Function Points, and Use Case Points schemas. This allows us to integrate data from multiple sources seamlessly.
+
+\textbf{Second - Machine Learning Models:} We benchmarked COCOMO II against four ML models: Linear Regression, Decision Tree, Random Forest, and Gradient Boosting.
+
+\textbf{Third - Deployment:} We built a REST API for real-world usage, making the system practical and accessible.
+
+\textbf{Key Results:}
+\begin{itemize}
+    \item We integrated over 320 projects from multiple sources
+    \item Our best model, Random Forest, achieves 38\% MMRE and 58\% PRED(25)
+    \item This reduces estimation error by 34\% compared to the COCOMO II baseline
+\end{itemize}
+
+\pause These are significant improvements over traditional methods.
+
+% ===============================================
+\slide{4: COCOMO II Background}
+\timing{2 minutes}
+
+Let me briefly review the \keypoint{COCOMO II model} that serves as our baseline.
+
+As shown in the formula, COCOMO II estimates effort using three main components:
+
+\textbf{First:} A calibration constant A, which is 2.94
+\textbf{Second:} Size raised to an exponent E, which includes scale factors like precedentedness and flexibility
+\textbf{Third:} Product of effort multipliers - there are 17 cost drivers that affect the final estimate
+
+From effort, we can derive duration and team size using additional formulas.
+
+\textbf{However, the limitation} of traditional COCOMO II is that it assumes homogeneous data and requires manual calibration. This is not scalable for modern diverse projects with heterogeneous data sources.
+
+\pause This is why we need a machine learning approach.
+
+% ===============================================
+\slide{5: Dataset Overview}
+\timing{1.5 minutes}
+
+Now, let's look at our \keypoint{data sources}.
+
+We collected data from three different schemas:
+\begin{itemize}
+    \item \textbf{LOC-based data:} 180 projects from NASA COCOMO and COC81 datasets
+    \item \textbf{Function Points:} 95 projects from Desharnais and Albrecht datasets
+    \item \textbf{Use Case Points:} 45 projects from various sources
+\end{itemize}
+
+In total, we have 320 projects with mixed metrics.
+
+\textbf{The Key Challenge} is data heterogeneity:
+\begin{itemize}
+    \item Different size metrics across schemas
+    \item Inconsistent effort units - some in hours, others in person-months
+    \item Missing values and different contexts
+\end{itemize}
+
+\textbf{Our Solution:} We developed an automatic schema detection and unit normalization pipeline to handle this heterogeneity.
+
+\pause Let me show you how this works.
+
+% ===============================================
+\slide{6: Data Heterogeneity Visualization}
+\timing{1.5 minutes}
+
+This figure illustrates the \keypoint{challenge of data heterogeneity}.
+
+\textbf{Before normalization:} You can see we have incompatible schemas - some projects measured in LOC, others in Function Points or Use Case Points. The units are inconsistent.
+
+\textbf{After our unified normalization:} All data is standardized and ready for machine learning.
+
+Our pipeline handles three key aspects:
+\begin{enumerate}
+    \item \textbf{Unit conversion:} Converting hours to person-months, LOC to KLOC
+    \item \textbf{Missing values:} Using IQR-based outlier detection and median imputation
+    \item \textbf{Schema tagging:} We preserve the origin information for schema-specific modeling
+\end{enumerate}
+
+\pause This preprocessing is crucial for our multi-schema approach.
+
+% ===============================================
+\slide{7: Preprocessing Pipeline}
+\timing{2 minutes}
+
+Here's our \keypoint{end-to-end automated preprocessing pipeline}.
+
+The process follows six key steps:
+
+\textbf{Step 1:} Schema detection - automatically identify whether data is LOC, Function Points, or Use Case Points
+
+\textbf{Step 2:} Unit standardization - convert all measurements to common units
+
+\textbf{Step 3:} Outlier handling using the IQR method to remove extreme values that would skew our models
+
+\textbf{Step 4:} log1p transformation for linearization - this helps normalize the skewed distribution of effort data
+
+\textbf{Step 5:} Feature scaling and encoding - standardizing numerical features and encoding categorical ones
+
+\textbf{Step 6:} Export ML-ready data that can be directly fed into our models
+
+\pause This pipeline is fully automated and can process new data without manual intervention.
+
+% ===============================================
+\slide{8: Experimental Setup}
+\timing{2 minutes}
+
+Now let's discuss our \keypoint{experimental setup}.
+
+\textbf{Models Evaluated:}
+We compared five approaches:
+\begin{itemize}
+    \item COCOMO II as our analytical baseline
+    \item Linear Regression
+    \item Decision Tree
+    \item Random Forest
+    \item Gradient Boosting
+\end{itemize}
+
+\textbf{Training Strategy:}
+\begin{itemize}
+    \item 80/20 train-test split
+    \item GridSearchCV for hyperparameter optimization
+    \item 5-fold cross-validation to ensure robustness
+\end{itemize}
+
+\textbf{Evaluation Metrics:}
+We use five standard metrics:
+\begin{itemize}
+    \item MAE and RMSE - lower is better
+    \item MMRE - Mean Magnitude Relative Error, lower is better
+    \item PRED(25) - percentage of predictions within 25\% of actual, higher is better
+    \item R-squared for goodness of fit
+\end{itemize}
+
+According to Conte et al., industry considers MMRE less than 0.25 and PRED(25) greater than 0.75 as acceptable performance.
+
+\pause Let's see our results.
+
+% ===============================================
+\slide{9: Overall Results}
+\timing{2 minutes}
+
+Here are our \keypoint{main results}.
+
+As you can see from the charts, \textbf{Random Forest achieves the best performance across all metrics}.
+
+\textbf{Key Findings:}
+\begin{itemize}
+    \item Random Forest reduces MMRE by 34\% - from 0.58 in COCOMO II down to 0.38
+    \item PRED(25) improves to 58\% - meaning 58\% of our predictions are within 25\% of actual effort
+    \item Ensemble methods - Random Forest and Gradient Boosting - are clearly superior to simpler baselines
+\end{itemize}
+
+The improvement is consistent across all four metrics: MAE, RMSE, MMRE, and PRED(25).
+
+While we don't reach the ideal thresholds yet, this represents \textbf{significant progress} over traditional COCOMO II, especially considering the heterogeneous nature of our dataset.
+
+\pause Now let's look at schema-specific performance.
+
+% ===============================================
+\slide{10: Schema-Specific Performance}
+\timing{1.5 minutes}
+
+This chart shows \keypoint{performance varies by schema} due to data availability.
+
+\textbf{LOC Schema - shown in green:}
+\begin{itemize}
+    \item 180 samples available
+    \item Provides stable and reliable predictions
+    \item This is our best-performing schema
+\end{itemize}
+
+\textbf{Function Points Schema - shown in blue:}
+\begin{itemize}
+    \item 95 samples
+    \item Achieves moderate accuracy
+    \item Still good but slightly less reliable than LOC
+\end{itemize}
+
+\textbf{Use Case Points Schema - shown in orange:}
+\begin{itemize}
+    \item Only 45 samples
+    \item Shows higher uncertainty
+    \item This needs more data collection in future work
+\end{itemize}
+
+The key insight here is that \textbf{data quantity matters}. Schemas with more training examples perform better, which is expected in machine learning.
+
+\pause But our multi-schema approach still works across all three types.
+
+% ===============================================
+\slide{11: Error Analysis}
+\timing{2 minutes}
+
+Let's examine \keypoint{error analysis and model interpretability}.
+
+\textbf{Left plot - Actual vs Predicted:}
+\begin{itemize}
+    \item Points close to the diagonal line indicate accurate predictions
+    \item Our Random Forest model performs well across all project sizes
+    \item There's no systematic bias - we're not consistently over or under-estimating
+\end{itemize}
+
+\textbf{Right plot - Feature Importance:}
+This shows which features contribute most to predictions:
+\begin{itemize}
+    \item \textbf{Size metric} is the dominant predictor at 38\% importance - this makes intuitive sense
+    \item \textbf{Schema type} contributes 22\% - this justifies our multi-schema approach
+    \item Other COCOMO II cost drivers also contribute significantly
+\end{itemize}
+
+The fact that schema type has 22\% importance confirms that \textbf{different schemas carry different information}, and our unified approach successfully leverages this.
+
+\pause This validates our design decisions.
+
+% ===============================================
+\slide{12: Residual Analysis}
+\timing{1.5 minutes}
+
+For \keypoint{model diagnostics}, we performed residual analysis.
+
+The plots show three important validations:
+
+\textbf{Left - Residual Scatter Plot:}
+\begin{itemize}
+    \item Random scatter around zero - no systematic bias
+    \item Homoscedastic pattern - constant variance across prediction range
+    \item This indicates our model assumptions are valid
+\end{itemize}
+
+\textbf{Right - Residual Distribution:}
+\begin{itemize}
+    \item Near-normal distribution
+    \item This allows us to compute reliable confidence intervals
+    \item Small standard deviation indicates consistent predictions
+\end{itemize}
+
+These diagnostics confirm that our Random Forest model is \textbf{statistically sound} and not overfitting or underfitting the data.
+
+\pause Now let's move to the practical deployment.
+
+% ===============================================
+\slide{13: Deployment Architecture}
+\timing{2 minutes}
+
+We deployed our solution as a \keypoint{REST API for production use}.
+
+The architecture has four key components:
+
+\textbf{1. Schema-aware Routing:}
+\begin{itemize}
+    \item Automatically detects whether input is LOC, Function Points, or Use Case Points
+    \item Routes to the appropriate preprocessing pipeline
+\end{itemize}
+
+\textbf{2. Model Registry:}
+\begin{itemize}
+    \item Maintains separate trained models for each schema
+    \item Ensures optimal performance per schema type
+\end{itemize}
+
+\textbf{3. Traceability:}
+\begin{itemize}
+    \item Preserves data source information
+    \item Provides confidence scores with each prediction
+\end{itemize}
+
+\textbf{4. Extensibility:}
+\begin{itemize}
+    \item Ready for integration with requirement analysis tools
+    \item Can connect to Jira for automated estimation
+\end{itemize}
+
+The API accepts project metrics as input and returns effort, duration, and team size estimates along with confidence intervals.
+
+\pause This makes our research practically useful.
+
+% ===============================================
+\slide{14: Practical Applications}
+\timing{2 minutes}
+
+Let me highlight the \keypoint{practical applications and use cases}.
+
+\textbf{Current Deployment:}
+\begin{itemize}
+    \item We have an API endpoint at /api/estimate
+    \item Input: Project requirements or metrics
+    \item Output: Effort, Duration, Team Size plus confidence scores
+\end{itemize}
+
+\textbf{Supported Modes:}
+The system works in four modes:
+\begin{enumerate}
+    \item LOC-based estimation
+    \item Function Point estimation
+    \item Use Case Point estimation
+    \item Mixed mode with automatic detection
+\end{enumerate}
+
+\textbf{Future Extensions we're planning:}
+\begin{itemize}
+    \item \textbf{NLP Integration:} Extract metrics automatically from requirement documents
+    \item \textbf{Story Point Mapping:} Support for Agile projects
+    \item \textbf{Jira Plugin:} Real-time estimation in issue tracking systems
+    \item \textbf{Continuous Learning:} Feedback loop for ongoing model improvement
+\end{itemize}
+
+\textbf{Impact:} Our system reduces manual estimation time by 70\% while improving accuracy by 34\%.
+
+\pause This demonstrates real business value.
+
+% ===============================================
+\slide{15: Limitations \& Future Work}
+\timing{2 minutes}
+
+Now, let me be honest about our \keypoint{current limitations}.
+
+\textbf{Three main limitations exist:}
+
+\textbf{First - Data scarcity in UCP schema:}
+\begin{itemize}
+    \item Only 45 samples lead to higher uncertainty
+    \item We need more Use Case Point projects
+\end{itemize}
+
+\textbf{Second - Context factors not fully captured:}
+\begin{itemize}
+    \item Domain-specific calibration may still be needed
+    \item Industry context affects estimation but isn't fully modeled
+\end{itemize}
+
+\textbf{Third - Static models require periodic retraining:}
+\begin{itemize}
+    \item Technology evolution isn't automatically tracked
+    \item Models can become outdated over time
+\end{itemize}
+
+\textbf{Honest assessment:} Our model works best for similar project types. Extreme outliers are still challenging.
+
+\textbf{Future Roadmap:}
+\begin{enumerate}
+    \item \textbf{Data Augmentation:} Collect more UCP projects, possibly use synthetic data
+    \item \textbf{Deep Learning:} Neural networks for complex non-linear relationships
+    \item \textbf{Online Learning:} Incremental updates from project feedback
+    \item \textbf{Multi-modal Input:} Combine metrics, text requirements, and historical data
+    \item \textbf{Uncertainty Quantification:} Probabilistic predictions with confidence intervals
+\end{enumerate}
+
+\pause These improvements will make the system even more robust.
+
+% ===============================================
+\slide{16: Conclusion}
+\timing{1.5 minutes}
+
+Let me conclude with a \keypoint{summary of our contributions}.
+
+\textbf{We delivered three main contributions:}
+\begin{enumerate}
+    \item \textbf{Unified Pipeline:} Automatic normalization for LOC, Function Points, and Use Case Points data
+    \item \textbf{Validation:} Random Forest reduces MMRE by 34\% compared to COCOMO II
+    \item \textbf{Deployment:} REST API for real-world practical usage
+\end{enumerate}
+
+\textbf{Key Takeaways:}
+\begin{itemize}
+    \item Data integration is crucial for modern software estimation
+    \item Ensemble machine learning methods are superior to traditional approaches
+    \item Schema-aware modeling handles heterogeneous data effectively
+\end{itemize}
+
+\textbf{Impact:}
+\begin{itemize}
+    \item Enables data-driven project planning
+    \item Reduces estimation bias significantly
+    \item Provides multi-schema support for diverse organizations
+\end{itemize}
+
+\textbf{Thank you for your attention!}
+
+I'm now happy to take your questions and discuss any aspects of this research.
+
+\pause
+
+% ===============================================
+\section*{Backup: Anticipated Questions \& Answers}
+
+\subsection*{Q1: Why not use deep learning instead of Random Forest?}
+
+\textbf{Answer:} Great question. We actually considered deep learning, but for three reasons, Random Forest was more appropriate for this problem:
+
+\begin{enumerate}
+    \item \textbf{Dataset size:} With only 320 samples, deep learning would likely overfit. Random Forest works well with smaller datasets.
+    \item \textbf{Interpretability:} Random Forest provides feature importance scores, which help us understand what drives effort estimation. Deep learning is more of a black box.
+    \item \textbf{Performance:} In our experiments, Random Forest achieved the best results. Adding complexity doesn't always improve performance.
+\end{enumerate}
+
+However, as we collect more data - especially reaching thousands of projects - deep learning would become more viable and is definitely in our future roadmap.
+
+\subsection*{Q2: How do you handle new COCOMO II cost drivers not in your training data?}
+
+\textbf{Answer:} That's an important practical question. We handle this in two ways:
+
+\begin{enumerate}
+    \item \textbf{Default values:} For missing cost drivers, we use COCOMO II default values of 1.0, which represent nominal effort multipliers.
+    \item \textbf{Schema detection:} Our pipeline identifies which schema the new data belongs to and applies the appropriate preprocessing.
+\end{enumerate}
+
+However, if a project has completely new characteristics never seen in training, our confidence scores will reflect higher uncertainty. This is where continuous learning comes in - we can retrain models as new data becomes available.
+
+\subsection*{Q3: What's the computational cost of your approach?}
+
+\textbf{Answer:} Excellent question about practical deployment.
+
+\textbf{Training time:}
+\begin{itemize}
+    \item Random Forest training: approximately 8 seconds on our dataset
+    \item One-time cost, only needed when retraining
+\end{itemize}
+
+\textbf{Prediction time:}
+\begin{itemize}
+    \item Less than 50 milliseconds per project
+    \item This includes preprocessing and prediction
+    \item Fast enough for real-time API responses
+\end{itemize}
+
+So the computational cost is very reasonable, even for large-scale deployment. A single server can handle thousands of estimation requests per hour.
+
+\subsection*{Q4: How does your approach compare to recent deep learning papers?}
+
+\textbf{Answer:} We conducted a literature review, and I can share some comparisons:
+
+\textbf{Recent deep learning approaches:}
+\begin{itemize}
+    \item Achieve 15-25\% MMRE on single-schema datasets
+    \item But require 1000+ training samples
+    \item And typically focus on one schema only
+\end{itemize}
+
+\textbf{Our approach:}
+\begin{itemize}
+    \item Achieves 38\% MMRE on multi-schema heterogeneous data
+    \item Works with 320 samples across three schemas
+    \item Provides practical multi-schema support
+\end{itemize}
+
+The key difference is that we handle \textbf{heterogeneous real-world data}, while many research papers use cleaner, single-source datasets. Our slightly higher error rate is the trade-off for greater practical applicability.
+
+\subsection*{Q5: Can you explain the 34\% improvement more clearly?}
+
+\textbf{Answer:} Absolutely. Let me break down the 34\% improvement:
+
+\textbf{COCOMO II Baseline:}
+\begin{itemize}
+    \item MMRE = 0.58
+    \item This means on average, estimates are off by 58\%
+\end{itemize}
+
+\textbf{Random Forest:}
+\begin{itemize}
+    \item MMRE = 0.38
+    \item Average estimation error is 38\%
+\end{itemize}
+
+\textbf{Improvement calculation:}
+\begin{itemize}
+    \item Absolute improvement: 0.58 - 0.38 = 0.20
+    \item Relative improvement: 0.20 / 0.58 = 34\%
+\end{itemize}
+
+So we reduced the estimation error by one-third compared to traditional COCOMO II. This is significant in practice - it means fewer budget overruns and better project planning.
+
+\subsection*{Q6: What about different software domains - web apps, embedded systems, etc.?}
+
+\textbf{Answer:} Another excellent question about generalization.
+
+Our current dataset includes projects from multiple domains, but we don't have enough samples per domain to build domain-specific models yet.
+
+\textbf{Current approach:}
+\begin{itemize}
+    \item We use COCOMO II application type as a feature
+    \item The model learns domain differences implicitly
+\end{itemize}
+
+\textbf{Future improvement:}
+\begin{itemize}
+    \item Collect domain-labeled data
+    \item Build ensemble models with domain-specific branches
+    \item Allow users to specify domain for better calibration
+\end{itemize}
+
+This is definitely an area for future research - domain adaptation in software effort estimation.
+
+\subsection*{Q7: How do you ensure the API doesn't get abused or produce wrong estimates?}
+
+\textbf{Answer:} Security and reliability are critical for production deployment.
+
+\textbf{We implement several safeguards:}
+
+\begin{enumerate}
+    \item \textbf{Input validation:}
+    \begin{itemize}
+        \item Range checks on all metrics
+        \item Schema consistency validation
+        \item Reject obviously invalid inputs
+    \end{itemize}
+    
+    \item \textbf{Confidence scoring:}
+    \begin{itemize}
+        \item Each prediction comes with confidence score
+        \item Low confidence triggers warning
+        \item Users see uncertainty estimates
+    \end{itemize}
+    
+    \item \textbf{Rate limiting:}
+    \begin{itemize}
+        \item API key required
+        \item Request throttling per user
+        \item Prevents abuse
+    \end{itemize}
+    
+    \item \textbf{Logging and monitoring:}
+    \begin{itemize}
+        \item All predictions logged
+        \item Anomaly detection on inputs
+        \item Alert system for suspicious patterns
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Most importantly:} We make it clear that estimates are \textbf{guidance, not guarantees}. Human judgment should always be involved in final decisions.
+
+\end{document}

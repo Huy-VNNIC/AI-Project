@@ -1,0 +1,293 @@
+<mxfile host="app.diagrams.net" modified="2024-12-14T00:00:00.000Z" agent="5.0" version="22.1.0" etag="ml_architecture_v1">
+  <diagram name="ML Architecture" id="ml-architecture">
+    <mxGraphModel dx="1920" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Insightimate: Machine Learning Pipeline for Software Effort Estimation&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontColor=#1A1A1A;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="1400" height="50" as="geometry" />
+        </mxCell>
+        
+        <!-- LAYER 1: DATA ACQUISITION -->
+        <mxCell id="data-layer-title" value="&lt;b&gt;1. DATA ACQUISITION &amp; COLLECTION&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="100" width="2100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Sources -->
+        <mxCell id="data-github" value="&lt;b&gt;GitHub Repositories&lt;/b&gt;&lt;br&gt;&lt;br&gt;• DASE Dataset&lt;br&gt;• Derek Jones Collection&lt;br&gt;• Freeman Estimator&lt;br&gt;• Software Metrics&lt;br&gt;&lt;br&gt;Format: CSV, ARFF" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="170" width="240" height="150" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="data-kaggle" value="&lt;b&gt;Kaggle Datasets&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Public Projects&lt;br&gt;• Industrial Data&lt;br&gt;• NASA Datasets&lt;br&gt;• ISBSG Repository&lt;br&gt;&lt;br&gt;Format: CSV, Excel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="380" y="170" width="240" height="150" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="data-academic" value="&lt;b&gt;Academic Sources&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Research Papers (1993-2022)&lt;br&gt;• COCOMO II Studies&lt;br&gt;• Zenodo Archives&lt;br&gt;• Mendeley Data&lt;br&gt;&lt;br&gt;Format: Various" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="660" y="170" width="240" height="150" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="data-requirements" value="&lt;b&gt;Requirement Documents&lt;/b&gt;&lt;br&gt;&lt;br&gt;• PURE Dataset (Public Requirements)&lt;br&gt;• Irrelevant Requirements (Figshare)&lt;br&gt;• Mendeley Requirements (23xtbvk6yp)&lt;br&gt;• Project Descriptions&lt;br&gt;&lt;br&gt;Format: PDF, TXT, CSV" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="940" y="170" width="280" height="150" as="geometry" />
+        </mxCell>
+        
+        <!-- Raw Data Summary -->
+        <mxCell id="raw-data-summary" value="&lt;b&gt;RAW DATA SUMMARY&lt;/b&gt;&lt;br&gt;&lt;br&gt;Total Records: 1,042&lt;br&gt;• LOC Schema: 947 samples&lt;br&gt;• FP Schema: 24 samples&lt;br&gt;• UCP Schema: 71 samples&lt;br&gt;&lt;br&gt;Time Range: 1993-2022&lt;br&gt;Project Types: Diverse&lt;br&gt;Data Quality: Mixed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="170" width="280" height="150" as="geometry" />
+        </mxCell>
+        
+        <!-- LAYER 2: DATA CLEANING -->
+        <mxCell id="cleaning-layer-title" value="&lt;b&gt;2. DATA CLEANING &amp; PREPROCESSING&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="360" width="2100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- Cleaning Steps -->
+        <mxCell id="clean-dedup" value="&lt;b&gt;Deduplication&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Remove Exact Duplicates&lt;br&gt;• Match on project_id&lt;br&gt;• Match on size+effort&lt;br&gt;• Keep Earliest Version&lt;br&gt;&lt;br&gt;Result: Unique records only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="430" width="240" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="clean-filter" value="&lt;b&gt;Quality Filtering&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Remove Blurry/Low-Quality&lt;br&gt;• Remove Non-target Classes&lt;br&gt;• Remove Corrupted Files&lt;br&gt;• Validate Data Types&lt;br&gt;&lt;br&gt;Result: High-quality samples" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="380" y="430" width="240" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="clean-harmonize" value="&lt;b&gt;Unit Harmonization&lt;/b&gt;&lt;br&gt;&lt;br&gt;• LOC → KLOC (÷1000)&lt;br&gt;• Hours → Person-Months (÷160)&lt;br&gt;• Days → Person-Months (÷20)&lt;br&gt;• Standardize Size Metrics&lt;br&gt;&lt;br&gt;Result: Unified scale" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="660" y="430" width="240" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="clean-missing" value="&lt;b&gt;Missing Value Handling&lt;/b&gt;&lt;br&gt;&lt;br&gt;• Drop if core fields missing&lt;br&gt;• Median imputation (optional)&lt;br&gt;• Document missing patterns&lt;br&gt;• Preserve dataset size&lt;br&gt;&lt;br&gt;Result: Complete records" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="940" y="430" width="240" height="140" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="clean-outliers" value="&lt;b&gt;Outlier Treatment (IQR)&lt;/b&gt;&lt;br&gt;&lt;br&gt;Q1 = 25th percentile&lt;br&gt;Q3 = 75th percentile&lt;br&gt;IQR = Q3 - Q1&lt;br&gt;&lt;br&gt;Bounds:&lt;br&gt;Lower = Q1 - 1.5×IQR&lt;br&gt;Upper = Q3 + 1.5×IQR&lt;br&gt;&lt;br&gt;Method: Clip (not remove)&lt;br&gt;Result: Bounded values" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="430" width="240" height="140" as="geometry" />
+        </mxCell>
+        
+        <!-- LAYER 3: DATA ANNOTATION & AUGMENTATION -->
+        <mxCell id="augment-layer-title" value="&lt;b&gt;3. DATA ANNOTATION &amp; AUGMENTATION&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="610" width="2100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- Annotation Tools -->
+        <mxCell id="annotate-roboflow" value="&lt;b&gt;Roboflow Annotation&lt;/b&gt;&lt;br&gt;&lt;br&gt;For YOLO (if applicable):&lt;br&gt;• Bounding Box Format&lt;br&gt;• &lt;class_id&gt; &lt;x_center&gt; &lt;y_center&gt; &lt;width&gt; &lt;height&gt;&lt;br&gt;• Normalized [0,1]&lt;br&gt;&lt;br&gt;For Classification:&lt;br&gt;• Class Labels&lt;br&gt;• Schema Mapping" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="680" width="320" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Augmentation -->
+        <mxCell id="augment-techniques" value="&lt;b&gt;Data Augmentation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Techniques:&lt;br&gt;• Flip: Horizontal, Vertical&lt;br&gt;• Crop: 0-5% zoom&lt;br&gt;• Rotation: -10° to +10°&lt;br&gt;• Brightness: -5% to +5%&lt;br&gt;• Blur: up to 1px&lt;br&gt;• Noise: up to 0.1%&lt;br&gt;&lt;br&gt;Purpose:&lt;br&gt;• Balance minority classes&lt;br&gt;• Increase diversity&lt;br&gt;• Reduce overfitting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="460" y="680" width="280" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Balancing -->
+        <mxCell id="balance-data" value="&lt;b&gt;Class Balancing&lt;/b&gt;&lt;br&gt;&lt;br&gt;Problem:&lt;br&gt;• Imbalanced schemas&lt;br&gt;• LOC: 947 samples&lt;br&gt;• FP: 24 samples&lt;br&gt;• UCP: 71 samples&lt;br&gt;&lt;br&gt;Solution:&lt;br&gt;• Augment minority (FP/UCP)&lt;br&gt;• Stratified sampling&lt;br&gt;• Weighted loss functions&lt;br&gt;&lt;br&gt;Result: Better generalization" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="780" y="680" width="280" height="160" as="geometry" />
+        </mxCell>
+        
+        <!-- LAYER 4: DATA SPLITTING -->
+        <mxCell id="split-layer-title" value="&lt;b&gt;4. DATA SPLITTING &amp; PARTITIONING&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="880" width="2100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- Splitting Strategy -->
+        <mxCell id="split-strategy" value="&lt;b&gt;Splitting Strategy&lt;/b&gt;&lt;br&gt;&lt;br&gt;Train/Test Split:&lt;br&gt;• 80% Training&lt;br&gt;• 20% Testing&lt;br&gt;&lt;br&gt;Stratification:&lt;br&gt;• 5 size quantile bins&lt;br&gt;• Preserve scale distribution&lt;br&gt;&lt;br&gt;Cross-Validation:&lt;br&gt;• 5-Fold CV on training set&lt;br&gt;• Shuffled splits&lt;br&gt;&lt;br&gt;Random Seeds:&lt;br&gt;• 10 different seeds (42-51)&lt;br&gt;• Report mean ± std" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="950" width="320" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Data Transformation -->
+        <mxCell id="transform-log" value="&lt;b&gt;Log Transformation&lt;/b&gt;&lt;br&gt;&lt;br&gt;Apply to:&lt;br&gt;• Size (KLOC/FP/UCP)&lt;br&gt;• Effort (Person-Months)&lt;br&gt;&lt;br&gt;Formula:&lt;br&gt;log_size = log(Size)&lt;br&gt;log_effort = log(Effort)&lt;br&gt;&lt;br&gt;Benefits:&lt;br&gt;• Normalize skewed distributions&lt;br&gt;• Improve correlation&lt;br&gt;• Linear in log-space&lt;br&gt;• Better model fit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="460" y="950" width="280" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Feature Scaling -->
+        <mxCell id="scale-features" value="&lt;b&gt;Feature Standardization&lt;/b&gt;&lt;br&gt;&lt;br&gt;For Linear Models:&lt;br&gt;StandardScaler:&lt;br&gt;z = (x - μ) / σ&lt;br&gt;&lt;br&gt;For Tree Models:&lt;br&gt;No scaling needed&lt;br&gt;(scale-invariant)&lt;br&gt;&lt;br&gt;Fit on training only:&lt;br&gt;• Calculate μ, σ on train&lt;br&gt;• Apply to test&lt;br&gt;• Prevent data leakage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="780" y="950" width="280" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Final Dataset -->
+        <mxCell id="final-dataset" value="&lt;b&gt;FINAL DATASET STATS&lt;/b&gt;&lt;br&gt;&lt;br&gt;LOC Schema:&lt;br&gt;• Train: 757 samples (80%)&lt;br&gt;• Test: 190 samples (20%)&lt;br&gt;&lt;br&gt;FP Schema:&lt;br&gt;• Train: 19 samples (80%)&lt;br&gt;• Test: 5 samples (20%)&lt;br&gt;&lt;br&gt;UCP Schema:&lt;br&gt;• Train: 57 samples (80%)&lt;br&gt;• Test: 14 samples (20%)&lt;br&gt;&lt;br&gt;All datasets:&lt;br&gt;✓ Cleaned&lt;br&gt;✓ Harmonized&lt;br&gt;✓ Balanced&lt;br&gt;✓ Ready for training" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1100" y="950" width="320" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- LAYER 5: MODEL TRAINING -->
+        <mxCell id="model-layer-title" value="&lt;b&gt;5. MACHINE LEARNING MODEL TRAINING&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="1170" width="2100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- COCOMO II Baseline -->
+        <mxCell id="model-cocomo" value="&lt;b&gt;COCOMO II&lt;/b&gt;&lt;br&gt;(Baseline)&lt;br&gt;&lt;br&gt;Type: Parametric&lt;br&gt;&lt;br&gt;Formula:&lt;br&gt;Effort = A × Size^E × Π(EM_i)&lt;br&gt;&lt;br&gt;Constants:&lt;br&gt;A = 2.94 (organic)&lt;br&gt;E = 1.0-1.2&lt;br&gt;&lt;br&gt;17 Cost Drivers&lt;br&gt;5 Scale Factors&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;MMRE: 2.79&lt;br&gt;PRED(25): 0.012&lt;br&gt;MAE: 45.03 PM&lt;br&gt;RMSE: 53.70 PM" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1240" width="220" height="260" as="geometry" />
+        </mxCell>
+        
+        <!-- Linear Regression -->
+        <mxCell id="model-lr" value="&lt;b&gt;Linear Regression&lt;/b&gt;&lt;br&gt;&lt;br&gt;Type: ML Baseline&lt;br&gt;Library: sklearn&lt;br&gt;&lt;br&gt;Variants:&lt;br&gt;1. Standard LR&lt;br&gt;2. Log-Log LR&lt;br&gt;&lt;br&gt;Hyperparameters:&lt;br&gt;• fit_intercept: True&lt;br&gt;• normalize: False&lt;br&gt;&lt;br&gt;Training:&lt;br&gt;• Closed-form solution&lt;br&gt;• Fast (&lt;1 sec)&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;MMRE: 4.50&lt;br&gt;PRED(25): 0.000&lt;br&gt;MAE: 107.54 PM&lt;br&gt;RMSE: 280.27 PM&lt;br&gt;&lt;br&gt;Issue: High bias&lt;br&gt;Unstable predictions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="360" y="1240" width="220" height="260" as="geometry" />
+        </mxCell>
+        
+        <!-- Decision Tree -->
+        <mxCell id="model-dt" value="&lt;b&gt;Decision Tree&lt;/b&gt;&lt;br&gt;&lt;br&gt;Type: Non-linear ML&lt;br&gt;Library: sklearn&lt;br&gt;&lt;br&gt;Hyperparameters:&lt;br&gt;• max_depth: 3-15&lt;br&gt;• min_samples_leaf: 2-10&lt;br&gt;• min_samples_split: 2-20&lt;br&gt;• criterion: squared_error&lt;br&gt;&lt;br&gt;Tuning: GridSearchCV&lt;br&gt;• 5-Fold CV&lt;br&gt;• Metric: RMSE&lt;br&gt;&lt;br&gt;Training Time: ~5 sec&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;MMRE: 1.37&lt;br&gt;PRED(25): 0.173&lt;br&gt;MAE: 18.63 PM&lt;br&gt;RMSE: 23.62 PM&lt;br&gt;&lt;br&gt;Pros: Interpretable&lt;br&gt;Cons: Overfits easily" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="620" y="1240" width="240" height="260" as="geometry" />
+        </mxCell>
+        
+        <!-- Random Forest (BEST) -->
+        <mxCell id="model-rf" value="&lt;b&gt;Random Forest ⭐&lt;/b&gt;&lt;br&gt;&lt;b&gt;BEST MODEL&lt;/b&gt;&lt;br&gt;&lt;br&gt;Type: Ensemble (Bagging)&lt;br&gt;Library: sklearn&lt;br&gt;&lt;br&gt;Hyperparameters:&lt;br&gt;• n_estimators: 50-300&lt;br&gt;• max_features: sqrt, log2&lt;br&gt;• max_depth: 5-20&lt;br&gt;• min_samples_leaf: 2-5&lt;br&gt;• bootstrap: True&lt;br&gt;&lt;br&gt;Tuning: GridSearchCV&lt;br&gt;• 5-Fold CV&lt;br&gt;• Metric: RMSE&lt;br&gt;&lt;br&gt;Training Time: ~30 sec&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;MMRE: 0.65 ✓&lt;br&gt;PRED(25): 0.395 ✓&lt;br&gt;MAE: 12.66 PM ✓&lt;br&gt;RMSE: 20.01 PM ✓&lt;br&gt;&lt;br&gt;Improvement vs COCOMO:&lt;br&gt;• MMRE: -76.8%&lt;br&gt;• PRED(25): +32x" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="900" y="1240" width="260" height="260" as="geometry" />
+        </mxCell>
+        
+        <!-- Gradient Boosting -->
+        <mxCell id="model-gb" value="&lt;b&gt;Gradient Boosting&lt;/b&gt;&lt;br&gt;&lt;br&gt;Type: Ensemble (Boosting)&lt;br&gt;Library: sklearn&lt;br&gt;&lt;br&gt;Hyperparameters:&lt;br&gt;• learning_rate: 0.01-0.3&lt;br&gt;• n_estimators: 50-500&lt;br&gt;• max_depth: 3-10&lt;br&gt;• subsample: 0.6-1.0&lt;br&gt;• min_samples_leaf: 2-5&lt;br&gt;&lt;br&gt;Tuning: GridSearchCV&lt;br&gt;• Early stopping&lt;br&gt;• Validation split: 10%&lt;br&gt;&lt;br&gt;Training Time: ~45 sec&lt;br&gt;&lt;br&gt;Performance:&lt;br&gt;MMRE: 1.10&lt;br&gt;PRED(25): 0.198&lt;br&gt;MAE: 16.16 PM&lt;br&gt;RMSE: 21.09 PM&lt;br&gt;&lt;br&gt;2nd Best Model" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b1ddf0;strokeColor=#10739e;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="1240" width="240" height="260" as="geometry" />
+        </mxCell>
+        
+        <!-- LAYER 6: EVALUATION -->
+        <mxCell id="eval-layer-title" value="&lt;b&gt;6. MODEL EVALUATION &amp; VALIDATION&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="1540" width="2100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- Evaluation Metrics -->
+        <mxCell id="eval-metrics" value="&lt;b&gt;EVALUATION METRICS&lt;/b&gt;&lt;br&gt;&lt;br&gt;1. MMRE (Mean Magnitude Relative Error):&lt;br&gt;   MMRE = (1/n) × Σ|y_i - ŷ_i| / y_i&lt;br&gt;&lt;br&gt;2. PRED(25) (Prediction at 25%):&lt;br&gt;   PRED(25) = count(|y_i - ŷ_i|/y_i ≤ 0.25) / n&lt;br&gt;&lt;br&gt;3. MAE (Mean Absolute Error):&lt;br&gt;   MAE = (1/n) × Σ|y_i - ŷ_i|&lt;br&gt;&lt;br&gt;4. RMSE (Root Mean Squared Error):&lt;br&gt;   RMSE = √[(1/n) × Σ(y_i - ŷ_i)²]&lt;br&gt;&lt;br&gt;5. R² (Coefficient of Determination):&lt;br&gt;   R² = 1 - [Σ(y_i - ŷ_i)² / Σ(y_i - ȳ)²]&lt;br&gt;&lt;br&gt;Computed on:&lt;br&gt;• Test set (20%)&lt;br&gt;• 10 random seeds&lt;br&gt;• Report: mean ± std" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1610" width="420" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- Statistical Testing -->
+        <mxCell id="eval-stats" value="&lt;b&gt;STATISTICAL TESTING&lt;/b&gt;&lt;br&gt;&lt;br&gt;Wilcoxon Signed-Rank Test:&lt;br&gt;• Non-parametric&lt;br&gt;• Paired samples&lt;br&gt;• H0: No difference&lt;br&gt;• α = 0.05&lt;br&gt;&lt;br&gt;Holm-Bonferroni Correction:&lt;br&gt;• Multiple comparisons&lt;br&gt;• Control family-wise error&lt;br&gt;&lt;br&gt;Cliff's Delta (Effect Size):&lt;br&gt;• δ &lt; 0.147: Negligible&lt;br&gt;• 0.147-0.33: Small&lt;br&gt;• 0.33-0.474: Medium&lt;br&gt;• &gt; 0.474: Large&lt;br&gt;&lt;br&gt;Results:&lt;br&gt;✓ RF significantly better&lt;br&gt;✓ p &lt; 0.001&lt;br&gt;✓ Large effect size" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1610" width="320" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- Cross-Schema Analysis -->
+        <mxCell id="eval-schema" value="&lt;b&gt;CROSS-SCHEMA ANALYSIS&lt;/b&gt;&lt;br&gt;&lt;br&gt;LOC Schema:&lt;br&gt;• Best: RF (MMRE: 0.58)&lt;br&gt;• Correlation↑ after log transform&lt;br&gt;• Stable across sizes&lt;br&gt;&lt;br&gt;FP Schema:&lt;br&gt;• Best: RF (MMRE: 0.71)&lt;br&gt;• Small sample (n=24)&lt;br&gt;• High variance&lt;br&gt;&lt;br&gt;UCP Schema:&lt;br&gt;• Best: RF (MMRE: 0.68)&lt;br&gt;• Medium sample (n=71)&lt;br&gt;• Complex features&lt;br&gt;&lt;br&gt;Insight:&lt;br&gt;RF consistently outperforms&lt;br&gt;across all schemas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="920" y="1610" width="300" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- Final Results Table -->
+        <mxCell id="results-table" value="&lt;b&gt;FINAL RESULTS SUMMARY&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;table border='1' style='width:100%; font-size:10px;'&gt;&lt;tr&gt;&lt;th&gt;Model&lt;/th&gt;&lt;th&gt;MMRE&lt;/th&gt;&lt;th&gt;PRED(25)&lt;/th&gt;&lt;th&gt;MAE&lt;/th&gt;&lt;th&gt;RMSE&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;COCOMO II&lt;/td&gt;&lt;td&gt;2.79&lt;/td&gt;&lt;td&gt;0.012&lt;/td&gt;&lt;td&gt;45.03&lt;/td&gt;&lt;td&gt;53.70&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Linear Reg&lt;/td&gt;&lt;td&gt;4.50&lt;/td&gt;&lt;td&gt;0.000&lt;/td&gt;&lt;td&gt;107.54&lt;/td&gt;&lt;td&gt;280.27&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Dec Tree&lt;/td&gt;&lt;td&gt;1.37&lt;/td&gt;&lt;td&gt;0.173&lt;/td&gt;&lt;td&gt;18.63&lt;/td&gt;&lt;td&gt;23.62&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Grad Boost&lt;/td&gt;&lt;td&gt;1.10&lt;/td&gt;&lt;td&gt;0.198&lt;/td&gt;&lt;td&gt;16.16&lt;/td&gt;&lt;td&gt;21.09&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background-color:#d5e8d4; font-weight:bold;'&gt;&lt;td&gt;Random Forest&lt;/td&gt;&lt;td&gt;0.65&lt;/td&gt;&lt;td&gt;0.395&lt;/td&gt;&lt;td&gt;12.66&lt;/td&gt;&lt;td&gt;20.01&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;br&gt;&lt;br&gt;Ranking: RF &gt; GB &gt; DT &gt; COCOMO &gt; LR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1260" y="1610" width="380" height="240" as="geometry" />
+        </mxCell>
+        
+        <!-- LAYER 7: DEPLOYMENT -->
+        <mxCell id="deploy-layer-title" value="&lt;b&gt;7. MODEL DEPLOYMENT &amp; INTEGRATION&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=16;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="1890" width="2100" height="45" as="geometry" />
+        </mxCell>
+        
+        <!-- Model Saving -->
+        <mxCell id="deploy-save" value="&lt;b&gt;Model Serialization&lt;/b&gt;&lt;br&gt;&lt;br&gt;Format: Joblib/Pickle&lt;br&gt;&lt;br&gt;Saved Artifacts:&lt;br&gt;• model_rf.pkl&lt;br&gt;• model_gb.pkl&lt;br&gt;• model_dt.pkl&lt;br&gt;• scaler.pkl&lt;br&gt;• feature_names.json&lt;br&gt;&lt;br&gt;Location:&lt;br&gt;models/ directory&lt;br&gt;&lt;br&gt;Version Control:&lt;br&gt;Git LFS for large files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1960" width="280" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- API Integration -->
+        <mxCell id="deploy-api" value="&lt;b&gt;API Integration&lt;/b&gt;&lt;br&gt;&lt;br&gt;FastAPI Endpoints:&lt;br&gt;• POST /api/estimate&lt;br&gt;• POST /api/analyze&lt;br&gt;• POST /api/team&lt;br&gt;• POST /api/breakdown&lt;br&gt;&lt;br&gt;Flask Endpoints:&lt;br&gt;• POST /api/health&lt;br&gt;• POST /api/estimate&lt;br&gt;• POST /api/report&lt;br&gt;&lt;br&gt;Files:&lt;br&gt;• api.py (FastAPI)&lt;br&gt;• api_server.py (Flask)&lt;br&gt;• effort_estimation_service.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="420" y="1960" width="300" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Web Interface -->
+        <mxCell id="deploy-web" value="&lt;b&gt;Web Interface&lt;/b&gt;&lt;br&gt;&lt;br&gt;Templates:&lt;br&gt;• index.html&lt;br&gt;• cocomo_form.html&lt;br&gt;• debug.html&lt;br&gt;&lt;br&gt;Features:&lt;br&gt;• Interactive forms&lt;br&gt;• File upload (PDF/DOC)&lt;br&gt;• Real-time estimation&lt;br&gt;• Model comparison&lt;br&gt;• Visualization (Chart.js)&lt;br&gt;&lt;br&gt;Framework: HTML/CSS/JS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="760" y="1960" width="280" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Hugging Face -->
+        <mxCell id="deploy-hf" value="&lt;b&gt;Hugging Face Spaces&lt;/b&gt;&lt;br&gt;&lt;br&gt;Deployment:&lt;br&gt;• Space ID: nhathuyyne/&lt;br&gt;  software-effort-estimation-api&lt;br&gt;• SDK: Gradio 3.50.2&lt;br&gt;• Runtime: Python 3.10&lt;br&gt;&lt;br&gt;Files Deployed:&lt;br&gt;• app.py (Gradio UI)&lt;br&gt;• requirements.txt&lt;br&gt;• README.md&lt;br&gt;• models/*.pkl&lt;br&gt;&lt;br&gt;Access:&lt;br&gt;Public URL&lt;br&gt;Free tier" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="1960" width="300" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Feedback Loop -->
+        <mxCell id="deploy-feedback" value="&lt;b&gt;Feedback &amp; Retraining&lt;/b&gt;&lt;br&gt;&lt;br&gt;Collect Feedback:&lt;br&gt;• Actual effort (post-project)&lt;br&gt;• Prediction accuracy&lt;br&gt;• User ratings&lt;br&gt;&lt;br&gt;Retraining Pipeline:&lt;br&gt;• Scheduled: Monthly&lt;br&gt;• Triggered: New data threshold&lt;br&gt;• Automated: model_retrainer.py&lt;br&gt;&lt;br&gt;Version Control:&lt;br&gt;• Model versioning&lt;br&gt;• A/B testing&lt;br&gt;• Performance tracking&lt;br&gt;&lt;br&gt;Continuous Improvement" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="1420" y="1960" width="300" height="180" as="geometry" />
+        </mxCell>
+        
+        <!-- Arrows: Data Flow -->
+        <mxCell id="arrow-data-clean" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;" edge="1" parent="1" source="data-github" target="clean-dedup">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-clean-augment" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;" edge="1" parent="1" source="clean-outliers" target="augment-techniques">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-augment-split" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;" edge="1" parent="1" source="balance-data" target="split-strategy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-split-train" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#0066CC;" edge="1" parent="1" source="final-dataset" target="model-rf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-train-eval" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#00CC00;" edge="1" parent="1" source="model-rf" target="eval-metrics">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="arrow-eval-deploy" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#00CC00;" edge="1" parent="1" source="results-table" target="deploy-save">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- Feedback Loop Arrow -->
+        <mxCell id="arrow-feedback" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeWidth=3;strokeColor=#FF6600;dashed=1;" edge="1" parent="1" source="deploy-feedback" target="data-github">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1570" y="2180" />
+              <mxPoint x="2050" y="2180" />
+              <mxPoint x="2050" y="245" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- LEGEND -->
+        <mxCell id="legend-box" value="&lt;b&gt;LEGEND&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=14;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="100" width="540" height="40" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend1" value="Standard Data Flow" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#0066CC;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1620" y="170" as="sourcePoint" />
+            <mxPoint x="1720" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend2" value="Best Model Path (RF)" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#00CC00;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1620" y="210" as="sourcePoint" />
+            <mxPoint x="1720" y="210" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend3" value="Feedback Loop" style="endArrow=classic;html=1;strokeWidth=3;strokeColor=#FF6600;dashed=1;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1620" y="250" as="sourcePoint" />
+            <mxPoint x="1720" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        
+        <mxCell id="legend-text1" value="Data preprocessing and model training" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1730" y="160" width="220" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-text2" value="Random Forest (highest accuracy)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1730" y="200" width="220" height="20" as="geometry" />
+        </mxCell>
+        
+        <mxCell id="legend-text3" value="Continuous learning and improvement" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1730" y="240" width="220" height="20" as="geometry" />
+        </mxCell>
+        
+        <!-- Key Insights Box -->
+        <mxCell id="insights-box" value="&lt;b&gt;KEY INSIGHTS &amp; CONTRIBUTIONS&lt;/b&gt;&lt;br&gt;&lt;br&gt;✓ Multi-Schema Framework: LOC/FP/UCP unified&lt;br&gt;✓ Comprehensive Preprocessing: IQR + Log Transform&lt;br&gt;✓ Rigorous Evaluation: 10 seeds, 5-fold CV&lt;br&gt;✓ Statistical Validation: Wilcoxon + Cliff's Delta&lt;br&gt;✓ Random Forest Excellence: 76.8% error reduction&lt;br&gt;✓ Cross-Schema Consistency: RF best on all schemas&lt;br&gt;✓ Production-Ready: HuggingFace deployment&lt;br&gt;✓ Feedback Loop: Continuous model improvement&lt;br&gt;&lt;br&gt;&lt;b&gt;Practical Impact:&lt;/b&gt;&lt;br&gt;• More accurate project planning&lt;br&gt;• Better resource allocation&lt;br&gt;• Reduced budget overruns&lt;br&gt;• Data-driven decision making&lt;br&gt;&lt;br&gt;&lt;b&gt;Future Directions:&lt;/b&gt;&lt;br&gt;• Deep Learning integration&lt;br&gt;• Transfer learning across domains&lt;br&gt;• Real-time DevOps telemetry&lt;br&gt;• Explainability enhancements" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;align=left;verticalAlign=top;fontSize=11;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1600" y="310" width="540" height="340" as="geometry" />
+        </mxCell>
+        
+        <!-- Implementation Details -->
+        <mxCell id="impl-box" value="&lt;b&gt;IMPLEMENTATION DETAILS&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Environment:&lt;/b&gt;&lt;br&gt;• Python 3.10&lt;br&gt;• scikit-learn 1.3.0&lt;br&gt;• NumPy 1.26+&lt;br&gt;• Pandas 2.0+&lt;br&gt;• SciPy 1.11+&lt;br&gt;&lt;br&gt;&lt;b&gt;Hardware:&lt;/b&gt;&lt;br&gt;• CPU: 8-16 cores&lt;br&gt;• RAM: 32-64 GB&lt;br&gt;• No GPU required&lt;br&gt;&lt;br&gt;&lt;b&gt;Key Files:&lt;/b&gt;&lt;br&gt;• analyzer.py (NLP)&lt;br&gt;• ml_requirement_analyzer.py&lt;br&gt;• estimator.py (Integration)&lt;br&gt;• model_integration.py&lt;br&gt;• train_models.py&lt;br&gt;• retrain_models.py&lt;br&gt;• utils.py (Preprocessing)&lt;br&gt;&lt;br&gt;&lt;b&gt;Data Files:&lt;/b&gt;&lt;br&gt;• loc_based.csv (947 samples)&lt;br&gt;• fp_based.csv (24 samples)&lt;br&gt;• ucp_based.csv (71 samples)&lt;br&gt;• combined_data.csv" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;verticalAlign=top;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="680" width="540" height="320" as="geometry" />
+        </mxCell>
+        
+        <!-- Citation Box -->
+        <mxCell id="citation-box" value="&lt;b&gt;ACADEMIC CONTEXT&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Research Paper:&lt;/b&gt;&lt;br&gt;Insightimate: Enhancing Software Effort Estimation&lt;br&gt;Accuracy Using Machine Learning Across Three Schemas&lt;br&gt;(LOC/FP/UCP)&lt;br&gt;&lt;br&gt;&lt;b&gt;Authors:&lt;/b&gt;&lt;br&gt;Nguyen Nhat Huy¹, Duc Man Nguyen¹,&lt;br&gt;Dang Nhat Minh¹, Nguyen Thuy Giang¹,&lt;br&gt;P. W. C. Prasad¹, Md Shohel Sayeed²*&lt;br&gt;&lt;br&gt;&lt;b&gt;Affiliations:&lt;/b&gt;&lt;br&gt;¹ Duy Tan University, Vietnam&lt;br&gt;² Multimedia University, Malaysia&lt;br&gt;&lt;br&gt;&lt;b&gt;Key References:&lt;/b&gt;&lt;br&gt;• Boehm (2000) - COCOMO II&lt;br&gt;• Breiman (2001) - Random Forests&lt;br&gt;• Friedman (2001) - Gradient Boosting&lt;br&gt;• Kitchenham et al. (2001) - Evaluation&lt;br&gt;• Pedregosa et al. (2011) - Scikit-learn" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;align=left;verticalAlign=top;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="1030" width="540" height="260" as="geometry" />
+        </mxCell>
+        
+        <!-- Reproducibility Box -->
+        <mxCell id="repro-box" value="&lt;b&gt;REPRODUCIBILITY CHECKLIST&lt;/b&gt;&lt;br&gt;&lt;br&gt;✓ Fixed random seeds (42-51)&lt;br&gt;✓ Deterministic splits (stratified)&lt;br&gt;✓ Documented preprocessing steps&lt;br&gt;✓ Hyperparameter grids recorded&lt;br&gt;✓ CV folds logged (5-fold)&lt;br&gt;✓ Evaluation metrics standardized&lt;br&gt;✓ Statistical tests applied (Wilcoxon)&lt;br&gt;✓ Effect sizes computed (Cliff's δ)&lt;br&gt;✓ Multiple seeds aggregated (n=10)&lt;br&gt;✓ Public datasets referenced&lt;br&gt;✓ Code modular and documented&lt;br&gt;✓ Models serialized (.pkl)&lt;br&gt;✓ Results version-controlled (Git)&lt;br&gt;✓ Hardware specs documented&lt;br&gt;✓ Environment frozen (requirements.txt)&lt;br&gt;&lt;br&gt;&lt;b&gt;Full reproducibility guaranteed.&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=left;verticalAlign=top;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="1600" y="1320" width="540" height="240" as="geometry" />
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

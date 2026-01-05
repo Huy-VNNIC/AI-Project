@@ -46,7 +46,7 @@ git add .
 
 # Commit changes
 echo "Committing changes..."
-git commit -m "Update features methodology and scoring algorithm"
+git commit -m "Update features cocomo II estimations "
 
 
 # Push to GitHub

@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COCOMO II Parameter Estimation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .parameter-section {
+            background: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .form-floating > label {
+            font-weight: 500;
+        }
+        
+        .rating-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .rating-btn {
+            padding: 8px 12px;
+            border: 2px solid #dee2e6;
+            background: white;
+            border-radius: 6px;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9em;
+        }
+        
+        .rating-btn:hover {
+            border-color: #0d6efd;
+            background: #f8f9fa;
+        }
+        
+        .rating-btn.active {
+            background: #0d6efd;
+            color: white;
+            border-color: #0d6efd;
+        }
+        
+        .rating-very-low.active { background: #28a745; border-color: #28a745; }
+        .rating-low.active { background: #17a2b8; border-color: #17a2b8; }
+        .rating-nominal.active { background: #6c757d; border-color: #6c757d; }
+        .rating-high.active { background: #fd7e14; border-color: #fd7e14; }
+        .rating-very-high.active { background: #dc3545; border-color: #dc3545; }
+        .rating-extra-high.active { background: #6f42c1; border-color: #6f42c1; }
+        
+        .sticky-submit {
+            position: sticky;
+            bottom: 20px;
+            z-index: 100;
+            background: white;
+            border-top: 2px solid #dee2e6;
+            padding: 20px 0;
+            margin-top: 30px;
+        }
+        
+        .progress-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #e9ecef;
+            z-index: 1000;
+        }
+        
+        .progress-bar-custom {
+            height: 100%;
+            background: linear-gradient(90deg, #0d6efd, #198754);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .section-counter {
+            background: #0d6efd;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .parameter-description {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+        
+        .form-section-title {
+            color: #0d6efd;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-indicator">
+        <div class="progress-bar-custom" id="progressBar"></div>
+    </div>
+
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">COCOMO II Parameter-Based Estimation</h3>
+                        <p class="mb-0 mt-2">Configure project parameters for comprehensive effort estimation</p>
+                    </div>
+                    
+                    <div class="card-body">
+                        <form id="cocomoForm">
+                            <!-- Basic Parameters -->
+                            <div class="parameter-section">
+                                <h4 class="form-section-title">
+                                    <span class="section-counter">1</span>
+                                    Basic Project Parameters
+                                </h4>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="number" class="form-control" id="software_size" 
+                                                   value="10.0" min="0.1" step="0.1" required>
+                                            <label for="software_size">Software Size (KLOC)</label>
+                                        </div>
+                                        <div class="parameter-description">
+                                            Enter the estimated size of your software project in thousands of lines of code (KLOC). Typical ranges: Small (1-10), Medium (10-100), Large (100-1000)
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <input type="number" class="form-control" id="cost_per_person_month" 
+                                                   value="5000" min="3000" max="25000" step="100" required>
+                                            <label for="cost_per_person_month">Cost per Person-Month ($)</label>
+                                        </div>
+                                        <div class="parameter-description">
+                                            Average cost per developer per month including salary, benefits, and overhead
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-floating mb-3">
+                                            <select class="form-select" id="method">
+                                                <option value="weighted_average">Weighted Average</option>
+                                                <option value="cocomo">COCOMO Only</option>
+                                                <option value="function_points">Function Points</option>
+                                                <option value="use_case_points">Use Case Points</option>
+                                            </select>
+                                            <label for="method">Estimation Method</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Scale Drivers -->
+                            <div class="parameter-section">
+                                <h4 class="form-section-title">
+                                    <span class="section-counter">2</span>
+                                    Scale Drivers
+                                </h4>
+                                <p class="parameter-description">
+                                    Scale drivers affect the overall project complexity and team efficiency
+                                </p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Precedentedness</label>
+                                        <div class="parameter-description">
+                                            How familiar is the team with this type of project?
+                                        </div>
+                                        <div class="rating-buttons" data-param="precedentedness">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Development Flexibility</label>
+                                        <div class="parameter-description">
+                                            How flexible are the requirements and development constraints?
+                                        </div>
+                                        <div class="rating-buttons" data-param="development_flexibility">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Architecture Risk Resolution</label>
+                                        <div class="parameter-description">
+                                            How well are architecture and risk issues resolved?
+                                        </div>
+                                        <div class="rating-buttons" data-param="architecture_risk_resolution">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Team Cohesion</label>
+                                        <div class="parameter-description">
+                                            How well do the stakeholders work together?
+                                        </div>
+                                        <div class="rating-buttons" data-param="team_cohesion">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Process Maturity</label>
+                                        <div class="parameter-description">
+                                            What is the organization's software process maturity level?
+                                        </div>
+                                        <div class="rating-buttons" data-param="process_maturity">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Product Cost Drivers -->
+                            <div class="parameter-section">
+                                <h4 class="form-section-title">
+                                    <span class="section-counter">3</span>
+                                    Product Cost Drivers
+                                </h4>
+                                <p class="parameter-description">
+                                    Factors related to the characteristics of the software product being developed
+                                </p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Required Software Reliability</label>
+                                        <div class="parameter-description">
+                                            What is the effect of software failure on system operation?
+                                        </div>
+                                        <div class="rating-buttons" data-param="required_software_reliability">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Database Size</label>
+                                        <div class="parameter-description">
+                                            How large is the database relative to the program size?
+                                        </div>
+                                        <div class="rating-buttons" data-param="database_size">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Product Complexity</label>
+                                        <div class="parameter-description">
+                                            How complex are the control, computational, and data management operations?
+                                        </div>
+                                        <div class="rating-buttons" data-param="product_complexity">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Developed for Reusability</label>
+                                        <div class="parameter-description">
+                                            Is the software designed for reuse across multiple projects?
+                                        </div>
+                                        <div class="rating-buttons" data-param="developed_for_reusability">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Documentation Match</label>
+                                        <div class="parameter-description">
+                                            How well does required documentation match the project's life-cycle needs?
+                                        </div>
+                                        <div class="rating-buttons" data-param="documentation_match">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Personnel Cost Drivers -->
+                            <div class="parameter-section">
+                                <h4 class="form-section-title">
+                                    <span class="section-counter">4</span>
+                                    Personnel Cost Drivers
+                                </h4>
+                                <p class="parameter-description">
+                                    Factors related to the capability and experience of the development team
+                                </p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Analyst Capability</label>
+                                        <div class="parameter-description">
+                                            Analysis and design capability of the team
+                                        </div>
+                                        <div class="rating-buttons" data-param="analyst_capability">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Programmer Capability</label>
+                                        <div class="parameter-description">
+                                            Programming capability of the development team
+                                        </div>
+                                        <div class="rating-buttons" data-param="programmer_capability">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Personnel Continuity</label>
+                                        <div class="parameter-description">
+                                            Annual personnel turnover rate
+                                        </div>
+                                        <div class="rating-buttons" data-param="personnel_continuity">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Application Experience</label>
+                                        <div class="parameter-description">
+                                            Team's experience with this type of application
+                                        </div>
+                                        <div class="rating-buttons" data-param="application_experience">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Platform Experience</label>
+                                        <div class="parameter-description">
+                                            Team's experience with the target platform
+                                        </div>
+                                        <div class="rating-buttons" data-param="platform_experience">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Language & Toolset Experience</label>
+                                        <div class="parameter-description">
+                                            Team's experience with programming languages and tools
+                                        </div>
+                                        <div class="rating-buttons" data-param="language_toolset_experience">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Platform Cost Drivers -->
+                            <div class="parameter-section">
+                                <h4 class="form-section-title">
+                                    <span class="section-counter">5</span>
+                                    Platform Cost Drivers
+                                </h4>
+                                <p class="parameter-description">
+                                    Constraints imposed by the target platform and environment
+                                </p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Time Constraint</label>
+                                        <div class="parameter-description">
+                                            Degree of execution time constraint
+                                        </div>
+                                        <div class="rating-buttons" data-param="time_constraint">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Storage Constraint</label>
+                                        <div class="parameter-description">
+                                            Degree of main storage constraint
+                                        </div>
+                                        <div class="rating-buttons" data-param="storage_constraint">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Platform Volatility</label>
+                                        <div class="parameter-description">
+                                            Rate of change in hardware/software platform
+                                        </div>
+                                        <div class="rating-buttons" data-param="platform_volatility">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Project Cost Drivers -->
+                            <div class="parameter-section">
+                                <h4 class="form-section-title">
+                                    <span class="section-counter">6</span>
+                                    Project Cost Drivers
+                                </h4>
+                                <p class="parameter-description">
+                                    Factors related to the particular characteristics of the software development project
+                                </p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Use of Software Tools</label>
+                                        <div class="parameter-description">
+                                            Sophistication of software tools used
+                                        </div>
+                                        <div class="rating-buttons" data-param="use_of_software_tools">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Multisite Development</label>
+                                        <div class="parameter-description">
+                                            Degree of multisite development and communication support
+                                        </div>
+                                        <div class="rating-buttons" data-param="multisite_development">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-4">
+                                        <label class="form-label fw-bold">Required Development Schedule</label>
+                                        <div class="parameter-description">
+                                            Tightness of the development schedule
+                                        </div>
+                                        <div class="rating-buttons" data-param="required_development_schedule">
+                                            <div class="rating-btn rating-very-low" data-value="very_low">Very Low</div>
+                                            <div class="rating-btn rating-low" data-value="low">Low</div>
+                                            <div class="rating-btn rating-nominal active" data-value="nominal">Nominal</div>
+                                            <div class="rating-btn rating-high" data-value="high">High</div>
+                                            <div class="rating-btn rating-very-high" data-value="very_high">Very High</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Section -->
+                            <div class="sticky-submit">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="button" class="btn btn-secondary me-md-2" onclick="resetForm()">
+                                        Reset Form
+                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                                        Calculate Estimation
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Results Section -->
+                <div class="card shadow mt-4 d-none" id="resultsSection">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">Estimation Results</h4>
+                    </div>
+                    <div class="card-body" id="resultsContent">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Progress indicator
+        function updateProgress() {
+            const sections = document.querySelectorAll('.parameter-section');
+            const scrolled = window.scrollY;
+            const maxScroll = document.body.scrollHeight - window.innerHeight;
+            const progress = (scrolled / maxScroll) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        window.addEventListener('scroll', updateProgress);
+        
+        // Rating button handlers
+        document.querySelectorAll('.rating-buttons').forEach(group => {
+            group.addEventListener('click', function(e) {
+                if (e.target.classList.contains('rating-btn')) {
+                    // Remove active from siblings
+                    group.querySelectorAll('.rating-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Add active to clicked button
+                    e.target.classList.add('active');
+                }
+            });
+        });
+        
+        // Form submission
+        document.getElementById('cocomoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate inputs
+            const softwareSize = parseFloat(document.getElementById('software_size').value);
+            const costPerPM = parseFloat(document.getElementById('cost_per_person_month').value);
+            
+            if (softwareSize < 0.1 || softwareSize > 10000) {
+                showError('Software size must be between 0.1 and 10,000 KLOC');
+                return;
+            }
+            
+            if (costPerPM < 3000 || costPerPM > 50000) {
+                showError('Cost per person-month should be between $3,000 and $50,000');
+                return;
+            }
+            
+            // Collect form data
+            const formData = {
+                software_size: softwareSize,
+                cost_per_person_month: costPerPM,
+                method: document.getElementById('method').value
+            };
+            
+            // Collect rating data
+            document.querySelectorAll('.rating-buttons').forEach(group => {
+                const param = group.dataset.param;
+                const activeBtn = group.querySelector('.rating-btn.active');
+                if (activeBtn) {
+                    formData[param] = activeBtn.dataset.value;
+                }
+            });
+            
+            console.log('Submitting COCOMO parameters:', formData);
+            
+            // Show loading
+            showLoading();
+            
+            // Submit to API
+            fetch('/estimate-cocomo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                showResults(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Failed to calculate estimation: ' + error.message);
+            });
+        });
+        
+        function showLoading() {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsSection.classList.remove('d-none');
+            resultsContent.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5>Calculating Estimation...</h5>
+                    <p class="text-muted">Processing COCOMO II parameters and running estimation models</p>
+                </div>
+            `;
+            
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function showResults(data) {
+            const resultsContent = document.getElementById('resultsContent');
+            
+            // Format numbers safely
+            const formatNumber = (num, decimals = 1) => {
+                if (num == null || num === 0 || isNaN(num)) return '-';
+                return Number(num).toFixed(decimals);
+            };
+            
+            const formatCurrency = (num) => {
+                if (num == null || num === 0 || isNaN(num)) return '-';
+                return '$' + Number(num).toLocaleString();
+            };
+            
+            let html = `
+                <div class="alert alert-info mb-4">
+                    <h5>Project Summary</h5>
+                    <p><strong>Software Size:</strong> ${data.cocomo_details?.software_size || '-'} KLOC</p>
+                    <p><strong>Estimation Method:</strong> ${data.input_parameters?.method || 'Weighted Average'}</p>
+                    <p><strong>Confidence Level:</strong> ${data.estimation?.confidence_level || 75}%</p>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-primary">Total Effort</h5>
+                                <h3 class="text-primary">${formatNumber(data.estimation?.integrated_estimate)} PM</h3>
+                                <small class="text-muted">Person-Months</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-success">Duration</h5>
+                                <h3 class="text-success">${formatNumber(data.estimation?.duration)} months</h3>
+                                <small class="text-muted">Development Time</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-warning">Team Size</h5>
+                                <h3 class="text-warning">${formatNumber(data.estimation?.team_size)} people</h3>
+                                <small class="text-muted">Average Team Size</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-info">Total Cost</h5>
+                                <h3 class="text-info">${formatCurrency(data.cocomo_details?.total_cost)}</h3>
+                                <small class="text-muted">Project Budget</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // COCOMO Details
+            if (data.cocomo_details) {
+                html += `
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">COCOMO II Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Software Size:</strong> ${data.cocomo_details.software_size} KLOC<br>
+                                    <strong>Effort Adjustment Factor:</strong> ${data.cocomo_details.effort_adjustment_factor}<br>
+                                    <strong>Scale Factor:</strong> ${data.cocomo_details.scale_factor}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>COCOMO Effort:</strong> ${data.cocomo_details.cocomo_effort} PM<br>
+                                    <strong>COCOMO Schedule:</strong> ${data.cocomo_details.cocomo_schedule} months<br>
+                                    <strong>COCOMO Team Size:</strong> ${data.cocomo_details.cocomo_team_size} people
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Cost per Person-Month:</strong> $${data.cocomo_details.cost_per_person_month}<br>
+                                    <strong>Total Project Cost:</strong> $${data.cocomo_details.total_cost.toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Phase Distribution
+            if (data.phase_distribution) {
+                html += `
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Phase Distribution</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Phase</th>
+                                            <th>Effort (PM)</th>
+                                            <th>Schedule (months)</th>
+                                            <th>Staff</th>
+                                            <th>Cost ($)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                `;
+                
+                Object.entries(data.phase_distribution).forEach(([phase, details]) => {
+                    html += `
+                        <tr>
+                            <td>${phase.charAt(0).toUpperCase() + phase.slice(1)}</td>
+                            <td>${details.effort}</td>
+                            <td>${details.schedule}</td>
+                            <td>${details.staff}</td>
+                            <td>$${details.cost.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Model Estimates with better formatting and filtering
+            if (data.estimation?.model_estimates) {
+                html += `
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Individual Model Estimates</h5>
+                            <p class="mb-0 text-muted small">Comparison of different estimation models</p>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Model</th>
+                                            <th class="text-end">Effort (PM)</th>
+                                            <th class="text-center">Type</th>
+                                            <th class="text-center">Reliability</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                `;
+                
+                // Sort models by type and effort
+                const sortedModels = Object.entries(data.estimation.model_estimates)
+                    .map(([model, estimate]) => {
+                        const effort = typeof estimate === 'object' ? estimate.effort : estimate;
+                        const isML = model.includes('ml_');
+                        const isReasonable = effort >= 0.1 && effort <= 10000;
+                        
+                        return {
+                            name: model,
+                            effort: effort,
+                            type: isML ? 'ML' : 'Traditional',
+                            color: isML ? 'danger' : 'primary',
+                            reliable: isReasonable
+                        };
+                    })
+                    .sort((a, b) => {
+                        // Sort by type first (Traditional first), then by effort
+                        if (a.type !== b.type) {
+                            return a.type === 'Traditional' ? -1 : 1;
+                        }
+                        return Math.abs(a.effort - 100) - Math.abs(b.effort - 100); // Closer to reasonable range first
+                    });
+                
+                sortedModels.forEach(model => {
+                    const reliabilityBadge = model.reliable ? 
+                        '<span class="badge bg-success">High</span>' : 
+                        '<span class="badge bg-warning">Outlier</span>';
+                    
+                    html += `
+                        <tr ${model.reliable ? '' : 'class="table-warning"'}>
+                            <td><strong>${model.name.replace('_', ' ').replace('ml ', 'ML ')}</strong></td>
+                            <td class="text-end">${formatNumber(model.effort)}</td>
+                            <td class="text-center"><span class="badge bg-${model.color}">${model.type}</span></td>
+                            <td class="text-center">${reliabilityBadge}</td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-3">
+                                <p class="small text-muted">
+                                    <strong>Note:</strong> Estimates marked as "Outlier" may indicate extreme values that are filtered from the final calculation.
+                                    The integrated estimate uses a weighted combination of reliable models.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultsContent.innerHTML = html;
+        }
+        
+        function showError(message) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsSection.classList.remove('d-none');
+            resultsContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <h5>Error</h5>
+                    <p>${message}</p>
+                </div>
+            `;
+            
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function resetForm() {
+            document.getElementById('cocomoForm').reset();
+            document.querySelectorAll('.rating-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.rating-buttons').forEach(group => {
+                const nominalBtn = group.querySelector('[data-value="nominal"]');
+                if (nominalBtn) {
+                    nominalBtn.classList.add('active');
+                }
+            });
+            document.getElementById('resultsSection').classList.add('d-none');
+        }
+    </script>
+</body>
+</html>

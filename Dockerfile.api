@@ -1,0 +1,53 @@
+# Dockerfile for AI Estimation API
+FROM python:3.10-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
+ENV NLTK_DATA=/usr/local/nltk_data
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    g++ \
+    curl \
+    wget \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory
+WORKDIR /app
+
+# Copy requirements and install Python dependencies
+COPY requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Download NLTK data to system location
+RUN python -c "import nltk; nltk.download('punkt', download_dir='/usr/local/nltk_data'); nltk.download('punkt_tab', download_dir='/usr/local/nltk_data'); nltk.download('stopwords', download_dir='/usr/local/nltk_data'); nltk.download('wordnet', download_dir='/usr/local/nltk_data'); nltk.download('omw-1.4', download_dir='/usr/local/nltk_data')"
+
+# Download spaCy model
+RUN python -m spacy download en_core_web_sm
+
+# Copy application code
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p models datasets logs uploads
+RUN mkdir -p models/loc_models models/cocomo_ii_extended
+
+# Set proper permissions for all users
+RUN chmod -R 755 /app
+RUN chmod -R 755 /usr/local/nltk_data
+
+# Expose the port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Command to run the application
+CMD ["python", "-m", "requirement_analyzer.api"]

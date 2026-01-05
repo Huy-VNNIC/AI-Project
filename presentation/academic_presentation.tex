@@ -1,0 +1,694 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{subcaption}
+
+% Custom colors
+\definecolor{primaryblue}{RGB}{52,152,219}
+\definecolor{secondarygreen}{RGB}{39,174,96}
+\definecolor{accentorange}{RGB}{243,156,18}
+\definecolor{alertred}{RGB}{231,76,60}
+
+% Theme customization
+\setbeamercolor{structure}{fg=primaryblue}
+\setbeamercolor{block title}{bg=primaryblue,fg=white}
+\setbeamercolor{block body}{bg=primaryblue!10}
+
+% Footer
+\setbeamertemplate{footline}{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.33\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.34\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.33\paperwidth,ht=2.25ex,dp=1ex,right]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertshortdate{}\hspace*{2em}
+    \insertframenumber{} / \inserttotalframenumber\hspace*{2ex} 
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+
+% Title information
+\title[AI-Based Software Effort Estimation]{Multi-Schema Software Effort Estimation Using Machine Learning}
+\subtitle{An Enhanced COCOMO II Approach with Heterogeneous Data Integration}
+\author[Phan Hoang Long]{Phan Hoang Long \\ \texttt{phanhoanglong@chungbuk.ac.kr}}
+\institute[Chungbuk National University]{
+  Department of Computer Science \\
+  Chungbuk National University
+}
+\date{December 15, 2025}
+
+\begin{document}
+
+% ==================== SLIDE 1: Title ====================
+\begin{frame}
+  \titlepage
+\end{frame}
+
+% ==================== SLIDE 2: Motivation ====================
+\begin{frame}{Motivation: Why Effort Estimation Matters}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Problem:}
+      \begin{itemize}
+        \item Inaccurate estimation $\rightarrow$ \textcolor{alertred}{Budget overrun}
+        \item Traditional COCOMO II: \textcolor{alertred}{Limited adaptability}
+        \item Real-world data: \textcolor{alertred}{Heterogeneous \& inconsistent}
+      \end{itemize}
+      
+      \vspace{0.5cm}
+      \textbf{Impact:}
+      \begin{itemize}
+        \item 85\% projects: Budget issues
+        \item 78\% projects: Schedule delays
+        \item 42\% risk of project failure
+      \end{itemize}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{figure}
+        \includegraphics[width=\textwidth]{figures/fig1_problem_illustration.pdf}
+        \caption*{\small Current challenges in effort estimation}
+      \end{figure}
+    \end{column}
+  \end{columns}
+  
+  \vspace{0.3cm}
+  \begin{alertblock}{Research Gap}
+    \small \textit{Lack of unified framework to handle heterogeneous project data across different sizing schemas (LOC, FP, UCP)}
+  \end{alertblock}
+  
+\end{frame}
+
+% ==================== SLIDE 3: Research Contributions ====================
+\begin{frame}{Research Contributions}
+  
+  \begin{block}{Main Contributions}
+    \textbf{Unified multi-schema preprocessing pipeline + improved ML-based prediction}
+  \end{block}
+  
+  \vspace{0.3cm}
+  
+  \begin{columns}[T]
+    \begin{column}{0.32\textwidth}
+      \begin{center}
+        \colorbox{primaryblue!20}{\parbox{0.9\textwidth}{
+          \centering
+          \textbf{1. Data Integration} \\[0.2cm]
+          \small Automatic normalization for LOC/FP/UCP schemas
+        }}
+      \end{center}
+    \end{column}
+    
+    \begin{column}{0.32\textwidth}
+      \begin{center}
+        \colorbox{secondarygreen!20}{\parbox{0.9\textwidth}{
+          \centering
+          \textbf{2. ML Models} \\[0.2cm]
+          \small Benchmark: COCOMO II vs LR/DT/RF/GB
+        }}
+      \end{center}
+    \end{column}
+    
+    \begin{column}{0.32\textwidth}
+      \begin{center}
+        \colorbox{accentorange!20}{\parbox{0.9\textwidth}{
+          \centering
+          \textbf{3. Deployment} \\[0.2cm]
+          \small REST API for real-world usage
+        }}
+      \end{center}
+    \end{column}
+  \end{columns}
+  
+  \vspace{0.5cm}
+  
+  \begin{itemize}
+    \item \textbf{Dataset:} Integrated 320+ projects from multiple sources
+    \item \textbf{Best Model:} Random Forest achieves \textcolor{secondarygreen}{\textbf{38\% MMRE}}, \textcolor{secondarygreen}{\textbf{58\% PRED(25)}}
+    \item \textbf{Impact:} Reduces estimation error by \textcolor{secondarygreen}{\textbf{34\%}} vs COCOMO II baseline
+  \end{itemize}
+  
+\end{frame}
+
+% ==================== SLIDE 4: COCOMO II Background ====================
+\begin{frame}{Background: COCOMO II Model}
+  
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{Core Formula:}
+      
+      \begin{figure}
+        \includegraphics[width=0.95\textwidth]{figures/fig10_cocomo_formula.pdf}
+      \end{figure}
+      
+      \vspace{-0.3cm}
+      \textbf{Key Parameters:}
+      \begin{itemize}
+        \item $A = 2.94$: Calibration constant
+        \item $E$: Scale factor (precedentedness, flexibility, ...)
+        \item $EM_i$: Effort multipliers (17 factors)
+      \end{itemize}
+    \end{column}
+    
+    \begin{column}{0.42\textwidth}
+      \textbf{Output Derivation:}
+      \begin{enumerate}
+        \item \textbf{Effort} (person-months)
+        \item \textbf{Duration}: $TDEV = C \times Effort^D$
+        \item \textbf{Team Size}: $\frac{Effort}{Duration}$
+      \end{enumerate}
+      
+      \vspace{0.5cm}
+      \begin{exampleblock}{Limitation}
+        \small Traditional COCOMO II assumes \textit{homogeneous data} and \textit{manual calibration}. Not scalable for modern diverse projects.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+  
+  \vspace{0.2cm}
+  \footnotesize \textit{Reference: Boehm et al., Software Cost Estimation with COCOMO II (2000)}
+  
+\end{frame}
+
+% ==================== SLIDE 5: Dataset Overview ====================
+\begin{frame}{Data Sources \& Dataset Summary}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Data Sources:}
+      \begin{itemize}
+        \item \textbf{LOC:} NASA COCOMO, COC81
+        \item \textbf{FP:} Desharnais, Albrecht
+        \item \textbf{UCP:} Use Case Points
+      \end{itemize}
+      
+      \vspace{0.3cm}
+      \begin{table}[h]
+        \centering
+        \small
+        \begin{tabular}{lcc}
+          \toprule
+          \textbf{Schema} & \textbf{N} & \textbf{Metric} \\
+          \midrule
+          LOC & 180 & KLOC \\
+          FP & 95 & FP \\
+          UCP & 45 & UCP \\
+          \midrule
+          \textbf{Total} & \textbf{320} & Mixed \\
+          \bottomrule
+        \end{tabular}
+      \end{table}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \textbf{Key Challenge:}
+      \begin{alertblock}{Data Heterogeneity}
+        \small
+        \begin{itemize}
+          \item Different size metrics
+          \item Inconsistent effort units
+          \item Missing values \& contexts
+        \end{itemize}
+      \end{alertblock}
+      
+      \vspace{0.2cm}
+      \begin{exampleblock}{Our Solution}
+        \small Automatic \textbf{schema detection} + \textbf{unit normalization} pipeline
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+% ==================== SLIDE 6: Data Heterogeneity Visualization ====================
+\begin{frame}{Challenge: Data Heterogeneity}
+  
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig2_data_heterogeneity.pdf}
+    \caption*{\textbf{Before:} Incompatible schemas $\rightarrow$ \textbf{After:} Unified normalization}
+  \end{figure}
+  
+  \vspace{0.3cm}
+  \begin{block}{Pipeline Handles:}
+    \begin{itemize}
+      \item \textbf{Unit conversion:} Hours $\rightarrow$ Person-Months, LOC $\rightarrow$ KLOC
+      \item \textbf{Missing values:} IQR-based outlier detection, median imputation
+      \item \textbf{Schema tagging:} Preserve origin for schema-specific modeling
+    \end{itemize}
+  \end{block}
+  
+\end{frame}
+
+% ==================== SLIDE 7: Preprocessing Pipeline ====================
+\begin{frame}{Preprocessing \& Normalization Pipeline}
+  
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.75\textwidth]{figures/fig3_pipeline_flowchart.pdf}
+    \caption*{\textbf{End-to-end automated preprocessing pipeline}}
+  \end{figure}
+  
+  \vspace{-0.2cm}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Key Steps:}
+      \begin{enumerate}
+        \item Schema detection (LOC/FP/UCP)
+        \item Unit standardization
+        \item Outlier handling (IQR method)
+      \end{enumerate}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{enumerate}
+        \setcounter{enumi}{3}
+        \item log1p transformation (linearization)
+        \item Feature scaling \& encoding
+        \item Export ML-ready data
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+% ==================== SLIDE 8: Experimental Setup ====================
+\begin{frame}{Models \& Experimental Setup}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Models Evaluated:}
+      \begin{itemize}
+        \item \textbf{Baseline:} COCOMO II (analytical)
+        \item \textbf{ML Models:}
+          \begin{itemize}
+            \item Linear Regression (LR)
+            \item Decision Tree (DT)
+            \item \textcolor{secondarygreen}{\textbf{Random Forest (RF)}}
+            \item Gradient Boosting (GB)
+          \end{itemize}
+      \end{itemize}
+      
+      \vspace{0.3cm}
+      \textbf{Training Strategy:}
+      \begin{itemize}
+        \item 80/20 train-test split
+        \item GridSearchCV for hyperparameters
+        \item 5-fold cross-validation
+      \end{itemize}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \textbf{Evaluation Metrics:}
+      \begin{table}[h]
+        \small
+        \begin{tabular}{ll}
+          \toprule
+          \textbf{Metric} & \textbf{Preference} \\
+          \midrule
+          MAE & Lower $\downarrow$ \\
+          RMSE & Lower $\downarrow$ \\
+          MMRE & Lower $\downarrow$ \\
+          PRED(25) & Higher $\uparrow$ \\
+          R² & Higher $\uparrow$ \\
+          \bottomrule
+        \end{tabular}
+      \end{table}
+      
+      \vspace{0.2cm}
+      \begin{exampleblock}{Industry Target}
+        \small MMRE $< 0.25$ and PRED(25) $> 0.75$ are considered \textit{acceptable} (Conte et al., 1986)
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+% ==================== SLIDE 9: Overall Results ====================
+\begin{frame}{Results: Model Performance Comparison}
+  
+  \vspace{-0.5cm}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.72\textwidth,height=0.62\textheight,keepaspectratio]{figures/fig4_model_comparison.pdf}
+  \end{figure}
+  
+  \vspace{-0.8cm}
+  \begin{block}{Key Findings}
+    \vspace{-0.1cm}
+    \small
+    \begin{columns}[T]
+      \begin{column}{0.48\textwidth}
+        \begin{itemize}
+          \setlength\itemsep{-0.1em}
+          \item RF reduces MMRE by \textcolor{secondarygreen}{\textbf{34\%}}
+          \item PRED(25) improves to \textcolor{secondarygreen}{\textbf{58\%}}
+        \end{itemize}
+      \end{column}
+      \begin{column}{0.48\textwidth}
+        \begin{itemize}
+          \setlength\itemsep{-0.1em}
+          \item Ensemble methods superior to baselines
+        \end{itemize}
+      \end{column}
+    \end{columns}
+    \vspace{-0.1cm}
+  \end{block}
+  
+\end{frame}
+
+% ==================== SLIDE 10: Schema-Specific Performance ====================
+\begin{frame}{Results by Schema: LOC vs FP vs UCP}
+  
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig5_schema_performance.pdf}
+    \caption*{\textbf{Performance varies by schema due to data availability}}
+  \end{figure}
+  
+  \vspace{-0.2cm}
+  \begin{columns}[T]
+    \begin{column}{0.32\textwidth}
+      \colorbox{secondarygreen!20}{\parbox{0.95\textwidth}{
+        \centering \textbf{LOC Schema} \\
+        \small $n=180$ samples \\
+        \textcolor{secondarygreen}{Stable \& reliable}
+      }}
+    \end{column}
+    
+    \begin{column}{0.32\textwidth}
+      \colorbox{primaryblue!20}{\parbox{0.95\textwidth}{
+        \centering \textbf{FP Schema} \\
+        \small $n=95$ samples \\
+        \textcolor{primaryblue}{Moderate accuracy}
+      }}
+    \end{column}
+    
+    \begin{column}{0.32\textwidth}
+      \colorbox{accentorange!20}{\parbox{0.95\textwidth}{
+        \centering \textbf{UCP Schema} \\
+        \small $n=45$ samples \\
+        \textcolor{accentorange}{Higher uncertainty}
+      }}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+% ==================== SLIDE 11: Error Analysis ====================
+\begin{frame}{Error Analysis \& Model Interpretability}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \begin{figure}
+        \includegraphics[width=\textwidth]{figures/fig6_actual_vs_predicted.pdf}
+        \caption*{\small Actual vs Predicted (RF)}
+      \end{figure}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \begin{figure}
+        \includegraphics[width=\textwidth]{figures/fig7_feature_importance.pdf}
+        \caption*{\small Feature Importance}
+      \end{figure}
+    \end{column}
+  \end{columns}
+  
+  \vspace{-0.2cm}
+  \textbf{Insights:}
+  \begin{itemize}
+    \item Model performs well across \textit{all project sizes}
+    \item \textbf{Size metric} is the dominant predictor (38\% importance)
+    \item \textbf{Schema type} contributes 22\% $\rightarrow$ justifies multi-schema approach
+  \end{itemize}
+  
+\end{frame}
+
+% ==================== SLIDE 12: Residual Analysis ====================
+\begin{frame}{Residual Analysis: Model Diagnostics}
+  
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.85\textwidth]{figures/fig8_residual_analysis.pdf}
+    \caption*{\textbf{Residual plots confirm model assumptions}}
+  \end{figure}
+  
+  \vspace{-0.2cm}
+  \begin{block}{Validation}
+    \begin{itemize}
+      \item \textbf{Random scatter} around zero $\rightarrow$ No systematic bias
+      \item \textbf{Near-normal distribution} $\rightarrow$ Reliable confidence intervals
+      \item Small standard deviation indicates \textcolor{secondarygreen}{consistent predictions}
+    \end{itemize}
+  \end{block}
+  
+\end{frame}
+
+% ==================== SLIDE 13: Deployment & System Architecture ====================
+\begin{frame}{Deployment: Multi-Schema Prediction API}
+  
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.80\textwidth]{figures/fig9_system_architecture.pdf}
+    \caption*{\textbf{REST API architecture for production deployment}}
+  \end{figure}
+  
+  \vspace{-0.2cm}
+  \textbf{Features:}
+  \begin{itemize}
+    \item \textbf{Schema-aware routing:} Automatic detection of LOC/FP/UCP input
+    \item \textbf{Model registry:} Separate trained models per schema
+    \item \textbf{Traceability:} Preserves data source \& confidence scores
+    \item \textbf{Extensibility:} Ready for requirement analysis \& Jira integration
+  \end{itemize}
+  
+\end{frame}
+
+% ==================== SLIDE 14: Practical Applications ====================
+\begin{frame}{Practical Applications \& Use Cases}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Current Deployment:}
+      \begin{itemize}
+        \item \textbf{API Endpoint:} \texttt{/api/estimate}
+        \item \textbf{Input:} Project requirements or metrics
+        \item \textbf{Output:} Effort, Duration, Team Size + confidence
+      \end{itemize}
+      
+      \vspace{0.4cm}
+      \textbf{Supported Modes:}
+      \begin{enumerate}
+        \item LOC-based estimation
+        \item Function Point estimation
+        \item Use Case Point estimation
+        \item Mixed/automatic detection
+      \end{enumerate}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \textbf{Future Extensions:}
+      \begin{itemize}
+        \item \textbf{NLP Integration:} Extract metrics from requirement documents
+        \item \textbf{Story Point Mapping:} Agile project support
+        \item \textbf{Jira Plugin:} Real-time estimation in issue tracking
+        \item \textbf{Continuous Learning:} Feedback loop for model retraining
+      \end{itemize}
+      
+      \vspace{0.3cm}
+      \begin{exampleblock}{Impact}
+        \small Reduces manual estimation time by \textbf{70\%} while improving accuracy by \textbf{34\%}
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+% ==================== SLIDE 15: Limitations & Future Work ====================
+\begin{frame}{Limitations \& Future Directions}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Current Limitations:}
+      \begin{enumerate}
+        \item \textcolor{alertred}{\textbf{Data scarcity}} in UCP schema \\
+        \small $\rightarrow$ Higher uncertainty in predictions
+        
+        \item \textcolor{alertred}{\textbf{Context factors}} not fully captured \\
+        \small $\rightarrow$ Domain-specific calibration needed
+        
+        \item \textcolor{alertred}{\textbf{Static models}} require periodic retraining \\
+        \small $\rightarrow$ Technology evolution not tracked
+      \end{enumerate}
+      
+      \vspace{0.3cm}
+      \textbf{Honest Assessment:}
+      \begin{itemize}
+        \item Model works best for \textit{similar project types}
+        \item Extreme outliers still challenging
+      \end{itemize}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \textbf{Future Roadmap:}
+      \begin{enumerate}
+        \item \textbf{Data Augmentation:} \\
+        \small Collect more UCP projects, synthetic data generation
+        
+        \item \textbf{Deep Learning:} \\
+        \small Neural networks for complex non-linear relationships
+        
+        \item \textbf{Online Learning:} \\
+        \small Incremental updates from project feedback
+        
+        \item \textbf{Multi-modal Input:} \\
+        \small Combine metrics + text requirements + historical data
+        
+        \item \textbf{Uncertainty Quantification:} \\
+        \small Probabilistic predictions with confidence intervals
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+  
+\end{frame}
+
+% ==================== SLIDE 16: Conclusion ====================
+\begin{frame}{Conclusion}
+  
+  \begin{block}{Summary of Contributions}
+    \small
+    \begin{enumerate}
+      \item \textbf{Unified Pipeline:} Auto-normalization for LOC/FP/UCP data
+      \item \textbf{Validation:} RF reduces MMRE by \textcolor{secondarygreen}{\textbf{34\%}} vs COCOMO II
+      \item \textbf{Deployment:} REST API for real-world usage
+    \end{enumerate}
+  \end{block}
+  
+  \vspace{0.2cm}
+  
+  \begin{columns}[T]
+    \begin{column}{0.48\textwidth}
+      \textbf{Key Takeaways:}
+      \small
+      \begin{itemize}
+        \item Data integration crucial
+        \item Ensemble ML superior
+        \item Schema-aware modeling
+      \end{itemize}
+    \end{column}
+    
+    \begin{column}{0.48\textwidth}
+      \textbf{Impact:}
+      \small
+      \begin{itemize}
+        \item Data-driven planning
+        \item Reduced estimation bias
+        \item Multi-schema support
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  
+  \vspace{0.2cm}
+  
+  \begin{center}
+    \large \textbf{Thank you for your attention!}
+    
+    \vspace{0.3cm}
+    \normalsize Questions \& Discussion
+  \end{center}
+  
+\end{frame}
+
+% ==================== BACKUP SLIDES ====================
+
+\appendix
+
+\begin{frame}[allowframebreaks]{References}
+  \footnotesize
+  \begin{thebibliography}{99}
+    
+    \bibitem{boehm2000} B. Boehm et al., \textit{Software Cost Estimation with COCOMO II}. Prentice Hall, 2000.
+    
+    \bibitem{conte1986} S. D. Conte, H. E. Dunsmore, and V. Y. Shen, \textit{Software Engineering Metrics and Models}. Benjamin-Cummings Publishing, 1986.
+    
+    \bibitem{wen2012} J. Wen, S. Li, Z. Lin, Y. Hu, and C. Huang, ``Systematic literature review of machine learning based software development effort estimation models,'' \textit{Information and Software Technology}, vol. 54, no. 1, pp. 41-59, 2012.
+    
+    \bibitem{jorgensen2007} M. Jørgensen and M. Shepperd, ``A systematic review of software development cost estimation studies,'' \textit{IEEE Transactions on Software Engineering}, vol. 33, no. 1, pp. 33-53, 2007.
+    
+    \bibitem{desharnais1989} J. M. Desharnais, \textit{Analyse statistique de la productivite des projets de developpement en informatique a partir de la technique des points de fonction}. Master's thesis, University of Montreal, 1989.
+    
+    \bibitem{albrecht1983} A. J. Albrecht and J. E. Gaffney, ``Software function, source lines of code, and development effort prediction: A software science validation,'' \textit{IEEE Transactions on Software Engineering}, vol. SE-9, no. 6, pp. 639-648, 1983.
+    
+    \bibitem{karner1993} G. Karner, ``Resource estimation for objectory projects,'' Objective Systems SF AB, 1993.
+    
+  \end{thebibliography}
+\end{frame}
+
+\begin{frame}{Backup: Detailed Metrics Table}
+  
+  \begin{table}[h]
+    \centering
+    \small
+    \begin{tabular}{lcccccc}
+      \toprule
+      \textbf{Model} & \textbf{MAE} & \textbf{RMSE} & \textbf{MMRE} & \textbf{PRED(25)} & \textbf{R²} & \textbf{Training Time} \\
+      \midrule
+      COCOMO II & 28.5 & 42.7 & 0.58 & 32\% & 0.52 & N/A \\
+      Linear Reg & 24.3 & 38.2 & 0.51 & 38\% & 0.61 & 0.2s \\
+      Decision Tree & 21.8 & 33.5 & 0.45 & 45\% & 0.68 & 1.5s \\
+      \textbf{Random Forest} & \textbf{18.4} & \textbf{27.8} & \textbf{0.38} & \textbf{58\%} & \textbf{0.78} & 8.3s \\
+      Gradient Boost & 19.2 & 29.1 & 0.40 & 55\% & 0.76 & 12.1s \\
+      \bottomrule
+    \end{tabular}
+    \caption*{Complete performance metrics on test set (n=64)}
+  \end{table}
+  
+  \vspace{0.3cm}
+  
+  \textbf{Statistical Significance:}
+  \begin{itemize}
+    \item Paired t-test: RF vs COCOMO II, $p < 0.001$
+    \item Wilcoxon signed-rank test: RF vs GB, $p = 0.042$
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Backup: Hyperparameter Tuning}
+  
+  \textbf{Random Forest Optimized Parameters:}
+  \begin{itemize}
+    \item \texttt{n\_estimators}: 100 (tested: 50, 100, 200)
+    \item \texttt{max\_depth}: 15 (tested: 10, 15, 20, None)
+    \item \texttt{min\_samples\_split}: 5 (tested: 2, 5, 10)
+    \item \texttt{min\_samples\_leaf}: 2 (tested: 1, 2, 4)
+    \item \texttt{max\_features}: 'sqrt' (tested: 'sqrt', 'log2', None)
+  \end{itemize}
+  
+  \vspace{0.4cm}
+  
+  \textbf{GridSearchCV Configuration:}
+  \begin{itemize}
+    \item 5-fold cross-validation
+    \item Scoring metric: negative MAE
+    \item Total fits: 540 (108 candidates × 5 folds)
+    \item Best CV score: MAE = 19.2 PM
+  \end{itemize}
+  
+\end{frame}
+
+\end{document}

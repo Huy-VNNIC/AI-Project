@@ -1,0 +1,292 @@
+% Insightimate ML Paper - Software Effort Estimation
+% Compile with: pdflatex insightimate_ml_paper.tex (or xelatex)
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{multirow}
+
+\title{Insightimate: Enhancing Software Effort Estimation Accuracy Using Machine Learning Across Three Schemas (LOC/FP/UCP)}
+\author{Nguyen Nhat Huy, Duc Man Nguyen, Dang Nhat Minh, Nguyen Thuy Giang,\\ P. W. C. Prasad, Md Shohel Sayeed\\ International School, Duy Tan University, Da Nang, Vietnam\\ Multimedia University, Malaysia}
+\date{September 2025}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Nghiên cứu này trình bày một phương pháp tiếp cận mới nhằm cải thiện độ chính xác của mô hình ước lượng nỗ lực phát triển phần mềm COCOMO II bằng cách kết hợp các kỹ thuật học máy hiện đại. Chúng tôi đề xuất một khung làm việc tích hợp có khả năng ước lượng nỗ lực dựa trên ba loại thông số đầu vào khác nhau: Dòng mã (Lines of Code - LOC), Điểm chức năng (Function Points - FP) và Điểm trường hợp sử dụng (Use Case Points - UCP). Kết quả thực nghiệm cho thấy các mô hình học máy --- đặc biệt là Random Forest --- vượt trội hơn mô hình COCOMO II truyền thống trên nhiều chỉ số (MMRE, PRED(25), MAE, RMSE, $R^2$). Nghiên cứu cung cấp một công cụ dự đoán toàn diện giúp các nhà quản lý dự án đưa ra quyết định chính xác hơn về lập kế hoạch và phân bổ nguồn lực.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% 1. Giới thiệu và Bối cảnh
+\section{Giới thiệu và Bối cảnh}
+\subsection{Vấn đề nghiên cứu}
+Ước lượng nỗ lực phát triển phần mềm là thách thức lớn trong quản lý dự án. Sai lệch ước lượng dẫn tới vượt ngân sách, chậm tiến độ, giảm chất lượng và rủi ro thất bại. Mô hình COCOMO II, dù phổ biến, còn hạn chế về độ linh hoạt và khả năng thích ứng với dữ liệu dự án hiện đại.
+
+\subsection{Khoảng trống nghiên cứu}
+\begin{itemize}[nosep]
+    \item Thiếu phương pháp tích hợp đa metric (LOC/FP/UCP) trong một khung thống nhất.
+    \item Dữ liệu công khai thường thiếu đa dạng, mất cân bằng và không đồng nhất đơn vị.
+    \item So sánh toàn diện giữa mô hình truyền thống và học máy còn hạn chế.
+    \item Chưa tận dụng đầy đủ tiến bộ ensemble (RF/GB) cho ước lượng đa schema.
+\end{itemize}
+
+\subsection{Mục tiêu nghiên cứu}
+\begin{enumerate}[nosep]
+    \item Phát triển khung làm việc tích hợp cho LOC/FP/UCP.
+    \item So sánh hiệu suất LR/DT/RF/GB với COCOMO II.
+    \item Phân tích hành vi từng mô hình theo từng schema.
+    \item Chuẩn hoá đơn vị, xử lý outliers, đảm bảo tái lập.
+\end{enumerate}
+
+% 2. Cơ sở lý thuyết và Phương pháp
+\section{Cơ sở lý thuyết và Phương pháp}
+\subsection{Mô hình COCOMO II truyền thống}
+COCOMO II ước lượng nỗ lực theo hàm mũ của kích thước dự án và các hệ số điều chỉnh:
+\begin{equation}
+\label{eq:cocomo_effort}
+\mathrm{Effort\ (PM)} = A \cdot (\mathrm{Size})^E \cdot \prod_{i=1}^{n} \mathrm{EM}_i,
+\end{equation}
+trong đó \emph{Size} thường là KLOC, $A,E$ là hằng số hiệu chỉnh, và $\mathrm{EM}_i$ là các effort multiplier.
+Thời gian phát triển (TDEV) tính theo:
+\begin{equation}
+\label{eq:cocomo_tdev}
+\mathrm{TDEV\ (months)} = C \cdot (\mathrm{Effort})^D.
+\end{equation}
+
+\subsection{Mô hình Học máy đề xuất}
+Chúng tôi huấn luyện và đánh giá bốn mô hình: Linear Regression (LR), Decision Tree (DT), Random Forest (RF), và Gradient Boosting (GB). Khung làm việc thống nhất các schema:\ LOC (KLOC, Effort PM, tùy chọn Time/Developers), FP (FP/FP\_adj, Effort PM), UCP (UAW, UUCW, TCF, ECF, Effort giờ $\to$ PM).
+
+\subsection{Quy trình thực nghiệm}
+\begin{enumerate}[nosep]
+    \item Thu thập dữ liệu công khai, chuẩn hoá schema và đơn vị.
+    \item Xử lý missing values, cắt outliers theo IQR để giữ kích thước mẫu.
+    \item Biến đổi log cho size/effort khi phù hợp để cải thiện tương quan.
+    \item Chia train/test (80/20), 5-fold CV trong train, lặp 10 seeds.
+    \item Huấn luyện LR/DT/RF/GB; chọn cấu hình theo RMSE trên CV.
+\end{enumerate}
+
+\subsection{Chỉ số đánh giá}
+Với dữ liệu thực $y_i$ và dự đoán $\hat{y}_i$ (PM):
+\begin{align}
+\mathrm{MMRE} &= \frac{1}{n} \sum_{i=1}^{n} \left| \frac{y_i - \hat{y}_i}{y_i} \right|,\\
+\mathrm{PRED(25)} &= \frac{1}{n} \sum_{i=1}^{n} \mathbf{1}\!\left( \left| \frac{y_i - \hat{y}_i}{y_i} \right| \le 0.25 \right),\\
+\mathrm{MAE} &= \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|,\\
+\mathrm{RMSE} &= \sqrt{ \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 },\\
+R^2 &= 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}.
+\end{align}
+
+% 2.x Dữ liệu và Chuẩn bị Dữ liệu
+\section{Dữ liệu và Chuẩn bị Dữ liệu}
+\subsection{Nguồn dữ liệu và phân tách theo schema}
+Chúng tôi tổng hợp dữ liệu công khai từ các kho nghiên cứu phần mềm (1993--2022), bao gồm LOC/COCOMO truyền thống, FP (Albrecht), và UCP (UAW/UUCW/TCF/ECF). Nguồn tham khảo: DASE (\url{https://github.com/danrodgar/DASE}), Software Estimation Datasets của Derek Jones (\url{https://github.com/Derek-Jones/Software-estimation-datasets}), Freeman et al. (\url{https://github.com/Freeman-md/software-project-development-estimator}), và ISBSG-derived FP (Huynh et al., \url{https://github.com/huynhhoc/effort-estimation-by-using-pre-trained-model}).
+
+	extbf{Tiêu chí đưa vào}: (i) có số đo kích thước cho một schema (KLOC/FP/UCP) và (ii) có effort chuẩn (giờ hoặc PM). Các thuộc tính tùy chọn (Time, Developers, domain) được giữ nếu sẵn có.
+
+	extbf{Loại bỏ và khử trùng lặp}: bỏ bản ghi trùng lặp (giữa các file), các dòng thiếu cả size lẫn effort, hoặc đơn vị không nhất quán không thể chuẩn hoá unambiguously. Khi một dự án xuất hiện ở nhiều tập, giữ phiên bản sớm nhất và đầy đủ nhất.
+
+	extbf{Định nghĩa schema}:
+\begin{itemize}[nosep]
+    \item LOC: \{KLOC, Effort (PM)\}; tùy chọn \{Time (tháng), Developers\}.
+    \item FP: \{FP/FP\_adj, Effort (PM)\}; tùy chọn \{Time, Developers\}.
+    \item UCP: \{UAW, UUCW, TCF, ECF, Effort giờ\}; tính $\mathrm{UCP} = \mathrm{UAW} + \mathrm{UUCW}$, điều chỉnh theo TCF/ECF và đổi effort giờ sang PM.
+\end{itemize}
+
+\subsection{Chuẩn hoá đơn vị}
+Để so sánh xuyên nguồn và huấn luyện ổn định, chúng tôi chuẩn hoá:
+\begin{enumerate}[nosep]
+    \item LOC $\to$ KLOC: chia cho 1000 (theo quy ước COCOMO II).
+    \item FP và UCP giữ nguyên dạng chuẩn; UCP điều chỉnh bằng TCF/ECF khi có.
+    \item Effort $\to$ PM: giả định $1\,\mathrm{PM} = 160\,\mathrm{hours}$ (8 giờ/ngày, 20 ngày/tháng).
+    \item Suy luận số thành viên: $\mathrm{Developers} \approx \mathrm{Effort\ (PM)} / \mathrm{Time\ (months)}$ khi Time có sẵn.
+\end{enumerate}
+
+\subsection{Thiếu dữ liệu và ngoại lai (IQR)}
+Các bản ghi thiếu size hoặc effort bị loại; với trường tùy chọn (Time, Developers) sử dụng nội suy trung vị theo schema. Ngoại lai được cắt theo quy tắc IQR để giữ kích thước mẫu:
+\begin{equation}
+\label{eq:iqr_bounds}
+\mathrm{lower} = Q_1 - 1.5\,\mathrm{IQR}, \quad \mathrm{upper} = Q_3 + 1.5\,\mathrm{IQR}, \quad \mathrm{IQR} = Q_3 - Q_1.
+\end{equation}
+Giá trị vượt ngưỡng được \emph{clip} về biên gần nhất thay vì loại bỏ hoàn toàn.
+
+\subsection{Biến đổi phân phối và tương quan}
+Do skewness bên phải phổ biến (effort, size, duration), áp dụng biến đổi log cho size/effort để cải thiện tuyến tính trong không gian log--log, phù hợp mối quan hệ luật lũy thừa. Sau chuẩn hoá và IQR, tương quan size--effort ổn định hơn và phù hợp cho hồi quy.
+
+% 3. Kết quả và Phân tích
+\section{Kết quả và Phân tích}
+\subsection{Kết quả tổng quan}
+Bảng~\ref{tab:overall} tổng hợp hiệu suất thử nghiệm (trung bình) trên dữ liệu thực tế. RF đạt MMRE thấp nhất và PRED(25) cao nhất; COCOMO II yếu nhất; LR bất ổn.
+
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu suất tổng quan (tốt nhất in đậm).}
+\label{tab:overall}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model} & \textbf{MMRE} & \textbf{PRED(25)} & \textbf{MAE} & \textbf{RMSE} & $R^2$ \\
+\midrule
+COCOMO II & 2.790 & 0.012 & 45.03 & 53.70 & -- \\
+Linear Regression & 4.500 & 0.000 & 107.54 & 280.27 & -- \\
+Decision Tree & 1.371 & 0.173 & 18.63 & 23.62 & -- \\
+Gradient Boosting & 1.101 & 0.198 & 16.16 & 21.09 & -- \\
+\textbf{Random Forest} & \textbf{0.647} & \textbf{0.395} & \textbf{12.66} & \textbf{20.01} & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{So sánh Sai Số Tuyệt Đối và Bình Phương}
+RF có MAE/RMSE thấp nhất; GB đứng thứ hai; DT thứ ba; COCOMO II và LR có sai số lớn.
+
+% 4. Chi Tiết Kết Quả Theo Từng Schema
+\section{Chi Tiết Kết Quả Theo Từng Schema}
+\subsection{Dự Đoán Dựa Trên LOC}
+COCOMO II tạo đường cong mũ theo KLOC; DT thể hiện phân nhóm dạng bậc thang; RF/GB cho đường cong mượt, ổn định trên quy mô. Sai số giảm dần khi KLOC tăng; RF ổn định nhất; LR kém trên dự án nhỏ.
+
+\subsection{Dự Đoán Dựa Trên FP}
+Truyền thống thường \emph{overpredict} với FP lớn; RF khớp thực nghiệm tốt nhất; GB thứ hai, có khuynh hướng \emph{variance inflation} ở dự án lớn; DT bậc thang; LR bất ổn khi tương quan FP--effort yếu.
+
+\subsection{Dự Đoán Dựa Trên UCP}
+Log transform sửa skewness vừa phải; RF ổn định; GB RMSE cao hơn nhẹ; DT tốt ở trung bình, suy giảm ở lớn; LR khó mô hình hoá phi tuyến.
+
+% 2.y Thiết lập thực nghiệm
+\section{Thiết lập thực nghiệm}
+\subsection{Quy trình Train--Test}
+Mỗi schema (LOC/FP/UCP) được đánh giá độc lập: chia \textbf{80\% Train / 20\% Test} bằng stratified sampler theo \emph{size quantiles} (5 bins) để giữ phân phối quy mô. Mọi chọn mô hình/siêu tham số thực hiện \emph{chỉ trong train} bằng \textbf{5-fold CV}, cấu hình tốt nhất \emph{refit} trên train đầy đủ và đánh giá \emph{một lần} trên test.
+
+Để giảm ngẫu nhiên, lặp \textbf{10 seeds} (ví dụ 42, 100, 2023, ...). Với mỗi metric $M$ báo cáo trung bình và độ lệch chuẩn: $\bar{M} = \frac{1}{10}\sum_s M^{(s)}$, $\sigma_M = \sqrt{\frac{1}{9}\sum_s (M^{(s)} - \bar{M})^2}$.
+
+\subsection{Tiền xử lý chung và lựa chọn mô hình}
+Chuẩn hoá đơn vị (PM, KLOC), nội suy trung vị cho trường tùy chọn, cắt ngoại lai theo IQR, biến đổi log khi phù hợp. Cây/ensembles dùng giá trị chuẩn hoá thô; biến thể LR dùng log--log và chuẩn hoá covariates liên tục. Dự đoán log được \emph{back-transform} về PM.
+
+	extbf{Linear Regression (LR)}: 2 biến thể (OLS trên dữ liệu chuẩn hoá; hồi quy log--log). Không dùng regularization, kiểm tra đa cộng tuyến đảm bảo ổn định.
+
+	extbf{Decision Tree (DT)}: dò \texttt{max\_depth} $\in [3, 12]$, \texttt{min\_samples\_leaf} $\in \{1,2,5\}$, \texttt{min\_samples\_split} $\in \{2,5,10\}$, tiêu chí \texttt{squared\_error}. Chọn độ sâu cân bằng \emph{bias--variance}.
+
+	extbf{Random Forest (RF)}: \texttt{n\_estimators} $\in [100, 600]$, \texttt{max\_features} $\in \{\texttt{sqrt}, \texttt{log2}, 0.5\}$, \texttt{max\_depth} $\in [6, 20]$, \texttt{min\_samples\_leaf} $\in \{1,2,5\}$. Theo dõi \emph{out-of-bag} error như tín hiệu phụ.
+
+	extbf{Gradient Boosting (GB)}: \texttt{learning\_rate} $\in \{0.03, 0.05, 0.1\}$, \texttt{n\_estimators} $\in [100, 600]$, \texttt{max\_depth} $\in \{2,3,4\}$, \texttt{subsample} $\in \{0.7,0.9,1.0\}$. Dùng \emph{early stopping} với \texttt{n\_iter\_no\_change}=10.
+
+\subsection{Kiểm định thống kê và bất định}
+So sánh chênh lệch tuyệt đối theo cặp (per-project) giữa mô hình và baseline bằng kiểm định \textbf{Wilcoxon signed-rank}, tránh giả định chuẩn hoá. Với từng cặp $(m, \mathrm{RF})$, kiểm định $H_0: \Delta \mathrm{AE}$ có phân phối đối xứng quanh 0, mức ý nghĩa $\alpha=0.05$. Sửa \emph{đa so sánh} bằng \textbf{Holm--Bonferroni}. Báo cáo \textbf{Cliff's Delta} $\delta$ để lượng hoá \emph{effect size}: nhỏ ($0.147$--$0.33$), trung bình ($0.33$--$0.474$), lớn ($>0.474$).
+
+% 5. Phân Tích Chi Tiết Từng Mô Hình
+\section{Phân Tích Chi Tiết Từng Mô Hình}
+\subsection{Mô Hình COCOMO II Truyền Thống}
+Ưu: đơn giản, giải thích được, không cần huấn luyện. Nhược: MMRE cao, PRED(25) rất thấp, ít linh hoạt, không học từ dữ liệu.
+
+\subsection{Linear Regression}
+Ưu: đơn giản, nhanh, dễ giải thích. Nhược: sai số cao, giả định tuyến tính, nhạy outliers.
+
+\subsection{Decision Tree}
+Ưu: dễ hiểu, xử lý dữ liệu hỗn hợp, không cần chuẩn hoá. Nhược: dễ overfit, không ổn định.
+
+\subsection{Random Forest}
+Ưu: mạnh mẽ với nhiễu/outliers, giảm overfitting, hiệu quả trên dữ liệu lớn nhiều đặc trưng; \textbf{tốt nhất tổng thể}. Nhược: phức tạp hơn, khó giải thích.
+
+\subsection{Gradient Boosting}
+Ưu: hiệu suất cao, mô hình hoá phi tuyến tốt. Nhược: nhạy hyperparameters, rủi ro overfitting nếu không kiểm soát.
+
+% 4.z Thảo luận và Hệ quả thực tiễn
+\section{Thảo luận và Hệ quả thực tiễn}
+\subsection{Ưu thế của Random Forest}
+RF tổng hợp nhiều cây có phương sai cao thành bộ dự đoán phương sai thấp, nắm bắt quan hệ phi tuyến (luật lũy thừa, ngưỡng phức tạp) và giảm nhạy cảm với nhiễu/outliers. So với cây đơn, RF ổn định hơn trước spike effort và biến động quy mô.
+
+\subsection{Hướng áp dụng theo giai đoạn}
+\begin{itemize}[nosep]
+    \item \textbf{Khởi đầu (Inception)}: dùng COCOMO II/DT để giao tiếp và khả năng giải thích.
+    \item \textbf{Hiệu chỉnh (Calibration)}: đưa GB để tinh chính xác khi có thêm telemetry.
+    \item \textbf{Trưởng thành (Maturity)}: RF cho dự báo vận hành, tích hợp vào dashboard PM.
+\end{itemize}
+
+\subsection{Hàm ý thực tiễn}
+Chuẩn hoá đơn vị, log transform và kiểm soát ngoại lai quan trọng ngang kiến trúc mô hình. Ensemble learning giảm bất định trong lập ngân sách đầu kỳ và hỗ trợ tái hiệu chỉnh liên tục từ dữ liệu mới.
+
+% 4.aa Đe doạ giá trị và liên quan nghiên cứu
+\section{Đe doạ giá trị (Threats to Validity)}
+	extbf{Internal Validity}: nhiễu còn lại trong dữ liệu công khai; confounders không quan sát (tool/domain) có thể ảnh hưởng phân phối effort.
+
+	extbf{External Validity}: dữ liệu di sản 1993--2022 có thể chưa đại diện đầy đủ DevOps liên tục; cần bổ sung telemetry công nghiệp.
+
+	extbf{Construct Validity}: chủ quan trong FP/UCP; chuẩn hoá đơn vị giảm sai lệch nhưng không triệt tiêu hoàn toàn.
+
+	extbf{Conclusion Validity}: rủi ro Type II trong tập nhỏ (FP); kết luận mang tính chỉ dẫn.
+
+\section{Liên quan nghiên cứu (Related Work)}
+SEE tiến hoá từ tham số (COCOMO, FP, UCP) sang ML/hybrid và ensemble. Khoảng trống về tái lập và so sánh xuyên schema được nhấn mạnh trong tổng quan gần đây; công trình này đóng góp khung chuẩn hoá và đối sánh reproducible.
+
+\section{Tính tái lập và Khả dụng dữ liệu}
+\subsection{Triển khai và Tái lập}
+Môi trường Python 3.10; scikit-learn v1.3+, NumPy/Pandas/SciPy; seeds cố định, logging cấu hình dưới dạng JSON; artifacts phiên bản theo schema. Pipeline tự động hoá: nạp/chuẩn hoá, split/CV, grid search, đánh giá, tổng hợp và kiểm định.
+
+\subsection{Khả dụng dữ liệu}
+Tất cả dữ liệu là nguồn mở, có thể truy cập công khai (DASE, Derek Jones, Freeman, Huynh et al.). Tập dữ liệu đã chuẩn hoá và script tiền xử lý cung cấp theo yêu cầu hợp lý; dữ liệu vô danh, không chứa thông tin cá nhân.
+
+\section{Tuyên bố}
+	extbf{Funding}: Không có tài trợ cụ thể.
+
+	extbf{Competing Interests}: Không xung đột lợi ích.
+
+	extbf{Ethics Approval}: Không yêu cầu; dữ liệu công khai, vô danh.
+
+	extbf{Consent for Publication}: Không áp dụng.
+
+	extbf{Authors’ Contributions}: Huy (concept/method/data/code/viết), Man (giám sát/chỉnh sửa), Minh (data/feature/triển khai), Giang (nguồn lực/kiểm chứng/tài liệu), Prasad (giám sát cấp cao), Sayeed (duyệt/chỉnh sửa/cuối cùng).
+
+% 6. So Sánh MMRE và PRED(25) Tổng Hợp
+\section{So Sánh MMRE và PRED(25) Tổng Hợp}
+RF đạt MMRE thấp nhất và PRED(25) cao nhất trên hầu hết schema; GB thứ hai; DT ổn định; LR kém nhất.
+
+% 7. Kết Luận và Ứng Dụng Thực Tế
+\section{Kết Luận và Ứng Dụng Thực Tế}
+\subsection{Kết Luận Tổng Thể}
+RF là lựa chọn tốt nhất tổng thể; GB là lựa chọn cân bằng; DT cải thiện so với truyền thống; LR không phù hợp cho dữ liệu dị thể.
+
+\subsection{Ứng Dụng Thực Tế}
+\begin{itemize}[nosep]
+    \item Dự án quan trọng: dùng RF khi có đủ dữ liệu.
+    \item Dự án trung bình: GB cân bằng chính xác/tốc độ.
+    \item Giai đoạn đầu cần giải thích: COCOMO II hoặc DT.
+    \item Tích hợp nhiều mô hình theo giai đoạn, đưa vào dashboard PM.
+\end{itemize}
+
+\subsection{Hạn Chế và Hướng Phát Triển}
+Cần dữ liệu chất lượng cao, tuning cẩn thận; mở rộng sang deep learning, học liên tục, tích hợp DevOps/Agile, bổ sung dữ liệu phi cấu trúc.
+
+% 8. Tài Liệu Tham Khảo
+\section{Tài Liệu Tham Khảo}
+\begin{thebibliography}{99}
+\bibitem{Boehm2000} Barry Boehm. \emph{COCOMO II Model Definition Manual}. USC, 2000.
+\bibitem{Wen2012} J. Wen et al. Systematic literature review of ML-based effort estimation. \emph{Information and Software Technology}, 54(1):41–59, 2012.
+\bibitem{Breiman2001} L. Breiman. Random Forests. \emph{Machine Learning}, 45(1):5–32, 2001.
+\bibitem{Friedman2001} J. H. Friedman. Gradient Boosting Machine. \emph{Annals of Statistics}, 2001.
+\bibitem{Kitchenham2001} B. Kitchenham et al. Evaluating prediction systems. \emph{IST}, 43(11):733–743, 2001.
+\bibitem{Foss2003} T. Foss et al. MMRE simulation study. \emph{TSE}, 29(11):985–995, 2003.
+\bibitem{Wilcoxon1945} F. Wilcoxon. Ranking methods. \emph{Biometrics Bulletin}, 1(6):80–83, 1945.
+\bibitem{Holm1979} S. Holm. Multiple test procedure. \emph{Scandinavian Journal of Statistics}, 6(2):65–70, 1979.
+\bibitem{Pedregosa2011} F. Pedregosa et al. Scikit-learn. \emph{JMLR}, 12:2825–2830, 2011.
+\end{thebibliography}
+
+% Appendix: Implementation Notes (optional)
+\section*{Phụ lục: Ghi chú triển khai}
+Môi trường thực nghiệm dùng Python 3.10; scikit-learn, NumPy, Pandas, SciPy. Trong mã nguồn dự án, các mô hình và pipeline liên quan có tại các module huấn luyện và tích hợp (ví dụ RandomForestRegressor, GradientBoostingRegressor, DecisionTreeRegressor, LinearRegression trong phần requirement analyzer). Dữ liệu schema mẫu (LOC/FP/UCP) được chuẩn hoá về PM và KLOC, với xử lý IQR để giới hạn ngoại lai.
+
+% Figure placeholders (export your diagrams to PNG/PDF and include)
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.95\linewidth]{architecture_diagram.png}
+%     \caption{Sơ đồ kiến trúc hệ thống AI (xuất từ draw.io).}
+% \end{figure}
+
+\end{document}
