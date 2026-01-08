@@ -2,20 +2,38 @@
 API cho service phân tích requirements và ước lượng nỗ lực
 """
 
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Body, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any
-import uvicorn
-import os
 import sys
-import tempfile
-import pandas as pd
-import json
 from pathlib import Path
+
+# Check for required dependencies first
+try:
+    from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Body, Request
+    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi.responses import JSONResponse, HTMLResponse
+    from fastapi.staticfiles import StaticFiles
+    from fastapi.templating import Jinja2Templates
+    from pydantic import BaseModel
+    from typing import Optional, List, Dict, Any
+    import uvicorn
+    import os
+    import tempfile
+    import pandas as pd
+    import json
+except ImportError as e:
+    print("\n" + "="*70)
+    print("ERROR: Missing required dependencies!")
+    print("="*70)
+    print(f"\nImport error: {e}")
+    print("\nTo fix this issue, please install the required dependencies:")
+    print("\n  1. Make sure you have activated the virtual environment:")
+    print("     source venv/bin/activate  # On Linux/Mac")
+    print("     venv\\Scripts\\activate     # On Windows")
+    print("\n  2. Install dependencies:")
+    print("     pip install -r requirements.txt")
+    print("\n  OR use the automated setup script:")
+    print("     ./start_estimation_service.sh")
+    print("\n" + "="*70 + "\n")
+    sys.exit(1)
 
 # Thêm thư mục gốc vào sys.path để import các module khác
 PROJECT_ROOT = Path(__file__).parent.parent
