@@ -14,7 +14,91 @@ Dự án này tập trung vào việc:
 - Huấn luyện mô hình học máy để dự đoán effort, thời gian và nhân lực
 - Cung cấp công cụ dự đoán dễ sử dụng cho người dùng
 
-## 2. Cấu trúc dự án
+## 2. Cài đặt và Khởi chạy
+
+### 2.1. Yêu cầu hệ thống
+
+- Python 3.8 trở lên
+- pip (Python package manager)
+
+### 2.2. Cài đặt dependencies
+
+Trước khi chạy bất kỳ module nào trong dự án, bạn cần cài đặt các thư viện cần thiết:
+
+```bash
+# Tạo và kích hoạt môi trường ảo (khuyến nghị)
+python -m venv venv
+source venv/bin/activate  # Trên Linux/Mac
+# hoặc
+venv\Scripts\activate  # Trên Windows
+
+# Cài đặt dependencies
+pip install -r requirements.txt
+
+# Tải xuống mô hình ngôn ngữ cho spaCy (nếu cần sử dụng NLP features)
+python -m spacy download en_core_web_sm
+```
+
+### 2.3. Chạy các module
+
+#### Chạy API Service (Requirement Analyzer)
+
+```bash
+# Cách 1: Sử dụng script tự động (khuyến nghị)
+./start_estimation_service.sh
+
+# Cách 2: Chạy trực tiếp (sau khi đã cài đặt dependencies)
+python -m requirement_analyzer.api
+
+# Service sẽ chạy tại: http://localhost:8000
+```
+
+#### Chạy COCOMO II Demo
+
+```bash
+# Sử dụng script thiết lập
+./cocomo_setup.sh
+
+# Hoặc chạy trực tiếp
+python demo.py
+```
+
+#### Chạy COCOMO II Comparison Analysis
+
+```bash
+# Chạy phân tích so sánh và tạo biểu đồ
+./run_cocomo_comparison.sh
+
+# Hoặc chạy từng phần:
+python cocomo_ii_linear_analysis.py
+python test_cocomo_comparison.py
+```
+
+### 2.4. Xử lý lỗi thường gặp
+
+**Lỗi: `ModuleNotFoundError: No module named 'fastapi'` hoặc module khác**
+
+Nguyên nhân: Chưa cài đặt dependencies.
+
+Giải pháp:
+```bash
+# Kích hoạt môi trường ảo (nếu có)
+source venv/bin/activate
+
+# Cài đặt lại dependencies
+pip install -r requirements.txt
+```
+
+**Lỗi: `No module named 'en_core_web_sm'`**
+
+Nguyên nhân: Chưa tải mô hình ngôn ngữ spaCy.
+
+Giải pháp:
+```bash
+python -m spacy download en_core_web_sm
+```
+
+## 3. Cấu trúc dự án
 
 ```
 AI-Project/
