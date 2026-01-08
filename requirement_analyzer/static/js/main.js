@@ -184,6 +184,7 @@ async function handleManualEstimation(event) {
 
 function displayResults(data) {
     console.log('displayResults called with:', data);
+    console.log('Data structure:', JSON.stringify(data, null, 2));
     
     const resultsCard = document.getElementById('resultsCard');
     console.log('Results card element:', resultsCard);
@@ -200,44 +201,61 @@ function displayResults(data) {
     resultsCard.classList.remove('d-none');
     resultsCard.scrollIntoView({ behavior: 'smooth' });
 
+    // Extract estimation data (handle both direct and nested structures)
+    const estimation = data.estimation || data;
+    console.log('Estimation object:', estimation);
+    console.log('total_effort value:', estimation.total_effort);
+    
     // Update total effort
     const totalEffort = document.getElementById('totalEffort');
-    if (totalEffort && data.total_effort !== undefined) {
-        console.log('Updating total effort:', data.total_effort);
-        totalEffort.textContent = data.total_effort.toFixed(2);
-        console.log('Total effort element after update:', totalEffort.textContent);
+    if (totalEffort) {
+        if (estimation.total_effort !== undefined) {
+            console.log('Updating total effort:', estimation.total_effort);
+            totalEffort.textContent = estimation.total_effort.toFixed(2);
+            console.log('Total effort element after update:', totalEffort.textContent);
+        } else {
+            console.error('total_effort is undefined in estimation:', estimation);
+            totalEffort.textContent = '-';
+        }
     } else {
-        console.error('Total effort update failed:', {
-            totalEffort: !!totalEffort,
-            total_effort_data: data.total_effort
-        });
+        console.error('totalEffort element not found');
     }
 
     // Update duration
     const duration = document.getElementById('duration');
-    if (duration && data.duration !== undefined) {
-        duration.textContent = data.duration.toFixed(1);
-        console.log('Duration updated to:', duration.textContent);
+    if (duration) {
+        if (estimation.duration !== undefined) {
+            duration.textContent = estimation.duration.toFixed(1);
+            console.log('Duration updated to:', duration.textContent);
+        } else {
+            duration.textContent = '-';
+        }
     }
 
     // Update team size  
     const teamSize = document.getElementById('teamSize');
-    if (teamSize && data.team_size !== undefined) {
-        teamSize.textContent = data.team_size;
-        console.log('Team size updated to:', teamSize.textContent);
+    if (teamSize) {
+        if (estimation.team_size !== undefined) {
+            teamSize.textContent = Math.ceil(estimation.team_size);
+            console.log('Team size updated to:', teamSize.textContent);
+        } else {
+            teamSize.textContent = '-';
+        }
     }
 
     // Update confidence level
     const confidenceLevel = document.getElementById('confidenceLevel');
-    if (confidenceLevel && data.confidence_level) {
-        confidenceLevel.textContent = data.confidence_level;
-        confidenceLevel.className = `badge bg-${getConfidenceBadgeColor(data.confidence_level)}`;
+    const confidence = estimation.confidence_level || data.confidence?.confidence_level || 'Unknown';
+    if (confidenceLevel) {
+        confidenceLevel.textContent = confidence;
+        confidenceLevel.className = `badge bg-${getConfidenceBadgeColor(confidence)}`;
         console.log('Confidence level updated to:', confidenceLevel.textContent);
     }
 
     // Update individual model estimates
-    if (data.model_estimates) {
-        const estimates = data.model_estimates;
+    const modelEstimates = estimation.model_estimates || data.model_estimates;
+    if (modelEstimates) {
+        const estimates = modelEstimates;
         
         // Update specific model cards if they exist
         const cocomoValue = document.getElementById('cocomoValue');
@@ -264,10 +282,11 @@ function displayResults(data) {
     }
 
     // Update project details
-    if (data.project_size) {
-        const projectSize = document.getElementById('projectSize');
-        if (projectSize) {
-            projectSize.textContent = data.project_size.toFixed(1) + ' KLOC';
+    const projectSize = data.ml_features?.size || data.analysis?.size;
+    if (projectSize) {
+        const projectSizeElement = document.getElementById('projectSize');
+        if (projectSizeElement) {
+            projectSizeElement.textContent = projectSize.toFixed(1) + ' KLOC';
         }
     }
 }

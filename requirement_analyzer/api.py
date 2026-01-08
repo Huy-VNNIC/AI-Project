@@ -2,11 +2,13 @@
 API cho service phân tích requirements và ước lượng nỗ lực
 """
 
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Body, Request
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Body, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, HTMLResponse, FileResponse
+from fastapi.responses import JSONResponse, HTMLResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.responses import Response as StarletteResponse
+from io import BytesIO
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
 import uvicorn
@@ -109,27 +111,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Cấu hình CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # Khởi tạo các thành phần
 analyzer = RequirementAnalyzer()
 estimator = EffortEstimator()
-
-# Serve static files
-app.mount("/static", StaticFiles(directory=str(Path(__file__).parent / "static")), name="static")
 
 # Jinja2 templates
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 @app.get("/", response_class=HTMLResponse)
-def main_page(request: Request):
+async def main_page(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/favicon.ico")
@@ -162,7 +152,12 @@ def estimate_effort_simple(req: RequirementText):
         
         # Ước lượng effort
         result = estimator.integrated_estimate(req.text, advanced_params=advanced_params)
-        return JSONResponse(content=result)
+        response = JSONResponse(content=result)
+        # Add CORS headers manually for API endpoints
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
     except Exception as e:
         logger.error(f"Error in estimate_effort_simple: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -254,7 +249,12 @@ async def upload_requirements(file: UploadFile = File(...), method: str = Form("
             "text_length": len(text)
         }
         
-        return JSONResponse(content=result)
+        response = JSONResponse(content=result)
+        # Add CORS headers
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "*"
+        return response
     except HTTPException:
         raise  # Re-raise HTTP exceptions
     except Exception as e:
@@ -689,15 +689,27 @@ def estimate_with_cocomo_parameters(params: COCOMOParameters):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/cocomo", response_class=HTMLResponse)
-def cocomo_form_page(request: Request):
+async def cocomo_form_page(request: Request):
     """
     Trang form COCOMO II parameter-based estimation
     """
     return templates.TemplateResponse("cocomo_form.html", {"request": request})
 
 @app.get("/debug", response_class=HTMLResponse)
-def debug_page(request: Request):
+async def debug_page(request: Request):
     return templates.TemplateResponse("debug.html", {"request": request})
+
+# Mount static files last to avoid route conflicts
+# Use html=True to properly serve static files
+try:
+    static_dir = Path(__file__).parent / "static"
+    if static_dir.exists():
+        app.mount("/static", StaticFiles(directory=str(static_dir), html=False), name="static")
+        logger.info(f"Mounted static files from {static_dir}")
+    else:
+        logger.warning(f"Static directory not found: {static_dir}")
+except Exception as e:
+    logger.error(f"Error mounting static files: {e}")
 
 def start_server(host="0.0.0.0", port=8000):
     """
