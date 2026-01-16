@@ -15,22 +15,19 @@ import joblib
 import os
 
 # Download NLTK resources if needed
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
-try:
-    nltk.data.find('tokenizers/punkt_tab')
-except LookupError:
-    nltk.download('punkt_tab')
-try:
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    nltk.download('stopwords')
-try:
-    nltk.data.find('corpora/wordnet')
-except LookupError:
-    nltk.download('wordnet')
+def ensure_nltk_data(resource_name, download_name=None):
+    """Safely download NLTK data if not available"""
+    if download_name is None:
+        download_name = resource_name.split('/')[-1]
+    try:
+        nltk.data.find(resource_name)
+    except (LookupError, OSError):
+        nltk.download(download_name, quiet=True)
+
+ensure_nltk_data('tokenizers/punkt', 'punkt')
+ensure_nltk_data('tokenizers/punkt_tab', 'punkt_tab')
+ensure_nltk_data('corpora/stopwords', 'stopwords')
+ensure_nltk_data('corpora/wordnet', 'wordnet')
 
 # Load spaCy model for NER - with fallback
 nlp = None
