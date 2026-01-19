@@ -178,8 +178,14 @@ class ModelBasedTaskGenerator:
         # Select action word
         action = random.choice(patterns['action_words'])
         
-        # Extract action from verbs, skipping modals
-        if entities['verbs']:
+        # Extract action from text, handling "be able to" pattern
+        import re
+        modal_pattern = re.compile(r'\b(?:shall|must|should|may|can)\s+be\s+able\s+to\s+(\w+)', re.IGNORECASE)
+        match = modal_pattern.search(text)
+        if match:
+            # Found "shall/must be able to [verb]" - use that verb
+            action = match.group(1).lower()
+        elif entities['verbs']:
             # Find first non-modal verb
             for verb in entities['verbs']:
                 if verb.lower() not in MODAL_VERBS:
@@ -189,17 +195,40 @@ class ModelBasedTaskGenerator:
                 # All verbs are modals, use fallback
                 action = 'support'
         
-        # Select object (skip those starting with modal verbs)
+        # Generic objects to skip (too vague for good titles)
+        GENERIC_OBJECTS = {'system', 'application', 'platform', 'feature', 'functionality',
+                          'solution', 'tool', 'module', 'service', 'product', 'website', 'app'}
+        
+        # Select object (skip generic and modal-prefixed)
         obj = 'feature'
         if entities['objects']:
-            # Find first object that doesn't start with a modal verb
+            # Find first specific object (not generic, not starting with modal)
+            specific_objects = []
             for candidate in entities['objects']:
                 words = candidate.split()
-                if not words or words[0].lower() not in MODAL_VERBS:
-                    obj = candidate
-                    break
+                if not words:
+                    continue
+                # Skip if starts with modal verb
+                if words[0].lower() in MODAL_VERBS:
+                    continue
+                # Skip if any word is generic (handles "the system", "an application")
+                if any(w.lower() in GENERIC_OBJECTS for w in words):
+                    # But keep if it's part of a longer, specific phrase (3+ words)
+                    if len(words) < 3:
+                        continue
+                # Keep specific objects
+                specific_objects.append(candidate)
+            
+            if specific_objects:
+                # Sort by length (longer = more specific), pick first
+                specific_objects.sort(key=lambda x: len(x.split()), reverse=True)
+                obj = specific_objects[0]
         elif entities['nouns']:
-            obj = entities['nouns'][0]
+            # Fallback to nouns, but still skip generic ones
+            for noun in entities['nouns']:
+                if noun.lower() not in GENERIC_OBJECTS:
+                    obj = noun
+                    break
         
         # Construct natural title with variation
         variants = [
@@ -241,25 +270,39 @@ class ModelBasedTaskGenerator:
         return ' '.join(parts)
     
     def generate_acceptance_criteria(self, text: str, req_type: str, entities: Dict) -> List[str]:
-        """Generate natural acceptance criteria"""
+        """Generate natural acceptance criteria (filtered for relevance)"""
         patterns = self.patterns.get(req_type, self.patterns['functional'])
         
         action = entities['verbs'][0] if entities['verbs'] else 'process'
         obj = entities['objects'][0] if entities['objects'] else 'data'
+        
+        # Check if requirement has performance cues
+        PERF_CUES = {'performance', 'latency', 'response time', 'within', 'seconds', 'ms', 
+                     'real-time', 'throughput', 'speed', 'fast', 'instant'}
+        text_lower = text.lower()
+        has_perf_requirement = any(cue in text_lower for cue in PERF_CUES)
         
         # Generate varied AC based on themes
         ac_list = []
         themes = random.sample(patterns['ac_themes'], k=min(4, len(patterns['ac_themes'])))
         
         for theme in themes:
+            # Skip validation/error handling (too generic)
             if theme == 'validation':
-                ac_list.append(f"System validates all {obj} input before processing")
+                # Only add if object is specific
+                if obj not in {'data', 'feature', 'system'}:
+                    ac_list.append(f"System validates all {obj} input before processing")
             elif theme == 'error handling':
-                ac_list.append(f"All error conditions are handled gracefully with user feedback")
+                # Skip - too generic
+                continue
             elif theme == 'performance':
-                ac_list.append(f"Response time for {action} operation is under 2 seconds")
+                # Only add if requirement mentions performance
+                if has_perf_requirement:
+                    ac_list.append(f"Response time for {action} operation is under 2 seconds")
             elif theme == 'accessibility':
-                ac_list.append("Feature meets WCAG 2.1 accessibility standards")
+                # Already filtered by postprocessor for non-interface types
+                if req_type == 'interface':
+                    ac_list.append("Feature meets WCAG 2.1 accessibility standards")
             elif theme == 'security':
                 ac_list.append(f"Only authorized users can {action} {obj}")
             elif theme == 'authentication':
@@ -269,17 +312,27 @@ class ModelBasedTaskGenerator:
             elif theme == 'audit logging':
                 ac_list.append(f"All {action} operations are logged for audit")
             elif theme == 'responsiveness':
-                ac_list.append("UI is responsive across desktop, tablet, and mobile devices")
+                if req_type == 'interface':
+                    ac_list.append("UI is responsive across desktop, tablet, and mobile devices")
             elif theme == 'usability':
-                ac_list.append(f"Users can {action} {obj} intuitively without training")
+                if req_type == 'interface':
+                    ac_list.append(f"Users can {action} {obj} intuitively without training")
             elif theme == 'schema design':
-                ac_list.append(f"Database schema supports all {obj} attributes")
+                if req_type == 'data':
+                    ac_list.append(f"Database schema supports all {obj} attributes")
             elif theme == 'CRUD operations':
-                ac_list.append(f"Create, read, update, and delete operations work for {obj}")
+                if req_type == 'data':
+                    ac_list.append(f"Create, read, update, and delete operations work for {obj}")
             elif theme == 'indexing':
-                ac_list.append(f"Database indexes optimize {obj} query performance")
+                if req_type == 'data':
+                    ac_list.append(f"Database indexes optimize {obj} query performance")
             else:
-                ac_list.append(f"Feature works correctly for {action} {obj}")
+                # Skip generic "Feature works correctly" AC
+                continue
+        
+        # Ensure at least one AC (fallback if all filtered)
+        if not ac_list:
+            ac_list.append(f"{action.capitalize()} {obj} successfully")
         
         return ac_list
     

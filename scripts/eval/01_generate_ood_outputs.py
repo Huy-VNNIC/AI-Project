@@ -105,6 +105,7 @@ def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
         'id', 'domain_expected', 'requirement_sentence',
         'generated_title', 'generated_description', 'generated_type',
         'generated_priority', 'generated_domain', 'generated_role',
+        'used_generator_class', 'used_mode',
         'generated_ac_1', 'generated_ac_2', 'generated_ac_3',
         'generated_ac_4', 'generated_ac_5', 'generated_ac_6',
         'score_title_clarity', 'score_desc_correctness', 'score_ac_testability',
