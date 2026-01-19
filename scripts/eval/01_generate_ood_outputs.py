@@ -4,6 +4,7 @@ Fill generated_* columns in OOD template CSV
 """
 import sys
 import csv
+import hashlib
 from pathlib import Path
 
 # Add project root
@@ -13,7 +14,7 @@ sys.path.append(str(PROJECT_ROOT))
 from requirement_analyzer.task_gen.pipeline import TaskGenerationPipeline
 
 
-def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
+def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model", requirement_threshold: float = None):
     """
     Read CSV with requirement_sentence, generate tasks, fill columns
     
@@ -21,6 +22,7 @@ def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
         input_csv: Path to template CSV with requirement_sentence filled
         output_csv: Path to output CSV with generated_* columns filled
         mode: Generation mode (model, template, llm)
+        requirement_threshold: Custom threshold for requirement detection (None = use default)
     """
     print(f"🔄 Loading pipeline (mode={mode})...")
     pipeline = TaskGenerationPipeline(
@@ -47,6 +49,9 @@ def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
     for i, row in enumerate(rows, 1):
         req = row.get('requirement_sentence', '').strip()
         
+        # Generate row_id (hash of requirement for reproducible tracking)
+        row['row_id'] = hashlib.sha1(req.encode('utf-8')).hexdigest()[:12]
+        
         if not req:
             print(f"   {i}/{len(rows)} - SKIP (empty requirement)")
             continue
@@ -54,11 +59,12 @@ def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
         print(f"   {i}/{len(rows)} - Processing: {req[:60]}...")
         
         try:
-            # Generate tasks
-            result = pipeline.generate_tasks(
-                text=req,
-                max_tasks=1  # Only need first task
-            )
+            # Generate tasks (with custom threshold for OOD if provided)
+            kwargs = {'text': req, 'max_tasks': 1}
+            if requirement_threshold is not None:
+                kwargs['requirement_threshold'] = requirement_threshold
+            
+            result = pipeline.generate_tasks(**kwargs)
             
             tasks = result.tasks  # Use attribute, not dict access
             
@@ -99,10 +105,12 @@ def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
             print(f"      ❌ Error: {e}")
             row['generated_title'] = f"[ERROR: {str(e)[:50]}]"
     
-    # Write output
+    # Write output with dynamic fieldnames
     print(f"\n💾 Writing {output_csv}...")
-    fieldnames = [
-        'id', 'domain_expected', 'requirement_sentence',
+    
+    # Base columns in desired order
+    base_cols = [
+        'row_id', 'id', 'domain_expected', 'requirement_sentence',
         'generated_title', 'generated_description', 'generated_type',
         'generated_priority', 'generated_domain', 'generated_role',
         'used_generator_class', 'used_mode',
@@ -110,11 +118,20 @@ def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
         'generated_ac_4', 'generated_ac_5', 'generated_ac_6',
         'score_title_clarity', 'score_desc_correctness', 'score_ac_testability',
         'score_label_type', 'score_label_domain', 'score_priority_reasonable',
-        'has_duplicates', 'notes'
+        'domain_applicable', 'has_duplicates', 'flag_generic', 'flag_wrong_intent', 'notes'
     ]
     
+    # Collect all keys from all rows
+    all_keys = set()
+    for r in rows:
+        all_keys.update(r.keys())
+    
+    # Keep base order first, then append any extra keys (future-proof)
+    fieldnames = [col for col in base_cols if col in all_keys] + \
+                 sorted([k for k in all_keys if k not in base_cols])
+    
     with open(output_csv, 'w', encoding='utf-8', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
         writer.writeheader()
         writer.writerows(rows)
     

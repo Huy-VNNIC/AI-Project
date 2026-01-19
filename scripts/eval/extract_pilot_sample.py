@@ -5,7 +5,7 @@ import csv
 import random
 from pathlib import Path
 
-def extract_pilot_sample(input_csv: str, output_csv: str, sample_size: int = 50):
+def extract_pilot_sample(input_csv: str, output_csv: str, sample_size: int = 50, seed: int = 42):
     """
     Extract random sample of successful rows for pilot evaluation
     
@@ -13,7 +13,11 @@ def extract_pilot_sample(input_csv: str, output_csv: str, sample_size: int = 50)
         input_csv: Full OOD generated CSV
         output_csv: Pilot sample CSV
         sample_size: Number of rows to sample
+        seed: Random seed for reproducibility (default: 42)
     """
+    # Set seed for reproducibility
+    random.seed(seed)
+    
     print(f"📖 Reading {input_csv}...")
     with open(input_csv, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
@@ -77,12 +81,13 @@ if __name__ == '__main__':
     import sys
     
     if len(sys.argv) < 3:
-        print("Usage: python extract_pilot_sample.py <input_csv> <output_csv> [sample_size]")
-        print("Example: python extract_pilot_sample.py ood_generated.csv ood_pilot.csv 50")
+        print("Usage: python extract_pilot_sample.py <input_csv> <output_csv> [sample_size] [seed]")
+        print("Example: python extract_pilot_sample.py ood_generated.csv ood_pilot.csv 50 42")
         sys.exit(1)
     
     input_csv = sys.argv[1]
     output_csv = sys.argv[2]
     sample_size = int(sys.argv[3]) if len(sys.argv) > 3 else 50
+    seed = int(sys.argv[4]) if len(sys.argv) > 4 else 42
     
-    extract_pilot_sample(input_csv, output_csv, sample_size)
+    extract_pilot_sample(input_csv, output_csv, sample_size, seed)
