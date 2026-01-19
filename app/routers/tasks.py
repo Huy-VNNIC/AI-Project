@@ -150,7 +150,7 @@ async def generate_tasks(request: GenerateRequest):
         
         # Generate tasks
         result = pipeline.generate_tasks(
-            document_text=request.document_text,
+            text=request.document_text,
             max_tasks=request.max_tasks,
             requirement_threshold=request.requirement_threshold
         )

@@ -46,7 +46,8 @@ class JiraDataPuller:
             fields = [
                 'summary', 'description', 'issuetype', 'priority', 
                 'labels', 'components', 'created', 'updated', 
-                'status', 'resolution', 'comment'
+                'status', 'resolution', 'comment',
+                'project', 'reporter', 'assignee'
             ]
         
         all_issues = []
@@ -190,6 +191,11 @@ class JiraDataPuller:
                 if text:
                     comments.append(text)
         
+        # Safe metadata access
+        project = fields.get('project', {})
+        reporter = fields.get('reporter', {})
+        assignee = fields.get('assignee', {})
+        
         normalized = {
             'source': 'jira',
             'source_id': issue.get('key', ''),
@@ -207,9 +213,9 @@ class JiraDataPuller:
             'updated_at': fields.get('updated', ''),
             'comments': comments,
             'metadata': {
-                'project': fields.get('project', {}).get('key', ''),
-                'reporter': fields.get('reporter', {}).get('displayName', ''),
-                'assignee': fields.get('assignee', {}).get('displayName', '') if fields.get('assignee') else ''
+                'project': project.get('key', '') if isinstance(project, dict) else '',
+                'reporter': reporter.get('displayName', '') if isinstance(reporter, dict) else '',
+                'assignee': assignee.get('displayName', '') if isinstance(assignee, dict) and assignee else ''
             }
         }
         

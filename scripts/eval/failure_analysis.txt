@@ -1,0 +1,288 @@
+======================================================================
+OOD EVALUATION - FAILURE ANALYSIS
+======================================================================
+
+
+──────────────────────────────────────────────────────────────────────
+NOT A REQUIREMENT (11 cases)
+──────────────────────────────────────────────────────────────────────
+
+1. ID: 106
+   Domain: general
+   Requirement: A PHP project contains source code and related files for maintaining a PHP Application A PHP project can be organized in two different ways using the project as the source container Using source folders inside the project as the source container 
+
+2. ID: 107
+   Domain: general
+   Requirement: A wizard is available for creating a PHP project The wizard can be access by the Project Wizard in eclipse File New Project In the Project Wizard there will be a project type named PHP Project that will launch the create PHP project wizard 
+
+3. ID: 108
+   Domain: general
+   Requirement: When in the PHP perspective a Create PHP project wizard icon will be on the tool bar and a File New PHP Project will exist on the menu 
+
+4. ID: 115
+   Domain: general
+   Requirement: A project can be saved retrieved and synchronized with a CVS repository All the properties of the project and files in the project encoding version etc will be saved retrieved and synchronized with the repository 
+
+5. ID: 174
+   Domain: general
+   Requirement: An account is either an administrator account a scientist account or an observer account 
+
+6. ID: 210
+   Domain: general
+   Requirement: At any moment only one scientist is allowed to compose an experiment on a single payload 
+
+7. ID: 224
+   Domain: general
+   Requirement: The meeting proposal may include an agenda or list of topics for discussion during the meeting and may include a list of required equipments 
+
+8. ID: 229
+   Domain: general
+   Requirement: A confirmed meeting participant may request special equipment 
+
+9. ID: 230
+   Domain: general
+   Requirement: A potential meeting participant or confirmed meeting participant may confirm or cancel their attendance at the meeting subject to the administrative rules and practices of the participant s 
+
+10. ID: 245
+   Domain: general
+   Requirement: A meeting scheduler system will inform the potential meeting participant of the meeting 
+
+11. ID: 247
+   Domain: general
+   Requirement: TA1 is part of a four part project consisting of a Faculty Admin TA1 and TA2 
+
+
+──────────────────────────────────────────────────────────────────────
+TOO COMPLEX (8 cases)
+──────────────────────────────────────────────────────────────────────
+
+1. ID: 116
+   Domain: general
+   Requirement: These are the menu items that affect a PHP project There may be other items on the Project Menu because eclipse supports other types of projects The Project Menu items vary based on the project selected 
+
+2. ID: 117
+   Domain: general
+   Requirement: During typing the PHP inspector is run and highlighting of errors a squiggly line under the code occurs for the file Errors detected during typing are not displayed in the problems view The build options in the project menu determine when the eclipse builder is run The eclipse builder is potentially a long running operation Depending on the changes made every file in the workspace could be rebuilt Eclipse attempts to determine the files that have changed based on the project dependencies The eclipse builder is run as a background task so that the developer can continue to work Problems detected during the build phase will show up in the problems view and will be highlighted using a squiggly line under the code 
+
+3. ID: 118
+   Domain: general
+   Requirement: When a project is closed it can no longer be changed and its resources no longer appear in the Package Explorer Project Outline View etc To re open the project select the project in the PHP Explorer View and click on Open Project Eclipse doesn t have a concept of prj files 
+
+4. ID: 119
+   Domain: general
+   Requirement: Some of the menu items may be handled by the low level eclipse infrastructure and not require implementation by the PHP project Other are open issues to be resolved but are listed here since they will show up in the Menu unless some specific action is taken to turn them off 
+
+5. ID: 120
+   Domain: general
+   Requirement: When a location is specified any directory file at that location will be part of the project Only the developer s data files will reside at the location Eclipse internal project files will reside in a eclipse internal directory 
+
+6. ID: 123
+   Domain: general
+   Requirement: If the project is being maintained in CVS the option to compare replace restore etc the file from CVS will be supported Anytime a PHP file is synchronized with a CVS repository the properties of a file are transferred encoding 
+
+7. ID: 142
+   Domain: general
+   Requirement: Selection Selecting the Tree node in the Outline view highlights the represented element on the editor This should also work in the other direction meaning that the Outline view should highlight the node represented by the area under the editor s caret 
+
+8. ID: 154
+   Domain: general
+   Requirement: The system produces statistics that can be used to understand and predict patron behavior and use of materials For example how quickly is a particular book returned on average How likely is a particular book to be renewed What percent of check outs at a particular branch are renewals 
+
+
+──────────────────────────────────────────────────────────────────────
+MODAL ONLY (12 cases)
+──────────────────────────────────────────────────────────────────────
+
+1. ID: 183
+   Domain: general
+   Requirement: An administrator shall be able to register a satellite with the system 
+
+2. ID: 186
+   Domain: general
+   Requirement: An administrator shall be able to unregister a satellite with the system 
+
+3. ID: 187
+   Domain: general
+   Requirement: An administrator shall be able to register a payload with the system 
+
+4. ID: 188
+   Domain: general
+   Requirement: An administrator shall be able to configure whether multiple experiments may be executed simultaneously on a particular satellite 
+
+5. ID: 192
+   Domain: general
+   Requirement: An administrator shall be able to unregister a payload with the system 
+
+6. ID: 193
+   Domain: general
+   Requirement: An administrator shall be able to link a registered payload to exactly one satellite 
+
+7. ID: 206
+   Domain: general
+   Requirement: A scientist shall be able to request the scheduling of the execution of experiments on a predefined moment 
+
+8. ID: 207
+   Domain: general
+   Requirement: A scientist shall be able to request an experiment which has not yet been executed to be unscheduled 
+
+9. ID: 208
+   Domain: general
+   Requirement: A scientist shall be able to request to change an experiment before it is being executed 
+
+10. ID: 209
+   Domain: general
+   Requirement: A scientist shall be able to send commands to an experiment already executing 
+
+11. ID: 213
+   Domain: general
+   Requirement: A meeting initiator shall initiate a meeting by deciding on a meeting topic by selecting a list of potential meeting participants and by selecting a date range duration and location for the meeting 
+
+12. ID: 215
+   Domain: general
+   Requirement: A meeting initiator shall be one of the potential meeting participants by default but may opt to remove himself as a potential meeting participant 
+
+
+──────────────────────────────────────────────────────────────────────
+OTHER (35 cases)
+──────────────────────────────────────────────────────────────────────
+
+1. ID: 21
+   Domain: healthcare
+   Requirement: Healthcare providers should be able to prescribe medications electronically to pharmacies.
+
+2. ID: 62
+   Domain: social
+   Requirement: The system should suggest friends based on mutual connections and shared interests.
+
+3. ID: 67
+   Domain: crm
+   Requirement: Managers need to view sales pipeline and forecast revenue for the current quarter.
+
+4. ID: 73
+   Domain: project
+   Requirement: Team members should be able to create tasks and assign them to colleagues with due dates.
+
+5. ID: 74
+   Domain: project
+   Requirement: The system must visualize project timelines using Gantt charts.
+
+6. ID: 77
+   Domain: project
+   Requirement: Project managers must be able to view resource allocation across multiple projects.
+
+7. ID: 89
+   Domain: gaming
+   Requirement: Players should be able to create custom avatars with various cosmetic options.
+
+8. ID: 94
+   Domain: gaming
+   Requirement: The system should implement anti-cheat mechanisms to ensure fair gameplay.
+
+9. ID: 104
+   Domain: realestate
+   Requirement: Buyers and sellers need to communicate through the platform with message history.
+
+10. ID: 113
+   Domain: general
+   Requirement: Files can be added to a project by the following methods Import from File System Drag and Drop 
+
+11. ID: 114
+   Domain: general
+   Requirement: Any file that is not added to a project using the New PHP file Wizard will be given the default file encoding of the project 
+
+12. ID: 121
+   Domain: general
+   Requirement: The ability to create a PHP file with the following properties will be supported 
+
+13. ID: 125
+   Domain: general
+   Requirement: This is the source of all PHP language classes functions and constants 
+
+14. ID: 126
+   Domain: general
+   Requirement: Format of PHP files that can be editable 
+
+15. ID: 127
+   Domain: general
+   Requirement: The file should be located as part of the plugin installation directory in a lib directory 
+
+16. ID: 128
+   Domain: general
+   Requirement: Two files should be included phpFunctions4 php phpFunctions5 php
+
+17. ID: 129
+   Domain: general
+   Requirement: Any change in these files will effect the following in all projects 
+
+18. ID: 132
+   Domain: general
+   Requirement: Should support both PHP 4 and PHP 5 see PHP Project PHP Version 
+
+19. ID: 143
+   Domain: general
+   Requirement: The Project Outline View is a new View to the Eclipse Platform This View is very similar to the Outline
+
+20. ID: 150
+   Domain: general
+   Requirement: System provides the query selections along with the results 
+
+21. ID: 161
+   Domain: general
+   Requirement: The system generates a list of patrons with no circulation or electronic activity in the last X days X configurable List should be configurable to System Home Library County etc 
+
+22. ID: 178
+   Domain: general
+   Requirement: IMSETY shall include a demonstration experiment 
+
+23. ID: 182
+   Domain: general
+   Requirement: IMSETY shall adhere to table 2 1 for group rights 
+
+24. ID: 203
+   Domain: general
+   Requirement: IMSETY shall communicate a list of payload specific commands to the scientist 
+
+25. ID: 204
+   Domain: general
+   Requirement: IMSETY shall let scientists select commands from this list and thereby compose an experiment 
+
+26. ID: 211
+   Domain: general
+   Requirement: The system shall upload experiments scheduled and queued for upload to a satellite whenever there is a window of opportunity 
+
+27. ID: 223
+   Domain: general
+   Requirement: The meeting initiator may designate one or more potential meeting participants as important meaning that their attendance at the meeting is required in order to have the meeting 
+
+28. ID: 231
+   Domain: general
+   Requirement: Any physical changes to the location and its required equipment shall be kept up to date 
+
+29. ID: 232
+   Domain: general
+   Requirement: If any physical changes to the location and its required equipments shall occur after a meeting proposal and before the meeting date the meeting initiator shall be notified promptly 
+
+30. ID: 235
+   Domain: general
+   Requirement: The meeting scheduler system shall be able to select a participant as an important participant 
+
+31. ID: 236
+   Domain: general
+   Requirement: The meeting scheduler system shall cancel a meeting due to canceling of an important participant 
+
+32. ID: 238
+   Domain: general
+   Requirement: The meeting scheduler shall be available online by the end of this year 
+
+33. ID: 241
+   Domain: general
+   Requirement: The meeting scheduler system may be able to include an agenda for a meeting proposal 
+
+34. ID: 243
+   Domain: general
+   Requirement: The meeting scheduler system may be able to include a list of required equipment for a meeting proposal 
+
+35. ID: 250
+   Domain: general
+   Requirement: Bold face and indentation is used on general topics and or specific points of interest 
+

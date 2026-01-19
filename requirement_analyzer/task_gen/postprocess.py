@@ -295,6 +295,16 @@ class TaskPostProcessor:
         filtered = []
         
         for task in tasks:
+            # Filter WCAG criteria from non-interface tasks
+            if task.type.lower() != 'interface':
+                original_count = len(task.acceptance_criteria)
+                task.acceptance_criteria = [
+                    ac for ac in task.acceptance_criteria 
+                    if 'WCAG' not in ac and 'accessibility' not in ac.lower()
+                ]
+                if len(task.acceptance_criteria) < original_count:
+                    logger.debug(f"Removed {original_count - len(task.acceptance_criteria)} WCAG criteria from {task.type} task")
+            
             # Check minimum length
             if len(task.title) < self.min_task_length:
                 logger.debug(f"Filtered out short title: '{task.title}'")

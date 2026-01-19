@@ -89,7 +89,13 @@ class TaskGenerationPipeline:
             )
         elif generator_mode == "model":
             logger.info("Using trained model-based generator (no API required)")
-            self.generator = ModelBasedTaskGenerator(model_dir=models_path)
+            try:
+                self.generator = ModelBasedTaskGenerator(model_dir=models_path)
+                logger.info(f"✅ ModelBasedTaskGenerator initialized: {type(self.generator).__name__}")
+            except Exception as e:
+                logger.exception(f"❌ Model generator init failed, falling back to template: {e}")
+                self.generator = get_generator()
+                self.generator_mode = "template"  # Update mode to reflect fallback
         else:
             logger.info("Using template generator")
             self.generator = get_generator()
@@ -218,7 +224,7 @@ class TaskGenerationPipeline:
             total_tasks=len(tasks),
             stats={},  # Auto-computed by pydantic validator
             processing_time=processing_time,
-            mode='template'
+            mode=self.generator_mode  # Use actual mode, not hardcoded
         )
         
         logger.info(f"✅ Task generation complete in {processing_time:.2f}s")

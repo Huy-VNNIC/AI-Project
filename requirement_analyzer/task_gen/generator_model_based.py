@@ -172,15 +172,32 @@ class ModelBasedTaskGenerator:
         """Generate natural title (NOT from template)"""
         patterns = self.patterns.get(req_type, self.patterns['functional'])
         
+        # Modal verbs that should be skipped
+        MODAL_VERBS = {'need', 'must', 'should', 'shall', 'may', 'can', 'will', 'would', 'could'}
+        
         # Select action word
         action = random.choice(patterns['action_words'])
-        if entities['verbs']:
-            action = entities['verbs'][0]
         
-        # Select object
+        # Extract action from verbs, skipping modals
+        if entities['verbs']:
+            # Find first non-modal verb
+            for verb in entities['verbs']:
+                if verb.lower() not in MODAL_VERBS:
+                    action = verb
+                    break
+            else:
+                # All verbs are modals, use fallback
+                action = 'support'
+        
+        # Select object (skip those starting with modal verbs)
         obj = 'feature'
         if entities['objects']:
-            obj = entities['objects'][0]
+            # Find first object that doesn't start with a modal verb
+            for candidate in entities['objects']:
+                words = candidate.split()
+                if not words or words[0].lower() not in MODAL_VERBS:
+                    obj = candidate
+                    break
         elif entities['nouns']:
             obj = entities['nouns'][0]
         

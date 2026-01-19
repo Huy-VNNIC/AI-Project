@@ -28,6 +28,12 @@ def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
         generator_mode=mode
     )
     
+    # Log actual generator used
+    used_generator_class = type(pipeline.generator).__name__
+    used_mode = pipeline.generator_mode
+    print(f"🧩 Generator class: {used_generator_class}")
+    print(f"🧩 Mode: {used_mode}")
+    
     print(f"📖 Reading {input_csv}...")
     rows = []
     with open(input_csv, 'r', encoding='utf-8') as f:
@@ -50,11 +56,11 @@ def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
         try:
             # Generate tasks
             result = pipeline.generate_tasks(
-                document_text=req,
+                text=req,
                 max_tasks=1  # Only need first task
             )
             
-            tasks = result.get('tasks', [])
+            tasks = result.tasks  # Use attribute, not dict access
             
             if not tasks:
                 print(f"      ⚠️  No tasks generated")
@@ -64,26 +70,30 @@ def generate_ood_outputs(input_csv: str, output_csv: str, mode: str = "model"):
                 row['generated_priority'] = ""
                 row['generated_domain'] = ""
                 row['generated_role'] = ""
+                row['used_generator_class'] = used_generator_class
+                row['used_mode'] = used_mode
                 continue
             
-            # Take first task
+            # Take first task (Pydantic model, not dict)
             task = tasks[0]
             
             # Fill columns
-            row['generated_title'] = task.get('title', '')
-            row['generated_description'] = task.get('description', '')
-            row['generated_type'] = task.get('type', '')
-            row['generated_priority'] = task.get('priority', '')
-            row['generated_domain'] = task.get('domain', '')
-            row['generated_role'] = task.get('role', '')
+            row['generated_title'] = task.title
+            row['generated_description'] = task.description
+            row['generated_type'] = task.type
+            row['generated_priority'] = task.priority
+            row['generated_domain'] = task.domain
+            row['generated_role'] = task.role
+            row['used_generator_class'] = used_generator_class
+            row['used_mode'] = used_mode
             
             # Acceptance criteria
-            acs = task.get('acceptance_criteria', [])
+            acs = task.acceptance_criteria
             for j in range(1, 7):
                 key = f'generated_ac_{j}'
                 row[key] = acs[j-1] if j-1 < len(acs) else ''
             
-            print(f"      ✅ Generated: {task.get('title', '?')[:40]}...")
+            print(f"      ✅ Generated: {task.title[:40]}...")
         
         except Exception as e:
             print(f"      ❌ Error: {e}")
