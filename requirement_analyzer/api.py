@@ -34,6 +34,12 @@ from requirement_analyzer.analyzer import RequirementAnalyzer
 from requirement_analyzer.estimator import EffortEstimator
 from requirement_analyzer.task_integration import get_integration
 from requirement_analyzer.utils import preprocess_text_for_estimation, improve_confidence_level
+from requirement_analyzer.task_gen import (
+    get_pipeline,
+    TaskGenerationRequest,
+    TaskGenerationResponse,
+    TaskFeedback
+)
 
 # Model cho request API
 class RequirementText(BaseModel):
@@ -106,12 +112,47 @@ class COCOMOParameters(BaseModel):
 
 # Khởi tạo FastAPI app
 app = FastAPI(
-    title="Software Effort Estimation API",
-    description="API để phân tích yêu cầu phần mềm và ước lượng nỗ lực phát triển",
-    version="1.0.0"
+    title="Software Effort Estimation & Task Generation API",
+    description="API để phân tích yêu cầu phần mềm, ước lượng nỗ lực phát triển, và tự động sinh task",
+    version="2.0.0"
 )
 
 # Khởi tạo các thành phần
+analyzer = RequirementAnalyzer()
+estimator = EffortEstimator()
+
+# Initialize task generation pipeline with config
+try:
+    from requirement_analyzer.task_gen.config import (
+        GENERATOR_MODE,
+        LLM_PROVIDER,
+        LLM_MODEL,
+        LLM_API_KEY,
+        get_pipeline_config
+    )
+    
+    # Print config on startup
+    config = get_pipeline_config()
+    logger.info(f"Task generation config: {config}")
+    
+    # Initialize with LLM if mode=llm
+    if GENERATOR_MODE == "llm":
+        logger.info(f"Initializing LLM pipeline ({LLM_PROVIDER}/{LLM_MODEL or 'auto'})...")
+        task_pipeline = get_pipeline(
+            generator_mode="llm",
+            llm_provider=LLM_PROVIDER,
+            llm_model=LLM_MODEL,
+            llm_api_key=LLM_API_KEY
+        )
+    else:
+        logger.info("Initializing template pipeline...")
+        task_pipeline = get_pipeline()
+    
+    logger.info(f"✓ Task generation pipeline loaded (mode={GENERATOR_MODE})")
+except Exception as e:
+    logger.warning(f"⚠️  Task generation pipeline not available: {e}")
+    task_pipeline = None
+
 analyzer = RequirementAnalyzer()
 estimator = EffortEstimator()
 
@@ -698,6 +739,285 @@ async def cocomo_form_page(request: Request):
 @app.get("/debug", response_class=HTMLResponse)
 async def debug_page(request: Request):
     return templates.TemplateResponse("debug.html", {"request": request})
+
+
+# ============================================================================
+# TASK GENERATION ENDPOINTS (NEW)
+# ============================================================================
+
+@app.post("/generate-tasks", response_model=TaskGenerationResponse)
+async def generate_tasks(request: TaskGenerationRequest):
+    """
+    Generate tasks from requirement document
+    
+    Main endpoint for AI task generation
+    """
+    if task_pipeline is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Task generation service not available. Please train models first."
+        )
+    
+    try:
+        logger.info(f"📋 Generating tasks from document ({len(request.text)} chars)")
+        
+        response = task_pipeline.generate_tasks(
+            text=request.text,
+            max_tasks=request.max_tasks,
+            epic_name=request.epic_name,
+            domain_hint=request.domain_hint
+        )
+        
+        logger.info(f"✅ Generated {response.total_tasks} tasks in {response.processing_time:.2f}s")
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error generating tasks: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/generate-tasks-estimate")
+async def generate_tasks_and_estimate(request: TaskGenerationRequest):
+    """
+    Generate tasks AND estimate effort/story points
+    
+    Combines task generation with effort estimation
+    """
+    if task_pipeline is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Task generation service not available"
+        )
+    
+    try:
+        # 1. Generate tasks
+        logger.info(f"📋 Generating tasks with estimation...")
+        
+        task_response = task_pipeline.generate_tasks(
+            text=request.text,
+            max_tasks=request.max_tasks,
+            epic_name=request.epic_name,
+            domain_hint=request.domain_hint
+        )
+        
+        tasks = task_response.tasks
+        
+        if not tasks:
+            return {
+                "tasks": [],
+                "total_tasks": 0,
+                "estimation": None,
+                "message": "No tasks generated"
+            }
+        
+        # 2. Estimate effort if requested
+        if request.include_story_points:
+            logger.info(f"📊 Estimating effort for {len(tasks)} tasks...")
+            
+            # Convert tasks to estimation format
+            task_list = [
+                {
+                    "title": task.title,
+                    "description": task.description,
+                    "type": task.type,
+                    "priority": task.priority,
+                    "role": task.role
+                }
+                for task in tasks
+            ]
+            
+            # Call existing estimator
+            try:
+                estimation_result = estimator.estimate_from_requirements(
+                    request.text,
+                    method="weighted_average"
+                )
+                
+                total_effort = estimation_result.get('total_effort_hours', 0)
+                
+                # Allocate story points based on priority and complexity
+                tasks_with_points = _allocate_story_points(tasks, total_effort)
+                
+                # Update tasks in response
+                for i, task in enumerate(tasks):
+                    task.story_points = tasks_with_points[i]['story_points']
+                    task.estimated_hours = tasks_with_points[i]['estimated_hours']
+                
+                task_response.total_story_points = sum(t['story_points'] for t in tasks_with_points)
+                task_response.estimated_duration_days = estimation_result.get('duration_months', 0) * 22  # approx working days
+                
+            except Exception as e:
+                logger.warning(f"⚠️  Effort estimation failed: {e}")
+        
+        # Build response
+        response_dict = task_response.dict()
+        response_dict['message'] = f"Successfully generated {len(tasks)} tasks"
+        
+        return JSONResponse(content=response_dict)
+        
+    except Exception as e:
+        logger.error(f"Error in generate-tasks-estimate: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/upload-requirements-generate-tasks")
+async def upload_and_generate_tasks(
+    file: UploadFile = File(...),
+    max_tasks: int = Form(50),
+    epic_name: Optional[str] = Form(None)
+):
+    """
+    Upload requirement document and generate tasks
+    """
+    if task_pipeline is None:
+        raise HTTPException(status_code=503, detail="Task generation service not available")
+    
+    try:
+        # Parse document
+        from requirement_analyzer.document_parser import DocumentParser
+        
+        content = await file.read()
+        filename = file.filename
+        file_ext = os.path.splitext(filename)[1].lower()
+        
+        if file_ext not in ['.txt', '.doc', '.docx', '.pdf', '.md']:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported file format: {file_ext}. Supported: .txt, .doc, .docx, .pdf, .md"
+            )
+        
+        parser = DocumentParser()
+        text = parser.parse(content, file_ext)
+        
+        if not text or len(text.strip()) < 50:
+            raise HTTPException(
+                status_code=400,
+                detail="Document is too short or empty"
+            )
+        
+        # Generate tasks
+        response = task_pipeline.generate_tasks(
+            text=text,
+            max_tasks=max_tasks,
+            epic_name=epic_name
+        )
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error uploading and generating tasks: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/tasks/feedback")
+async def submit_task_feedback(feedback: TaskFeedback):
+    """
+    Submit feedback on generated task (for learning loop)
+    
+    Stores user edits and acceptance to improve model later
+    """
+    try:
+        # Store feedback (implement storage later)
+        logger.info(f"📝 Received feedback for task {feedback.task_id}: accepted={feedback.accepted}")
+        
+        # TODO: Save to database for future model improvement
+        # For now, just acknowledge
+        
+        return {
+            "status": "success",
+            "message": "Feedback received",
+            "task_id": feedback.task_id
+        }
+        
+    except Exception as e:
+        logger.error(f"Error saving feedback: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def _allocate_story_points(tasks: List, total_effort_hours: float) -> List[Dict]:
+    """
+    Allocate story points to tasks based on effort and complexity
+    
+    Uses priority, type, and role as weights
+    """
+    if not tasks or total_effort_hours <= 0:
+        return [{'story_points': 3, 'estimated_hours': 8} for _ in tasks]
+    
+    # Define weight factors
+    priority_weights = {'Low': 0.8, 'Medium': 1.0, 'High': 1.3, 'Critical': 1.5}
+    type_weights = {
+        'security': 1.2,
+        'data': 1.1,
+        'integration': 1.15,
+        'performance': 1.1,
+        'interface': 1.0,
+        'functional': 1.0
+    }
+    role_weights = {
+        'Security': 1.2,
+        'DevOps': 1.1,
+        'Backend': 1.0,
+        'Data': 1.0,
+        'Frontend': 0.9,
+        'QA': 0.8
+    }
+    
+    # Calculate weights for each task
+    task_weights = []
+    for task in tasks:
+        priority = getattr(task, 'priority', 'Medium')
+        task_type = getattr(task, 'type', 'functional')
+        role = getattr(task, 'role', 'Backend')
+        
+        weight = (
+            priority_weights.get(priority, 1.0) *
+            type_weights.get(task_type, 1.0) *
+            role_weights.get(role, 1.0)
+        )
+        task_weights.append(weight)
+    
+    total_weight = sum(task_weights)
+    
+    # Allocate hours
+    fibonacci = [1, 2, 3, 5, 8, 13, 21, 34]
+    result = []
+    
+    for i, task in enumerate(tasks):
+        # Calculate hours for this task
+        task_hours = (task_weights[i] / total_weight) * total_effort_hours
+        
+        # Convert to story points (Fibonacci)
+        # Rough mapping: 1 point = 1-4 hours, 2 = 4-8, 3 = 8-16, etc.
+        if task_hours <= 4:
+            points = 1
+        elif task_hours <= 8:
+            points = 2
+        elif task_hours <= 16:
+            points = 3
+        elif task_hours <= 24:
+            points = 5
+        elif task_hours <= 40:
+            points = 8
+        elif task_hours <= 60:
+            points = 13
+        else:
+            points = 21
+        
+        result.append({
+            'story_points': points,
+            'estimated_hours': round(task_hours, 1)
+        })
+    
+    return result
+
+
+# ============================================================================
+# END TASK GENERATION ENDPOINTS
+# ============================================================================
+
 
 # Mount static files last to avoid route conflicts
 # Use html=True to properly serve static files

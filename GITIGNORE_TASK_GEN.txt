@@ -1,0 +1,185 @@
+# Task Generation - Gitignore Additions
+
+# Add these to your .gitignore file
+
+# ===============================
+# Data Files
+# ===============================
+
+# Raw datasets (usually large, not committed)
+datasets/dataset_large_1m/
+datasets/dataset_small_10k/
+
+# Processed data (can be regenerated)
+data/processed/*.parquet
+data/processed/*.csv
+data/splits/*.parquet
+
+# Label maps (optional - can regenerate)
+data/processed/label_maps.json
+
+# ===============================
+# Models
+# ===============================
+
+# Trained models (large files, regenerate or use Git LFS)
+models/task_gen/*.joblib
+models/task_gen/*.pkl
+models/task_gen/*.h5
+models/task_gen/*.pt
+
+# Model metadata (optional - keep if small)
+# models/task_gen/metadata.json
+
+# ===============================
+# Reports & Logs
+# ===============================
+
+# Training reports (regenerate)
+report/data_quality_report.json
+report/data_quality_report.md
+report/*.png
+report/*.pdf
+
+# Log files
+logs/*.log
+logs/task_generation.log
+
+# Debug output
+debug/
+*.prof
+
+# ===============================
+# Cache & Temporary Files
+# =======================================
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# spaCy cache
+.spacy/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+# ===============================
+# Configuration (Sensitive)
+# ===============================
+
+# User config (may contain API keys)
+config_task_gen.py
+
+# Environment variables
+.env
+.env.local
+
+# API keys
+*.key
+*.pem
+
+# ===============================
+# Output Files
+# ===============================
+
+# Generated tasks
+generated_tasks/
+output/
+*.tasks.json
+
+# Exported files
+exports/
+*.jira.json
+*.trello.json
+
+# ===============================
+# Testing
+# ===============================
+
+# Test output
+test_output/
+coverage/
+.coverage
+.pytest_cache/
+htmlcov/
+
+# ===============================
+# OS Files
+# ===============================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+.directory
+
+# ===============================
+# Backup Files
+# ===============================
+
+*.bak
+*.backup
+*.old
+*.swp
+*.swo
+*~
+
+# ===============================
+# What TO Commit (Keep These)
+# ===============================
+
+# ✅ Source code
+# requirement_analyzer/task_gen/*.py
+# scripts/task_generation/*.py
+
+# ✅ Configuration templates
+# config_task_gen_template.py
+
+# ✅ Documentation
+# *.md
+# docs/
+
+# ✅ Small test datasets (if any)
+# tests/fixtures/sample_*.csv
+
+# ✅ Requirements
+# requirements.txt
+# requirements-task-generation.txt
+
+# ✅ Scripts
+# *.sh
+# *.bash
+
+# ===============================
+# Git LFS (for Large Files)
+# ===============================
+
+# If using Git LFS, track these:
+# *.joblib filter=lfs diff=lfs merge=lfs -text
+# *.parquet filter=lfs diff=lfs merge=lfs -text
+# *.pkl filter=lfs diff=lfs merge=lfs -text
+
+# To enable Git LFS:
+# git lfs install
+# git lfs track "*.joblib"
+# git lfs track "*.parquet"
+# git add .gitattributes

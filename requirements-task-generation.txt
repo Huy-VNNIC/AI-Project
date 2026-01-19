@@ -1,0 +1,38 @@
+# Additional requirements for Task Generation module
+# Install these in addition to base requirements.txt
+
+# Core ML/NLP
+scikit-learn>=1.3.0
+spacy>=3.7.0
+nltk>=3.8
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+pyarrow>=14.0.0  # For parquet support
+
+# Visualization (for metrics plots)
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# API dependencies (if not in base requirements)
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.0.0
+
+# Document parsing (if not in base requirements)
+python-docx>=1.0.0
+PyPDF2>=3.0.0
+
+# LLM providers (optional - only needed if using LLM mode)
+# Uncomment and install only what you need:
+# openai>=1.0.0  # For OpenAI models (GPT-4, etc.)
+# anthropic>=0.7.0  # For Claude models
+
+# Optional: for better performance
+# joblib>=1.3.0  # Should already be installed via sklearn
+
+# Development/Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.25.0  # For testing FastAPI
