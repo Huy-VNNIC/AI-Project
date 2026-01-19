@@ -77,3 +77,9 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+
+# Dev/test scripts
+debug_entities.py
+test_fixes.py
+check_prescoring.py
+
