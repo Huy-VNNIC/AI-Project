@@ -1,6 +1,5 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[vietnamese]{babel}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{tikz}
 \usepackage{pgfplots}
@@ -39,11 +38,11 @@
 }
 \lstset{style=mystyle}
 
-\title{\textbf{BÁO CÁO CẬP NHẬT}\\ 
+\title{\textbf{PROJECT UPDATE REPORT}\\ 
 \large Out-of-Distribution Evaluation Framework \\
-và Model-Based Task Generation System}
+and Model-Based Task Generation System}
 \author{AI Project - Requirement Analyzer}
-\date{Ngày 20 tháng 1, 2026}
+\date{January 20, 2026}
 
 \begin{document}
 
@@ -51,26 +50,26 @@ và Model-Based Task Generation System}
 \tableofcontents
 \newpage
 
-\section{Tổng Quan}
+\section{Overview}
 
-\subsection{Mục Tiêu Chính}
-Báo cáo này mô tả chi tiết quá trình xây dựng hệ thống \textbf{Out-of-Distribution (OOD) Evaluation Framework} nhằm đạt được trạng thái \textbf{Production Ready} cho module sinh tác vụ tự động từ yêu cầu phần mềm.
+\subsection{Primary Objectives}
+This report describes in detail the process of building the \textbf{Out-of-Distribution (OOD) Evaluation Framework} to achieve \textbf{Production Ready} status for the automatic task generation module from software requirements.
 
-\subsection{Các Thành Phần Chính Đã Triển Khai}
+\subsection{Main Components Implemented}
 \begin{itemize}
-    \item \textbf{Model-Based Task Generator}: Hệ thống sinh tác vụ dựa trên NLP và Machine Learning
-    \item \textbf{OOD Evaluation Pipeline}: Quy trình đánh giá toàn diện với 250 yêu cầu đa dạng
-    \item \textbf{Quality Enhancement System}: 3 cải tiến chất lượng chính
-    \item \textbf{Automated Pre-Scoring Tool}: Công cụ tự động hóa 36\% công việc đánh giá
-    \item \textbf{Reproducible Framework}: Hệ thống với khả năng tái lập hoàn toàn
+    \item \textbf{Model-Based Task Generator}: Task generation system based on NLP and Machine Learning
+    \item \textbf{OOD Evaluation Pipeline}: Comprehensive evaluation process with 250 diverse requirements
+    \item \textbf{Quality Enhancement System}: 3 major quality improvements
+    \item \textbf{Automated Pre-Scoring Tool}: Tool that automates 36\% of evaluation work
+    \item \textbf{Reproducible Framework}: System with full reproducibility
 \end{itemize}
 
-\subsection{Kết Quả Đạt Được}
+\subsection{Results Achieved}
 \begin{table}[H]
 \centering
 \begin{tabular}{@{}lcc@{}}
 \toprule
-\textbf{Metric} & \textbf{Trước} & \textbf{Sau} \\ \midrule
+\textbf{Metric} & \textbf{Before} & \textbf{After} \\ \midrule
 Coverage Rate & N/A & 73.6\% (184/250) \\
 AC Duplicate Rate & Unknown & 0\% \\
 Mode Reporting Bug & Fixed & ✓ \\
@@ -78,11 +77,11 @@ Generic Title Rate & 100\% & 60\% \\
 Quality Improvement & Baseline & 50\% better \\
 Manual Work Reduction & 0\% & 36\% automated \\ \bottomrule
 \end{tabular}
-\caption{Tổng hợp kết quả cải thiện}
+\caption{Summary of improvements}
 \end{table}
 
 \newpage
-\section{Kiến Trúc Tổng Thể}
+\section{Overall Architecture}
 
 \subsection{System Architecture Diagram}
 
@@ -138,11 +137,11 @@ Manual Work Reduction & 0\% & 36\% automated \\ \bottomrule
 \node[above=0.2cm of model, text=red] {\small \textbf{Primary}};
 
 \end{tikzpicture}
-\caption{Kiến trúc tổng thể hệ thống sinh tác vụ}
+\caption{Overall system architecture for task generation}
 \label{fig:architecture}
 \end{figure}
 
-\subsection{Model-Based Generator - Luồng Xử Lý Chi Tiết}
+\subsection{Model-Based Generator - Detailed Processing Flow}
 
 \begin{figure}[H]
 \centering
@@ -208,35 +207,35 @@ Manual Work Reduction & 0\% & 36\% automated \\ \bottomrule
 \draw[arrow] (wcag_check) -- node[right] {No} (end);
 
 \end{tikzpicture}
-\caption{Luồng xử lý chi tiết của Model-Based Generator}
+\caption{Detailed processing flow of Model-Based Generator}
 \label{fig:model_flow}
 \end{figure}
 
 \newpage
-\section{Model-Based Generator - Chi Tiết Kỹ Thuật}
+\section{Model-Based Generator - Technical Details}
 
-\subsection{Giới Thiệu}
-Model-Based Generator là thành phần cốt lõi của hệ thống, sử dụng kỹ thuật NLP và Machine Learning để tự động sinh tác vụ phần mềm từ yêu cầu tự nhiên.
+\subsection{Introduction}
+The Model-Based Generator is the core component of the system, using NLP and Machine Learning techniques to automatically generate software tasks from natural language requirements.
 
-\subsection{Các Bước Xử Lý Chính}
+\subsection{Main Processing Steps}
 
-\subsubsection{Bước 1: NLP Processing với spaCy}
-\begin{lstlisting}[language=Python, caption=Khởi tạo spaCy pipeline]
+\subsubsection{Step 1: NLP Processing with spaCy}
+\begin{lstlisting}[language=Python, caption=Initialize spaCy pipeline]
 import spacy
 nlp = spacy.load('en_core_web_sm')
 doc = nlp(requirement_text.lower())
 \end{lstlisting}
 
-\textbf{Thông tin trích xuất:}
+\textbf{Information extracted:}
 \begin{itemize}
-    \item \textbf{Tokens}: Phân tách câu thành từ đơn
+    \item \textbf{Tokens}: Split sentence into words
     \item \textbf{POS Tags}: Part-of-Speech (VERB, NOUN, ADJ, etc.)
-    \item \textbf{Dependencies}: Mối quan hệ ngữ pháp (ROOT, dobj, nsubj, etc.)
-    \item \textbf{Noun Chunks}: Cụm danh từ hoàn chỉnh
+    \item \textbf{Dependencies}: Grammatical relationships (ROOT, dobj, nsubj, etc.)
+    \item \textbf{Noun Chunks}: Complete noun phrases
 \end{itemize}
 
-\subsubsection{Bước 2: Entity Extraction}
-\begin{lstlisting}[language=Python, caption=Trích xuất thực thể]
+\subsubsection{Step 2: Entity Extraction}
+\begin{lstlisting}[language=Python, caption=Extract entities]
 def extract_entities_enhanced(self, text: str) -> Dict[str, Any]:
     doc = self.nlp(text.lower())
     
@@ -265,24 +264,24 @@ def extract_entities_enhanced(self, text: str) -> Dict[str, Any]:
     }
 \end{lstlisting}
 
-\subsubsection{Bước 3: Action Verb Extraction}
-\textbf{Ba phương pháp trích xuất theo độ ưu tiên:}
+\subsubsection{Step 3: Action Verb Extraction}
+\textbf{Three extraction methods by priority:}
 
 \begin{enumerate}
-    \item \textbf{ROOT Verb}: Động từ chính của câu (ưu tiên cao nhất)
+    \item \textbf{ROOT Verb}: Main verb of the sentence (highest priority)
     \begin{verbatim}
     "Users must verify their identity"
     → ROOT: "verify"
     \end{verbatim}
     
-    \item \textbf{Modal Pattern}: Trích xuất từ mẫu "be able to"
+    \item \textbf{Modal Pattern}: Extract from "be able to" pattern
     \begin{verbatim}
     Regex: r'(?:shall|must|should|may|can)\s+be\s+able\s+to\s+(\w+)'
     "System shall be able to encrypt data"
     → Action: "encrypt"
     \end{verbatim}
     
-    \item \textbf{First Non-Modal Verb}: Động từ đầu tiên không phải modal verb
+    \item \textbf{First Non-Modal Verb}: First verb that is not a modal verb
     \begin{verbatim}
     Skip: {need, must, should, shall, may, can, will, would, could}
     "System must validate user inputs"
@@ -290,14 +289,14 @@ def extract_entities_enhanced(self, text: str) -> Dict[str, Any]:
     \end{verbatim}
 \end{enumerate}
 
-\subsubsection{Bước 4: Title Generation}
-\textbf{Cấu trúc title:} \texttt{[Action] + [Object Phrase]}
+\subsubsection{Step 4: Title Generation}
+\textbf{Title structure:} \texttt{[Action] + [Object Phrase]}
 
 \textbf{Quality Controls:}
 \begin{itemize}
     \item Skip generic objects: \textit{system, application, platform, feature, capability, functionality}
-    \item Ưu tiên cụm danh từ dài hơn (cụ thể hơn)
-    \item Loại bỏ suffix generic: \textit{capability, functionality, feature}
+    \item Prefer longer noun phrases (more specific)
+    \item Remove generic suffixes: \textit{capability, functionality, feature}
 \end{itemize}
 
 \begin{table}[H]
@@ -310,16 +309,16 @@ def extract_entities_enhanced(self, text: str) -> Dict[str, Any]:
 "Transfer accounts feature" & "Transfer funds between accounts" \\
 "Support the platform" & "Support real-time notifications" \\ \bottomrule
 \end{tabular}
-\caption{Ví dụ cải thiện chất lượng title}
+\caption{Examples of title quality improvements}
 \end{table}
 
-\subsubsection{Bước 5: Acceptance Criteria Generation}
-\textbf{Tạo AC dựa trên:}
+\subsubsection{Step 5: Acceptance Criteria Generation}
+\textbf{Generate AC based on:}
 \begin{itemize}
     \item \textbf{Type-based patterns}: User story → Given-When-Then format
     \item \textbf{Requirement type}: Functional, Performance, Interface, etc.
-    \item \textbf{WCAG criteria}: Chỉ cho Interface type
-    \item \textbf{Relevance filtering}: Loại bỏ AC generic không liên quan
+    \item \textbf{WCAG criteria}: Only for Interface type
+    \item \textbf{Relevance filtering}: Remove generic irrelevant AC
 \end{itemize}
 
 \begin{lstlisting}[language=Python, caption=AC Relevance Filtering]
@@ -339,7 +338,7 @@ def is_ac_relevant(ac_text: str, req_type: str, requirement: str) -> bool:
 \end{lstlisting}
 
 \newpage
-\section{Ba Cải Tiến Chất Lượng Chính}
+\section{Three Major Quality Improvements}
 
 \subsection{Quality Fix Overview}
 
@@ -366,14 +365,14 @@ def is_ac_relevant(ac_text: str, req_type: str, requirement: str) -> bool:
 \draw[arrow, green, thick] (fix3) -- (impact3);
 
 \end{tikzpicture}
-\caption{Ba cải tiến chất lượng và impact}
+\caption{Three quality improvements and their impact}
 \end{figure}
 
 \subsection{Fix 1: Skip Generic Objects}
 
-\textbf{Vấn đề:} Title chứa object quá chung chung không mang ý nghĩa cụ thể.
+\textbf{Problem:} Titles contain overly generic objects without specific meaning.
 
-\textbf{Giải pháp:}
+\textbf{Solution:}
 \begin{lstlisting}[language=Python]
 GENERIC_OBJECTS = {
     'system', 'application', 'platform',
@@ -389,17 +388,17 @@ for candidate in entities['objects']:
         break
 \end{lstlisting}
 
-\textbf{Kết quả:}
+\textbf{Result:}
 \begin{itemize}
-    \item Trước: "Build the system capability"
-    \item Sau: "Encrypt financial transactions"
+    \item Before: "Build the system capability"
+    \item After: "Encrypt financial transactions"
 \end{itemize}
 
 \subsection{Fix 2: Modal Verb Extraction}
 
-\textbf{Vấn đề:} Không trích xuất được động từ chính sau mẫu "be able to".
+\textbf{Problem:} Cannot extract main verb after "be able to" pattern.
 
-\textbf{Giải pháp:}
+\textbf{Solution:}
 \begin{lstlisting}[language=Python]
 # Regex pattern for "be able to" extraction
 pattern = r'\b(?:shall|must|should|may|can)\s+be\s+able\s+to\s+(\w+)'
@@ -422,13 +421,13 @@ if match:
 
 \subsection{Fix 3: AC Relevance Filtering}
 
-\textbf{Vấn đề:} AC không liên quan được sinh ra (ví dụ: performance AC cho functional requirement).
+\textbf{Problem:} Irrelevant AC generated (e.g., performance AC for functional requirement).
 
-\textbf{Giải pháp:}
+\textbf{Solution:}
 \begin{enumerate}
-    \item \textbf{Type-based filtering}: WCAG criteria chỉ cho Interface type
-    \item \textbf{Keyword matching}: Performance AC chỉ khi có performance cues
-    \item \textbf{Generic AC removal}: Loại bỏ "validation", "error handling" themes
+    \item \textbf{Type-based filtering}: WCAG criteria only for Interface type
+    \item \textbf{Keyword matching}: Performance AC only when performance cues present
+    \item \textbf{Generic AC removal}: Remove "validation", "error handling" themes
 \end{enumerate}
 
 \begin{lstlisting}[language=Python]
@@ -445,16 +444,16 @@ if 'response time' in ac_text.lower():
         skip_this_ac = True
 \end{lstlisting}
 
-\textbf{Impact:} AC duplicate rate giảm từ ước tính 10\% xuống 0\% trong pilot sample.
+\textbf{Impact:} AC duplicate rate decreased from estimated 10\% to 0\% in pilot sample.
 
 \newpage
 \section{OOD Evaluation Framework}
 
-\subsection{Tổng Quan OOD Evaluation}
+\subsection{OOD Evaluation Overview}
 
-Out-of-Distribution (OOD) Evaluation là phương pháp đánh giá khả năng tổng quát hóa của model trên dữ liệu ngoài miền huấn luyện.
+Out-of-Distribution (OOD) Evaluation is a method to evaluate model generalization on data outside the training domain.
 
-\textbf{Mục tiêu:} Đảm bảo model hoạt động tốt trên các domain và loại yêu cầu mới, chưa từng thấy trong training data.
+\textbf{Objective:} Ensure the model works well on new domains and requirement types not seen in training data.
 
 \subsection{OOD Evaluation Pipeline}
 
@@ -545,7 +544,7 @@ Education & 31 & 74\% & Course enrollment, Grading \\
 IoT & 31 & 70\% & Device monitoring, Alerts \\ \midrule
 \textbf{Total} & \textbf{250} & \textbf{73.6\%} & - \\ \bottomrule
 \end{tabular}
-\caption{OOD Dataset phân bổ theo domain}
+\caption{OOD Dataset distribution by domain}
 \end{table}
 
 \subsection{Scoring Rubric Structure}
@@ -588,12 +587,12 @@ IoT & 31 & 70\% & Device monitoring, Alerts \\ \midrule
 \draw[->, >=stealth] (labels) -- (l1);
 
 \end{tikzpicture}
-\caption{Cấu trúc Scoring Rubric}
+\caption{Scoring Rubric structure}
 \end{figure}
 
 \subsection{Pre-Scoring Automation}
 
-\textbf{Mục tiêu:} Giảm 36\% công việc thủ công bằng cách tự động hóa 4/11 cột đánh giá.
+\textbf{Objective:} Reduce 36\% manual work by automating 4/11 evaluation columns.
 
 \begin{table}[H]
 \centering
@@ -636,11 +635,11 @@ notes & Human judgment & ✗ \\ \bottomrule
 \addplot[fill=red!30] coordinates {(Manual Work,64) (Automated,36) (Total Columns,100)};
 \end{axis}
 \end{tikzpicture}
-\caption{Tỷ lệ công việc manual vs automated}
+\caption{Manual vs automated work distribution}
 \end{figure}
 
 \newpage
-\section{Kết Quả Pre-Scoring}
+\section{Pre-Scoring Results}
 
 \subsection{Pre-Scoring Results (Pilot n=50)}
 
@@ -654,10 +653,10 @@ notes & Human judgment & ✗ \\ \bottomrule
 \textbf{Wrong Intent} & 3/50 & 6\% \\
 \textbf{OOD Domains} & 0/50 & 0\% \\ \bottomrule
 \end{tabular}
-\caption{Kết quả pre-scoring tự động}
+\caption{Automated pre-scoring results}
 \end{table}
 
-\subsection{Phân Tích Kết Quả}
+\subsection{Results Analysis}
 
 \begin{figure}[H]
 \centering
@@ -680,7 +679,7 @@ notes & Human judgment & ✗ \\ \bottomrule
 \legend{Issues Found, Passed}
 \end{axis}
 \end{tikzpicture}
-\caption{Phân bố vấn đề phát hiện qua pre-scoring}
+\caption{Issue distribution detected through pre-scoring}
 \end{figure}
 
 \subsection{Examples of Generic Titles (Issues)}
@@ -704,7 +703,7 @@ notes & Human judgment & ✗ \\ \bottomrule
 \newpage
 \section{Failure Analysis}
 
-\subsection{Phân Loại 66 Trường Hợp Thất Bại}
+\subsection{Categorization of 66 Failed Cases}
 
 \begin{figure}[H]
 \centering
@@ -721,7 +720,7 @@ notes & Human judgment & ✗ \\ \bottomrule
     4/Other
 }
 \end{tikzpicture}
-\caption{Phân bố nguyên nhân thất bại (66 cases)}
+\caption{Failure causes distribution (66 cases)}
 \end{figure}
 
 \subsection{Failure Taxonomy}
@@ -737,16 +736,16 @@ Non-Requirements & 11 & 17\% & "This feature is important" (statement) \\
 Complex Syntax & 5 & 8\% & Nested clauses, multiple requirements \\
 Other & 3 & 4\% & Parsing errors, edge cases \\ \bottomrule
 \end{tabular}
-\caption{Chi tiết failure taxonomy}
+\caption{Detailed failure taxonomy}
 \end{table}
 
-\subsection{Giải Pháp Đề Xuất}
+\subsection{Proposed Solutions}
 
 \begin{enumerate}
-    \item \textbf{Threshold Tuning}: Test với \texttt{--threshold 0.3} thay vì 0.5 mặc định
-    \item \textbf{Regex Fallback}: Thêm fallback cho các mẫu rõ ràng: "shall|must|should|need|required"
-    \item \textbf{Modal-Only Handling}: Cải thiện extraction cho câu chỉ có modal verb
-    \item \textbf{Syntax Simplification}: Pre-processing để tách câu phức thành đơn giản
+    \item \textbf{Threshold Tuning}: Test with \texttt{--threshold 0.3} instead of default 0.5
+    \item \textbf{Regex Fallback}: Add fallback for clear patterns: "shall|must|should|need|required"
+    \item \textbf{Modal-Only Handling}: Improve extraction for sentences with only modal verbs
+    \item \textbf{Syntax Simplification}: Pre-processing to split complex sentences into simple ones
 \end{enumerate}
 
 \newpage
@@ -766,7 +765,7 @@ Title Quality & Baseline & 50\% improved (5/10) \\
 WCAG Filtering & No & Yes (interface only) \\
 Modal Verb Extraction & No & Yes (regex pattern) \\ \bottomrule
 \end{tabular}
-\caption{So sánh v2 vs v3}
+\caption{Comparison of v2 vs v3}
 \end{table}
 
 \subsection{Improvement Rate in First 10 Rows}
@@ -791,7 +790,7 @@ Modal Verb Extraction & No & Yes (regex pattern) \\ \bottomrule
 \addplot[fill=green!50] coordinates {(Improved,5) (No Change,5)};
 \end{axis}
 \end{tikzpicture}
-\caption{Tỷ lệ cải thiện trong 10 hàng đầu tiên: 5/10 = 50\%}
+\caption{Improvement rate in first 10 rows: 5/10 = 50\%}
 \end{figure}
 
 \subsection{Example Improvements}
@@ -813,7 +812,7 @@ Modal Verb Extraction & No & Yes (regex pattern) \\ \bottomrule
 9 & Support feature & Search products (no change) \\
 10 & Manage the system & Manage shopping cart (no change) \\ \bottomrule
 \end{tabular}
-\caption{Chi tiết cải thiện v2 → v3 (first 10 rows)}
+\caption{Detailed improvements v2 → v3 (first 10 rows)}
 \end{table}
 
 \newpage
@@ -844,7 +843,7 @@ Modal Verb Extraction & No & Yes (regex pattern) \\ \bottomrule
 \draw[->, >=stealth, thick] (csv) -- (b3);
 
 \end{tikzpicture}
-\caption{Reproducibility features và benefits}
+\caption{Reproducibility features and benefits}
 \end{figure}
 
 \subsection{Random Seed Implementation}
@@ -896,19 +895,19 @@ for _, row in df.iterrows():
     }
 \end{lstlisting}
 
-\textbf{Benefits của row\_id:}
+\textbf{Benefits of row\_id:}
 \begin{itemize}
-    \item Track từng requirement qua nhiều phiên bản (v2, v3, v4...)
-    \item So sánh quality improvements cho cùng một requirement
-    \item Identify duplicate requirements trong dataset
-    \item Debug specific cases dễ dàng hơn
+    \item Track each requirement across multiple versions (v2, v3, v4...)
+    \item Compare quality improvements for the same requirement
+    \item Identify duplicate requirements in dataset
+    \item Debug specific cases more easily
 \end{itemize}
 
 \subsection{Dynamic CSV Fieldnames}
 
-\textbf{Vấn đề:} Khi thêm field mới, CSV writer báo lỗi "dict contains fields not in fieldnames".
+\textbf{Problem:} When adding new fields, CSV writer reports error "dict contains fields not in fieldnames".
 
-\textbf{Giải pháp:}
+\textbf{Solution:}
 \begin{lstlisting}[language=Python]
 # Dynamic fieldnames collection
 all_fieldnames = set(['requirement', 'domain', 'req_type'])  # Base fields
@@ -928,7 +927,7 @@ with open(output_csv, 'w', newline='') as f:
     writer.writerows(all_results)
 \end{lstlisting}
 
-\textbf{Impact:} Schema có thể evolve mà không breaking existing scripts.
+\textbf{Impact:} Schema can evolve without breaking existing scripts.
 
 \newpage
 \section{Decision Gate Flow}
@@ -989,7 +988,7 @@ with open(output_csv, 'w', newline='') as f:
 \draw[arrow] (gate3) -- node[right] {No} (discuss);
 
 \end{tikzpicture}
-\caption{Decision gate flow với 3 outcomes}
+\caption{Decision gate flow with 3 outcomes}
 \end{figure}
 
 \subsection{Pass Criteria}
@@ -1009,7 +1008,7 @@ Coverage Rate & >= 80\% & 73.6\% \\ \bottomrule
 \end{table}
 
 \newpage
-\section{Tools và Scripts}
+\section{Tools and Scripts}
 
 \subsection{Evaluation Tools Overview}
 
@@ -1027,7 +1026,7 @@ compare\_v2\_v3.py & Compare two versions & Quality comparison \\
 analyze\_failures.py & Categorize failed cases & Failure analysis \\
 02\_summarize\_ood\_scores.py & Calculate final metrics & Summary report \\ \bottomrule
 \end{tabular}
-\caption{Evaluation tools và mục đích}
+\caption{Evaluation tools and their purposes}
 \end{table}
 
 \subsection{Command Examples}
@@ -1083,7 +1082,7 @@ scripts/eval/
 \end{lstlisting}
 
 \newpage
-\section{Tiến Trình Thực Hiện}
+\section{Implementation Progress}
 
 \subsection{Timeline Diagram}
 
@@ -1139,7 +1138,7 @@ scripts/eval/
 \node[below] at (13,0) {\small Day 4};
 
 \end{tikzpicture}
-\caption{Timeline thực hiện OOD evaluation}
+\caption{OOD evaluation implementation timeline}
 \end{figure}
 
 \subsection{Work Breakdown}
@@ -1158,20 +1157,20 @@ scripts/eval/
 7. Scoring & Pilot n=50 & \textcolor{orange}{Pending} & Need manual scores \\
 8. Gate Decision & Summary + fix & \textcolor{orange}{Pending} & Based on scores \\ \bottomrule
 \end{tabular}
-\caption{Work breakdown và status}
+\caption{Work breakdown and status}
 \end{table}
 
 \newpage
-\section{Kết Luận và Bước Tiếp Theo}
+\section{Conclusion and Next Steps}
 
-\subsection{Tổng Kết Thành Tựu}
+\subsection{Summary of Achievements}
 
 \begin{enumerate}
-    \item \textbf{Hạ tầng Production-Grade}: Xây dựng complete OOD evaluation framework với 7 tools, 2 documentation files
+    \item \textbf{Production-Grade Infrastructure}: Built complete OOD evaluation framework with 7 tools, 2 documentation files
     
-    \item \textbf{Reproducibility}: Đảm bảo tái lập kết quả với random seed, row\_id tracking, dynamic CSV handling
+    \item \textbf{Reproducibility}: Ensure reproducible results with random seed, row\_id tracking, dynamic CSV handling
     
-    \item \textbf{Automation}: Giảm 36\% công việc manual bằng pre-scoring automation
+    \item \textbf{Automation}: Reduced 36\% manual work through pre-scoring automation
     
     \item \textbf{Quality Improvements}: 
     \begin{itemize}
@@ -1180,24 +1179,24 @@ scripts/eval/
         \item Verb extraction: 70\% → 85\% accuracy
     \end{itemize}
     
-    \item \textbf{Coverage}: Đạt 73.6\% (184/250) với phân tích chi tiết 66 failure cases
+    \item \textbf{Coverage}: Achieved 73.6\% (184/250) with detailed analysis of 66 failure cases
 \end{enumerate}
 
-\subsection{Hạn Chế Hiện Tại}
+\subsection{Current Limitations}
 
 \begin{enumerate}
-    \item \textbf{Generic Title Rate}: Vẫn còn 60\% titles có dạng generic (mục tiêu < 20\%)
+    \item \textbf{Generic Title Rate}: Still 60\% titles are generic (target < 20\%)
     
     \item \textbf{Coverage Below Target}: 73.6\% < 80\% target
     
     \item \textbf{Quality Score}: Predicted avg\_quality ~2.5-3.0 < 3.5 target
     
-    \item \textbf{Pending Manual Work}: 50 rows × 6 columns chưa được score (8-12 hours work)
+    \item \textbf{Pending Manual Work}: 50 rows × 6 columns not yet scored (8-12 hours work)
 \end{enumerate}
 
-\subsection{Bước Tiếp Theo}
+\subsection{Next Steps}
 
-\subsubsection{Immediate (Đang Chờ)}
+\subsubsection{Immediate (Waiting)}
 \begin{enumerate}
     \item \textbf{Manual Pilot Scoring}: Score 50 rows pilot sample
     \item \textbf{Run Summary}: Execute 02\_summarize\_ood\_scores.py
@@ -1206,8 +1205,8 @@ scripts/eval/
 
 \subsubsection{If Pilot Fails (avg\_quality < 3.2)}
 \begin{enumerate}
-    \item Apply title fix từ TITLE\_FIX\_INSTRUCTIONS.py
-    \item Re-generate v4 với improved title generation
+    \item Apply title fix from TITLE\_FIX\_INSTRUCTIONS.py
+    \item Re-generate v4 with improved title generation
     \item Re-test pilot sample
     \item Loop until avg\_quality >= 3.5
 \end{enumerate}
@@ -1222,7 +1221,7 @@ scripts/eval/
 
 \subsection{Recommended Title Fix}
 
-\textbf{Kỹ thuật đề xuất:} Sử dụng spaCy dependency parsing để trích xuất ROOT verb + direct object
+\textbf{Recommended technique:} Use spaCy dependency parsing to extract ROOT verb + direct object
 
 \begin{lstlisting}[language=Python, caption=Recommended approach]
 # Extract ROOT verb
@@ -1251,23 +1250,23 @@ title = f"{action.capitalize()} {obj}"
     \item Improvement rate: 50\% → 70-80\%
 \end{itemize}
 
-\subsection{Đánh Giá Tổng Thể}
+\subsection{Overall Assessment}
 
-\textbf{Điểm Mạnh:}
+\textbf{Strengths:}
 \begin{itemize}
-    \item Kiến trúc evaluation framework xuất sắc
-    \item Process rõ ràng, reproducible
-    \item Automation đạt mức tốt (36\%)
-    \item AC generation quality rất cao (0\% duplicates)
+    \item Excellent evaluation framework architecture
+    \item Clear, reproducible process
+    \item Good automation level (36\%)
+    \item Very high AC generation quality (0\% duplicates)
 \end{itemize}
 
-\textbf{Điểm Cần Cải Thiện:}
+\textbf{Areas for Improvement:}
 \begin{itemize}
-    \item Title generation cần 1-2 iterations nữa
-    \item Coverage cần tăng thêm 6-7\%
-    \item Chưa có manual scoring data để verify predictions
+    \item Title generation needs 1-2 more iterations
+    \item Coverage needs to increase by 6-7\%
+    \item No manual scoring data yet to verify predictions
 \end{itemize}
 
-\textbf{Kết Luận:} Hệ thống đã sẵn sàng về mặt kỹ thuật và process. Chỉ cần 1-2 iterations title improvements để đạt Production Ready status.
+\textbf{Conclusion:} The system is technically ready in terms of architecture and process. Only needs 1-2 iterations of title improvements to achieve Production Ready status.
 
 \end{document}

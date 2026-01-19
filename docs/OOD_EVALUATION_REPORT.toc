@@ -1,0 +1,62 @@
+\contentsline {section}{\numberline {1}Overview}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Primary Objectives}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Main Components Implemented}{3}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Results Achieved}{3}{subsection.1.3}%
+\contentsline {section}{\numberline {2}Overall Architecture}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}System Architecture Diagram}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Model-Based Generator - Detailed Processing Flow}{6}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Model-Based Generator - Technical Details}{7}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Introduction}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Main Processing Steps}{7}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Step 1: NLP Processing with spaCy}{7}{subsubsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2}Step 2: Entity Extraction}{7}{subsubsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.3}Step 3: Action Verb Extraction}{8}{subsubsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.4}Step 4: Title Generation}{8}{subsubsection.3.2.4}%
+\contentsline {subsubsection}{\numberline {3.2.5}Step 5: Acceptance Criteria Generation}{9}{subsubsection.3.2.5}%
+\contentsline {section}{\numberline {4}Three Major Quality Improvements}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Quality Fix Overview}{10}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Fix 1: Skip Generic Objects}{10}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Fix 2: Modal Verb Extraction}{10}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Fix 3: AC Relevance Filtering}{11}{subsection.4.4}%
+\contentsline {section}{\numberline {5}OOD Evaluation Framework}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}OOD Evaluation Overview}{12}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}OOD Evaluation Pipeline}{13}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}OOD Dataset Characteristics}{14}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Scoring Rubric Structure}{14}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Pre-Scoring Automation}{14}{subsection.5.5}%
+\contentsline {section}{\numberline {6}Pre-Scoring Results}{16}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Pre-Scoring Results (Pilot n=50)}{16}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Results Analysis}{16}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Examples of Generic Titles (Issues)}{16}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Failure Analysis}{18}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Categorization of 66 Failed Cases}{18}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Failure Taxonomy}{18}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Proposed Solutions}{18}{subsection.7.3}%
+\contentsline {section}{\numberline {8}Comparison: v2 vs v3}{19}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Quality Improvement Analysis}{19}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Improvement Rate in First 10 Rows}{19}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Example Improvements}{20}{subsection.8.3}%
+\contentsline {section}{\numberline {9}Reproducibility Framework}{21}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Reproducibility Features}{21}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Random Seed Implementation}{21}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Row ID Tracking}{21}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}Dynamic CSV Fieldnames}{22}{subsection.9.4}%
+\contentsline {section}{\numberline {10}Decision Gate Flow}{23}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Quality Gate Decision Logic}{23}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Pass Criteria}{23}{subsection.10.2}%
+\contentsline {section}{\numberline {11}Tools and Scripts}{24}{section.11}%
+\contentsline {subsection}{\numberline {11.1}Evaluation Tools Overview}{24}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}Command Examples}{24}{subsection.11.2}%
+\contentsline {subsection}{\numberline {11.3}File Structure}{24}{subsection.11.3}%
+\contentsline {section}{\numberline {12}Implementation Progress}{26}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Timeline Diagram}{26}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Work Breakdown}{26}{subsection.12.2}%
+\contentsline {section}{\numberline {13}Conclusion and Next Steps}{27}{section.13}%
+\contentsline {subsection}{\numberline {13.1}Summary of Achievements}{27}{subsection.13.1}%
+\contentsline {subsection}{\numberline {13.2}Current Limitations}{27}{subsection.13.2}%
+\contentsline {subsection}{\numberline {13.3}Next Steps}{27}{subsection.13.3}%
+\contentsline {subsubsection}{\numberline {13.3.1}Immediate (Waiting)}{27}{subsubsection.13.3.1}%
+\contentsline {subsubsection}{\numberline {13.3.2}If Pilot Fails (avg\_quality < 3.2)}{27}{subsubsection.13.3.2}%
+\contentsline {subsubsection}{\numberline {13.3.3}If Pilot Passes (avg\_quality >= 3.5)}{28}{subsubsection.13.3.3}%
+\contentsline {subsection}{\numberline {13.4}Recommended Title Fix}{28}{subsection.13.4}%
+\contentsline {subsection}{\numberline {13.5}Overall Assessment}{28}{subsection.13.5}%
