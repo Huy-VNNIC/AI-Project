@@ -174,7 +174,7 @@ class ModelBasedTaskGenerator:
         objects = [chunk.text for chunk in doc.noun_chunks]
         
         # Find ROOT verb and handle helper verbs
-        HELPER_VERBS = {'allow', 'enable', 'support', 'provide', 'let', 'require', 'permit'}
+        HELPER_VERBS = {'allow', 'enable', 'support', 'provide', 'let', 'require', 'permit', 'able', 'help'}
         
         root_verb = None
         action_token = None
