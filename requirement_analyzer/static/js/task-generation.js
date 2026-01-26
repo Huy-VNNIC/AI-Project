@@ -194,9 +194,13 @@ function displayResults(tasks, processingTime, metadata) {
     const statsCard = document.getElementById('statsCard');
     if (statsCard) {
         statsCard.style.display = 'block';
-        document.getElementById('statTotal').textContent = metadata.total_sentences || tasks.length;
+        // Use total_tasks from new response format, fallback to tasks.length
+        document.getElementById('statTotal').textContent = metadata.total_tasks || tasks.length;
         document.getElementById('statGenerated').textContent = tasks.length;
-        document.getElementById('statFiltered').textContent = (metadata.filtered_count || 0);
+        // Calculate filtered: if we have stats with type distribution, sum it up
+        const typeCount = metadata.stats && metadata.stats.type_distribution ? 
+            Object.values(metadata.stats.type_distribution).reduce((a, b) => a + b, 0) : 0;
+        document.getElementById('statFiltered').textContent = typeCount > 0 ? (typeCount - tasks.length) : 0;
     }
 
     // Render tasks
