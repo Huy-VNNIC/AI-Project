@@ -825,10 +825,16 @@ async def generate_tasks_api(request: TaskGenerationRequest):
 @app.post("/api/task-generation/generate-from-file")
 async def generate_tasks_from_file(
     file: UploadFile = File(...),
-    max_tasks: int = Form(50)
+    max_tasks: int = Form(200),
+    requirement_threshold: float = Form(0.3)
 ):
     """
-    Generate tasks from uploaded file
+    Generate tasks from uploaded file (txt/docx/pdf)
+    
+    Improved pipeline:
+    1. Extract text from file (auto-detect format)
+    2. Extract requirement candidates (filter notes/headings)
+    3. Generate tasks from requirements
     """
     if task_pipeline is None:
         raise HTTPException(
@@ -838,14 +844,54 @@ async def generate_tasks_from_file(
     
     try:
         # Read file content
-        content = await file.read()
-        text = content.decode('utf-8')
+        file_bytes = await file.read()
         
-        logger.info(f"📋 Generating tasks from file: {file.filename}")
+        logger.info(f"📋 Processing file: {file.filename} ({len(file_bytes)} bytes)")
         
+        # Step 1: Extract text from file (auto-detect format)
+        from requirement_analyzer.ingestion import extract_text
+        raw_text = extract_text(file.filename, file_bytes)
+        
+        if not raw_text or len(raw_text) < 10:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Could not extract text from file. File might be empty or unsupported format."
+            )
+        
+        logger.info(f"   Extracted {len(raw_text)} characters from file")
+        
+        # Step 2: Extract requirement candidates (using filters)
+        from requirement_analyzer.task_gen.filters import extract_requirements_from_text
+        requirements = extract_requirements_from_text(raw_text)
+        
+        if not requirements:
+            logger.warning("No requirements found in document after filtering")
+            return JSONResponse(content={
+                "tasks": [],
+                "total_tasks": 0,
+                "stats": {},
+                "processing_time": 0.0,
+                "mode": task_pipeline.generator_mode,
+                "generator_version": "1.0.0",
+                "source_file": file.filename,
+                "ingestion": {
+                    "total_chars": len(raw_text),
+                    "requirements_extracted": 0,
+                    "threshold": requirement_threshold,
+                    "message": "No requirements detected after filtering. Document may contain only notes/headings."
+                }
+            })
+        
+        logger.info(f"   Extracted {len(requirements)} requirement candidates")
+        
+        # Step 3: Join requirements as input text (one per line)
+        joined_text = '\n'.join(requirements)
+        
+        # Step 4: Generate tasks using pipeline
         response = task_pipeline.generate_tasks(
-            text=text,
-            max_tasks=max_tasks
+            text=joined_text,
+            max_tasks=max_tasks,
+            requirement_threshold=requirement_threshold
         )
         
         # Use jsonable_encoder to properly serialize datetime and Pydantic models
@@ -856,7 +902,12 @@ async def generate_tasks_from_file(
             "processing_time": response.processing_time,
             "mode": response.mode,
             "generator_version": response.generator_version,
-            "source_file": file.filename
+            "source_file": file.filename,
+            "ingestion": {
+                "total_chars": len(raw_text),
+                "requirements_extracted": len(requirements),
+                "threshold": requirement_threshold
+            }
         }
         
         # Add optional fields if present
@@ -865,8 +916,12 @@ async def generate_tasks_from_file(
         if response.estimated_duration_days is not None:
             result["estimated_duration_days"] = response.estimated_duration_days
         
+        logger.info(f"✅ Generated {result['total_tasks']} tasks from file {file.filename}")
+        
         return JSONResponse(content=result)
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error processing file: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
