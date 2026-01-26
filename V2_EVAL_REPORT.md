@@ -1,40 +1,45 @@
 # V2 Requirements Engineering Pipeline - Evaluation Report
 
-Generated: 2026-01-27 01:15:17
+Generated: 2026-01-27 01:20:36
 
 ## Executive Summary
 
-- **Total Requirements Processed:** 5
-- **Total User Stories Generated:** 27
-- **Total Subtasks Generated:** 81
-- **Total Gaps Detected:** 10
-- **Average INVEST Score:** 24.00/30
-- **Processing Time:** 0.00s
+- **Total Requirements Processed:** 100
+- **Total User Stories Generated:** 484
+- **Total Subtasks Generated:** 1456
+- **Total Gaps Detected:** 282
+- **Average INVEST Score:** 24.16/30
+- **Processing Time:** 0.05s
 - **Success Rate:** 100.0%
 
 ## Detailed Metrics
 
 ### Requirement Processing
 
-- Avg stories per requirement: 5.40
-- Avg subtasks per requirement: 16.20
-- Avg gaps per requirement: 2.00
+- Avg stories per requirement: 4.84
+- Avg subtasks per requirement: 14.56
+- Avg gaps per requirement: 2.82
 
 ### Gap Analysis
 
-- Critical gaps: 0
-- High severity gaps: 2
+- Critical gaps: 4
+- High severity gaps: 93
 
 ### Gap Type Distribution
 
-- ambiguity: 5
-- missing_nfr: 3
-- missing_actor: 2
+- ambiguity: 91
+- missing_nfr: 84
+- missing_actor: 75
+- missing_error_handling: 14
+- missing_data_validation: 5
+- missing_object: 5
+- missing_security: 4
+- missing_integration: 4
 
 ### INVEST Score Distribution
 
-- Excellent (25-30): 5
-- Good (20-24): 22
+- Excellent (25-30): 132
+- Good (20-24): 352
 - Fair (15-19): 0
 - Poor (<15): 0
 
@@ -125,6 +130,8 @@ Generated: 2026-01-27 01:15:17
 - Tasks: REQ001_ST01 → REQ001_ST01_T01,REQ001_ST01_T02,REQ001_ST01_T03
 
 ## Recommendations
+
+⚠️  **HIGH PRIORITY:** 4 critical gaps detected. Review with Product Owner immediately.
 
 ✅ Pipeline executed successfully. All requirements processed with full traceability.
 

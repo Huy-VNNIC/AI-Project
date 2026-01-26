@@ -202,9 +202,9 @@ def main():
     requirements = extract_requirements_from_file(test_file)
     print(f"✅ Extracted {len(requirements)} requirements\n")
     
-    # Limit to first 5 for testing
-    requirements = requirements[:5]
-    print(f"🔬 Testing with first {len(requirements)} requirements\n")
+    # Test with all requirements (or limit for quick test)
+    # requirements = requirements[:10]  # Uncomment to limit
+    print(f"🔬 Testing with {len(requirements)} requirements\n")
     
     # Initialize pipeline
     pipeline = V2Pipeline()
