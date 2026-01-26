@@ -173,24 +173,46 @@ class ModelBasedTaskGenerator:
         nouns = [token.text for token in doc if token.pos_ in ['NOUN', 'PROPN']]
         objects = [chunk.text for chunk in doc.noun_chunks]
         
-        # Find ROOT verb and handle helper verbs
+        # Find ROOT verb/aux and handle helper verbs
         HELPER_VERBS = {'allow', 'enable', 'support', 'provide', 'let', 'require', 'permit', 'able', 'help'}
         
-        root_verb = None
+        root_token = None
         action_token = None
         
+        # First, find ROOT (verb or aux)
         for token in doc:
-            if token.dep_ == 'ROOT' and token.pos_ == 'VERB':
-                root_verb = token
-                action_token = token
+            if token.dep_ == 'ROOT':
+                root_token = token
+                break
+        
+        if root_token:
+            # Case 1: ROOT is verb
+            if root_token.pos_ == 'VERB':
+                action_token = root_token
                 
                 # If root is helper verb, look for xcomp (actual action)
-                if token.lemma_ in HELPER_VERBS:
-                    xcomp = next((c for c in token.children 
+                if root_token.lemma_ in HELPER_VERBS:
+                    xcomp = next((c for c in root_token.children 
                                  if c.dep_ in ('xcomp', 'ccomp') and c.pos_ == 'VERB'), None)
                     if xcomp:
                         action_token = xcomp
-                break
+            
+            # Case 2: ROOT is aux (e.g., "shall be able to export")
+            elif root_token.pos_ == 'AUX':
+                # Look for acomp (e.g., "able") → xcomp (e.g., "export")
+                acomp = next((c for c in root_token.children if c.dep_ == 'acomp'), None)
+                if acomp:
+                    xcomp = next((c for c in acomp.children 
+                                if c.dep_ in ('xcomp', 'ccomp') and c.pos_ == 'VERB'), None)
+                    if xcomp:
+                        action_token = xcomp
+                
+                # Fallback: look for xcomp directly under ROOT
+                if not action_token:
+                    xcomp = next((c for c in root_token.children 
+                                if c.dep_ in ('xcomp', 'ccomp') and c.pos_ == 'VERB'), None)
+                    if xcomp:
+                        action_token = xcomp
         
         # Extract action with phrasal verb support
         action = 'implement'
@@ -214,8 +236,17 @@ class ModelBasedTaskGenerator:
                             if c.dep_ in ('dobj', 'obj', 'attr', 'oprd')), None)
             
             if obj_token:
-                # Get full noun phrase from subtree
-                obj_words = [t.text for t in obj_token.subtree if t.pos_ in ('NOUN', 'PROPN', 'ADJ')]
+                # Get full noun phrase from subtree (include compounds + root token)
+                obj_words = []
+                
+                # Get compounds first (e.g., "audit" in "audit logs")
+                for t in obj_token.subtree:
+                    if t.pos_ in ('NOUN', 'PROPN', 'ADJ') and t != obj_token:
+                        obj_words.append(t.text)
+                
+                # Add root token last (e.g., "logs")
+                obj_words.append(obj_token.text)
+                
                 obj_phrase = ' '.join(obj_words)
                 
                 # Skip if generic
