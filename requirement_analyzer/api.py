@@ -801,11 +801,18 @@ async def generate_tasks_api(request: TaskGenerationRequest):
         # Return JSONResponse to avoid Content-Length issues
         result = {
             "tasks": [task.dict() for task in response.tasks],
-            "total_sentences": response.total_sentences,
-            "requirements_detected": response.requirements_detected,
-            "filtered_count": response.filtered_count,
-            "processing_time": response.processing_time
+            "total_tasks": response.total_tasks,
+            "stats": response.stats,
+            "processing_time": response.processing_time,
+            "mode": response.mode,
+            "generator_version": response.generator_version
         }
+        
+        # Add optional fields if present
+        if response.total_story_points is not None:
+            result["total_story_points"] = response.total_story_points
+        if response.estimated_duration_days is not None:
+            result["estimated_duration_days"] = response.estimated_duration_days
         
         return JSONResponse(content=result)
         
@@ -842,12 +849,19 @@ async def generate_tasks_from_file(
         
         result = {
             "tasks": [task.dict() for task in response.tasks],
-            "total_sentences": response.total_sentences,
-            "requirements_detected": response.requirements_detected,
-            "filtered_count": response.filtered_count,
+            "total_tasks": response.total_tasks,
+            "stats": response.stats,
             "processing_time": response.processing_time,
+            "mode": response.mode,
+            "generator_version": response.generator_version,
             "source_file": file.filename
         }
+        
+        # Add optional fields if present
+        if response.total_story_points is not None:
+            result["total_story_points"] = response.total_story_points
+        if response.estimated_duration_days is not None:
+            result["estimated_duration_days"] = response.estimated_duration_days
         
         return JSONResponse(content=result)
         
