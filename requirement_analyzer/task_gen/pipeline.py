@@ -15,7 +15,7 @@ from .generator_templates import get_generator
 from .generator_llm import get_llm_generator
 from .generator_model_based import ModelBasedTaskGenerator
 from .postprocess import get_postprocessor
-from .filters import prefilter_sentences  # NEW: Pre-filter
+from .filters import is_valid_requirement_candidate  # Pre-filter function
 
 logger = logging.getLogger(__name__)
 
@@ -145,14 +145,7 @@ class TaskGenerationPipeline:
         
         # Stage 1.5: Pre-filtering (NEW: remove notes/headings)
         logger.info("🔍 Stage 1.5: Pre-filtering (removing notes/headings)...")
-        sentence_texts_raw = [s.text for s in sentences]
-        filtered_texts = prefilter_sentences(sentence_texts_raw)
-        
-        # Rebuild sentence objects with filtered texts
-        filtered_sentences = []
-        for s in sentences:
-            if s.text in filtered_texts:
-                filtered_sentences.append(s)
+        filtered_sentences = [s for s in sentences if is_valid_requirement_candidate(s.text)]
         
         logger.info(f"   Kept {len(filtered_sentences)} sentences (dropped {len(sentences) - len(filtered_sentences)} notes/headings)")
         
@@ -203,6 +196,20 @@ class TaskGenerationPipeline:
         logger.info("🏷️  Stage 3: Enriching requirements with labels...")
         req_texts = [s.text for s in requirement_sentences]
         enrichment_results = self.enricher.enrich(req_texts)
+        
+        # KEYWORD OVERRIDE: auth/security keywords → type=security, domain=general
+        SECURITY_KEYWORDS = [
+            "login", "password", "oauth", "2fa", "two-factor", "session",
+            "encrypt", "tls", "ssl", "hash", "salt", "audit", "authentication",
+            "authorization", "token", "jwt", "credential", "verify", "validation"
+        ]
+        
+        for result, text in zip(enrichment_results, req_texts):
+            text_lower = text.lower()
+            if any(kw in text_lower for kw in SECURITY_KEYWORDS):
+                result["type"] = "security"
+                result["domain"] = "general"
+                logger.debug(f"   Keyword override: '{text[:50]}...' → security/general")
         
         # Apply domain hint if provided
         if domain_hint:

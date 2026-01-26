@@ -129,12 +129,13 @@ def normalize_line(line: str) -> str:
     Examples:
         "1. Users must login" → "Users must login"
         "- The system shall..." → "The system shall..."
+        "iv) System should..." → "System should..."
     """
-    # Remove numbering: "1." "2)" "a." etc.
-    line = re.sub(r"^\s*[\d\w]+[\.\)]\s*", "", line)
+    # Remove numbering: "1." "2)" "a." "iv)" etc. (only common patterns)
+    line = re.sub(r"^\s*(\d+|[ivx]+|[a-z])[\.\)]\s+", "", line, flags=re.I)
     
     # Remove bullets: "-" "•" "*"
-    line = re.sub(r"^\s*[-•*]\s*", "", line)
+    line = re.sub(r"^\s*[-•*]\s+", "", line)
     
     return line.strip()
 
@@ -166,8 +167,12 @@ def extract_requirements_from_text(raw_text: str) -> List[str]:
         if not line:
             continue
         
-        # Validate
+        # Validate basic criteria (length, heading, note)
         if not is_valid_requirement_candidate(line):
+            continue
+        
+        # ENFORCE requirement signal (must/shall/should/phải/cần)
+        if not is_requirement_like(line):
             continue
         
         # Deduplicate (case-insensitive)

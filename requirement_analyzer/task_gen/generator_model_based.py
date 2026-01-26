@@ -15,7 +15,7 @@ import spacy
 import random
 import re
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import logging
 import joblib
 
@@ -259,36 +259,51 @@ class ModelBasedTaskGenerator:
     
     def generate_title(self, text: str, req_type: str, entities: Dict) -> str:
         """
-        Generate natural title using enhanced entity extraction
+        Generate deterministic title using enhanced entity extraction
         
         Improvements:
         1. Use enhanced action (handles helper verbs)
         2. Use object_phrase + format (e.g., "Export audit logs to CSV")
         3. Remove generic suffixes (capability/functionality/feature)
+        4. Deterministic format rules (no random)
         """
         # Get enhanced entities if not already done
         if 'action' not in entities:
             entities = self.extract_entities_enhanced(text)
         
-        action = entities.get('action', 'implement')
-        obj_phrase = entities.get('object_phrase', 'feature')
+        action = entities.get('action', 'implement').strip()
+        obj_phrase = entities.get('object_phrase', 'feature').strip()
         fmt = entities.get('format')
         
-        # Build title
+        # Build base title: Action + Object
         title = f"{action.capitalize()} {obj_phrase}"
         
-        # Add format if present and object is not generic
-        if fmt and obj_phrase != 'feature':
-            # Check common format prepositions
-            if fmt.lower() in ('csv', 'json', 'xml', 'pdf', 'email', 'sms'):
+        # Add format with deterministic rules
+        if fmt and obj_phrase not in ('feature', 'system', 'data'):
+            fmt_lower = fmt.lower()
+            
+            # Export/Download → "to FORMAT"
+            if action.lower() in ('export', 'download', 'save'):
                 title = f"{action.capitalize()} {obj_phrase} to {fmt.upper()}"
-            elif fmt.lower() in ('api', 'database', 'file'):
-                title = f"{action.capitalize()} {obj_phrase} via {fmt}"
-            else:
+            
+            # Encrypt/Hash/Sign → "using ALGORITHM"
+            elif action.lower() in ('encrypt', 'hash', 'sign', 'compress'):
                 title = f"{action.capitalize()} {obj_phrase} using {fmt}"
+            
+            # Send/Notify/Transmit → "via CHANNEL"
+            elif action.lower() in ('send', 'notify', 'transmit', 'deliver'):
+                title = f"{action.capitalize()} {obj_phrase} via {fmt}"
+            
+            # Login/Access/Connect → "with METHOD"
+            elif action.lower() in ('login', 'log in', 'authenticate', 'access', 'connect'):
+                title = f"{action.capitalize()} with {fmt}"
+            
+            # Default: "via FORMAT"
+            else:
+                title = f"{action.capitalize()} {obj_phrase} via {fmt}"
         
-        # Clean generic suffixes (IMPORTANT: remove template-like words)
-        BAD_SUFFIXES = ('capability', 'functionality', 'feature', 'solution', 'module')
+        # Clean generic suffixes (IMPORTANT: no template words)
+        BAD_SUFFIXES = ('capability', 'functionality', 'feature', 'solution', 'module', 'component')
         for suffix in BAD_SUFFIXES:
             if title.lower().endswith(f' {suffix}'):
                 title = title[: -(len(suffix) + 1)].strip()
@@ -458,8 +473,8 @@ class ModelBasedTaskGenerator:
         priority = classification.get('priority', 'Medium')
         domain = classification.get('domain', 'general')
         
-        # Extract entities
-        entities = self.extract_entities(sentence.text)
+        # Extract entities (USE ENHANCED VERSION)
+        entities = self.extract_entities_enhanced(sentence.text)
         
         # Generate task components (natural, not template)
         title = self.generate_title(sentence.text, req_type, entities)
