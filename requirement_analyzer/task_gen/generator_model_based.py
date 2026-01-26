@@ -294,7 +294,12 @@ class ModelBasedTaskGenerator:
         2. Use object_phrase + format (e.g., "Export audit logs to CSV")
         3. Remove generic suffixes (capability/functionality/feature)
         4. Deterministic format rules (no random)
+        5. Vietnamese fallback (avoid "Implement này")
         """
+        # Vietnamese: use sentence-based title (bypass spaCy EN)
+        if is_vietnamese(text):
+            return vn_title_from_sentence(text)
+        
         # Get enhanced entities if not already done
         if 'action' not in entities:
             entities = self.extract_entities_enhanced(text)
@@ -302,6 +307,11 @@ class ModelBasedTaskGenerator:
         action = entities.get('action', 'implement').strip()
         obj_phrase = entities.get('object_phrase', 'feature').strip()
         fmt = entities.get('format')
+        
+        # Blacklist bad Vietnamese demonstratives from spaCy EN parsing
+        BAD_VI_OBJECTS = {'này', 'đó', 'ấy', 'kia', 'nọ', 'đây', 'đấy', 'vậy', 'thế'}
+        if obj_phrase.lower() in BAD_VI_OBJECTS:
+            obj_phrase = 'chức năng'
         
         # Build base title: Action + Object
         title = f"{action.capitalize()} {obj_phrase}"

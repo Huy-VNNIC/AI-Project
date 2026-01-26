@@ -39,7 +39,9 @@ class TaskPostProcessor:
     ):
         self.similarity_threshold = similarity_threshold
         self.min_task_length = min_task_length
-        self.vectorizer = TfidfVectorizer(max_features=500, stop_words='english')
+        # Use char n-gram for multilingual dedup (Vietnamese + English)
+        # Analyzer='char_wb' works better than word-based for Vietnamese
+        self.vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(3, 5), max_features=2000)
     
     def deduplicate(self, tasks: List[GeneratedTask]) -> List[GeneratedTask]:
         """

@@ -895,6 +895,10 @@ async def generate_tasks_from_file(
         import time
         start_time = time.time()
         
+        # Count actual detected requirements (not just extracted lines)
+        detection_results = task_pipeline.detector.detect(requirements, threshold=requirement_threshold)
+        detected_count = sum(1 for is_req, _ in detection_results if is_req)
+        
         tasks = task_pipeline.generate_from_sentences(
             requirements,
             epic_name=None,
@@ -911,7 +915,7 @@ async def generate_tasks_from_file(
             "total_tasks": len(tasks),
             "stats": {
                 "requirements_extracted": len(requirements),
-                "requirements_detected": len(requirements),  # All extracted lines passed to detector
+                "requirements_detected": detected_count,  # Actual count from detector
                 "tasks_generated": len(tasks),  # Final tasks after postprocessing
                 "processing_time": processing_time
             },
