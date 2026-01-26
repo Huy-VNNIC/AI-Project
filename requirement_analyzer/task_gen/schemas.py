@@ -82,6 +82,7 @@ class TaskGenerationRequest(BaseModel):
     include_story_points: bool = Field(True, description="Whether to estimate story points")
     domain_hint: Optional[str] = Field(None, description="Domain hint if known")
     epic_name: Optional[str] = Field(None, description="Epic/project name")
+    requirement_threshold: Optional[float] = Field(0.5, ge=0.0, le=1.0, description="Requirement detection threshold")
 
 
 class TaskGenerationResponse(BaseModel):

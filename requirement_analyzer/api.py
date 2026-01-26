@@ -787,23 +787,27 @@ async def generate_tasks_api(request: TaskGenerationRequest):
     try:
         logger.info(f"📋 Generating tasks from text ({len(request.text)} chars)")
         
+        # Use getattr with defaults for optional fields
         response = task_pipeline.generate_tasks(
             text=request.text,
-            max_tasks=request.max_tasks or 50,
-            requirement_threshold=request.requirement_threshold,
-            epic_name=request.epic_name,
-            domain_hint=request.domain_hint
+            max_tasks=getattr(request, 'max_tasks', 50),
+            requirement_threshold=getattr(request, 'requirement_threshold', 0.5),
+            epic_name=getattr(request, 'epic_name', None),
+            domain_hint=getattr(request, 'domain_hint', None)
         )
         
         logger.info(f"✅ Generated {len(response.tasks)} tasks")
         
-        return {
+        # Return JSONResponse to avoid Content-Length issues
+        result = {
             "tasks": [task.dict() for task in response.tasks],
             "total_sentences": response.total_sentences,
             "requirements_detected": response.requirements_detected,
             "filtered_count": response.filtered_count,
             "processing_time": response.processing_time
         }
+        
+        return JSONResponse(content=result)
         
     except Exception as e:
         logger.error(f"Error generating tasks: {e}", exc_info=True)
@@ -836,7 +840,7 @@ async def generate_tasks_from_file(
             max_tasks=max_tasks
         )
         
-        return {
+        result = {
             "tasks": [task.dict() for task in response.tasks],
             "total_sentences": response.total_sentences,
             "requirements_detected": response.requirements_detected,
@@ -844,6 +848,8 @@ async def generate_tasks_from_file(
             "processing_time": response.processing_time,
             "source_file": file.filename
         }
+        
+        return JSONResponse(content=result)
         
     except Exception as e:
         logger.error(f"Error processing file: {e}", exc_info=True)
