@@ -174,14 +174,16 @@ async def task_generation_page(request: Request):
 
 @app.get("/favicon.ico")
 async def favicon():
-    """Serve favicon or empty 1x1 transparent PNG"""
+    """Serve favicon or 1x1 transparent PNG (avoids h11 protocol issues)"""
     favicon_path = Path(__file__).parent / "static" / "favicon.ico"
     if favicon_path.exists():
         return FileResponse(favicon_path)
-    # Return 1x1 transparent PNG instead of 204 (avoids h11 protocol issues)
-    from starlette.responses import Response
-    # Minimal 1x1 transparent PNG (67 bytes)
-    png_data = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82'
+    # Always return 200 OK with PNG bytes => no 204/h11 edge cases
+    png_data = (
+        b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01'
+        b'\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01'
+        b'\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82'
+    )
     return Response(content=png_data, media_type="image/png")
 
 @app.get("/health")
@@ -900,11 +902,16 @@ async def generate_tasks_from_file(
         
         processing_time = time.time() - start_time
         
-        # Build response
+        # Build response with comprehensive stats
         result = {
             "tasks": jsonable_encoder(tasks),
             "total_tasks": len(tasks),
-            "stats": {},
+            "stats": {
+                "requirements_extracted": len(requirements),
+                "requirements_detected": len(requirements),  # All extracted lines passed to detector
+                "tasks_generated": len(tasks),  # Final tasks after postprocessing
+                "processing_time": processing_time
+            },
             "processing_time": processing_time,
             "mode": task_pipeline.generator_mode,
             "generator_version": "1.0.0",
@@ -912,16 +919,12 @@ async def generate_tasks_from_file(
             "ingestion": {
                 "total_chars": len(raw_text),
                 "requirements_extracted": len(requirements),
-                "requirements_detected": len(tasks),
                 "threshold": requirement_threshold,
                 "method": "generate_from_sentences (bypass segmenter)"
             }
         }
         
         logger.info(f"✅ Generated {result['total_tasks']} tasks from file {file.filename}")
-        
-        return JSONResponse(content=result)
-        
         return JSONResponse(content=result)
         
     except HTTPException:
