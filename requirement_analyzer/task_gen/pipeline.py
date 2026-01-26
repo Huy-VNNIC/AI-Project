@@ -15,6 +15,7 @@ from .generator_templates import get_generator
 from .generator_llm import get_llm_generator
 from .generator_model_based import ModelBasedTaskGenerator
 from .postprocess import get_postprocessor
+from .filters import prefilter_sentences  # NEW: Pre-filter
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +142,26 @@ class TaskGenerationPipeline:
         if not sentences:
             logger.warning("No sentences extracted from document")
             return self._empty_response(time.time() - start_time)
+        
+        # Stage 1.5: Pre-filtering (NEW: remove notes/headings)
+        logger.info("🔍 Stage 1.5: Pre-filtering (removing notes/headings)...")
+        sentence_texts_raw = [s.text for s in sentences]
+        filtered_texts = prefilter_sentences(sentence_texts_raw)
+        
+        # Rebuild sentence objects with filtered texts
+        filtered_sentences = []
+        for s in sentences:
+            if s.text in filtered_texts:
+                filtered_sentences.append(s)
+        
+        logger.info(f"   Kept {len(filtered_sentences)} sentences (dropped {len(sentences) - len(filtered_sentences)} notes/headings)")
+        
+        if not filtered_sentences:
+            logger.warning("No valid sentences after pre-filtering")
+            return self._empty_response(time.time() - start_time)
+        
+        # Use filtered sentences for requirement detection
+        sentences = filtered_sentences
         
         # Stage 2: Requirement Detection
         logger.info("🔍 Stage 2: Detecting requirements...")

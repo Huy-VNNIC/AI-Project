@@ -145,101 +145,155 @@ class ModelBasedTaskGenerator:
             },
         }
     
-    def extract_entities(self, text: str) -> Dict[str, List[str]]:
-        """Extract entities from requirement text"""
-        if self.nlp:
-            doc = self.nlp(text.lower())
-            
-            verbs = [token.lemma_ for token in doc if token.pos_ == 'VERB']
-            nouns = [token.text for token in doc if token.pos_ in ['NOUN', 'PROPN']]
-            objects = [chunk.text for chunk in doc.noun_chunks]
-            
-            return {
-                'verbs': verbs[:3],  # Top 3 verbs
-                'nouns': nouns[:5],  # Top 5 nouns
-                'objects': objects[:3]  # Top 3 noun phrases
-            }
-        else:
-            # Simple extraction
+    def extract_entities_enhanced(self, text: str) -> Dict[str, Any]:
+        """
+        Enhanced entity extraction with proper action/object detection
+        
+        Improvements:
+        1. Helper verb handling (allow/enable → xcomp)
+        2. Object vs format distinction (audit logs → CSV)
+        3. Phrasal verb handling (log in, sign up)
+        """
+        if not self.nlp:
+            # Fallback to simple extraction
             words = text.lower().split()
             return {
                 'verbs': [w for w in words if w in ['implement', 'create', 'build', 'manage']],
                 'nouns': [w for w in words if len(w) > 5],
-                'objects': [' '.join(words[i:i+2]) for i in range(len(words)-1)]
+                'objects': [' '.join(words[i:i+2]) for i in range(len(words)-1)],
+                'action': 'implement',
+                'object_phrase': 'feature',
+                'format': None
             }
+        
+        doc = self.nlp(text.lower())
+        
+        # Extract basic entities
+        verbs = [token.lemma_ for token in doc if token.pos_ == 'VERB']
+        nouns = [token.text for token in doc if token.pos_ in ['NOUN', 'PROPN']]
+        objects = [chunk.text for chunk in doc.noun_chunks]
+        
+        # Find ROOT verb and handle helper verbs
+        HELPER_VERBS = {'allow', 'enable', 'support', 'provide', 'let', 'require', 'permit'}
+        
+        root_verb = None
+        action_token = None
+        
+        for token in doc:
+            if token.dep_ == 'ROOT' and token.pos_ == 'VERB':
+                root_verb = token
+                action_token = token
+                
+                # If root is helper verb, look for xcomp (actual action)
+                if token.lemma_ in HELPER_VERBS:
+                    xcomp = next((c for c in token.children 
+                                 if c.dep_ in ('xcomp', 'ccomp') and c.pos_ == 'VERB'), None)
+                    if xcomp:
+                        action_token = xcomp
+                break
+        
+        # Extract action with phrasal verb support
+        action = 'implement'
+        if action_token:
+            action = action_token.lemma_
+            
+            # Check for particle (phrasal verbs like "log in", "sign up")
+            prt = next((c for c in action_token.children if c.dep_ == 'prt'), None)
+            if prt:
+                action = f"{action} {prt.text}"
+        
+        # Extract object phrase and format
+        GENERIC_OBJECTS = {'system', 'application', 'platform', 'users', 'user', 'administrator'}
+        
+        obj_phrase = ''
+        fmt = None
+        
+        if action_token:
+            # Find direct object
+            obj_token = next((c for c in action_token.children 
+                            if c.dep_ in ('dobj', 'obj', 'attr', 'oprd')), None)
+            
+            if obj_token:
+                # Get full noun phrase from subtree
+                obj_words = [t.text for t in obj_token.subtree if t.pos_ in ('NOUN', 'PROPN', 'ADJ')]
+                obj_phrase = ' '.join(obj_words)
+                
+                # Skip if generic
+                if obj_phrase.lower() in GENERIC_OBJECTS:
+                    obj_phrase = ''
+            
+            # Look for format in prepositional phrase (to/into/as CSV)
+            for child in action_token.children:
+                if child.dep_ == 'prep' and child.text.lower() in ('to', 'into', 'as', 'using'):
+                    pobj = next((c for c in child.children if c.dep_ == 'pobj'), None)
+                    if pobj:
+                        fmt = pobj.text
+                        break
+        
+        # If no object found, try noun chunks (fallback)
+        if not obj_phrase and objects:
+            for chunk in objects:
+                words = chunk.split()
+                if not any(w.lower() in GENERIC_OBJECTS for w in words):
+                    obj_phrase = chunk
+                    break
+        
+        return {
+            'verbs': verbs[:3],
+            'nouns': nouns[:5],
+            'objects': objects[:3],
+            'action': action,
+            'object_phrase': obj_phrase or 'feature',
+            'format': fmt
+        }
+    
+    # Keep old method for backward compatibility
+    def extract_entities(self, text: str) -> Dict[str, List[str]]:
+        """Legacy extract_entities (calls enhanced version)"""
+        enhanced = self.extract_entities_enhanced(text)
+        return {
+            'verbs': enhanced['verbs'],
+            'nouns': enhanced['nouns'],
+            'objects': enhanced['objects']
+        }
     
     def generate_title(self, text: str, req_type: str, entities: Dict) -> str:
-        """Generate natural title (NOT from template)"""
-        patterns = self.patterns.get(req_type, self.patterns['functional'])
+        """
+        Generate natural title using enhanced entity extraction
         
-        # Modal verbs that should be skipped
-        MODAL_VERBS = {'need', 'must', 'should', 'shall', 'may', 'can', 'will', 'would', 'could'}
+        Improvements:
+        1. Use enhanced action (handles helper verbs)
+        2. Use object_phrase + format (e.g., "Export audit logs to CSV")
+        3. Remove generic suffixes (capability/functionality/feature)
+        """
+        # Get enhanced entities if not already done
+        if 'action' not in entities:
+            entities = self.extract_entities_enhanced(text)
         
-        # Select action word
-        action = random.choice(patterns['action_words'])
+        action = entities.get('action', 'implement')
+        obj_phrase = entities.get('object_phrase', 'feature')
+        fmt = entities.get('format')
         
-        # Extract action from text, handling "be able to" pattern
-        import re
-        modal_pattern = re.compile(r'\b(?:shall|must|should|may|can)\s+be\s+able\s+to\s+(\w+)', re.IGNORECASE)
-        match = modal_pattern.search(text)
-        if match:
-            # Found "shall/must be able to [verb]" - use that verb
-            action = match.group(1).lower()
-        elif entities['verbs']:
-            # Find first non-modal verb
-            for verb in entities['verbs']:
-                if verb.lower() not in MODAL_VERBS:
-                    action = verb
-                    break
+        # Build title
+        title = f"{action.capitalize()} {obj_phrase}"
+        
+        # Add format if present and object is not generic
+        if fmt and obj_phrase != 'feature':
+            # Check common format prepositions
+            if fmt.lower() in ('csv', 'json', 'xml', 'pdf', 'email', 'sms'):
+                title = f"{action.capitalize()} {obj_phrase} to {fmt.upper()}"
+            elif fmt.lower() in ('api', 'database', 'file'):
+                title = f"{action.capitalize()} {obj_phrase} via {fmt}"
             else:
-                # All verbs are modals, use fallback
-                action = 'support'
+                title = f"{action.capitalize()} {obj_phrase} using {fmt}"
         
-        # Generic objects to skip (too vague for good titles)
-        GENERIC_OBJECTS = {'system', 'application', 'platform', 'feature', 'functionality',
-                          'solution', 'tool', 'module', 'service', 'product', 'website', 'app'}
+        # Clean generic suffixes (IMPORTANT: remove template-like words)
+        BAD_SUFFIXES = ('capability', 'functionality', 'feature', 'solution', 'module')
+        for suffix in BAD_SUFFIXES:
+            if title.lower().endswith(f' {suffix}'):
+                title = title[: -(len(suffix) + 1)].strip()
         
-        # Select object (skip generic and modal-prefixed)
-        obj = 'feature'
-        if entities['objects']:
-            # Find first specific object (not generic, not starting with modal)
-            specific_objects = []
-            for candidate in entities['objects']:
-                words = candidate.split()
-                if not words:
-                    continue
-                # Skip if starts with modal verb
-                if words[0].lower() in MODAL_VERBS:
-                    continue
-                # Skip if any word is generic (handles "the system", "an application")
-                if any(w.lower() in GENERIC_OBJECTS for w in words):
-                    # But keep if it's part of a longer, specific phrase (3+ words)
-                    if len(words) < 3:
-                        continue
-                # Keep specific objects
-                specific_objects.append(candidate)
-            
-            if specific_objects:
-                # Sort by length (longer = more specific), pick first
-                specific_objects.sort(key=lambda x: len(x.split()), reverse=True)
-                obj = specific_objects[0]
-        elif entities['nouns']:
-            # Fallback to nouns, but still skip generic ones
-            for noun in entities['nouns']:
-                if noun.lower() not in GENERIC_OBJECTS:
-                    obj = noun
-                    break
-        
-        # Construct natural title with variation
-        variants = [
-            f"{action.capitalize()} {obj}",
-            f"{action.capitalize()} {obj} feature",
-            f"{action.capitalize()} {obj} functionality",
-            f"Add {obj} {action}",
-            f"Build {obj} capability",
-        ]
-        
-        return random.choice(variants)
+        return title.strip()
     
     def generate_description(self, text: str, req_type: str, entities: Dict, domain: str) -> str:
         """Generate natural description"""
@@ -356,7 +410,36 @@ class ModelBasedTaskGenerator:
             pred = enricher['model'].predict(X)[0]
             result[label] = pred
         
+        # Keyword override for security/auth (fix domain mismatch)
+        result = self._apply_keyword_override(text, result)
+        
         return result
+    
+    def _apply_keyword_override(self, text: str, classification: Dict) -> Dict:
+        """
+        Override type/domain based on strong keyword signals
+        
+        Fixes issues like:
+        - Auth requirements → finance/iot domain (wrong)
+        - Security requirements → general/functional type (wrong)
+        """
+        text_lower = text.lower()
+        
+        # Security keywords
+        SECURITY_KEYWORDS = {
+            'login', 'password', '2fa', 'two-factor', 'oauth', 'oauth2',
+            'session', 'encrypt', 'encryption', 'tls', 'ssl', 'hash',
+            'salt', 'audit', 'authentication', 'authorization', 'secure',
+            'security', 'access control', 'permission', 'role-based'
+        }
+        
+        # Check if security-related
+        if any(kw in text_lower for kw in SECURITY_KEYWORDS):
+            classification['type'] = 'security'
+            # Set domain to general (avoid ecommerce/finance/iot mismatch)
+            classification['domain'] = 'general'
+        
+        return classification
     
     def generate_task_from_sentence(
         self,
