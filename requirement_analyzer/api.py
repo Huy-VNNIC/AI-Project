@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.encoders import jsonable_encoder
 from starlette.responses import Response as StarletteResponse
 from io import BytesIO
 from pydantic import BaseModel
@@ -798,9 +799,9 @@ async def generate_tasks_api(request: TaskGenerationRequest):
         
         logger.info(f"✅ Generated {len(response.tasks)} tasks")
         
-        # Return JSONResponse to avoid Content-Length issues
+        # Use jsonable_encoder to properly serialize datetime and Pydantic models
         result = {
-            "tasks": [task.dict() for task in response.tasks],
+            "tasks": jsonable_encoder(response.tasks),
             "total_tasks": response.total_tasks,
             "stats": response.stats,
             "processing_time": response.processing_time,
@@ -847,8 +848,9 @@ async def generate_tasks_from_file(
             max_tasks=max_tasks
         )
         
+        # Use jsonable_encoder to properly serialize datetime and Pydantic models
         result = {
-            "tasks": [task.dict() for task in response.tasks],
+            "tasks": jsonable_encoder(response.tasks),
             "total_tasks": response.total_tasks,
             "stats": response.stats,
             "processing_time": response.processing_time,
