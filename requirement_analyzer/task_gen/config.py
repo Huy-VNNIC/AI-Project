@@ -10,9 +10,10 @@ from typing import Optional
 # GENERATOR MODE
 # ============================================================================
 # Choose generator mode:
+#   - "model": ML-based generation (trained models, no API required)
 #   - "template": Rule-based templates (fast, free, deterministic)
 #   - "llm": LLM-based generation (natural, costs API credits)
-GENERATOR_MODE = os.getenv("TASK_GEN_MODE", "template")  # Default: template
+GENERATOR_MODE = os.getenv("TASK_GEN_MODE", "model")  # Default: model
 
 
 # ============================================================================
@@ -40,7 +41,8 @@ LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "2"))
 def get_model_dir() -> Path:
     """Get path to trained models directory"""
     project_root = Path(__file__).parent.parent.parent
-    return project_root / 'models' / 'task_gen'
+    # Models are in requirement_analyzer/models/task_gen/models/
+    return project_root / 'requirement_analyzer' / 'models' / 'task_gen' / 'models'
 
 MODEL_DIR = get_model_dir()
 

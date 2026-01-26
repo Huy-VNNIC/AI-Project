@@ -135,7 +135,7 @@ try:
     config = get_pipeline_config()
     logger.info(f"Task generation config: {config}")
     
-    # Initialize with LLM if mode=llm
+    # Initialize with LLM if mode=llm, model if mode=model, else template
     if GENERATOR_MODE == "llm":
         logger.info(f"Initializing LLM pipeline ({LLM_PROVIDER}/{LLM_MODEL or 'auto'})...")
         task_pipeline = get_pipeline(
@@ -144,6 +144,9 @@ try:
             llm_model=LLM_MODEL,
             llm_api_key=LLM_API_KEY
         )
+    elif GENERATOR_MODE == "model":
+        logger.info("Initializing model-based pipeline (trained ML models)...")
+        task_pipeline = get_pipeline(generator_mode="model")
     else:
         logger.info("Initializing template pipeline...")
         task_pipeline = get_pipeline()
@@ -162,6 +165,11 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 @app.get("/", response_class=HTMLResponse)
 async def main_page(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/task-generation", response_class=HTMLResponse)
+async def task_generation_page(request: Request):
+    """Task generation UI page"""
+    return templates.TemplateResponse("task_generation.html", {"request": request})
 
 @app.get("/favicon.ico")
 async def favicon():
@@ -744,6 +752,103 @@ async def debug_page(request: Request):
 # ============================================================================
 # TASK GENERATION ENDPOINTS (NEW)
 # ============================================================================
+
+@app.get("/api/task-generation/status")
+async def task_generation_status():
+    """Get task generation service status and mode"""
+    if task_pipeline is None:
+        return {
+            "available": False,
+            "mode": None,
+            "message": "Task generation service not initialized"
+        }
+    
+    return {
+        "available": True,
+        "mode": task_pipeline.generator_mode,
+        "generator_class": type(task_pipeline.generator).__name__,
+        "message": f"Task generation ready (mode: {task_pipeline.generator_mode})"
+    }
+
+
+@app.post("/api/task-generation/generate")
+async def generate_tasks_api(request: TaskGenerationRequest):
+    """
+    Generate tasks from requirements text - New UI endpoint
+    
+    Returns tasks in simple format for UI display
+    """
+    if task_pipeline is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Task generation service not available. Models not loaded."
+        )
+    
+    try:
+        logger.info(f"📋 Generating tasks from text ({len(request.text)} chars)")
+        
+        response = task_pipeline.generate_tasks(
+            text=request.text,
+            max_tasks=request.max_tasks or 50,
+            requirement_threshold=request.requirement_threshold,
+            epic_name=request.epic_name,
+            domain_hint=request.domain_hint
+        )
+        
+        logger.info(f"✅ Generated {len(response.tasks)} tasks")
+        
+        return {
+            "tasks": [task.dict() for task in response.tasks],
+            "total_sentences": response.total_sentences,
+            "requirements_detected": response.requirements_detected,
+            "filtered_count": response.filtered_count,
+            "processing_time": response.processing_time
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating tasks: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/task-generation/generate-from-file")
+async def generate_tasks_from_file(
+    file: UploadFile = File(...),
+    max_tasks: int = Form(50)
+):
+    """
+    Generate tasks from uploaded file
+    """
+    if task_pipeline is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Task generation service not available"
+        )
+    
+    try:
+        # Read file content
+        content = await file.read()
+        text = content.decode('utf-8')
+        
+        logger.info(f"📋 Generating tasks from file: {file.filename}")
+        
+        response = task_pipeline.generate_tasks(
+            text=text,
+            max_tasks=max_tasks
+        )
+        
+        return {
+            "tasks": [task.dict() for task in response.tasks],
+            "total_sentences": response.total_sentences,
+            "requirements_detected": response.requirements_detected,
+            "filtered_count": response.filtered_count,
+            "processing_time": response.processing_time,
+            "source_file": file.filename
+        }
+        
+    except Exception as e:
+        logger.error(f"Error processing file: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/generate-tasks", response_model=TaskGenerationResponse)
 async def generate_tasks(request: TaskGenerationRequest):

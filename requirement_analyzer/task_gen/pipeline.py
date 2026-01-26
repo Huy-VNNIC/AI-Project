@@ -50,24 +50,26 @@ class TaskGenerationPipeline:
             llm_api_key: LLM API key (or use env var)
         """
         if model_dir is None:
-            project_root = Path(__file__).parent.parent.parent
-            model_dir = project_root / 'models' / 'task_gen'
+            # Import config to get correct path
+            from .config import MODEL_DIR
+            model_dir = MODEL_DIR
         
         self.model_dir = Path(model_dir)
         self.generator_mode = generator_mode
         
-        # Resolve models path (all trained models are in models/ subdirectory)
-        models_path = self.model_dir / 'models'
-        if not models_path.exists():
-            # Check if model_dir itself contains models
-            test_file = self.model_dir / 'requirement_detector_model.joblib'
-            if test_file.exists():
-                models_path = self.model_dir
-            else:
-                logger.warning(f"Models directory not found at {models_path} or {self.model_dir}")
-                models_path = self.model_dir  # Use anyway
+        # Resolve models path (all trained models should be in model_dir)
+        models_path = self.model_dir
         
-        logger.info(f"Using models from: {models_path}")
+        # If model_dir has a 'models' subdirectory, use it
+        if (self.model_dir / 'models').exists():
+            models_path = self.model_dir / 'models'
+        
+        # Verify at least one model file exists
+        test_file = models_path / 'requirement_detector_model.joblib'
+        if not test_file.exists():
+            logger.warning(f"Models not found at {models_path}")
+        else:
+            logger.info(f"Using models from: {models_path}")
         
         # Initialize components (all use same models path)
         self.segmenter = get_segmenter()
