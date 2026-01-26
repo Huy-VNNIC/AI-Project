@@ -14,7 +14,20 @@ import logging
 from .schemas import GeneratedTask
 
 logger = logging.getLogger(__name__)
+# Vietnamese diacritics for language detection
+VI_DIACRITICS = set("ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ")
+VI_KEYWORDS = {'hệ thống', 'phải', 'cần', 'cho phép', 'đảm bảo', 'thực hiện', 'người dùng'}
 
+def is_vietnamese(text: str) -> bool:
+    """Detect if text is Vietnamese"""
+    if not text:
+        return False
+    text_lower = text.lower()
+    # Check for diacritics
+    has_diacritics = any(ch in VI_DIACRITICS for ch in text)
+    # Check for Vietnamese keywords
+    has_keywords = any(kw in text_lower for kw in VI_KEYWORDS)
+    return has_diacritics or has_keywords
 
 class TaskPostProcessor:
     """Post-process generated tasks"""
@@ -26,7 +39,9 @@ class TaskPostProcessor:
     ):
         self.similarity_threshold = similarity_threshold
         self.min_task_length = min_task_length
-        self.vectorizer = TfidfVectorizer(max_features=500, stop_words='english')
+        # Use char n-gram for multilingual dedup (Vietnamese + English)
+        # Analyzer='char_wb' works better than word-based for Vietnamese
+        self.vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(3, 5), max_features=2000)
     
     def deduplicate(self, tasks: List[GeneratedTask]) -> List[GeneratedTask]:
         """
@@ -112,9 +127,40 @@ class TaskPostProcessor:
         return result_tasks
     
     def _should_split(self, task: GeneratedTask) -> bool:
-        """Check if task should be split"""
+        """Check if task should be split into implementation subtasks"""
+        # Always split functional requirements into Backend/Frontend/Test subtasks
+        # This increases task count 3x for better backlog granularity
+        if task.type == 'functional':
+            # Split if title suggests UI + backend work
+            title_lower = task.title.lower()
+            
+            # Vietnamese keywords for complex features
+            vn_ui_keywords = ['giao diện', 'hiển thị', 'cho phép', 'nhập', 'form', 'màn hình']
+            vn_backend_keywords = ['hệ thống', 'xử lý', 'lưu trữ', 'quản lý', 'tính toán', 'kiểm tra']
+            
+            # English keywords
+            en_ui_keywords = ['display', 'show', 'form', 'input', 'ui', 'interface', 'view']
+            en_backend_keywords = ['system', 'process', 'store', 'manage', 'calculate', 'validate']
+            
+            # Check if task involves both UI and backend
+            is_vn = is_vietnamese(task.title)
+            if is_vn:
+                has_ui = any(kw in title_lower for kw in vn_ui_keywords)
+                has_backend = any(kw in title_lower for kw in vn_backend_keywords)
+            else:
+                has_ui = any(kw in title_lower for kw in en_ui_keywords)
+                has_backend = any(kw in title_lower for kw in en_backend_keywords)
+            
+            # Split if it's a medium-high priority functional task (worth breaking down)
+            if task.priority in ['Medium', 'High'] and len(task.title) > 20:
+                return True
+            
+            # Split if clearly involves multiple layers
+            if has_ui or has_backend:
+                return True
+        
         # Check for multiple "and" in title
-        and_count = task.title.lower().count(' and ')
+        and_count = task.title.lower().count(' and ') + task.title.lower().count(' và ')
         if and_count >= 2:
             return True
         
@@ -122,41 +168,161 @@ class TaskPostProcessor:
         if len(task.description) > 500:
             return True
         
-        # Check for many acceptance criteria (might indicate multiple tasks)
-        if len(task.acceptance_criteria) > 10:
-            return True
-        
         return False
     
     def _split_task(self, task: GeneratedTask) -> List[GeneratedTask]:
-        """Split a complex task into subtasks"""
-        # Simple heuristic: split on "and" in title
-        title_parts = re.split(r'\s+and\s+', task.title, flags=re.IGNORECASE)
+        """Split a complex task into implementation subtasks (Backend, Frontend, Testing)"""
+        is_vn = is_vietnamese(task.title)
         
-        if len(title_parts) <= 1:
-            return [task]
-        
+        # Generate 3 subtasks for each functional requirement
         subtasks = []
-        ac_per_subtask = max(1, len(task.acceptance_criteria) // len(title_parts))
         
-        for idx, title_part in enumerate(title_parts[:3]):  # max 3 splits
-            # Create subtask
-            subtask = GeneratedTask(
-                epic=task.epic,
-                module=task.module,
-                title=title_part.strip(),
-                description=f"{task.description}\n\n**Note**: This is part {idx+1} of {len(title_parts)} related tasks.",
-                acceptance_criteria=task.acceptance_criteria[idx*ac_per_subtask:(idx+1)*ac_per_subtask] or ['Functionality works as expected'],
-                type=task.type,
-                priority=task.priority,
-                domain=task.domain,
-                role=task.role,
-                confidence=task.confidence * 0.9,  # slightly lower confidence for splits
-                source=task.source
-            )
-            subtasks.append(subtask)
+        # 1. Backend Implementation Task
+        backend_title = self._generate_subtask_title(task.title, 'backend', is_vn)
+        backend_desc = self._generate_subtask_description(task.description, 'backend', is_vn)
+        backend_ac = self._generate_subtask_ac(task.acceptance_criteria, 'backend', is_vn)
         
+        backend_task = GeneratedTask(
+            epic=task.epic,
+            module=task.module,
+            title=backend_title,
+            description=backend_desc,
+            acceptance_criteria=backend_ac,
+            type='functional',
+            priority=task.priority,
+            domain=task.domain,
+            role='Backend',
+            confidence=task.confidence,
+            source=task.source
+        )
+        subtasks.append(backend_task)
+        
+        # 2. Frontend Implementation Task
+        frontend_title = self._generate_subtask_title(task.title, 'frontend', is_vn)
+        frontend_desc = self._generate_subtask_description(task.description, 'frontend', is_vn)
+        frontend_ac = self._generate_subtask_ac(task.acceptance_criteria, 'frontend', is_vn)
+        
+        frontend_task = GeneratedTask(
+            epic=task.epic,
+            module=task.module,
+            title=frontend_title,
+            description=frontend_desc,
+            acceptance_criteria=frontend_ac,
+            type='functional',
+            priority=task.priority if task.priority == 'High' else 'Medium',  # Lower priority slightly
+            domain=task.domain,
+            role='Frontend',
+            confidence=task.confidence,
+            source=task.source
+        )
+        subtasks.append(frontend_task)
+        
+        # 3. Testing Task
+        test_title = self._generate_subtask_title(task.title, 'testing', is_vn)
+        test_desc = self._generate_subtask_description(task.description, 'testing', is_vn)
+        test_ac = self._generate_subtask_ac(task.acceptance_criteria, 'testing', is_vn)
+        
+        test_task = GeneratedTask(
+            epic=task.epic,
+            module=task.module,
+            title=test_title,
+            description=test_desc,
+            acceptance_criteria=test_ac,
+            type='testing',
+            priority='Medium',  # Testing usually medium priority
+            domain=task.domain,
+            role='QA',
+            confidence=task.confidence * 0.95,
+            source=task.source
+        )
+        subtasks.append(test_task)
+        
+        logger.debug(f"Split '{task.title[:50]}...' into {len(subtasks)} subtasks (Backend/Frontend/Testing)")
         return subtasks
+    
+    def _generate_subtask_title(self, original_title: str, task_type: str, is_vietnamese: bool) -> str:
+        """Generate subtask title based on type"""
+        # Clean up original title
+        title = original_title[:80] if len(original_title) > 80 else original_title
+        
+        if is_vietnamese:
+            prefixes = {
+                'backend': '[Backend] API - ',
+                'frontend': '[Frontend] UI - ',
+                'testing': '[Testing] Kiểm thử - '
+            }
+        else:
+            prefixes = {
+                'backend': '[Backend] API - ',
+                'frontend': '[Frontend] UI - ',
+                'testing': '[Testing] Test - '
+            }
+        
+        return prefixes.get(task_type, '') + title
+    
+    def _generate_subtask_description(self, original_desc: str, task_type: str, is_vietnamese: bool) -> str:
+        """Generate subtask description based on type"""
+        if is_vietnamese:
+            templates = {
+                'backend': f"Xây dựng API backend cho chức năng này.\n\nYêu cầu gốc: {original_desc[:200]}...",
+                'frontend': f"Xây dựng giao diện người dùng cho chức năng này.\n\nYêu cầu gốc: {original_desc[:200]}...",
+                'testing': f"Viết test cases và kiểm thử chức năng này.\n\nYêu cầu gốc: {original_desc[:200]}..."
+            }
+        else:
+            templates = {
+                'backend': f"Implement backend API for this feature.\n\nOriginal requirement: {original_desc[:200]}...",
+                'frontend': f"Implement frontend UI for this feature.\n\nOriginal requirement: {original_desc[:200]}...",
+                'testing': f"Write test cases and validate this feature.\n\nOriginal requirement: {original_desc[:200]}..."
+            }
+        
+        return templates.get(task_type, original_desc)
+    
+    def _generate_subtask_ac(self, original_ac: List[str], task_type: str, is_vietnamese: bool) -> List[str]:
+        """Generate acceptance criteria based on subtask type"""
+        if is_vietnamese:
+            ac_templates = {
+                'backend': [
+                    'API endpoint được implement đầy đủ',
+                    'Input validation hoạt động chính xác',
+                    'Error handling đúng theo spec',
+                    'Unit tests đạt coverage >= 80%'
+                ],
+                'frontend': [
+                    'UI components được implement theo design',
+                    'Form validation hoạt động đúng',
+                    'Responsive trên mobile và desktop',
+                    'Accessibility standards được đáp ứng'
+                ],
+                'testing': [
+                    'Test cases cover tất cả scenarios chính',
+                    'Integration tests pass',
+                    'Bug regression tests được thêm',
+                    'Test documentation đầy đủ'
+                ]
+            }
+        else:
+            ac_templates = {
+                'backend': [
+                    'API endpoint fully implemented',
+                    'Input validation works correctly',
+                    'Error handling follows spec',
+                    'Unit tests achieve >= 80% coverage'
+                ],
+                'frontend': [
+                    'UI components match design',
+                    'Form validation works properly',
+                    'Responsive on mobile and desktop',
+                    'Accessibility standards met'
+                ],
+                'testing': [
+                    'Test cases cover main scenarios',
+                    'Integration tests pass',
+                    'Bug regression tests added',
+                    'Test documentation complete'
+                ]
+            }
+        
+        return ac_templates.get(task_type, original_ac[:3])
     
     def merge_related_tasks(self, tasks: List[GeneratedTask]) -> List[GeneratedTask]:
         """
@@ -290,11 +456,19 @@ class TaskPostProcessor:
         
         return max_priority
     
-    def filter_low_quality(self, tasks: List[GeneratedTask]) -> List[GeneratedTask]:
-        """Filter out low-quality tasks"""
+    def filter_low_quality(self, tasks: List[GeneratedTask], enable_quality_filter: bool = True) -> List[GeneratedTask]:
+        """Filter out low-quality tasks (Vietnamese-aware)"""
+        if not enable_quality_filter:
+            logger.info("Quality filter disabled, keeping all tasks")
+            return tasks
+        
         filtered = []
         
         for task in tasks:
+            # Detect if task is Vietnamese
+            task_text = f"{task.title} {task.description}"
+            is_vn = is_vietnamese(task_text)
+            
             # Filter WCAG criteria from non-interface tasks
             if task.type.lower() != 'interface':
                 original_count = len(task.acceptance_criteria)
@@ -305,17 +479,29 @@ class TaskPostProcessor:
                 if len(task.acceptance_criteria) < original_count:
                     logger.debug(f"Removed {original_count - len(task.acceptance_criteria)} WCAG criteria from {task.type} task")
             
-            # Check minimum length
-            if len(task.title) < self.min_task_length:
-                logger.debug(f"Filtered out short title: '{task.title}'")
-                continue
+            # Vietnamese: more lenient filtering
+            if is_vn:
+                # Only filter if title is empty or too short (< 3 words)
+                if not task.title or len(task.title.split()) < 3:
+                    logger.debug(f"Filtered out too short Vietnamese title: '{task.title}'")
+                    continue
+                # Lower confidence threshold for VN (models trained on English)
+                if task.confidence < 0.15:
+                    logger.debug(f"Filtered out very low confidence VN task: '{task.title}' (conf={task.confidence:.2f})")
+                    continue
+            else:
+                # English: standard filtering
+                # Check minimum length
+                if len(task.title) < self.min_task_length:
+                    logger.debug(f"Filtered out short title: '{task.title}'")
+                    continue
+                
+                # Check confidence threshold
+                if task.confidence < 0.3:
+                    logger.debug(f"Filtered out low confidence task: '{task.title}' (conf={task.confidence:.2f})")
+                    continue
             
-            # Check confidence threshold
-            if task.confidence < 0.3:
-                logger.debug(f"Filtered out low confidence task: '{task.title}' (conf={task.confidence:.2f})")
-                continue
-            
-            # Check for placeholder text
+            # Check for placeholder text (both EN and VN)
             if 'unknown' in task.title.lower() or 'unknown' in task.description.lower():
                 logger.debug(f"Filtered out placeholder task: '{task.title}'")
                 continue
@@ -326,7 +512,7 @@ class TaskPostProcessor:
         
         return filtered
     
-    def process(self, tasks: List[GeneratedTask]) -> List[GeneratedTask]:
+    def process(self, tasks: List[GeneratedTask], enable_quality_filter: bool = True, enable_deduplication: bool = True) -> List[GeneratedTask]:
         """
         Run full post-processing pipeline
         
@@ -338,15 +524,20 @@ class TaskPostProcessor:
         logger.info(f"Post-processing {len(tasks)} tasks...")
         
         # 1. Filter
-        tasks = self.filter_low_quality(tasks)
+        tasks = self.filter_low_quality(tasks, enable_quality_filter=enable_quality_filter)
         
         # 2. Deduplicate
-        tasks = self.deduplicate(tasks)
+        if enable_deduplication:
+            tasks = self.deduplicate(tasks)
+        else:
+            logger.info("Deduplication disabled")
         
-        # 3. Split (optional - can create more tasks)
-        # tasks = self.split_complex_tasks(tasks)
+        # 3. Split functional tasks into Backend/Frontend/Testing subtasks (increases task count 3x)
+        logger.info(f"Splitting {len(tasks)} complex tasks into implementation subtasks...")
+        tasks = self.split_complex_tasks(tasks)
+        logger.info(f"After splitting: {len(tasks)} tasks")
         
-        # 4. Merge (optional - reduces task count)
+        # 4. Merge (optional - reduces task count, disabled for now to maximize task generation)
         # tasks = self.merge_related_tasks(tasks)
         
         logger.info(f"Post-processing complete: {len(tasks)} final tasks")

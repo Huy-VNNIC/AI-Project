@@ -15,6 +15,7 @@ from .generator_templates import get_generator
 from .generator_llm import get_llm_generator
 from .generator_model_based import ModelBasedTaskGenerator
 from .postprocess import get_postprocessor
+from .filters import is_valid_requirement_candidate  # Pre-filter function
 
 logger = logging.getLogger(__name__)
 
@@ -142,6 +143,19 @@ class TaskGenerationPipeline:
             logger.warning("No sentences extracted from document")
             return self._empty_response(time.time() - start_time)
         
+        # Stage 1.5: Pre-filtering (NEW: remove notes/headings)
+        logger.info("🔍 Stage 1.5: Pre-filtering (removing notes/headings)...")
+        filtered_sentences = [s for s in sentences if is_valid_requirement_candidate(s.text)]
+        
+        logger.info(f"   Kept {len(filtered_sentences)} sentences (dropped {len(sentences) - len(filtered_sentences)} notes/headings)")
+        
+        if not filtered_sentences:
+            logger.warning("No valid sentences after pre-filtering")
+            return self._empty_response(time.time() - start_time)
+        
+        # Use filtered sentences for requirement detection
+        sentences = filtered_sentences
+        
         # Stage 2: Requirement Detection
         logger.info("🔍 Stage 2: Detecting requirements...")
         sentence_texts = [s.text for s in sentences]
@@ -182,6 +196,20 @@ class TaskGenerationPipeline:
         logger.info("🏷️  Stage 3: Enriching requirements with labels...")
         req_texts = [s.text for s in requirement_sentences]
         enrichment_results = self.enricher.enrich(req_texts)
+        
+        # KEYWORD OVERRIDE: auth/security keywords → type=security, domain=general
+        SECURITY_KEYWORDS = [
+            "login", "password", "oauth", "2fa", "two-factor", "session",
+            "encrypt", "tls", "ssl", "hash", "salt", "audit", "authentication",
+            "authorization", "token", "jwt", "credential", "verify", "validation"
+        ]
+        
+        for result, text in zip(enrichment_results, req_texts):
+            text_lower = text.lower()
+            if any(kw in text_lower for kw in SECURITY_KEYWORDS):
+                result["type"] = "security"
+                result["domain"] = "general"
+                logger.debug(f"   Keyword override: '{text[:50]}...' → security/general")
         
         # Apply domain hint if provided
         if domain_hint:
@@ -238,11 +266,21 @@ class TaskGenerationPipeline:
     def generate_from_sentences(
         self,
         sentences: List[str],
-        epic_name: Optional[str] = None
+        epic_name: Optional[str] = None,
+        requirement_threshold: float = 0.5,
+        enable_quality_filter: bool = True,
+        enable_deduplication: bool = True
     ) -> List[GeneratedTask]:
         """
         Generate tasks from pre-segmented sentences
         (Useful when sentences are already extracted externally)
+        
+        Args:
+            sentences: List of requirement text lines
+            epic_name: Optional epic/feature name
+            requirement_threshold: Detector confidence threshold (0-1)
+            enable_quality_filter: Whether to apply quality filtering (disable for non-English)
+            enable_deduplication: Whether to deduplicate similar tasks
         """
         # Convert to Sentence objects
         sentence_objs = [
@@ -250,8 +288,8 @@ class TaskGenerationPipeline:
             for s in sentences
         ]
         
-        # Detect requirements
-        detection_results = self.detector.detect(sentences)
+        # Detect requirements (with threshold)
+        detection_results = self.detector.detect(sentences, threshold=requirement_threshold)
         req_sentences = [s for s, (is_req, _) in zip(sentence_objs, detection_results) if is_req]
         
         if not req_sentences:
@@ -261,11 +299,28 @@ class TaskGenerationPipeline:
         req_texts = [s.text for s in req_sentences]
         enrichment_results = self.enricher.enrich(req_texts)
         
+        # KEYWORD OVERRIDE: auth/security keywords → type=security, domain=general
+        SECURITY_KEYWORDS = [
+            "login", "password", "oauth", "2fa", "two-factor", "session",
+            "encrypt", "tls", "ssl", "hash", "salt", "audit", "authentication",
+            "authorization", "token", "jwt", "credential", "verify", "validation"
+        ]
+        
+        for result, text in zip(enrichment_results, req_texts):
+            text_lower = text.lower()
+            if any(kw in text_lower for kw in SECURITY_KEYWORDS):
+                result["type"] = "security"
+                result["domain"] = "general"
+        
         # Generate
         tasks = self.generator.generate_batch(req_sentences, enrichment_results, epic_name)
         
-        # Post-process
-        tasks = self.postprocessor.process(tasks)
+        # Post-process with configurable filtering
+        tasks = self.postprocessor.process(
+            tasks,
+            enable_quality_filter=enable_quality_filter,
+            enable_deduplication=enable_deduplication
+        )
         
         return tasks
     

@@ -15,7 +15,7 @@ import spacy
 import random
 import re
 from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 import logging
 import joblib
 
@@ -31,6 +31,30 @@ class ModelBasedTaskGenerator:
     Uses trained ML models + NLP for natural generation
     NO API keys required, NO template strings
     """
+    
+    # Vietnamese language detection constants
+    VI_DIACRITICS = set("ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ")
+    VI_KEYWORDS = {'hệ thống', 'phải', 'cần', 'cho phép', 'đảm bảo', 'thực hiện', 'người dùng'}
+    
+    @staticmethod
+    def is_vietnamese(text: str) -> bool:
+        """Detect if text is Vietnamese"""
+        if not text:
+            return False
+        has_diacritics = any(ch in ModelBasedTaskGenerator.VI_DIACRITICS for ch in text)
+        has_keywords = any(kw in text.lower() for kw in ModelBasedTaskGenerator.VI_KEYWORDS)
+        return has_diacritics or has_keywords
+    
+    @staticmethod
+    def vn_title_from_sentence(sentence: str) -> str:
+        """Generate clean Vietnamese title from requirement sentence"""
+        s = sentence.strip().rstrip(".")
+        # Remove numbering
+        s = re.sub(r'^\d+\.\s*', '', s)
+        # Remove common prefixes
+        s = re.sub(r'^(hệ thống|ứng dụng|nền tảng)\s+(phải|cần|nên)\s+', '', s, flags=re.IGNORECASE)
+        # Capitalize first letter
+        return s[:1].upper() + s[1:] if s else "Chức năng theo yêu cầu"
     
     def __init__(self, model_dir: Path):
         self.model_dir = Path(model_dir)
@@ -145,101 +169,208 @@ class ModelBasedTaskGenerator:
             },
         }
     
-    def extract_entities(self, text: str) -> Dict[str, List[str]]:
-        """Extract entities from requirement text"""
-        if self.nlp:
-            doc = self.nlp(text.lower())
-            
-            verbs = [token.lemma_ for token in doc if token.pos_ == 'VERB']
-            nouns = [token.text for token in doc if token.pos_ in ['NOUN', 'PROPN']]
-            objects = [chunk.text for chunk in doc.noun_chunks]
-            
-            return {
-                'verbs': verbs[:3],  # Top 3 verbs
-                'nouns': nouns[:5],  # Top 5 nouns
-                'objects': objects[:3]  # Top 3 noun phrases
-            }
-        else:
-            # Simple extraction
+    def extract_entities_enhanced(self, text: str) -> Dict[str, Any]:
+        """
+        Enhanced entity extraction with proper action/object detection
+        
+        Improvements:
+        1. Helper verb handling (allow/enable → xcomp)
+        2. Object vs format distinction (audit logs → CSV)
+        3. Phrasal verb handling (log in, sign up)
+        """
+        if not self.nlp:
+            # Fallback to simple extraction
             words = text.lower().split()
             return {
                 'verbs': [w for w in words if w in ['implement', 'create', 'build', 'manage']],
                 'nouns': [w for w in words if len(w) > 5],
-                'objects': [' '.join(words[i:i+2]) for i in range(len(words)-1)]
+                'objects': [' '.join(words[i:i+2]) for i in range(len(words)-1)],
+                'action': 'implement',
+                'object_phrase': 'feature',
+                'format': None
             }
+        
+        doc = self.nlp(text.lower())
+        
+        # Extract basic entities
+        verbs = [token.lemma_ for token in doc if token.pos_ == 'VERB']
+        nouns = [token.text for token in doc if token.pos_ in ['NOUN', 'PROPN']]
+        objects = [chunk.text for chunk in doc.noun_chunks]
+        
+        # Find ROOT verb/aux and handle helper verbs
+        HELPER_VERBS = {'allow', 'enable', 'support', 'provide', 'let', 'require', 'permit', 'able', 'help'}
+        
+        root_token = None
+        action_token = None
+        
+        # First, find ROOT (verb or aux)
+        for token in doc:
+            if token.dep_ == 'ROOT':
+                root_token = token
+                break
+        
+        if root_token:
+            # Case 1: ROOT is verb
+            if root_token.pos_ == 'VERB':
+                action_token = root_token
+                
+                # If root is helper verb, look for xcomp (actual action)
+                if root_token.lemma_ in HELPER_VERBS:
+                    xcomp = next((c for c in root_token.children 
+                                 if c.dep_ in ('xcomp', 'ccomp') and c.pos_ == 'VERB'), None)
+                    if xcomp:
+                        action_token = xcomp
+            
+            # Case 2: ROOT is aux (e.g., "shall be able to export")
+            elif root_token.pos_ == 'AUX':
+                # Look for acomp (e.g., "able") → xcomp (e.g., "export")
+                acomp = next((c for c in root_token.children if c.dep_ == 'acomp'), None)
+                if acomp:
+                    xcomp = next((c for c in acomp.children 
+                                if c.dep_ in ('xcomp', 'ccomp') and c.pos_ == 'VERB'), None)
+                    if xcomp:
+                        action_token = xcomp
+                
+                # Fallback: look for xcomp directly under ROOT
+                if not action_token:
+                    xcomp = next((c for c in root_token.children 
+                                if c.dep_ in ('xcomp', 'ccomp') and c.pos_ == 'VERB'), None)
+                    if xcomp:
+                        action_token = xcomp
+        
+        # Extract action with phrasal verb support
+        action = 'implement'
+        if action_token:
+            action = action_token.lemma_
+            
+            # Check for particle (phrasal verbs like "log in", "sign up")
+            prt = next((c for c in action_token.children if c.dep_ == 'prt'), None)
+            if prt:
+                action = f"{action} {prt.text}"
+        
+        # Extract object phrase and format
+        GENERIC_OBJECTS = {'system', 'application', 'platform', 'users', 'user', 'administrator'}
+        
+        obj_phrase = ''
+        fmt = None
+        
+        if action_token:
+            # Find direct object
+            obj_token = next((c for c in action_token.children 
+                            if c.dep_ in ('dobj', 'obj', 'attr', 'oprd')), None)
+            
+            if obj_token:
+                # Get full noun phrase from subtree (sorted by token position)
+                obj_tokens = [
+                    t for t in obj_token.subtree 
+                    if t.pos_ in ('NOUN', 'PROPN', 'ADJ') or t == obj_token
+                ]
+                
+                # Sort by token index to preserve word order
+                obj_tokens = sorted(set(obj_tokens), key=lambda x: x.i)
+                obj_phrase = ' '.join(t.text for t in obj_tokens)
+                
+                # Skip if generic
+                if obj_phrase.lower() in GENERIC_OBJECTS:
+                    obj_phrase = ''
+            
+            # Look for format in prepositional phrase (to/into/as CSV)
+            for child in action_token.children:
+                if child.dep_ == 'prep' and child.text.lower() in ('to', 'into', 'as', 'using'):
+                    pobj = next((c for c in child.children if c.dep_ == 'pobj'), None)
+                    if pobj:
+                        fmt = pobj.text
+                        break
+        
+        # If no object found, try noun chunks (fallback)
+        if not obj_phrase and objects:
+            for chunk in objects:
+                words = chunk.split()
+                if not any(w.lower() in GENERIC_OBJECTS for w in words):
+                    obj_phrase = chunk
+                    break
+        
+        return {
+            'verbs': verbs[:3],
+            'nouns': nouns[:5],
+            'objects': objects[:3],
+            'action': action,
+            'object_phrase': obj_phrase or 'feature',
+            'format': fmt
+        }
+    
+    # Keep old method for backward compatibility
+    def extract_entities(self, text: str) -> Dict[str, List[str]]:
+        """Legacy extract_entities (calls enhanced version)"""
+        enhanced = self.extract_entities_enhanced(text)
+        return {
+            'verbs': enhanced['verbs'],
+            'nouns': enhanced['nouns'],
+            'objects': enhanced['objects']
+        }
     
     def generate_title(self, text: str, req_type: str, entities: Dict) -> str:
-        """Generate natural title (NOT from template)"""
-        patterns = self.patterns.get(req_type, self.patterns['functional'])
+        """
+        Generate deterministic title using enhanced entity extraction
         
-        # Modal verbs that should be skipped
-        MODAL_VERBS = {'need', 'must', 'should', 'shall', 'may', 'can', 'will', 'would', 'could'}
+        Improvements:
+        1. Use enhanced action (handles helper verbs)
+        2. Use object_phrase + format (e.g., "Export audit logs to CSV")
+        3. Remove generic suffixes (capability/functionality/feature)
+        4. Deterministic format rules (no random)
+        5. Vietnamese fallback (avoid "Implement này")
+        """
+        # Vietnamese: use sentence-based title (bypass spaCy EN)
+        if self.is_vietnamese(text):
+            return self.vn_title_from_sentence(text)
         
-        # Select action word
-        action = random.choice(patterns['action_words'])
+        # Get enhanced entities if not already done
+        if 'action' not in entities:
+            entities = self.extract_entities_enhanced(text)
         
-        # Extract action from text, handling "be able to" pattern
-        import re
-        modal_pattern = re.compile(r'\b(?:shall|must|should|may|can)\s+be\s+able\s+to\s+(\w+)', re.IGNORECASE)
-        match = modal_pattern.search(text)
-        if match:
-            # Found "shall/must be able to [verb]" - use that verb
-            action = match.group(1).lower()
-        elif entities['verbs']:
-            # Find first non-modal verb
-            for verb in entities['verbs']:
-                if verb.lower() not in MODAL_VERBS:
-                    action = verb
-                    break
-            else:
-                # All verbs are modals, use fallback
-                action = 'support'
+        action = entities.get('action', 'implement').strip()
+        obj_phrase = entities.get('object_phrase', 'feature').strip()
+        fmt = entities.get('format')
         
-        # Generic objects to skip (too vague for good titles)
-        GENERIC_OBJECTS = {'system', 'application', 'platform', 'feature', 'functionality',
-                          'solution', 'tool', 'module', 'service', 'product', 'website', 'app'}
+        # Blacklist bad Vietnamese demonstratives from spaCy EN parsing
+        BAD_VI_OBJECTS = {'này', 'đó', 'ấy', 'kia', 'nọ', 'đây', 'đấy', 'vậy', 'thế'}
+        if obj_phrase.lower() in BAD_VI_OBJECTS:
+            obj_phrase = 'chức năng'
         
-        # Select object (skip generic and modal-prefixed)
-        obj = 'feature'
-        if entities['objects']:
-            # Find first specific object (not generic, not starting with modal)
-            specific_objects = []
-            for candidate in entities['objects']:
-                words = candidate.split()
-                if not words:
-                    continue
-                # Skip if starts with modal verb
-                if words[0].lower() in MODAL_VERBS:
-                    continue
-                # Skip if any word is generic (handles "the system", "an application")
-                if any(w.lower() in GENERIC_OBJECTS for w in words):
-                    # But keep if it's part of a longer, specific phrase (3+ words)
-                    if len(words) < 3:
-                        continue
-                # Keep specific objects
-                specific_objects.append(candidate)
+        # Build base title: Action + Object
+        title = f"{action.capitalize()} {obj_phrase}"
+        
+        # Add format with deterministic rules
+        if fmt and obj_phrase not in ('feature', 'system', 'data'):
+            fmt_lower = fmt.lower()
             
-            if specific_objects:
-                # Sort by length (longer = more specific), pick first
-                specific_objects.sort(key=lambda x: len(x.split()), reverse=True)
-                obj = specific_objects[0]
-        elif entities['nouns']:
-            # Fallback to nouns, but still skip generic ones
-            for noun in entities['nouns']:
-                if noun.lower() not in GENERIC_OBJECTS:
-                    obj = noun
-                    break
+            # Export/Download → "to FORMAT"
+            if action.lower() in ('export', 'download', 'save'):
+                title = f"{action.capitalize()} {obj_phrase} to {fmt.upper()}"
+            
+            # Encrypt/Hash/Sign → "using ALGORITHM"
+            elif action.lower() in ('encrypt', 'hash', 'sign', 'compress'):
+                title = f"{action.capitalize()} {obj_phrase} using {fmt}"
+            
+            # Send/Notify/Transmit → "via CHANNEL"
+            elif action.lower() in ('send', 'notify', 'transmit', 'deliver'):
+                title = f"{action.capitalize()} {obj_phrase} via {fmt}"
+            
+            # Login/Access/Connect → "with METHOD"
+            elif action.lower() in ('login', 'log in', 'authenticate', 'access', 'connect'):
+                title = f"{action.capitalize()} with {fmt}"
+            
+            # Default: "via FORMAT"
+            else:
+                title = f"{action.capitalize()} {obj_phrase} via {fmt}"
         
-        # Construct natural title with variation
-        variants = [
-            f"{action.capitalize()} {obj}",
-            f"{action.capitalize()} {obj} feature",
-            f"{action.capitalize()} {obj} functionality",
-            f"Add {obj} {action}",
-            f"Build {obj} capability",
-        ]
+        # Clean generic suffixes (IMPORTANT: no template words)
+        BAD_SUFFIXES = ('capability', 'functionality', 'feature', 'solution', 'module', 'component')
+        for suffix in BAD_SUFFIXES:
+            if title.lower().endswith(f' {suffix}'):
+                title = title[: -(len(suffix) + 1)].strip()
         
-        return random.choice(variants)
+        return title.strip()
     
     def generate_description(self, text: str, req_type: str, entities: Dict, domain: str) -> str:
         """Generate natural description"""
@@ -269,12 +400,85 @@ class ModelBasedTaskGenerator:
         
         return ' '.join(parts)
     
+    def _keyword_based_ac(self, text: str, entities: Dict) -> Optional[List[str]]:
+        """Generate rule-based AC for common patterns (PRIORITY)"""
+        t = text.lower()
+        action = entities.get('action', '')
+        obj = entities.get('object_phrase', '')
+        fmt = entities.get('format', '')
+        
+        # Export to CSV/JSON/etc
+        if 'export' in action.lower() and fmt:
+            return [
+                f"System exports {obj} to {fmt.upper()}",
+                f"Exported {fmt.upper()} contains all required fields and headers",
+                "Only authorized users can export data",
+            ]
+        
+        # Password reset
+        if 'reset' in t and 'password' in t:
+            return [
+                "Password reset email is sent with a one-time link",
+                "Reset link expires after configured time window",
+                "User can set new password meeting password policy",
+            ]
+        
+        # Login/authentication
+        if any(kw in t for kw in ['login', 'log in', 'sign in', 'authenticate']):
+            return [
+                "User can authenticate with valid credentials",
+                "Invalid credentials show appropriate error message",
+                "Account lockout after multiple failed attempts",
+            ]
+        
+        # Session timeout
+        if 'session' in t and any(kw in t for kw in ['expire', 'timeout', 'inactivity']):
+            return [
+                "Session expires after configured period of inactivity",
+                "User must re-authenticate after session expiry",
+                "Warning is shown before session expires",
+            ]
+        
+        # Encryption
+        if 'encrypt' in t:
+            algo = 'AES-256' if 'aes' in t or '256' in t else 'configured algorithm'
+            return [
+                f"Sensitive data at rest is encrypted using {algo}",
+                "Encryption keys are stored securely and rotated periodically",
+                "Decryption only occurs for authorized operations",
+            ]
+        
+        # Email/notification sending
+        if any(kw in action.lower() for kw in ['send', 'notify', 'email']):
+            return [
+                f"System sends {obj} successfully",
+                "Delivery failures are logged and retried",
+                "User receives confirmation of successful delivery",
+            ]
+        
+        # Verification
+        if 'verif' in t and 'email' in t:
+            return [
+                "Verification email is sent after registration",
+                "Verification link is valid for configured time period",
+                "User account is activated upon successful verification",
+            ]
+        
+        return None
+    
     def generate_acceptance_criteria(self, text: str, req_type: str, entities: Dict) -> List[str]:
-        """Generate natural acceptance criteria (filtered for relevance)"""
+        """Generate acceptance criteria (rule-based priority, fallback to themes)"""
+        
+        # Try rule-based AC first (MUCH BETTER for common patterns)
+        keyword_ac = self._keyword_based_ac(text, entities)
+        if keyword_ac:
+            return keyword_ac
+        
+        # Fallback: theme-based generation
         patterns = self.patterns.get(req_type, self.patterns['functional'])
         
-        action = entities['verbs'][0] if entities['verbs'] else 'process'
-        obj = entities['objects'][0] if entities['objects'] else 'data'
+        action = entities.get('action', entities['verbs'][0] if entities['verbs'] else 'process')
+        obj = entities.get('object_phrase', entities['objects'][0] if entities['objects'] else 'data')
         
         # Check if requirement has performance cues
         PERF_CUES = {'performance', 'latency', 'response time', 'within', 'seconds', 'ms', 
@@ -356,7 +560,36 @@ class ModelBasedTaskGenerator:
             pred = enricher['model'].predict(X)[0]
             result[label] = pred
         
+        # Keyword override for security/auth (fix domain mismatch)
+        result = self._apply_keyword_override(text, result)
+        
         return result
+    
+    def _apply_keyword_override(self, text: str, classification: Dict) -> Dict:
+        """
+        Override type/domain based on strong keyword signals
+        
+        Fixes issues like:
+        - Auth requirements → finance/iot domain (wrong)
+        - Security requirements → general/functional type (wrong)
+        """
+        text_lower = text.lower()
+        
+        # Security keywords
+        SECURITY_KEYWORDS = {
+            'login', 'password', '2fa', 'two-factor', 'oauth', 'oauth2',
+            'session', 'encrypt', 'encryption', 'tls', 'ssl', 'hash',
+            'salt', 'audit', 'authentication', 'authorization', 'secure',
+            'security', 'access control', 'permission', 'role-based'
+        }
+        
+        # Check if security-related
+        if any(kw in text_lower for kw in SECURITY_KEYWORDS):
+            classification['type'] = 'security'
+            # Set domain to general (avoid ecommerce/finance/iot mismatch)
+            classification['domain'] = 'general'
+        
+        return classification
     
     def generate_task_from_sentence(
         self,
@@ -375,8 +608,8 @@ class ModelBasedTaskGenerator:
         priority = classification.get('priority', 'Medium')
         domain = classification.get('domain', 'general')
         
-        # Extract entities
-        entities = self.extract_entities(sentence.text)
+        # Extract entities (USE ENHANCED VERSION)
+        entities = self.extract_entities_enhanced(sentence.text)
         
         # Generate task components (natural, not template)
         title = self.generate_title(sentence.text, req_type, entities)
@@ -463,8 +696,8 @@ class ModelBasedTaskGenerator:
         priority = labels.get('priority', 'Medium')
         domain = labels.get('domain', 'general')
         
-        # Extract entities
-        entities = self.extract_entities(sentence.text)
+        # Extract entities (USE ENHANCED VERSION)
+        entities = self.extract_entities_enhanced(sentence.text)
         
         # Generate task components
         title = self.generate_title(sentence.text, req_type, entities)
@@ -532,13 +765,14 @@ class ModelBasedTaskGenerator:
         return min(base, 8)  # Cap at 8
     
     def _repair_title(self, title: str, entities: Dict) -> str:
-        """Repair low-quality titles"""
+        """Repair low-quality titles (NO GENERIC SUFFIXES)"""
         # Reject double words ("implement implement")
         words = title.lower().split()
         if len(words) >= 2 and words[0] == words[1]:
-            # Fallback to simple format
-            obj = entities['objects'][0] if entities['objects'] else 'feature'
-            return f"Implement {obj} capability"
+            # Fallback using enhanced entities
+            action = entities.get('action', 'implement')
+            obj = entities.get('object_phrase', 'feature')
+            return f"{action.capitalize()} {obj}"
         
         # Reject ultra-generic patterns
         bad_patterns = [
@@ -548,9 +782,9 @@ class ModelBasedTaskGenerator:
         
         for pattern in bad_patterns:
             if re.search(pattern, title, re.IGNORECASE):
-                obj = entities['nouns'][0] if entities['nouns'] else 'feature'
-                action = entities['verbs'][0] if entities['verbs'] else 'implement'
-                return f"{action.capitalize()} {obj} functionality"
+                action = entities.get('action', 'implement')
+                obj = entities.get('object_phrase', 'feature')
+                return f"{action.capitalize()} {obj}"
         
         return title
     
