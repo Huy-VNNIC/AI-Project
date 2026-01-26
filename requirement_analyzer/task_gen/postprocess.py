@@ -143,8 +143,8 @@ class TaskPostProcessor:
             en_backend_keywords = ['system', 'process', 'store', 'manage', 'calculate', 'validate']
             
             # Check if task involves both UI and backend
-            is_vietnamese = is_vietnamese(task.title)
-            if is_vietnamese:
+            is_vn = is_vietnamese(task.title)
+            if is_vn:
                 has_ui = any(kw in title_lower for kw in vn_ui_keywords)
                 has_backend = any(kw in title_lower for kw in vn_backend_keywords)
             else:
