@@ -14,7 +14,20 @@ import logging
 from .schemas import GeneratedTask
 
 logger = logging.getLogger(__name__)
+# Vietnamese diacritics for language detection
+VI_DIACRITICS = set("ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ")
+VI_KEYWORDS = {'hệ thống', 'phải', 'cần', 'cho phép', 'đảm bảo', 'thực hiện', 'người dùng'}
 
+def is_vietnamese(text: str) -> bool:
+    """Detect if text is Vietnamese"""
+    if not text:
+        return False
+    text_lower = text.lower()
+    # Check for diacritics
+    has_diacritics = any(ch in VI_DIACRITICS for ch in text)
+    # Check for Vietnamese keywords
+    has_keywords = any(kw in text_lower for kw in VI_KEYWORDS)
+    return has_diacritics or has_keywords
 
 class TaskPostProcessor:
     """Post-process generated tasks"""
@@ -290,11 +303,19 @@ class TaskPostProcessor:
         
         return max_priority
     
-    def filter_low_quality(self, tasks: List[GeneratedTask]) -> List[GeneratedTask]:
-        """Filter out low-quality tasks"""
+    def filter_low_quality(self, tasks: List[GeneratedTask], enable_quality_filter: bool = True) -> List[GeneratedTask]:
+        """Filter out low-quality tasks (Vietnamese-aware)"""
+        if not enable_quality_filter:
+            logger.info("Quality filter disabled, keeping all tasks")
+            return tasks
+        
         filtered = []
         
         for task in tasks:
+            # Detect if task is Vietnamese
+            task_text = f"{task.title} {task.description}"
+            is_vn = is_vietnamese(task_text)
+            
             # Filter WCAG criteria from non-interface tasks
             if task.type.lower() != 'interface':
                 original_count = len(task.acceptance_criteria)
@@ -305,17 +326,29 @@ class TaskPostProcessor:
                 if len(task.acceptance_criteria) < original_count:
                     logger.debug(f"Removed {original_count - len(task.acceptance_criteria)} WCAG criteria from {task.type} task")
             
-            # Check minimum length
-            if len(task.title) < self.min_task_length:
-                logger.debug(f"Filtered out short title: '{task.title}'")
-                continue
+            # Vietnamese: more lenient filtering
+            if is_vn:
+                # Only filter if title is empty or too short (< 3 words)
+                if not task.title or len(task.title.split()) < 3:
+                    logger.debug(f"Filtered out too short Vietnamese title: '{task.title}'")
+                    continue
+                # Lower confidence threshold for VN (models trained on English)
+                if task.confidence < 0.15:
+                    logger.debug(f"Filtered out very low confidence VN task: '{task.title}' (conf={task.confidence:.2f})")
+                    continue
+            else:
+                # English: standard filtering
+                # Check minimum length
+                if len(task.title) < self.min_task_length:
+                    logger.debug(f"Filtered out short title: '{task.title}'")
+                    continue
+                
+                # Check confidence threshold
+                if task.confidence < 0.3:
+                    logger.debug(f"Filtered out low confidence task: '{task.title}' (conf={task.confidence:.2f})")
+                    continue
             
-            # Check confidence threshold
-            if task.confidence < 0.3:
-                logger.debug(f"Filtered out low confidence task: '{task.title}' (conf={task.confidence:.2f})")
-                continue
-            
-            # Check for placeholder text
+            # Check for placeholder text (both EN and VN)
             if 'unknown' in task.title.lower() or 'unknown' in task.description.lower():
                 logger.debug(f"Filtered out placeholder task: '{task.title}'")
                 continue
@@ -326,7 +359,7 @@ class TaskPostProcessor:
         
         return filtered
     
-    def process(self, tasks: List[GeneratedTask]) -> List[GeneratedTask]:
+    def process(self, tasks: List[GeneratedTask], enable_quality_filter: bool = True, enable_deduplication: bool = True) -> List[GeneratedTask]:
         """
         Run full post-processing pipeline
         
@@ -338,10 +371,13 @@ class TaskPostProcessor:
         logger.info(f"Post-processing {len(tasks)} tasks...")
         
         # 1. Filter
-        tasks = self.filter_low_quality(tasks)
+        tasks = self.filter_low_quality(tasks, enable_quality_filter=enable_quality_filter)
         
         # 2. Deduplicate
-        tasks = self.deduplicate(tasks)
+        if enable_deduplication:
+            tasks = self.deduplicate(tasks)
+        else:
+            logger.info("Deduplication disabled")
         
         # 3. Split (optional - can create more tasks)
         # tasks = self.split_complex_tasks(tasks)

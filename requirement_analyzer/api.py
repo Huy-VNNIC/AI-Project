@@ -891,13 +891,16 @@ async def generate_tasks_from_file(
         
         # Step 3: Generate tasks using generate_from_sentences (BYPASS SEGMENTER)
         # Each requirement line is treated as separate sentence - no merging
+        # For file uploads: disable quality filter to keep all detected tasks
         import time
         start_time = time.time()
         
         tasks = task_pipeline.generate_from_sentences(
             requirements,
             epic_name=None,
-            requirement_threshold=requirement_threshold
+            requirement_threshold=requirement_threshold,
+            enable_quality_filter=False,  # Keep all tasks for file uploads
+            enable_deduplication=True      # But still remove duplicates
         )
         
         processing_time = time.time() - start_time

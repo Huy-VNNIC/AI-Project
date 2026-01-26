@@ -267,11 +267,20 @@ class TaskGenerationPipeline:
         self,
         sentences: List[str],
         epic_name: Optional[str] = None,
-        requirement_threshold: float = 0.5
+        requirement_threshold: float = 0.5,
+        enable_quality_filter: bool = True,
+        enable_deduplication: bool = True
     ) -> List[GeneratedTask]:
         """
         Generate tasks from pre-segmented sentences
         (Useful when sentences are already extracted externally)
+        
+        Args:
+            sentences: List of requirement text lines
+            epic_name: Optional epic/feature name
+            requirement_threshold: Detector confidence threshold (0-1)
+            enable_quality_filter: Whether to apply quality filtering (disable for non-English)
+            enable_deduplication: Whether to deduplicate similar tasks
         """
         # Convert to Sentence objects
         sentence_objs = [
@@ -306,8 +315,12 @@ class TaskGenerationPipeline:
         # Generate
         tasks = self.generator.generate_batch(req_sentences, enrichment_results, epic_name)
         
-        # Post-process
-        tasks = self.postprocessor.process(tasks)
+        # Post-process with configurable filtering
+        tasks = self.postprocessor.process(
+            tasks,
+            enable_quality_filter=enable_quality_filter,
+            enable_deduplication=enable_deduplication
+        )
         
         return tasks
     
