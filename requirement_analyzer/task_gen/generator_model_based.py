@@ -32,6 +32,30 @@ class ModelBasedTaskGenerator:
     NO API keys required, NO template strings
     """
     
+    # Vietnamese language detection constants
+    VI_DIACRITICS = set("ăâđêôơưáàảãạấầẩẫậắằẳẵặéèẻẽẹếềểễệíìỉĩịóòỏõọốồổỗộớờởỡợúùủũụứừửữựýỳỷỹỵ")
+    VI_KEYWORDS = {'hệ thống', 'phải', 'cần', 'cho phép', 'đảm bảo', 'thực hiện', 'người dùng'}
+    
+    @staticmethod
+    def is_vietnamese(text: str) -> bool:
+        """Detect if text is Vietnamese"""
+        if not text:
+            return False
+        has_diacritics = any(ch in ModelBasedTaskGenerator.VI_DIACRITICS for ch in text)
+        has_keywords = any(kw in text.lower() for kw in ModelBasedTaskGenerator.VI_KEYWORDS)
+        return has_diacritics or has_keywords
+    
+    @staticmethod
+    def vn_title_from_sentence(sentence: str) -> str:
+        """Generate clean Vietnamese title from requirement sentence"""
+        s = sentence.strip().rstrip(".")
+        # Remove numbering
+        s = re.sub(r'^\d+\.\s*', '', s)
+        # Remove common prefixes
+        s = re.sub(r'^(hệ thống|ứng dụng|nền tảng)\s+(phải|cần|nên)\s+', '', s, flags=re.IGNORECASE)
+        # Capitalize first letter
+        return s[:1].upper() + s[1:] if s else "Chức năng theo yêu cầu"
+    
     def __init__(self, model_dir: Path):
         self.model_dir = Path(model_dir)
         
@@ -297,8 +321,8 @@ class ModelBasedTaskGenerator:
         5. Vietnamese fallback (avoid "Implement này")
         """
         # Vietnamese: use sentence-based title (bypass spaCy EN)
-        if is_vietnamese(text):
-            return vn_title_from_sentence(text)
+        if self.is_vietnamese(text):
+            return self.vn_title_from_sentence(text)
         
         # Get enhanced entities if not already done
         if 'action' not in entities:
