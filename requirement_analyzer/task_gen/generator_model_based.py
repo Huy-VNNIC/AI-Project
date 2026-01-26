@@ -236,18 +236,15 @@ class ModelBasedTaskGenerator:
                             if c.dep_ in ('dobj', 'obj', 'attr', 'oprd')), None)
             
             if obj_token:
-                # Get full noun phrase from subtree (include compounds + root token)
-                obj_words = []
+                # Get full noun phrase from subtree (sorted by token position)
+                obj_tokens = [
+                    t for t in obj_token.subtree 
+                    if t.pos_ in ('NOUN', 'PROPN', 'ADJ') or t == obj_token
+                ]
                 
-                # Get compounds first (e.g., "audit" in "audit logs")
-                for t in obj_token.subtree:
-                    if t.pos_ in ('NOUN', 'PROPN', 'ADJ') and t != obj_token:
-                        obj_words.append(t.text)
-                
-                # Add root token last (e.g., "logs")
-                obj_words.append(obj_token.text)
-                
-                obj_phrase = ' '.join(obj_words)
+                # Sort by token index to preserve word order
+                obj_tokens = sorted(set(obj_tokens), key=lambda x: x.i)
+                obj_phrase = ' '.join(t.text for t in obj_tokens)
                 
                 # Skip if generic
                 if obj_phrase.lower() in GENERIC_OBJECTS:
@@ -369,12 +366,85 @@ class ModelBasedTaskGenerator:
         
         return ' '.join(parts)
     
+    def _keyword_based_ac(self, text: str, entities: Dict) -> Optional[List[str]]:
+        """Generate rule-based AC for common patterns (PRIORITY)"""
+        t = text.lower()
+        action = entities.get('action', '')
+        obj = entities.get('object_phrase', '')
+        fmt = entities.get('format', '')
+        
+        # Export to CSV/JSON/etc
+        if 'export' in action.lower() and fmt:
+            return [
+                f"System exports {obj} to {fmt.upper()}",
+                f"Exported {fmt.upper()} contains all required fields and headers",
+                "Only authorized users can export data",
+            ]
+        
+        # Password reset
+        if 'reset' in t and 'password' in t:
+            return [
+                "Password reset email is sent with a one-time link",
+                "Reset link expires after configured time window",
+                "User can set new password meeting password policy",
+            ]
+        
+        # Login/authentication
+        if any(kw in t for kw in ['login', 'log in', 'sign in', 'authenticate']):
+            return [
+                "User can authenticate with valid credentials",
+                "Invalid credentials show appropriate error message",
+                "Account lockout after multiple failed attempts",
+            ]
+        
+        # Session timeout
+        if 'session' in t and any(kw in t for kw in ['expire', 'timeout', 'inactivity']):
+            return [
+                "Session expires after configured period of inactivity",
+                "User must re-authenticate after session expiry",
+                "Warning is shown before session expires",
+            ]
+        
+        # Encryption
+        if 'encrypt' in t:
+            algo = 'AES-256' if 'aes' in t or '256' in t else 'configured algorithm'
+            return [
+                f"Sensitive data at rest is encrypted using {algo}",
+                "Encryption keys are stored securely and rotated periodically",
+                "Decryption only occurs for authorized operations",
+            ]
+        
+        # Email/notification sending
+        if any(kw in action.lower() for kw in ['send', 'notify', 'email']):
+            return [
+                f"System sends {obj} successfully",
+                "Delivery failures are logged and retried",
+                "User receives confirmation of successful delivery",
+            ]
+        
+        # Verification
+        if 'verif' in t and 'email' in t:
+            return [
+                "Verification email is sent after registration",
+                "Verification link is valid for configured time period",
+                "User account is activated upon successful verification",
+            ]
+        
+        return None
+    
     def generate_acceptance_criteria(self, text: str, req_type: str, entities: Dict) -> List[str]:
-        """Generate natural acceptance criteria (filtered for relevance)"""
+        """Generate acceptance criteria (rule-based priority, fallback to themes)"""
+        
+        # Try rule-based AC first (MUCH BETTER for common patterns)
+        keyword_ac = self._keyword_based_ac(text, entities)
+        if keyword_ac:
+            return keyword_ac
+        
+        # Fallback: theme-based generation
         patterns = self.patterns.get(req_type, self.patterns['functional'])
         
-        action = entities['verbs'][0] if entities['verbs'] else 'process'
-        obj = entities['objects'][0] if entities['objects'] else 'data'
+        action = entities.get('action', entities['verbs'][0] if entities['verbs'] else 'process')
+        obj = entities.get('object_phrase', entities['objects'][0] if entities['objects'] else 'data')
         
         # Check if requirement has performance cues
         PERF_CUES = {'performance', 'latency', 'response time', 'within', 'seconds', 'ms', 
@@ -592,8 +662,8 @@ class ModelBasedTaskGenerator:
         priority = labels.get('priority', 'Medium')
         domain = labels.get('domain', 'general')
         
-        # Extract entities
-        entities = self.extract_entities(sentence.text)
+        # Extract entities (USE ENHANCED VERSION)
+        entities = self.extract_entities_enhanced(sentence.text)
         
         # Generate task components
         title = self.generate_title(sentence.text, req_type, entities)
@@ -661,13 +731,14 @@ class ModelBasedTaskGenerator:
         return min(base, 8)  # Cap at 8
     
     def _repair_title(self, title: str, entities: Dict) -> str:
-        """Repair low-quality titles"""
+        """Repair low-quality titles (NO GENERIC SUFFIXES)"""
         # Reject double words ("implement implement")
         words = title.lower().split()
         if len(words) >= 2 and words[0] == words[1]:
-            # Fallback to simple format
-            obj = entities['objects'][0] if entities['objects'] else 'feature'
-            return f"Implement {obj} capability"
+            # Fallback using enhanced entities
+            action = entities.get('action', 'implement')
+            obj = entities.get('object_phrase', 'feature')
+            return f"{action.capitalize()} {obj}"
         
         # Reject ultra-generic patterns
         bad_patterns = [
@@ -677,9 +748,9 @@ class ModelBasedTaskGenerator:
         
         for pattern in bad_patterns:
             if re.search(pattern, title, re.IGNORECASE):
-                obj = entities['nouns'][0] if entities['nouns'] else 'feature'
-                action = entities['verbs'][0] if entities['verbs'] else 'implement'
-                return f"{action.capitalize()} {obj} functionality"
+                action = entities.get('action', 'implement')
+                obj = entities.get('object_phrase', 'feature')
+                return f"{action.capitalize()} {obj}"
         
         return title
     
