@@ -174,12 +174,15 @@ async def task_generation_page(request: Request):
 
 @app.get("/favicon.ico")
 async def favicon():
-    """Serve favicon to prevent 404 errors"""
+    """Serve favicon or empty 1x1 transparent PNG"""
     favicon_path = Path(__file__).parent / "static" / "favicon.ico"
     if favicon_path.exists():
         return FileResponse(favicon_path)
-    # Return empty response if favicon doesn't exist
-    return JSONResponse(content={}, status_code=204)
+    # Return 1x1 transparent PNG instead of 204 (avoids h11 protocol issues)
+    from starlette.responses import Response
+    # Minimal 1x1 transparent PNG (67 bytes)
+    png_data = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82'
+    return Response(content=png_data, media_type="image/png")
 
 @app.get("/health")
 def health_check():
@@ -884,39 +887,40 @@ async def generate_tasks_from_file(
         
         logger.info(f"   Extracted {len(requirements)} requirement candidates")
         
-        # Step 3: Join requirements as input text (one per line)
-        joined_text = '\n'.join(requirements)
+        # Step 3: Generate tasks using generate_from_sentences (BYPASS SEGMENTER)
+        # Each requirement line is treated as separate sentence - no merging
+        import time
+        start_time = time.time()
         
-        # Step 4: Generate tasks using pipeline
-        response = task_pipeline.generate_tasks(
-            text=joined_text,
-            max_tasks=max_tasks,
+        tasks = task_pipeline.generate_from_sentences(
+            requirements,
+            epic_name=None,
             requirement_threshold=requirement_threshold
         )
         
-        # Use jsonable_encoder to properly serialize datetime and Pydantic models
+        processing_time = time.time() - start_time
+        
+        # Build response
         result = {
-            "tasks": jsonable_encoder(response.tasks),
-            "total_tasks": response.total_tasks,
-            "stats": response.stats,
-            "processing_time": response.processing_time,
-            "mode": response.mode,
-            "generator_version": response.generator_version,
+            "tasks": jsonable_encoder(tasks),
+            "total_tasks": len(tasks),
+            "stats": {},
+            "processing_time": processing_time,
+            "mode": task_pipeline.generator_mode,
+            "generator_version": "1.0.0",
             "source_file": file.filename,
             "ingestion": {
                 "total_chars": len(raw_text),
                 "requirements_extracted": len(requirements),
-                "threshold": requirement_threshold
+                "requirements_detected": len(tasks),
+                "threshold": requirement_threshold,
+                "method": "generate_from_sentences (bypass segmenter)"
             }
         }
         
-        # Add optional fields if present
-        if response.total_story_points is not None:
-            result["total_story_points"] = response.total_story_points
-        if response.estimated_duration_days is not None:
-            result["estimated_duration_days"] = response.estimated_duration_days
-        
         logger.info(f"✅ Generated {result['total_tasks']} tasks from file {file.filename}")
+        
+        return JSONResponse(content=result)
         
         return JSONResponse(content=result)
         

@@ -266,7 +266,8 @@ class TaskGenerationPipeline:
     def generate_from_sentences(
         self,
         sentences: List[str],
-        epic_name: Optional[str] = None
+        epic_name: Optional[str] = None,
+        requirement_threshold: float = 0.5
     ) -> List[GeneratedTask]:
         """
         Generate tasks from pre-segmented sentences
@@ -278,8 +279,8 @@ class TaskGenerationPipeline:
             for s in sentences
         ]
         
-        # Detect requirements
-        detection_results = self.detector.detect(sentences)
+        # Detect requirements (with threshold)
+        detection_results = self.detector.detect(sentences, threshold=requirement_threshold)
         req_sentences = [s for s, (is_req, _) in zip(sentence_objs, detection_results) if is_req]
         
         if not req_sentences:
@@ -288,6 +289,19 @@ class TaskGenerationPipeline:
         # Enrich
         req_texts = [s.text for s in req_sentences]
         enrichment_results = self.enricher.enrich(req_texts)
+        
+        # KEYWORD OVERRIDE: auth/security keywords → type=security, domain=general
+        SECURITY_KEYWORDS = [
+            "login", "password", "oauth", "2fa", "two-factor", "session",
+            "encrypt", "tls", "ssl", "hash", "salt", "audit", "authentication",
+            "authorization", "token", "jwt", "credential", "verify", "validation"
+        ]
+        
+        for result, text in zip(enrichment_results, req_texts):
+            text_lower = text.lower()
+            if any(kw in text_lower for kw in SECURITY_KEYWORDS):
+                result["type"] = "security"
+                result["domain"] = "general"
         
         # Generate
         tasks = self.generator.generate_batch(req_sentences, enrichment_results, epic_name)
