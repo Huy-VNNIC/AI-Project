@@ -118,6 +118,63 @@ app = FastAPI(
     version="2.0.0"
 )
 
+# ============================================================================
+# Security & Rate Limiting Middleware
+# ============================================================================
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+# Simple rate limiter (in-memory)
+request_counts = defaultdict(list)
+RATE_LIMIT_REQUESTS = 100  # requests per window
+RATE_LIMIT_WINDOW = 60  # seconds
+
+@app.middleware("http")
+async def security_middleware(request: Request, call_next):
+    """
+    Security middleware for:
+    - Rate limiting
+    - Request validation
+    - Logging suspicious activity
+    """
+    client_ip = request.client.host
+    now = datetime.now()
+    
+    # Rate limiting (simple sliding window)
+    request_counts[client_ip] = [
+        ts for ts in request_counts[client_ip]
+        if now - ts < timedelta(seconds=RATE_LIMIT_WINDOW)
+    ]
+    
+    if len(request_counts[client_ip]) >= RATE_LIMIT_REQUESTS:
+        logger.warning(f"⚠️ Rate limit exceeded for {client_ip}")
+        return JSONResponse(
+            status_code=429,
+            content={
+                "error": "Rate limit exceeded",
+                "message": f"Maximum {RATE_LIMIT_REQUESTS} requests per {RATE_LIMIT_WINDOW}s"
+            }
+        )
+    
+    request_counts[client_ip].append(now)
+    
+    # Log suspicious requests
+    if request.method not in ["GET", "POST", "OPTIONS"]:
+        logger.warning(f"⚠️ Suspicious method {request.method} from {client_ip}")
+    
+    # Block common attack paths
+    blocked_paths = ["/login", "/admin", "/.env", "/wp-admin", "/phpMyAdmin"]
+    if any(blocked in str(request.url.path) for blocked in blocked_paths):
+        logger.warning(f"⚠️ Blocked suspicious path {request.url.path} from {client_ip}")
+        return JSONResponse(status_code=404, content={"error": "Not found"})
+    
+    response = await call_next(request)
+    return response
+
+# ============================================================================
+# END Security Middleware
+# ============================================================================
+
 # Khởi tạo các thành phần
 analyzer = RequirementAnalyzer()
 estimator = EffortEstimator()
@@ -1214,6 +1271,20 @@ def _allocate_story_points(tasks: List, total_effort_hours: float) -> List[Dict]
 # END TASK GENERATION ENDPOINTS
 # ============================================================================
 
+# ============================================================================
+# V2 ENDPOINTS - Requirements Engineering Pipeline
+# ============================================================================
+try:
+    from requirement_analyzer.api_v2 import router as v2_router
+    app.include_router(v2_router)
+    logger.info("✅ V2 API endpoints registered")
+except Exception as e:
+    logger.warning(f"⚠️ V2 endpoints not available: {e}")
+
+# ============================================================================
+# END V2 ENDPOINTS
+# ============================================================================
+
 
 # Mount static files last to avoid route conflicts
 # Use html=True to properly serve static files
@@ -1227,10 +1298,15 @@ try:
 except Exception as e:
     logger.error(f"Error mounting static files: {e}")
 
-def start_server(host="0.0.0.0", port=8000):
+def start_server(host="127.0.0.1", port=8000):
     """
     Khởi động server API
+    
+    Security: Bind to localhost only (127.0.0.1) for production safety.
+    Use 0.0.0.0 only for Docker/public deployment with proper auth.
     """
+    logger.info(f"🚀 Starting server on {host}:{port}")
+    logger.info(f"   Security: {'Localhost only (safe)' if host == '127.0.0.1' else '⚠️ Public binding - ensure auth enabled'}")
     uvicorn.run("requirement_analyzer.api:app", host=host, port=port, reload=True)
 
 if __name__ == "__main__":

@@ -1,0 +1,5 @@
+# Test Requirements - 3 samples
+
+- Quản lý cần xem danh sách đặt phòng với bộ lọc trạng thái và ngày tháng để theo dõi tình hình kinh doanh
+- Nhân viên lễ tân muốn check-in khách hàng nhanh chóng bằng mã QR từ booking confirmation
+- Hệ thống cần tự động gửi email xác nhận sau khi đặt phòng thành công với thông tin chi tiết
