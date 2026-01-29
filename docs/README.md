@@ -19,22 +19,33 @@ Dự án này tập trung vào việc:
 ```
 AI-Project/
 │
-├── cocomo_ii_data_preprocessing_enhanced.ipynb  # Notebook tiền xử lý dữ liệu
-├── cocomo_ii_model_training.ipynb             # Notebook huấn luyện mô hình
-├── cocomo_ii_predictor.py                     # Module dự đoán COCOMO II
-├── demo.py                                    # Demo script cơ bản
-├── cocomo_setup.sh                            # Script thiết lập và chạy demo
-├── usage_guide.md                             # Hướng dẫn sử dụng mô hình
-├── README.md                                  # Tài liệu này
-├── README_FEEDBACK_SYSTEM.md                  # Tài liệu về hệ thống feedback
-├── README_PRODUCTION.md                       # Hướng dẫn triển khai production
-├── feedback_api.py                            # API endpoints cho hệ thống feedback
-├── feedback_collector.py                      # Thu thập và lưu trữ dữ liệu feedback
-├── feedback_feature_extractor.py              # Trích xuất features từ dữ liệu feedback
-├── model_retrainer.py                         # Huấn luyện lại mô hình với feedback
-├── scheduled_retraining.py                    # Tự động huấn luyện lại theo lịch
-├── run_estimation_service.py                  # API service cho ước lượng nỗ lực
-├── run_estimation_service.sh                  # Script khởi động dịch vụ
+├── notebooks/                                 # Jupyter notebooks
+│   ├── cocomo_ii_data_preprocessing_enhanced.ipynb  # Tiền xử lý dữ liệu
+│   └── cocomo_ii_model_training.ipynb         # Huấn luyện mô hình
+│
+├── tools/                                     # Công cụ và scripts tiện ích
+│   ├── cocomo_ii_predictor.py                 # Module dự đoán COCOMO II
+│   ├── demo.py                                # Demo script cơ bản
+│   ├── feedback_api.py                        # API endpoints cho hệ thống feedback
+│   ├── feedback_collector.py                  # Thu thập và lưu trữ dữ liệu feedback
+│   ├── model_retrainer.py                     # Huấn luyện lại mô hình với feedback
+│   ├── scheduled_retraining.py                # Tự động huấn luyện lại theo lịch
+│   └── run_estimation_service.py              # API service cho ước lượng nỗ lực
+│
+├── scripts/                                   # Shell scripts
+│   ├── cocomo_setup.sh                        # Script thiết lập và chạy demo
+│   └── run_estimation_service.sh              # Script khởi động dịch vụ
+│
+├── docs/                                      # Tài liệu
+│   ├── README.md                              # Tài liệu này
+│   ├── usage_guide.md                         # Hướng dẫn sử dụng mô hình
+│   ├── README_FEEDBACK_SYSTEM.md              # Tài liệu về hệ thống feedback
+│   └── README_PRODUCTION.md                   # Hướng dẫn triển khai production
+│
+├── docker/                                    # Docker configuration
+│   ├── Dockerfile                             # Docker image definitions
+│   ├── docker-compose.yml                     # Docker compose configuration
+│   └── nginx.conf                             # Nginx configuration
 │
 ├── datasets/                                  # Dữ liệu thô từ nhiều nguồn
 │   ├── defectPred/                            # Dữ liệu dự đoán lỗi
@@ -155,7 +166,7 @@ Hệ thống feedback cho phép người dùng cung cấp dữ liệu về nỗ 
 
 1. Chạy API service với script `run_estimation_service.sh`:
    ```bash
-   ./run_estimation_service.sh --port 8001 --production
+   ./scripts/run_estimation_service.sh --port 8001 --production
    ```
 
 2. Truy cập giao diện web tại `http://localhost:3000/feedback` để:
@@ -165,7 +176,7 @@ Hệ thống feedback cho phép người dùng cung cấp dữ liệu về nỗ 
 
 3. Tự động huấn luyện lại mô hình với cron job:
    ```bash
-   0 0 1 * * /path/to/retrain_models_with_feedback.sh
+   0 0 1 * * /path/to/scripts/retrain_models_with_feedback.sh
    ```
 
 Xem thêm chi tiết trong [README_FEEDBACK_SYSTEM.md](README_FEEDBACK_SYSTEM.md) và [README_PRODUCTION.md](README_PRODUCTION.md).
@@ -292,14 +303,14 @@ Phân tích tương quan giữa các biến chính (SIZE, EFFORT, TIME) trong t�
 ```bash
 # Cách 1: Chạy script thiết lập
 cd /home/huy/Huy-workspace/AI-Project
-./cocomo_setup.sh
+./scripts/cocomo_setup.sh
 
 # Cách 2: Chạy demo script trực tiếp
 cd /home/huy/Huy-workspace/AI-Project
 python3 demo.py
 ```
 
-Script `cocomo_setup.sh` cung cấp các tùy chọn:
+Script `scripts/cocomo_setup.sh` cung cấp các tùy chọn:
 1. Chạy COCOMO II Demo (sử dụng công thức đơn giản)
 2. Tạo các file mô hình giả (chỉ để kiểm tra)
 3. Kiểm tra môi trường

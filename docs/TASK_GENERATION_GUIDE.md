@@ -1,347 +1,288 @@
-# AI Task Generation Feature
+# Task Generation System - Quick Reference Guide
 
-## Overview
+## 🚀 Quick Start
 
-The AI Task Generation feature automatically converts software requirements into structured user stories and tasks using trained machine learning models. This feature uses a **hybrid approach** combining ML-based classification with pattern-based natural language generation.
+### 1. Train Models (First Time Setup)
 
-## Architecture
-
-### System Components
-
-```
-Input Requirements
-    ↓
-┌─────────────────────────────────────────┐
-│  1. Segmentation (spaCy)                │
-│     - Split into sentences              │
-│     - Clean and normalize               │
-└─────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────┐
-│  2. Requirement Detection (ML)          │
-│     - TF-IDF + Linear Classifier        │
-│     - Filter non-requirements           │
-│     - Threshold: 0.5 (configurable)     │
-└─────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────┐
-│  3. Enrichment (ML Classifiers)         │
-│     - Type: functional, security, etc.  │
-│     - Priority: high, medium, low       │
-│     - Domain: finance, healthcare, etc. │
-└─────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────┐
-│  4. Task Generation (Pattern-based)     │
-│     - Entity extraction (spaCy)         │
-│     - Title generation (verb + object)  │
-│     - Description composition           │
-│     - Acceptance criteria generation    │
-└─────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────┐
-│  5. Post-processing                     │
-│     - Deduplication                     │
-│     - Quality filtering                 │
-│     - Story point estimation            │
-└─────────────────────────────────────────┘
-    ↓
-Structured User Stories (JSON/CSV)
-```
-
-## Features
-
-### ✅ What This System Does
-
-1. **Automatic Requirements Detection**
-   - Filters out non-requirement sentences (descriptions, notes, etc.)
-   - Uses trained ML classifier with 85%+ accuracy
-
-2. **Intelligent Classification**
-   - **Type**: functional, security, performance, interface, data, integration
-   - **Priority**: high, medium, low (based on keywords and patterns)
-   - **Domain**: finance, healthcare, ecommerce, etc.
-
-3. **Natural Task Generation**
-   - Extracts entities (actions, objects) from requirements
-   - Generates descriptive titles (not generic)
-   - Creates user stories in standard format: "As a [role], I want to [action], so that [benefit]"
-   - Generates 3-6 acceptance criteria per task
-
-4. **Quality Controls**
-   - Generic title detection (flags "capability", "functionality", etc.)
-   - Duplicate acceptance criteria removal
-   - Intent verification (keywords must match)
-   - Story point estimation (1-13 scale)
-
-### ⚠️ Current Limitations
-
-1. **Generic Titles**: ~60% of titles contain generic terms (e.g., "Build user login capability")
-   - **Fix in progress**: Use spaCy ROOT verb + direct object instead of fallback patterns
-   - **Target**: Reduce to 25-30%
-
-2. **Coverage**: 73.6% of requirements generate tasks
-   - **Reason**: Strict requirement detector threshold (0.5)
-   - **Improvement**: Lower threshold to 0.3 or add regex fallback
-
-3. **Pattern-based Generation**: Not fully natural language
-   - Uses rule-based templates with entity slots
-   - Alternative: LLM mode (requires API key) or fine-tuned seq2seq model
-
-## Usage
-
-### 1. Web UI
-
-Access the task generation interface at: **http://localhost:8000/task-generation**
-
-#### Features:
-- **Text Input**: Paste requirements (one per line)
-- **File Upload**: Upload .txt, .md, .docx, .pdf files
-- **Live Preview**: See generated tasks with expandable cards
-- **Filters**: Filter by type (functional, security, etc.)
-- **Export**: Download as JSON or CSV
-- **Quick Examples**: Pre-loaded examples for e-commerce, auth, healthcare
-
-### 2. API Endpoints
-
-#### Generate Tasks from Text
 ```bash
-POST /api/task-generation/generate
-Content-Type: application/json
+# Make script executable
+chmod +x scripts/task_generation/train_all.sh
 
-{
-  "text": "The system must allow users to login with email and password.\nThe application shall send password reset emails.",
-  "max_tasks": 50,
-  "requirement_threshold": 0.5,
-  "epic_name": "Authentication Module",
-  "domain_hint": "security"
-}
+# Run training pipeline (uses dataset_small_10k by default)
+cd scripts/task_generation
+./train_all.sh
+
+# Or train with larger dataset
+python 01_scan_dataset.py --dataset requirement_analyzer/dataset_large_1m
+python 02_build_parquet.py --input requirement_analyzer/dataset_large_1m
+python 03_build_splits.py
+python 04_train_requirement_detector.py
+python 05_train_enrichers.py
 ```
 
-**Response:**
+### 2. Run Demo
+
+```bash
+python scripts/task_generation/demo.py
+```
+
+### 3. Start API Server
+
+```bash
+cd requirement_analyzer
+python api.py
+```
+
+### 4. Test API
+
+```bash
+# Generate tasks from text
+curl -X POST http://localhost:8000/generate-tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "The system shall support user authentication with email and password. Users must be able to reset passwords.",
+    "max_tasks": 10,
+    "epic_name": "User Management"
+  }'
+
+# Upload document and generate tasks
+curl -X POST http://localhost:8000/upload-requirements-generate-tasks \
+  -F "file=@requirements.pdf" \
+  -F "max_tasks=50" \
+  -F "epic_name=Project Alpha"
+```
+
+---
+
+## 📁 Directory Structure
+
+```
+AI-Project/
+├── requirement_analyzer/
+│   ├── task_gen/                    # Task generation module
+│   │   ├── __init__.py
+│   │   ├── schemas.py               # Pydantic models
+│   │   ├── segmenter.py             # Document segmentation
+│   │   ├── req_detector.py          # Requirement detection
+│   │   ├── enrichers.py             # Type/Priority/Domain classifiers
+│   │   ├── generator_templates.py   # Template-based generator
+│   │   ├── generator_llm.py         # LLM generator (optional)
+│   │   ├── postprocess.py           # Dedupe, merge, split
+│   │   └── pipeline.py              # Main orchestrator
+│   └── api.py                       # FastAPI with new endpoints
+├── scripts/task_generation/
+│   ├── 01_scan_dataset.py           # Scan & analyze dataset
+│   ├── 02_build_parquet.py          # Clean & convert to parquet
+│   ├── 03_build_splits.py           # Train/val/test split
+│   ├── 04_train_requirement_detector.py
+│   ├── 05_train_enrichers.py
+│   ├── train_all.sh                 # Master training script
+│   └── demo.py                      # Demo script
+├── data/
+│   ├── processed/                   # Cleaned parquet files
+│   └── splits/                      # train.parquet, val.parquet, test.parquet
+├── models/task_gen/                 # Trained models
+└── report/                          # Quality reports
+```
+
+---
+
+## 🔧 Key Components
+
+### Pipeline Stages
+
+1. **Segmentation**: Split document into sections & sentences
+2. **Detection**: Filter requirement sentences (binary classifier)
+3. **Enrichment**: Predict type/priority/domain (multi-class classifiers)
+4. **Generation**: Create task JSON (template or LLM)
+5. **Post-processing**: Dedupe, filter, quality control
+
+### Models
+
+- **RequirementDetector**: SGDClassifier (binary) - is_requirement
+- **TypeClassifier**: LogisticRegression (multi-class)
+- **PriorityClassifier**: LogisticRegression (multi-class)
+- **DomainClassifier**: LogisticRegression (multi-class)
+- **RoleAssigner**: Rule-based (can upgrade to ML later)
+
+---
+
+## 📊 API Endpoints
+
+### New Task Generation Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/generate-tasks` | POST | Generate tasks from text |
+| `/generate-tasks-estimate` | POST | Generate tasks + effort estimation |
+| `/upload-requirements-generate-tasks` | POST | Upload file + generate tasks |
+| `/tasks/feedback` | POST | Submit task feedback (learning loop) |
+
+### Existing Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/estimate` | POST | Effort estimation from text |
+| `/upload-requirements` | POST | Upload & estimate |
+| `/estimate-cocomo` | POST | COCOMO II estimation |
+
+---
+
+## 🎯 Task Schema
+
 ```json
 {
-  "tasks": [
-    {
-      "title": "Implement user login authentication",
-      "description": "The system needs to implement user authentication using email and password credentials...",
-      "type": "security",
-      "priority": "high",
-      "domain": "authentication",
-      "role": "user",
-      "story_points": 5,
-      "acceptance_criteria": [
-        "User can enter email and password",
-        "System validates credentials against database",
-        "Invalid credentials show error message",
-        "Successful login redirects to dashboard"
-      ]
-    }
+  "task_id": "uuid",
+  "title": "Implement user authentication",
+  "description": "Setup JWT-based authentication...",
+  "acceptance_criteria": [
+    "User can login with email/password",
+    "JWT tokens are properly validated",
+    "Session expires after 24 hours"
   ],
-  "total_sentences": 2,
-  "requirements_detected": 2,
-  "filtered_count": 0,
-  "processing_time": 0.45
+  "type": "security",
+  "priority": "High",
+  "domain": "general",
+  "role": "Backend",
+  "labels": ["auth", "security", "api"],
+  "story_points": 5,
+  "estimated_hours": 20.5,
+  "confidence": 0.85,
+  "source": {
+    "sentence": "Original requirement sentence...",
+    "section": "Security Requirements",
+    "doc_offset": [1234, 1456]
+  }
 }
 ```
 
-#### Generate from File
-```bash
-POST /api/task-generation/generate-from-file
-Content-Type: multipart/form-data
+---
 
-file: <requirements.txt>
-max_tasks: 50
+## 🔍 Training Data Format
+
+Input CSV schema:
+```csv
+text,is_requirement,type,priority,domain
+"The system shall...",1,functional,High,ecommerce
+"Figure 1 shows...",0,non_requirement,none,general
 ```
 
-#### Check Status
-```bash
-GET /api/task-generation/status
-```
+---
 
-**Response:**
-```json
-{
-  "available": true,
-  "mode": "model",
-  "generator_class": "ModelBasedTaskGenerator",
-  "message": "Task generation ready (mode: model)"
-}
-```
+## ⚙️ Configuration
 
-### 3. Python API
+### Training Parameters
 
 ```python
-from requirement_analyzer.task_gen import get_pipeline
+# Requirement Detector
+model_type = 'sgd'  # or 'logistic'
+calibrate = True    # probability calibration
 
-# Initialize pipeline (uses model mode by default)
-pipeline = get_pipeline()
+# Enrichers
+max_features = 5000
+ngram_range = (1, 2)
 
-# Generate tasks
-result = pipeline.generate_tasks(
-    text="""
-    The system must verify user identity through two-factor authentication.
-    Users should be able to reset their password via email link.
-    The application shall log all authentication attempts.
-    """,
-    max_tasks=50,
-    requirement_threshold=0.5
-)
-
-# Access results
-for task in result.tasks:
-    print(f"Title: {task.title}")
-    print(f"Type: {task.type}, Priority: {task.priority}")
-    print(f"Description: {task.description}")
-    print(f"Acceptance Criteria: {task.acceptance_criteria}")
-    print(f"Story Points: {task.story_points}")
-    print("---")
+# Task Generation
+max_tasks = 50
+requirement_threshold = 0.5
+similarity_threshold = 0.85  # for deduplication
 ```
 
-## Configuration
-
-### Generator Modes
-
-Set via environment variable `TASK_GEN_MODE`:
-
-1. **model** (default) - Uses trained ML models
-   - No API key required
-   - Fast (100ms per requirement)
-   - Deterministic output
-   - Pattern-based generation
-
-2. **template** - Simple rule-based templates
-   - Fastest option
-   - Most generic output
-   - Fallback if models not available
-
-3. **llm** - LLM-based generation (OpenAI/Anthropic)
-   - Requires API key
-   - Most natural language
-   - Higher cost (~$0.001 per task)
-   - Variable output
-
-```bash
-# Use model mode (default)
-python -m requirement_analyzer.api
-
-# Use LLM mode
-export TASK_GEN_MODE=llm
-export OPENAI_API_KEY=sk-...
-python -m requirement_analyzer.api
-```
-
-### Detection Threshold
-
-Control how strict requirement detection is:
+### Inference Parameters
 
 ```python
-# Strict (default): only clear requirements pass
-result = pipeline.generate_tasks(text=..., requirement_threshold=0.5)
+# Pipeline
+requirement_threshold = 0.5  # confidence threshold
+max_tasks = 50               # limit output
 
-# Lenient: catches more potential requirements
-result = pipeline.generate_tasks(text=..., requirement_threshold=0.3)
+# Post-processing
+min_task_length = 10
+similarity_threshold = 0.85  # dedupe
 ```
 
-## Model Files
+---
 
-Required model files (located in `requirement_analyzer/models/task_gen/models/`):
+## 📈 Performance Metrics
 
+Models report:
+- **Requirement Detector**: Precision, Recall, F1, ROC-AUC, PR-AUC
+- **Enrichers**: Accuracy, Macro-F1, Weighted-F1 per class
+- **Generation**: Avg confidence, task count, processing time
+
+---
+
+## 🐛 Troubleshooting
+
+### Models not found
+```bash
+# Train models first
+cd scripts/task_generation
+./train_all.sh
 ```
-requirement_detector_model.joblib        # Requirement vs non-requirement classifier
-requirement_detector_vectorizer.joblib   # TF-IDF vectorizer for detector
 
-type_model.joblib                        # Type classifier (functional, security, etc.)
-type_vectorizer.joblib                   # TF-IDF vectorizer for type
-
-priority_model.joblib                    # Priority classifier (high, medium, low)
-priority_vectorizer.joblib               # TF-IDF vectorizer for priority
-
-domain_model.joblib                      # Domain classifier (finance, healthcare, etc.)
-domain_vectorizer.joblib                 # TF-IDF vectorizer for domain
+### spaCy model missing
+```bash
+python -m spacy download en_core_web_sm
 ```
 
-All models are **trained** (not rule-based) using TF-IDF + LinearSVC on 1M+ sentences from multiple datasets.
+### Low quality tasks
+- Increase `requirement_threshold` (0.5 → 0.7)
+- Check `confidence` scores in output
+- Review training data quality
 
-## Production Status
+### Too many/few tasks
+- Adjust `max_tasks` parameter
+- Tune `requirement_threshold`
+- Check segmentation (sentence splitting)
 
-### ✅ Production-Grade Infrastructure
+---
 
-- API endpoints with proper error handling
-- Logging and telemetry
-- File upload support
-- Export to JSON/CSV
-- Configurable thresholds
-- OOD evaluation framework
-- Manual scoring rubric
+## 🔄 Retraining
 
-### ⚠️ Quality Improvements Needed
-
-- **Generic titles**: 60% → target 25-30%
-- **Coverage**: 73.6% → target 80-85%
-- **Manual pilot scoring**: Required before full deployment
-
-### Recommendation
-
-**Current Status**: **Production Candidate** (not yet "Production Ready")
-
-**Gate**: Complete manual pilot scoring (50 rows) using OOD_SCORING_RUBRIC.md
-- If avg_quality ≥ 3.5 → proceed to full evaluation
-- If avg_quality < 3.2 → fix generic titles first
-
-## Roadmap
-
-### Phase 1: Current (Model-based)
-- ✅ ML classifiers for detection + enrichment
-- ✅ Pattern-based NLG for generation
-- ✅ Web UI + API
-- ⏳ Manual pilot scoring
-- ⏳ Title quality fixes
-
-### Phase 2: Quality Improvements
-- [ ] Fix generic titles (spaCy ROOT verb + dobj)
-- [ ] Improve coverage (lower threshold + regex fallback)
-- [ ] Add pre-scoring automation
-- [ ] Full OOD evaluation (250 rows)
-
-### Phase 3: LLM Integration (Optional)
-- [ ] LLM mode with schema guardrails
-- [ ] Fine-tune seq2seq model on gold dataset
-- [ ] Hybrid mode (ML + LLM for refinement)
-
-## Testing
-
-Run the test script to verify configuration:
+When to retrain:
+- New domain data available
+- User feedback accumulated
+- Model drift detected
 
 ```bash
-./test_task_generation.sh
+# Incremental retraining with new data
+# 1. Add new data to dataset folder
+# 2. Re-run pipeline
+cd scripts/task_generation
+./train_all.sh
 ```
 
-Expected output:
-```
-✓ Model directory exists
-✓ Found 8 .joblib files
-✓ Pipeline initialized
-✓ Generator mode: model
-✓ Generated 1 task(s)
-```
+---
 
-## Examples
+## 📚 Further Reading
 
-See the web UI for interactive examples:
-- E-commerce System
-- Authentication Module
-- Healthcare Application
+- See `TECHNICAL_DOCS.md` for detailed architecture
+- See `api_documentation.md` for API specs
+- See training scripts for hyperparameter details
 
-## Support
+---
 
-For issues or questions:
-1. Check API logs: `/tmp/api_log.txt`
-2. Verify models exist: `ls requirement_analyzer/models/task_gen/models/*.joblib`
-3. Test configuration: `./test_task_generation.sh`
-4. Review OOD evaluation results: `docs/OOD_EVALUATION_REPORT.pdf`
+## 🤝 Contributing
 
-## Credits
+To add new features:
 
-Developed as part of AI-powered Software Effort Estimation system.
-Uses spaCy for NLP, scikit-learn for ML, and FastAPI for serving.
+1. **New label classifier**: Add to `enrichers.py`
+2. **Custom generator**: Implement `TaskGeneratorBase` interface
+3. **New post-processor**: Extend `TaskPostProcessor`
+4. **Feedback loop**: Use `/tasks/feedback` endpoint data
+
+---
+
+## 📊 Metrics & Monitoring
+
+Key metrics to track:
+- Task generation success rate
+- Average confidence scores
+- User acceptance rate (via feedback)
+- Processing time per document
+- Model performance on validation set
+
+---
+
+**Version**: 1.0.0  
+**Last Updated**: 2026-01-20
