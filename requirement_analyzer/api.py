@@ -324,7 +324,7 @@ def get_json_schemas():
         # V1 Models
         schemas["RequirementText"] = RequirementText.model_json_schema()
         schemas["TaskList"] = TaskList.model_json_schema()
-        schemas["EstimationRequest"] = EstimationRequest.model_json_schema()
+        schemas["COCOMOParameters"] = COCOMOParameters.model_json_schema()
         
         # Task Generation Models
         from requirement_analyzer.task_gen import TaskGenerationRequest, TaskGenerationResponse, TaskFeedback
@@ -339,10 +339,12 @@ def get_json_schemas():
                 AcceptanceCriterion,
                 RefinementOutput,
                 Gap,
-                GapDetectionOutput,
-                StorySlice,
-                SliceOutput,
+                GapReport,
+                Slice,
+                SlicingOutput,
                 INVESTScore,
+                UserStory,
+                Subtask,
                 SeverityLevel,
                 RequirementType,
                 GapType,
@@ -355,9 +357,11 @@ def get_json_schemas():
             schemas["AcceptanceCriterion"] = AcceptanceCriterion.model_json_schema()
             schemas["RefinementOutput"] = RefinementOutput.model_json_schema()
             schemas["Gap"] = Gap.model_json_schema()
-            schemas["GapDetectionOutput"] = GapDetectionOutput.model_json_schema()
-            schemas["StorySlice"] = StorySlice.model_json_schema()
-            schemas["SliceOutput"] = SliceOutput.model_json_schema()
+            schemas["GapReport"] = GapReport.model_json_schema()
+            schemas["UserStory"] = UserStory.model_json_schema()
+            schemas["Subtask"] = Subtask.model_json_schema()
+            schemas["Slice"] = Slice.model_json_schema()
+            schemas["SlicingOutput"] = SlicingOutput.model_json_schema()
             schemas["INVESTScore"] = INVESTScore.model_json_schema()
             
             # Enums
@@ -400,9 +404,9 @@ def get_json_schemas():
             "schemas": schemas,
             "schema_count": len(schemas),
             "categories": {
-                "v1_estimation": ["RequirementText", "TaskList", "EstimationRequest"],
+                "v1_estimation": ["RequirementText", "TaskList", "COCOMOParameters"],
                 "task_generation": ["TaskGenerationRequest", "TaskGenerationResponse", "TaskFeedback"],
-                "v2_requirements": ["Requirement", "RefinementOutput", "Gap", "GapDetectionOutput", "StorySlice", "SliceOutput"],
+                "v2_requirements": ["Requirement", "RefinementOutput", "Gap", "GapReport", "UserStory", "Subtask", "Slice", "SlicingOutput"],
                 "v2_quality": ["INVESTScore", "AcceptanceCriterion"],
                 "enums": ["SeverityLevel", "RequirementType", "GapType", "SliceRationale", "TaskRole"]
             }
