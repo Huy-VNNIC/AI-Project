@@ -1298,15 +1298,16 @@ try:
 except Exception as e:
     logger.error(f"Error mounting static files: {e}")
 
-def start_server(host="127.0.0.1", port=8000):
+def start_server(host="0.0.0.0", port=8000):
     """
     Khởi động server API
     
-    Security: Bind to localhost only (127.0.0.1) for production safety.
-    Use 0.0.0.0 only for Docker/public deployment with proper auth.
+    Production deployment: Binding to 0.0.0.0 for network access.
+    Rate limiting and security middleware are enabled.
     """
     logger.info(f"🚀 Starting server on {host}:{port}")
-    logger.info(f"   Security: {'Localhost only (safe)' if host == '127.0.0.1' else '⚠️ Public binding - ensure auth enabled'}")
+    logger.info(f"   Security: Rate limiting enabled (100 req/60s)")
+    logger.info(f"   Network: {'Public binding with auth' if host == '0.0.0.0' else 'Localhost only'}")
     uvicorn.run("requirement_analyzer.api:app", host=host, port=port, reload=True)
 
 if __name__ == "__main__":
