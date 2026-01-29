@@ -111,11 +111,58 @@ class COCOMOParameters(BaseModel):
     # Estimation Method
     method: Optional[str] = "weighted_average"
 
-# Khởi tạo FastAPI app
+# Khởi tạo FastAPI app với Swagger UI configuration
 app = FastAPI(
     title="Software Effort Estimation & Task Generation API",
-    description="API để phân tích yêu cầu phần mềm, ước lượng nỗ lực phát triển, và tự động sinh task",
-    version="2.0.0"
+    description="""
+    ## API Phân tích Requirements và Ước lượng Nỗ lực
+    
+    API này cung cấp các chức năng:
+    - 📊 **V1 Estimation**: Ước lượng nỗ lực với COCOMO II, LOC, Multi-model
+    - 🤖 **V2 Requirements Engineering**: Phân tích, làm mịn, phát hiện gaps, slice requirements
+    - 📝 **Task Generation**: Tự động sinh tasks từ requirements
+    - 🔄 **Integration**: Kết nối với Jira, Trello
+    
+    ### 🔐 Security
+    - Rate limiting: 100 requests per 60 seconds
+    - File validation: Max 2MB, safe file types only
+    
+    ### 📚 Documentation
+    - **Swagger UI**: `/docs` (Interactive API documentation)
+    - **ReDoc**: `/redoc` (Alternative documentation)
+    - **OpenAPI Schema**: `/openapi.json` (Machine-readable spec)
+    - **JSON Schemas**: `/api/schemas` (Data model schemas)
+    """,
+    version="2.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    openapi_tags=[
+        {
+            "name": "Health",
+            "description": "Health check endpoints"
+        },
+        {
+            "name": "V1 Estimation",
+            "description": "COCOMO II và LOC estimation endpoints"
+        },
+        {
+            "name": "Task Generation",
+            "description": "AI-powered task generation từ requirements"
+        },
+        {
+            "name": "V2 Requirements Engineering",
+            "description": "Pipeline phân tích và làm mịn requirements"
+        },
+        {
+            "name": "Integration",
+            "description": "Jira, Trello integration endpoints"
+        },
+        {
+            "name": "Schemas",
+            "description": "JSON Schema definitions"
+        }
+    ]
 )
 
 # ============================================================================
@@ -243,17 +290,178 @@ async def favicon():
     )
     return Response(content=png_data, media_type="image/png")
 
-@app.get("/health")
+@app.get("/health", tags=["Health"])
 def health_check():
     """
     Health check endpoint for monitoring
+    
+    Returns:
+        - status: healthy/unhealthy
+        - service: service name
     """
     return {"status": "healthy", "service": "ai-estimation-api"}
 
-@app.post("/estimate")
+
+@app.get("/api/schemas", tags=["Schemas"], summary="Get all JSON Schemas")
+def get_json_schemas():
+    """
+    Export JSON Schema definitions cho tất cả data models
+    
+    Trả về JSON schemas cho:
+    - V1 Models: RequirementText, TaskList, EstimationRequest, etc.
+    - V2 Models: Requirement, RefinementOutput, Gap, SliceOutput, etc.
+    - Task Generation Models: TaskGenerationRequest, TaskGenerationResponse
+    
+    JSON Schema có thể dùng để:
+    - Validate input/output data
+    - Generate client code (TypeScript, Python, etc.)
+    - API documentation tools
+    - Form generation
+    """
+    try:
+        schemas = {}
+        
+        # V1 Models
+        schemas["RequirementText"] = RequirementText.model_json_schema()
+        schemas["TaskList"] = TaskList.model_json_schema()
+        schemas["EstimationRequest"] = EstimationRequest.model_json_schema()
+        
+        # Task Generation Models
+        from requirement_analyzer.task_gen import TaskGenerationRequest, TaskGenerationResponse, TaskFeedback
+        schemas["TaskGenerationRequest"] = TaskGenerationRequest.model_json_schema()
+        schemas["TaskGenerationResponse"] = TaskGenerationResponse.model_json_schema()
+        schemas["TaskFeedback"] = TaskFeedback.model_json_schema()
+        
+        # V2 Requirements Engineering Models
+        try:
+            from requirement_analyzer.task_gen.schemas_v2 import (
+                Requirement,
+                AcceptanceCriterion,
+                RefinementOutput,
+                Gap,
+                GapDetectionOutput,
+                StorySlice,
+                SliceOutput,
+                INVESTScore,
+                SeverityLevel,
+                RequirementType,
+                GapType,
+                SliceRationale,
+                TaskRole
+            )
+            
+            # Data Models
+            schemas["Requirement"] = Requirement.model_json_schema()
+            schemas["AcceptanceCriterion"] = AcceptanceCriterion.model_json_schema()
+            schemas["RefinementOutput"] = RefinementOutput.model_json_schema()
+            schemas["Gap"] = Gap.model_json_schema()
+            schemas["GapDetectionOutput"] = GapDetectionOutput.model_json_schema()
+            schemas["StorySlice"] = StorySlice.model_json_schema()
+            schemas["SliceOutput"] = SliceOutput.model_json_schema()
+            schemas["INVESTScore"] = INVESTScore.model_json_schema()
+            
+            # Enums
+            schemas["SeverityLevel"] = {
+                "type": "string",
+                "enum": [e.value for e in SeverityLevel],
+                "description": "Severity levels for gaps and issues"
+            }
+            schemas["RequirementType"] = {
+                "type": "string",
+                "enum": [e.value for e in RequirementType],
+                "description": "Types of requirements"
+            }
+            schemas["GapType"] = {
+                "type": "string",
+                "enum": [e.value for e in GapType],
+                "description": "Types of gaps detected in requirements"
+            }
+            schemas["SliceRationale"] = {
+                "type": "string",
+                "enum": [e.value for e in SliceRationale],
+                "description": "Rationale for creating a story slice"
+            }
+            schemas["TaskRole"] = {
+                "type": "string",
+                "enum": [e.value for e in TaskRole],
+                "description": "Roles for task assignment"
+            }
+            
+        except ImportError as e:
+            logger.warning(f"V2 schemas not available: {e}")
+        
+        return {
+            "openapi_version": "3.1.0",
+            "info": {
+                "title": "Software Effort Estimation API - Data Models",
+                "version": "2.0.0",
+                "description": "JSON Schema definitions for all API data models"
+            },
+            "schemas": schemas,
+            "schema_count": len(schemas),
+            "categories": {
+                "v1_estimation": ["RequirementText", "TaskList", "EstimationRequest"],
+                "task_generation": ["TaskGenerationRequest", "TaskGenerationResponse", "TaskFeedback"],
+                "v2_requirements": ["Requirement", "RefinementOutput", "Gap", "GapDetectionOutput", "StorySlice", "SliceOutput"],
+                "v2_quality": ["INVESTScore", "AcceptanceCriterion"],
+                "enums": ["SeverityLevel", "RequirementType", "GapType", "SliceRationale", "TaskRole"]
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating schemas: {e}")
+        raise HTTPException(status_code=500, detail=f"Error generating schemas: {str(e)}")
+
+
+@app.get("/api/schemas/{model_name}", tags=["Schemas"], summary="Get specific JSON Schema")
+def get_schema_by_name(model_name: str):
+    """
+    Lấy JSON Schema cho một model cụ thể
+    
+    Parameters:
+        - model_name: Tên model (RequirementText, RefinementOutput, Gap, etc.)
+    
+    Example:
+        GET /api/schemas/RefinementOutput
+    """
+    try:
+        # Get all schemas first
+        all_schemas = get_json_schemas()
+        
+        if model_name not in all_schemas["schemas"]:
+            available = ", ".join(all_schemas["schemas"].keys())
+            raise HTTPException(
+                status_code=404,
+                detail=f"Schema '{model_name}' not found. Available schemas: {available}"
+            )
+        
+        return {
+            "model_name": model_name,
+            "schema": all_schemas["schemas"][model_name],
+            "openapi_version": "3.1.0"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting schema for {model_name}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/estimate", tags=["V1 Estimation"], summary="Simple text estimation")
 def estimate_effort_simple(req: RequirementText):
     """
     Endpoint đơn giản để ước lượng effort từ văn bản requirements
+    
+    **Input:**
+    - text: Văn bản requirements (Vietnamese/English)
+    - method: Integration method (weighted_average, best_model, stacking, bayesian_average)
+    
+    **Output:**
+    - Total effort (person-months)
+    - Duration (months)
+    - Team size
+    - Confidence level
+    - Model breakdown
     """
     try:
         # Sử dụng method được chỉ định hoặc mặc định
@@ -274,10 +482,12 @@ def estimate_effort_simple(req: RequirementText):
         logger.error(f"Error in estimate_effort_simple: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/analyze")
+@app.post("/analyze", tags=["V1 Estimation"], summary="Analyze requirements document")
 def analyze_requirements(req: RequirementText):
     """
     Phân tích tài liệu yêu cầu và trả về kết quả phân tích
+    
+    **Output:** Requirements analysis with metrics and insights
     """
     try:
         # Phân tích văn bản
@@ -303,15 +513,19 @@ def analyze_requirements(req: RequirementText):
         logger.error(f"Error estimating effort: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/upload-requirements")
+@app.post("/upload-requirements", tags=["V1 Estimation"], summary="Upload and estimate from file")
 async def upload_requirements(file: UploadFile = File(...), method: str = Form("weighted_average")):
     """
     Tải lên tài liệu yêu cầu và ước lượng nỗ lực
     
-    Supported formats:
+    **Supported formats:**
     - .txt, .md: Plain text files
     - .pdf: PDF documents
     - .doc, .docx: Microsoft Word documents
+    
+    **Parameters:**
+    - file: Document file (max 2MB)
+    - method: Integration method (weighted_average, best_model, etc.)
     """
     try:
         # Import parser here to avoid circular imports
@@ -374,10 +588,12 @@ async def upload_requirements(file: UploadFile = File(...), method: str = Form("
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/estimate-from-tasks")
+@app.post("/estimate-from-tasks", tags=["V1 Estimation"], summary="Estimate from task list")
 def estimate_from_tasks(tasks: TaskList):
     """
     Ước lượng nỗ lực từ danh sách công việc (tasks)
+    
+    **Input:** Array of tasks with title, description, priority, complexity
     """
     try:
         # Chuyển đổi tasks thành văn bản yêu cầu
@@ -834,12 +1050,23 @@ async def task_generation_status():
     }
 
 
-@app.post("/api/task-generation/generate")
+@app.post("/api/task-generation/generate", tags=["Task Generation"], summary="Generate tasks from text")
 async def generate_tasks_api(request: TaskGenerationRequest):
     """
     Generate tasks from requirements text - New UI endpoint
     
-    Returns tasks in simple format for UI display
+    **Input:**
+    - text: Requirements document text
+    - max_tasks: Maximum tasks to generate (default: 50)
+    - requirement_threshold: Detection confidence threshold (default: 0.5)
+    - epic_name: Optional epic name
+    - domain_hint: Optional domain classification
+    
+    **Output:**
+    - tasks: Array of generated tasks with title, description, priority, complexity
+    - stats: Generation statistics
+    - total_story_points: Estimated story points
+    - estimated_duration_days: Estimated duration
     """
     if task_pipeline is None:
         raise HTTPException(
@@ -884,7 +1111,7 @@ async def generate_tasks_api(request: TaskGenerationRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/task-generation/generate-from-file")
+@app.post("/api/task-generation/generate-from-file", tags=["Task Generation"], summary="Generate tasks from file")
 async def generate_tasks_from_file(
     file: UploadFile = File(...),
     max_tasks: int = Form(200),
@@ -893,10 +1120,13 @@ async def generate_tasks_from_file(
     """
     Generate tasks from uploaded file (txt/docx/pdf)
     
-    Improved pipeline:
+    **Improved pipeline:**
     1. Extract text from file (auto-detect format)
     2. Extract requirement candidates (filter notes/headings)
     3. Generate tasks from requirements
+    
+    **Supported formats:** .txt, .md, .pdf, .doc, .docx
+    **Max file size:** 2MB
     """
     if task_pipeline is None:
         raise HTTPException(
