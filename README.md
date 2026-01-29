@@ -6,12 +6,10 @@ This project provides tools for software effort estimation using various models 
 
 The project is organized as follows:
 
-- **docs/**: Documentation
-  - **api_docs/**: API documentation
-  - **research/**: Research papers and reports
-  - **user_guides/**: User guides
-  - **diagrams/**: Diagrams and images
-
+- **app/**: Main application code
+  - Flask/FastAPI web application
+  - API routes and endpoints
+  
 - **src/**: Source code
   - **api/**: API endpoints
   - **models/**: ML models
@@ -23,13 +21,36 @@ The project is organized as follows:
   - **utils/**: Utility functions
   - **data_processing/**: Data processing scripts
 
+- **docs/**: Documentation
+  - API documentation, user guides, research papers
+  - Detailed guides for features and deployment
+  
+- **scripts/**: Shell scripts (`.sh` files)
+  - Deployment, testing, and management scripts
+  - See [scripts/README.md](scripts/README.md) for details
+
+- **docker/**: Docker configuration
+  - Dockerfiles and docker-compose files
+  - Nginx configuration
+  - See [docker/README.md](docker/README.md) for details
+
+- **tools/**: Utility Python scripts
+  - Demo scripts, testing tools, model trainers
+  - See [tools/README.md](tools/README.md) for details
+
+- **config/**: Configuration files
+  - Requirements files, CSV data, patches
+  - See [config/README.md](config/README.md) for details
+
 - **notebooks/**: Jupyter notebooks for analysis and demonstrations
+
 - **tests/**: Test files
-- **scripts/**: Shell scripts for running, deploying, and setting up
+
 - **data/**: Data files
   - **raw/**: Raw data
   - **processed/**: Processed data
-- **static/**: Static resources
+  
+- **static/**: Static resources (CSS, JS, images)
 
 ## Getting Started
 
