@@ -83,7 +83,26 @@ Accurately estimating software development effort is a critical factor in determ
 
 A wide range of factors affect estimation accuracy, including project size, functional complexity, development methodology, team capability, and organizational context. Traditional parametric models such as COCOMO~II provide interpretability and have historically been adopted in industrial settings, yet their fixed functional forms struggle to generalize across heterogeneous contemporary datasets. This motivates the exploration of more flexible, data-driven approaches capable of capturing non-linear patterns and adapting to diverse project characteristics.
 
-In this work, we address these challenges by designing a unified machine-learning framework for software effort estimation. Specifically, this study pursues three objectives: (i) to develop an integrated estimation framework that supports three major sizing schemas—Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP); (ii) to empirically compare the performance of multiple machine-learning regressors against a calibrated size-only parametric baseline using standard evaluation metrics such as MMRE, PRED(25), MAE, MdAE, RMSE, and $R^2$; and (iii) to analyze the behavior of each model within individual sizing schemas in order to provide practical insights for software project managers.
+\paragraph{What is known.}
+Software effort estimation (SEE) has long relied on parametric models (e.g., COCOMO-family) and, more recently, machine-learning regressors. Prior studies consistently show that ensemble methods (Random Forest, Gradient Boosting) can improve predictive accuracy on individual datasets, and multi-schema approaches (LOC/FP/UCP) acknowledge the diversity of sizing conventions across projects.
+
+\paragraph{What is missing.}
+However, three critical issues frequently limit the strength and reproducibility of reported gains: 
+(i) \textbf{weak auditability} of pooled datasets—provenance, licensing, deduplication rules, and rebuildability are often unclear, making independent replication difficult; 
+(ii) \textbf{unfair or non-reproducible parametric baselines}—when cost drivers (effort multipliers, scale factors) are unavailable, COCOMO~II is often applied with arbitrary default parameters, creating straw-man comparisons; and 
+(iii) \textbf{ambiguous ``overall'' reporting}—cross-schema aggregations may be dominated by the largest schema (typically LOC), masking true behavior on FP/UCP, and small-sample protocols (e.g., FP with $n<200$) are often inadequately addressed.
+
+\paragraph{Research gap.}
+As a result, the community lacks a cross-schema benchmark that is simultaneously: (a) auditable end-to-end with explicit dataset manifest and leakage controls, (b) fair in baseline comparison under missing cost drivers, and (c) methodologically sound in aggregation (macro vs. micro averaging) and small-sample protocols (e.g., LOOCV for limited data).
+
+\paragraph{Our approach.}
+This study addresses these gaps through four concrete contributions: 
+(1) an \textbf{auditable dataset manifest} (Table~\ref{tab:dataset-manifest}) documenting source, year, DOI/URL, raw counts, deduplication rules, and rebuild scripts for full reproducibility; 
+(2) a \textbf{fair calibrated parametric baseline} (Section~\ref{sec:baseline})—a size-only power-law model fitted on training data per schema and seed—ensuring principled comparison when cost drivers are missing; 
+(3) \textbf{schema-appropriate evaluation protocols}, including Leave-One-Out Cross-Validation (LOOCV) and bootstrap confidence intervals for small-sample FP, plus explicit macro/micro aggregation to avoid LOC dominance; and 
+(4) \textbf{ablation analysis} (Section~\ref{sec:ablation}) quantifying contributions of harmonization, log-scaling, and outlier control.
+
+In this work, we empirically compare multiple machine-learning regressors (Linear Regression, Decision Tree, Random Forest, Gradient Boosting) against the calibrated baseline using standard evaluation metrics (MMRE, MdMRE, PRED(25), MAE, MdAE, RMSE, $R^2$), and analyze behavior within individual sizing schemas to provide practical insights for software project managers.
 
 \paragraph{Research Gaps Addressed.}
 Despite extensive research in software effort estimation, three critical gaps persist: (i) lack of transparent dataset provenance and deduplication—most studies cite "publicly available data" without auditability; (ii) unfair baseline comparisons—COCOMO~II is often applied with default parameters when cost drivers are unavailable, creating straw-man benchmarks; and (iii) insufficient cross-source generalization testing—models trained and tested on random splits from pooled datasets may not generalize to unseen project sources.
@@ -132,7 +151,7 @@ Uncalibrated COCOMO~II with default parameters (e.g., $B=1.01$ for organic mode)
 with constants \(C, D\) calibrated on historical datasets.
 
 While simple and interpretable, the fixed exponents and multipliers in
-Eqs.~\ref{eq:cocomo-effort}--\ref{eq:cocomo-time} often underfit heterogeneous,
+Eqs.~\ref{eq:cocomo-full}--\ref{eq:cocomo-time} often underfit heterogeneous,
 contemporary datasets, motivating the exploration of machine learning
 methods that adapt more flexibly to diverse data sources.
 
@@ -140,10 +159,18 @@ methods that adapt more flexibly to diverse data sources.
     \centering
     \includegraphics[width=0.95\linewidth]{cocomo_vs_ml.png}
     \caption{Workflow comparison between (a) the traditional COCOMO~II pipeline 
-    (Eqs.~\ref{eq:cocomo-effort}--\ref{eq:cocomo-time}) and (b) the proposed 
-    multi-schema ML framework.}
+    (Eqs.~\ref{eq:cocomo-full}--\ref{eq:cocomo-time}) and (b) the proposed 
+    multi-schema ML framework. The proposed pipeline emphasizes: (i) auditable dataset manifest with explicit deduplication; (ii) schema-specific preprocessing (unit harmonization, IQR capping, log transforms); (iii) calibrated size-only parametric baseline for fair comparison; (iv) schema-appropriate evaluation (stratified 80/20 for LOC/UCP, LOOCV for FP); (v) macro-averaging to avoid LOC dominance.}
     \label{fig:cocomo-vs-ml}
 \end{figure}
+
+\paragraph{Walk-through of Figure~\ref{fig:cocomo-vs-ml}.}
+Figure~\ref{fig:cocomo-vs-ml} illustrates the end-to-end pipeline.
+\textbf{Step 1 (Input):} We ingest heterogeneous datasets from multiple sources (1993--2022) and partition them by schema (LOC/FP/UCP) according to the dataset manifest (Table~\ref{tab:dataset-manifest}).
+\textbf{Step 2 (Preprocessing):} We apply unit harmonization (effort $\to$ person-months, LOC $\to$ KLOC), handle missing values via median imputation (only for raw-reported features, no target-derived features), apply IQR-based outlier capping, and optional log transforms for linear models.
+\textbf{Step 3 (Training):} We train and tune models \emph{within each schema independently} using the designated protocol: stratified 80/20 split with 5-fold inner CV for hyperparameter selection (LOC/UCP), or Leave-One-Out Cross-Validation (LOOCV) for FP due to limited sample size ($n=158$). The calibrated baseline (Eq.~\ref{eq:baseline-calibrated}) is fitted on training data only per seed.
+\textbf{Step 4 (Evaluation):} We evaluate on held-out test data (or pooled LOOCV predictions for FP) and report per-schema metrics (MMRE, MdMRE, MAE, MdAE, RMSE), plus overall macro-averaged and micro-averaged performance (Section~\ref{sec:aggregation}).
+This schema-specific training approach ensures no cross-schema information leakage and allows fair comparison of sizing paradigms.
 
 
 
@@ -948,11 +975,31 @@ under modern empirical software engineering standards.
 
 
 
+\subsection{Assumptions \& Limitations}
+\label{sec:assumptions}
+
+To ensure transparency and facilitate replication, we explicitly state the assumptions and limitations of this study:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Schema-specific training (no cross-schema transfer).} We train separate models per schema (LOC/FP/UCP) and do not claim transferability between schemas, as features and measurement semantics differ fundamentally. Cross-schema transfer learning remains an open research question.
+  
+  \item \textbf{Small-sample FP (low statistical power).} The FP schema contains $n=158$ projects after deduplication. While we adopt LOOCV and bootstrap confidence intervals to maximize statistical efficiency, FP results should be interpreted as \textbf{exploratory} and require validation on larger FP corpora. PRED(25) is particularly unstable for small test sets.
+  
+  \item \textbf{Size-only parametric baseline.} Our ``COCOMO-like'' baseline (Eq.~\ref{eq:baseline-calibrated}) is intentionally size-only because most public FP/UCP datasets lack COCOMO~II cost drivers (effort multipliers, scale factors). Thus, it is \textbf{not a full Post-Architecture COCOMO~II} instantiation but rather a fair parametric lower bound using only information available to ML models.
+  
+  \item \textbf{Unit conversion assumptions.} Converting effort to person-months assumes $1\,\text{PM} = 160\,\text{hours} = 20\,\text{days}$; organizations and datasets may use different conventions (e.g., 152 hours/month). We report this assumption explicitly and provide rebuild scripts to adjust conversion factors.
+  
+  \item \textbf{Target leakage controls.} We retain developer count only when explicitly reported in original sources; we do \textbf{not} derive team size from \texttt{ceil(Effort/Time)} to avoid target leakage. Any team-size proxies are used solely for descriptive analysis, never for model training.
+  
+  \item \textbf{Public-data bias.} Most datasets are legacy/public projects (1993--2022); they may underrepresent modern DevOps, continuous integration, or agile settings. Conclusions focus on \textbf{methodological benchmarking} (auditability, fair baselines, aggregation transparency) rather than universal industrial prescriptions.
+\end{itemize}
+
+\noindent These limitations do not invalidate the findings but clarify the scope and generalizability of this study. Future work should incorporate industrial repositories, DevOps telemetry, and larger FP/UCP datasets to strengthen external validity.
+
 \section{Threats to Validity}
+\label{sec:threats}
 
-
-Despite rigorous experimentation and reproducibility controls, 
-several validity threats may affect the interpretation and generalizability of our findings.
+Beyond the stated assumptions, several validity threats may affect the interpretation and generalizability of our findings.
 We categorize them following standard empirical software engineering practice 
 into \textit{internal}, \textit{external}, \textit{construct}, and \textit{conclusion} validity.
 
@@ -1026,6 +1073,41 @@ and hybrid ensembles~\cite{pandey2023comprehensive,alqadi2021deep}).
 Despite improved accuracy, issues of \textit{reproducibility} 
 and \textit{cross-schema comparability} (LOC, FP, UCP) 
 remain insufficiently explored.
+
+\subsection{Comparison with Prior Work}
+
+Table~\ref{tab:related-compare} systematically compares representative SEE studies across five dimensions: (i) sizing schema(s), (ii) dataset(s) used, (iii) models evaluated, (iv) evaluation protocol, and (v) reproducibility (code/data availability). While many studies explore ensemble learners and deep models to improve predictive accuracy, fewer provide end-to-end auditability\textemdash explicit dataset provenance with licensing, deduplication rules, and rebuild scripts. Moreover, most works do not address fair parametric baselines when cost drivers are unavailable, nor do they explicitly report macro vs. micro aggregation across schemas, which can lead to LOC-dominated ``overall'' claims that obscure FP/UCP behavior. 
+
+\begin{table*}[ht]
+\centering
+\caption{Comparison with representative SEE studies: sizing schemas, datasets, models, evaluation protocols, and reproducibility.}
+\label{tab:related-compare}
+\small
+\begin{tabular}{@{}p{3.0cm}p{1.3cm}p{2.8cm}p{2.5cm}p{2.8cm}p{1.3cm}@{}}
+\toprule
+\textbf{Study} & \textbf{Schema} & \textbf{Datasets} & \textbf{Models} & \textbf{Eval. Protocol} & \textbf{Repro?} \\
+\midrule
+Boehm (1981) COCOMO & LOC & NASA/aerospace (proprietary) & Parametric (power-law + drivers) & Hold-out test & No \\
+Albrecht (1979) FP & FP & IBM (proprietary) & Linear regression & Retrospective validation & No \\
+Karner (1993) UCP & UCP & Ericsson (proprietary) & Weighted sum formula & Industrial case & No \\
+\midrule
+Minku \& Yao (2013)~\cite{minku2013ensembles} & LOC & NASA, COCOMO81 & Bagging, Boosting, Online ensembles & Cross-validation & Partial \\
+Wen et al. (2012)~\cite{wen2012systematic} & LOC & ISBSG, COCOMO81 & SVM, NN, GP & Hold-out test & Partial \\
+Choetkiertikul et al. (2018)~\cite{choetkiertikul2018deep} & LOC & ISBSG, Tukutuku & LSTM, CNN & 10-fold CV & No \\
+Pandey et al. (2023)~\cite{pandey2023comprehensive} & LOC, FP & ISBSG, Desharnais & RF, XGBoost, LightGBM & 5-fold CV & Partial \\
+Alqadi et al. (2021)~\cite{alqadi2021deep} & LOC & NASA93, Cocomo81 & Deep NN, Hybrid ensembles & Stratified CV & No \\
+\midrule
+\textbf{This work} & \makecell[l]{LOC\\FP\\UCP} & \makecell[l]{3,054 projects\\(manifested,\\deduplicated)} & \makecell[l]{LR, DT, RF, GB\\+ calibrated\\size-only baseline} & \makecell[l]{Stratified 80/20 (LOC/UCP)\\+ LOOCV (FP)\\+ bootstrap CI\\+ macro/micro aggregation} & \makecell[l]{\textbf{Yes}\\(scripts\\+ hashes)} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{Gap relative to prior work.}
+While prior studies have explored stronger learners (ensembles, deep models, hybrid architectures), our work targets three \\textbf{methodological gaps} that limit reproducibility and fairness in cross-schema benchmarking:
+(i) \\textbf{Dataset provenance}\textemdash we provide a full manifest (Table~\\ref{tab:dataset-manifest}) with source URLs, DOIs, year ranges, raw/deduplicated counts, licensing terms, and rebuild scripts, enabling independent replication;
+(ii) \\textbf{Fair parametric baseline}\textemdash our size-only power-law baseline (Eq.~\\ref{eq:baseline-calibrated}) is calibrated on training data per schema and seed, avoiding straw-man COCOMO~II comparisons when cost drivers are unavailable;
+(iii) \\textbf{Explicit aggregation}\textemdash we report both macro-averaged (equal weight per schema) and micro-averaged (pooled) metrics, preventing LOC dominance in overall conclusions, and adopt LOOCV + bootstrap CI for small-sample FP.
+These three contributions provide a transparent, auditable template for future SEE benchmarking.
 
 \subsection{Comparison of Estimation Paradigms}
 
@@ -1134,6 +1216,24 @@ to enhance cross-organizational robustness; and
 for continuous calibration and real-time forecasting.
 Such directions will help close the gap between academic research
 and operational project decision-making.
+
+\paragraph{Strengths.}
+This work provides: 
+(i) an \textbf{auditable dataset manifest} with explicit deduplication, licensing, and rebuild scripts—enabling independent replication; 
+(ii) a \textbf{fair calibrated parametric baseline} fitted on training data only, avoiding straw-man comparisons when cost drivers are unavailable; 
+(iii) \textbf{schema-appropriate evaluation protocols} (LOOCV for small-sample FP, stratified 80/20 for LOC/UCP, bootstrap confidence intervals); 
+(iv) \textbf{explicit macro/micro aggregation}, preventing LOC dominance in cross-schema conclusions; and 
+(v) \textbf{ablation analysis} (Section~\ref{sec:ablation}) demonstrating preprocessing contributions.
+
+\paragraph{Weaknesses.}
+(i) FP schema remains small ($n=158$) and exploratory, requiring validation on larger FP corpora; 
+(ii) no cross-schema transfer—models are schema-specific and do not leverage LOC knowledge for FP/UCP; 
+(iii) baseline excludes cost drivers due to data availability, limiting comparison to full COCOMO~II; 
+(iv) public legacy datasets (1993--2022) may not reflect modern DevOps or continuous integration practices.
+
+\paragraph{Implications.}
+\textbf{Methodologically}, future SEE papers can adopt our manifest + baseline + aggregation template to make ``overall'' claims defensible and reproducible. 
+\textbf{Practically}, ensembles (RF/GB) provide robust default estimators when only size-like signals are available, achieving 42\% lower MMRE than calibrated parametric baselines while maintaining interpretable variable importance.
 
 \paragraph{Closing Remarks.}
 Beyond confirming the strength of ensemble learners,
