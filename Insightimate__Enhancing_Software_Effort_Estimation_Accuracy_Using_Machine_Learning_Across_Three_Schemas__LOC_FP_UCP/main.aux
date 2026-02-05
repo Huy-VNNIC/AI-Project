@@ -46,8 +46,8 @@
 \citation{jones2022estimation}
 \citation{rodriguez2023dase}
 \citation{huynh2023stacking,zenodo7022735}
-\@writefile{toc}{\contentsline {paragraph}{Mean Absolute Error (MAE).}{5}{section*.8}\protected@file@percent }
-\newlabel{eq:mae}{{8}{5}{Mean Absolute Error (MAE)}{equation.2.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Mean Absolute Error (MAE) and Median Absolute Error (MdAE).}{5}{section*.8}\protected@file@percent }
+\newlabel{eq:mae-mdae}{{8}{5}{Mean Absolute Error (MAE) and Median Absolute Error (MdAE)}{equation.2.8}{}}
 \@writefile{toc}{\contentsline {paragraph}{Root Mean Square Error (RMSE).}{5}{section*.9}\protected@file@percent }
 \newlabel{eq:rmse}{{9}{5}{Root Mean Square Error (RMSE)}{equation.2.9}{}}
 \@writefile{toc}{\contentsline {paragraph}{Coefficient of Determination ($R^2$).}{5}{section*.10}\protected@file@percent }
@@ -66,7 +66,7 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Unit Harmonization}{7}{subsection.3.2}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Comprehensive reference of unit conversions used in the harmonization process. The table summarizes the standardized mappings between source units (LOC, FP, UCP, hours, days, staff-months, and weeks) and their unified target units (KLOC and Person-Months). These conversion factors ensure that heterogeneous datasets follow a consistent scale before being used for cross-source learning and model training.\relax }}{7}{figure.caption.18}\protected@file@percent }
 \newlabel{fig:unit-harmonization}{{2}{7}{Comprehensive reference of unit conversions used in the harmonization process. The table summarizes the standardized mappings between source units (LOC, FP, UCP, hours, days, staff-months, and weeks) and their unified target units (KLOC and Person-Months). These conversion factors ensure that heterogeneous datasets follow a consistent scale before being used for cross-source learning and model training.\relax }{figure.caption.18}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Missing Values and Outliers}{7}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Missing Values and Outliers}{8}{subsection.3.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Handling missing values.}{8}{section*.19}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Outlier detection and capping.}{8}{section*.20}\protected@file@percent }
 \newlabel{eq:iqr-clipping}{{11}{8}{Outlier detection and capping}{equation.3.11}{}}
@@ -85,85 +85,91 @@
 \@writefile{toc}{\contentsline {section}{\numberline {4}Experimental Setup}{11}{section.4}\protected@file@percent }
 \newlabel{sec:exp-setup}{{4}{11}{Experimental Setup}{section.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Train–Test Protocol}{11}{subsection.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces High-level experimental pipeline (per schema). Data are split into \textbf  {80\% Training} and \textbf  {20\% Test}; \textbf  {5-fold CV} is used for tuning inside training only. The best configuration is refit on full training, evaluated once on test, and results are averaged over \textbf  {10 random seeds}.\relax }}{11}{figure.caption.27}\protected@file@percent }
-\newlabel{fig:exp-pipeline}{{8}{11}{High-level experimental pipeline (per schema). Data are split into \textbf {80\% Training} and \textbf {20\% Test}; \textbf {5-fold CV} is used for tuning inside training only. The best configuration is refit on full training, evaluated once on test, and results are averaged over \textbf {10 random seeds}.\relax }{figure.caption.27}{}}
-\citation{efron1994bootstrap}
+\@writefile{toc}{\contentsline {paragraph}{General protocol (LOC, UCP schemas).}{11}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{FP-specific protocol for small sample size.}{11}{section*.28}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces High-level experimental pipeline (per schema). Data are split into \textbf  {80\% Training} and \textbf  {20\% Test}; \textbf  {5-fold CV} is used for tuning inside training only. The best configuration is refit on full training, evaluated once on test, and results are averaged over \textbf  {10 random seeds}.\relax }}{12}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:exp-pipeline}{{8}{12}{High-level experimental pipeline (per schema). Data are split into \textbf {80\% Training} and \textbf {20\% Test}; \textbf {5-fold CV} is used for tuning inside training only. The best configuration is refit on full training, evaluated once on test, and results are averaged over \textbf {10 random seeds}.\relax }{figure.caption.29}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Modeling Details}{12}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Common Preprocessing.}{12}{section*.28}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Model Selection.}{12}{section*.29}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Linear Regression (LR).}{12}{section*.30}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Decision Tree (DT).}{12}{section*.31}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Random Forest (RF).}{12}{section*.32}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Gradient Boosting (GB).}{12}{section*.33}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Evaluation Metrics}{12}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Bootstrap Confidence Intervals (Methodology).}{12}{section*.34}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Macro-Averaging Across Schemas.}{12}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Common Preprocessing.}{12}{section*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Model Selection.}{12}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Linear Regression (LR).}{12}{section*.32}\protected@file@percent }
+\citation{efron1994bootstrap}
 \citation{wilcoxon1945individual}
 \citation{breiman2001random}
 \citation{holm1979simple}
 \citation{macbeth2011cliffs}
 \citation{demvsar2006statistical,garcia2010advanced}
 \citation{pedregosa2011scikit}
-\citation{cruz2019open,lopez2021empirical}
+\@writefile{toc}{\contentsline {paragraph}{Decision Tree (DT).}{13}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Random Forest (RF).}{13}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Gradient Boosting (GB).}{13}{section*.35}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Evaluation Metrics}{13}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Bootstrap Confidence Intervals (Methodology).}{13}{section*.36}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Macro-Averaging Across Schemas.}{13}{section*.37}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Uncertainty \& Significance Testing}{13}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Implementation \& Reproducibility}{13}{subsection.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{13}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Overall Comparison}{13}{subsection.5.1}\protected@file@percent }
+\citation{cruz2019open,lopez2021empirical}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Implementation \& Reproducibility}{14}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{14}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Aggregation Across Schemas}{14}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:aggregation}{{5.1}{14}{Aggregation Across Schemas}{subsection.5.1}{}}
+\newlabel{eq:macro}{{12}{14}{Aggregation Across Schemas}{equation.5.12}{}}
+\newlabel{eq:micro}{{13}{14}{Aggregation Across Schemas}{equation.5.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Overall Comparison}{14}{subsection.5.2}\protected@file@percent }
 \citation{kitchenham2001evaluating}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Overall test performance (macro-averaged across schemas; best in \textbf  {bold}). Values show mean $\pm $ std across 10 random seeds.\relax }}{14}{table.caption.36}\protected@file@percent }
-\newlabel{tab:overall}{{2}{14}{Overall test performance (macro-averaged across schemas; best in \textbf {bold}). Values show mean $\pm $ std across 10 random seeds.\relax }{table.caption.36}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Schema-Specific Analyses}{14}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{LOC Schema.}{14}{section*.37}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{FP Schema.}{14}{section*.38}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{UCP Schema.}{14}{section*.39}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Cross-Schema Discussion.}{15}{section*.40}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Error Profiles and Visual Analyses}{15}{subsection.5.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(a) Overall Performance.}{15}{section*.41}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(b) LOC Error Behavior.}{15}{section*.42}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(c) FP Effort Trends.}{15}{section*.43}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{(d) Impact of Log and Outlier Control.}{15}{section*.44}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Ablation Study: Impact of Preprocessing}{15}{subsection.5.4}\protected@file@percent }
-\newlabel{sec:ablation}{{5.4}{15}{Ablation Study: Impact of Preprocessing}{subsection.5.4}{}}
-\@writefile{toc}{\contentsline {paragraph}{Methodology.}{15}{section*.46}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Observed Trends.}{15}{section*.47}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Overall test performance (macro-averaged across schemas; best in \textbf  {bold}). Values show mean $\pm $ std across 10 random seeds.\relax }}{15}{table.caption.38}\protected@file@percent }
+\newlabel{tab:overall}{{2}{15}{Overall test performance (macro-averaged across schemas; best in \textbf {bold}). Values show mean $\pm $ std across 10 random seeds.\relax }{table.caption.38}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Schema-Specific Analyses}{15}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{LOC Schema.}{15}{section*.39}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{FP Schema.}{15}{section*.40}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{UCP Schema.}{15}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Cross-Schema Discussion.}{15}{section*.42}\protected@file@percent }
 \citation{boehm2000software}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Visual error analyses across schemas: (a) aggregate model performance; (b) LOC-based error patterns by project size; (c) FP-based effort trends; (d) effects of log transformation and IQR-based capping. Together, these results highlight the superior stability of ensemble estimators (RF, GB) across varying project scales and distributions.\relax }}{16}{figure.caption.45}\protected@file@percent }
-\newlabel{fig:error-profiles}{{9}{16}{Visual error analyses across schemas: (a) aggregate model performance; (b) LOC-based error patterns by project size; (c) FP-based effort trends; (d) effects of log transformation and IQR-based capping. Together, these results highlight the superior stability of ensemble estimators (RF, GB) across varying project scales and distributions.\relax }{figure.caption.45}{}}
-\@writefile{toc}{\contentsline {paragraph}{Cumulative Effect.}{16}{section*.48}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Ablation analysis visualizing MAE degradation (macro-averaged) when preprocessing components are progressively removed. Error bars show variability across 10 random seeds. Full quantitative results with per-schema breakdowns available in Supplementary Material S3.\relax }}{17}{figure.caption.49}\protected@file@percent }
-\newlabel{fig:ablation}{{10}{17}{Ablation analysis visualizing MAE degradation (macro-averaged) when preprocessing components are progressively removed. Error bars show variability across 10 random seeds. Full quantitative results with per-schema breakdowns available in Supplementary Material S3.\relax }{figure.caption.49}{}}
-\@writefile{toc}{\contentsline {paragraph}{Alternative Model Preferences.}{17}{section*.50}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Guidelines for Adoption.}{17}{section*.51}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Practical Insights and Validity.}{17}{section*.52}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Error Profiles and Visual Analyses}{16}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(a) Overall Performance.}{16}{section*.43}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(b) LOC Error Behavior.}{16}{section*.44}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(c) FP Effort Trends.}{16}{section*.45}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(d) Impact of Log and Outlier Control.}{16}{section*.46}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Ablation Study: Impact of Preprocessing}{16}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:ablation}{{5.5}{16}{Ablation Study: Impact of Preprocessing}{subsection.5.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Methodology.}{16}{section*.48}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Observed Trends.}{16}{section*.49}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Visual error analyses across schemas: (a) aggregate model performance; (b) LOC-based error patterns by project size; (c) FP-based effort trends; (d) effects of log transformation and IQR-based capping. Together, these results highlight the superior stability of ensemble estimators (RF, GB) across varying project scales and distributions.\relax }}{17}{figure.caption.47}\protected@file@percent }
+\newlabel{fig:error-profiles}{{9}{17}{Visual error analyses across schemas: (a) aggregate model performance; (b) LOC-based error patterns by project size; (c) FP-based effort trends; (d) effects of log transformation and IQR-based capping. Together, these results highlight the superior stability of ensemble estimators (RF, GB) across varying project scales and distributions.\relax }{figure.caption.47}{}}
+\@writefile{toc}{\contentsline {paragraph}{Cumulative Effect.}{17}{section*.50}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Alternative Model Preferences.}{17}{section*.52}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Ablation analysis visualizing MAE degradation (macro-averaged) when preprocessing components are progressively removed. Error bars show variability across 10 random seeds. Full quantitative results with per-schema breakdowns available in Supplementary Material S3.\relax }}{18}{figure.caption.51}\protected@file@percent }
+\newlabel{fig:ablation}{{10}{18}{Ablation analysis visualizing MAE degradation (macro-averaged) when preprocessing components are progressively removed. Error bars show variability across 10 random seeds. Full quantitative results with per-schema breakdowns available in Supplementary Material S3.\relax }{figure.caption.51}{}}
+\@writefile{toc}{\contentsline {paragraph}{Guidelines for Adoption.}{18}{section*.53}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Practical Insights and Validity.}{18}{section*.54}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Threats to Validity}{18}{section.6}\protected@file@percent }
 \citation{breiman2001random}
 \citation{friedman2001greedy}
 \citation{pandey2023comprehensive,alqadi2021deep}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Threats to Validity}{18}{section.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Internal Validity.}{18}{section*.53}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{External Validity.}{18}{section*.54}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Construct Validity.}{18}{section*.55}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Conclusion Validity.}{18}{section*.56}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Summary.}{18}{section*.57}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {7}Related Work}{18}{section.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Evolution of Software Effort Estimation Methods}{18}{subsection.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Internal Validity.}{19}{section*.55}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{External Validity.}{19}{section*.56}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Construct Validity.}{19}{section*.57}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Conclusion Validity.}{19}{section*.58}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Summary.}{19}{section*.59}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Related Work}{19}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Evolution of Software Effort Estimation Methods}{19}{subsection.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Comparison of Estimation Paradigms}{19}{subsection.7.2}\protected@file@percent }
 \citation{kitchenham2001evaluating}
 \citation{foss2003bias}
 \citation{nair2020open,cruz2019open}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Comparison of Estimation Paradigms}{19}{subsection.7.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Validity Gaps in Prior Studies}{19}{subsection.7.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Research Gap and Contribution}{19}{subsection.7.4}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Comprehensive overview of related research. (Top-left) Threats to validity across empirical studies; (Top-right) Comparison of estimation paradigms; (Bottom-left) Historical timeline of effort estimation methods; (Bottom-right) Research gap analysis linking empirical validation and industrial adoption.\relax }}{19}{figure.caption.58}\protected@file@percent }
-\newlabel{fig:related-work}{{11}{19}{Comprehensive overview of related research. (Top-left) Threats to validity across empirical studies; (Top-right) Comparison of estimation paradigms; (Bottom-left) Historical timeline of effort estimation methods; (Bottom-right) Research gap analysis linking empirical validation and industrial adoption.\relax }{figure.caption.58}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion and Reproducibility}{19}{section.8}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Summary of Findings.}{19}{section*.59}\protected@file@percent }
 \citation{tanveer2023comprehensive,pandey2023comprehensive,alqadi2021deep}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Validity Gaps in Prior Studies}{20}{subsection.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Research Gap and Contribution}{20}{subsection.7.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Comprehensive overview of related research. (Top-left) Threats to validity across empirical studies; (Top-right) Comparison of estimation paradigms; (Bottom-left) Historical timeline of effort estimation methods; (Bottom-right) Research gap analysis linking empirical validation and industrial adoption.\relax }}{20}{figure.caption.60}\protected@file@percent }
+\newlabel{fig:related-work}{{11}{20}{Comprehensive overview of related research. (Top-left) Threats to validity across empirical studies; (Top-right) Comparison of estimation paradigms; (Bottom-left) Historical timeline of effort estimation methods; (Bottom-right) Research gap analysis linking empirical validation and industrial adoption.\relax }{figure.caption.60}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion and Reproducibility}{20}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Summary of Findings.}{20}{section*.61}\protected@file@percent }
 \citation{cruz2019open,lopez2021empirical}
 \citation{yu2021transfer}
-\@writefile{toc}{\contentsline {paragraph}{Reproducibility Framework.}{20}{section*.60}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Future Directions.}{20}{section*.61}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Closing Remarks.}{20}{section*.62}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Visual summary of the proposed framework, including model performance comparison, reproducibility pipeline, and potential future extensions.\relax }}{21}{figure.caption.63}\protected@file@percent }
-\newlabel{fig:conclusion}{{12}{21}{Visual summary of the proposed framework, including model performance comparison, reproducibility pipeline, and potential future extensions.\relax }{figure.caption.63}{}}
+\@writefile{toc}{\contentsline {paragraph}{Reproducibility Framework.}{21}{section*.62}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Future Directions.}{21}{section*.63}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Closing Remarks.}{21}{section*.64}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Visual summary of the proposed framework, including model performance comparison, reproducibility pipeline, and potential future extensions.\relax }}{22}{figure.caption.65}\protected@file@percent }
+\newlabel{fig:conclusion}{{12}{22}{Visual summary of the proposed framework, including model performance comparison, reproducibility pipeline, and potential future extensions.\relax }{figure.caption.65}{}}
 \bibstyle{unsrtnat}
 \bibdata{refs}
 \bibcite{boehm2000cocomo}{{1}{2000}{{Boehm}}{{}}}
@@ -192,4 +198,4 @@
 \bibcite{nair2020open}{{24}{2020}{{Nair and Menzies}}{{}}}
 \bibcite{tanveer2023comprehensive}{{25}{2023{}}{{Tanveer et~al.}}{{Tanveer, Hussain, Zahid, et~al.}}}
 \bibcite{yu2021transfer}{{26}{2021}{{Yu et~al.}}{{Yu, Xia, Lo, and Hassan}}}
-\gdef \@abspage@last{24}
+\gdef \@abspage@last{25}
