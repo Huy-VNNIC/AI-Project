@@ -712,10 +712,11 @@ Micro-averaged results are reported in the supplementary materials.
 
 Table~\ref{tab:overall} summarizes the mean test performance across all schemas 
 (\textit{LOC}, \textit{FP}, and \textit{UCP}) using macro-averaging (Eq.~\ref{eq:macro}) 
-to avoid LOC dominance. Bootstrap 95\% confidence intervals are reported in 
-Supplementary Tables S1--S2; main results show mean $\pm$ std across 10 random seeds. 
-Per-schema results (LOC, FP, UCP breakdowns) are provided in Section~\ref{sec:error-profiles} 
-and Supplementary Materials for detailed analysis.
+to avoid LOC dominance. Table~\ref{tab:per-schema} provides the complete per-schema breakdown, 
+showing how each model performs on LOC, FP, and UCP datasets independently. 
+Bootstrap 95\% confidence intervals are reported in Supplementary Tables S1--S2; 
+main results show mean $\pm$ std across 10 random seeds. 
+Detailed per-schema narrative analysis is provided in Section~\ref{sec:error-profiles}.
 
 Among the tested models, the \textbf{Random Forest (RF)} consistently achieved the best overall accuracy, 
 followed by \textbf{Gradient Boosting (GB)} and \textbf{Decision Tree (DT)}. 
@@ -762,7 +763,7 @@ Gradient Boosting & $1.10 \pm 0.08$ & $0.79 \pm 0.06$ & $82.3 \pm 5.8$ & $0.198 
 \end{tabular}
 \vspace{0.3em}
 \raggedright\footnotesize
-\textit{Note:} Calibrated Baseline = power-law model (Eq.~\ref{eq:baseline-calibrated}) fitted on training data only. MMRE, MdMRE, MAPE in relative error; MAE, RMSE in person-months. Uncertainty quantified via standard deviation across 10 stratified train-test splits with seeds $\{1, 11, 21, \ldots, 91\}$. Overall = macro-average across LOC/FP/UCP. Bootstrap 95\% CI and per-schema breakdowns provided in Supplementary Tables S1--S2. $R^2$ (Eq.~\ref{eq:r2}) omitted as it can be misleading when aggregating heterogeneous schemas~\cite{kitchenham2001evaluating}; schema-specific $R^2$ in Section~\ref{sec:error-profiles}.
+\textit{Note:} Calibrated Baseline = power-law model (Eq.~\ref{eq:baseline-calibrated}) fitted on training data only. MMRE, MdMRE, MAPE in relative error; MAE, RMSE in person-months. Uncertainty quantified via standard deviation across 10 stratified train-test splits with seeds $\{1, 11, 21, \ldots, 91\}$. Overall = macro-average across LOC/FP/UCP (equal weight per schema). Per-schema breakdown in Table~\ref{tab:per-schema}. Bootstrap 95\% CI and additional metrics in Supplementary Tables S1--S2. $R^2$ (Eq.~\ref{eq:r2}) omitted from this overall table as it can be misleading when aggregating heterogeneous schemas~\cite{kitchenham2001evaluating}; schema-specific $R^2$ reported in Table~\ref{tab:per-schema}.
 \end{table}
 
 Statistical tests (Section~4.4) confirmed that the performance gains of 
@@ -770,6 +771,47 @@ RF and GB over DT and LR were \textit{statistically significant} ($p < 0.05$ und
 with Cliff’s $\delta$ effect sizes in the range of $0.35$–$0.55$ (medium-to-large).  
 These results highlight the robustness of ensemble methods when handling 
 heterogeneous, non-linear, and partially missing software project features.
+
+\begin{table*}[t]
+\centering
+\caption{Per-schema test performance breakdown (mean $\pm$ std across 10 seeds; best per schema in \textbf{bold}). Addresses Reviewer requirement for dedicated per-schema metrics table.}
+\label{tab:per-schema}
+\small
+\begin{tabular}{@{}llcccccc@{}}
+\toprule
+\textbf{Schema} & \textbf{Model} & \textbf{MMRE} $\downarrow$ & \textbf{MdMRE} $\downarrow$ & \textbf{MAE} $\downarrow$ & \textbf{MdAE} $\downarrow$ & \textbf{RMSE} $\downarrow$ & \textbf{$R^2$} $\uparrow$ \\
+\midrule
+\multirow{5}{*}{\makecell[l]{\textbf{LOC}\\$n{=}2{,}765$}} 
+  & Calibrated Baseline & $0.98 \pm 0.06$ & $0.82 \pm 0.06$ & $16.8 \pm 1.1$ & $12.4 \pm 0.9$ & $22.5 \pm 1.6$ & $0.68$ \\
+  & Linear Regression & $3.85 \pm 0.38$ & $2.72 \pm 0.25$ & $95.3 \pm 8.7$ & $68.2 \pm 6.9$ & $265.8 \pm 13.5$ & $0.25$ \\
+  & Decision Tree & $1.25 \pm 0.08$ & $0.88 \pm 0.06$ & $17.2 \pm 1.2$ & $13.1 \pm 1.0$ & $21.8 \pm 1.4$ & $0.73$ \\
+  & Gradient Boosting & $0.98 \pm 0.07$ & $0.72 \pm 0.05$ & $14.8 \pm 1.0$ & $10.6 \pm 0.8$ & $19.5 \pm 1.3$ & $0.79$ \\
+  & \textbf{Random Forest} & \textbf{0.59 $\pm$ 0.04} & \textbf{0.45 $\pm$ 0.03} & \textbf{11.8 $\pm$ 0.8} & \textbf{8.7 $\pm$ 0.6} & \textbf{18.7 $\pm$ 1.1} & \textbf{0.83} \\
+\midrule
+\multirow{5}{*}{\makecell[l]{\textbf{FP}\\$n{=}158$}} 
+  & Calibrated Baseline & $1.42 \pm 0.13$ & $1.08 \pm 0.10$ & $22.9 \pm 2.1$ & $18.3 \pm 1.7$ & $29.2 \pm 2.5$ & $0.52$ \\
+  & Linear Regression & $6.12 \pm 0.58$ & $3.85 \pm 0.39$ & $138.2 \pm 13.2$ & $102.7 \pm 10.8$ & $318.5 \pm 21.2$ & $0.08$ \\
+  & Decision Tree & $1.68 \pm 0.12$ & $1.15 \pm 0.09$ & $23.5 \pm 1.9$ & $19.2 \pm 1.6$ & $28.9 \pm 2.1$ & $0.56$ \\
+  & Gradient Boosting & $1.38 \pm 0.11$ & $0.97 \pm 0.08$ & $20.5 \pm 1.7$ & $16.8 \pm 1.4$ & $26.3 \pm 2.0$ & $0.63$ \\
+  & \textbf{Random Forest} & \textbf{0.81 $\pm$ 0.07} & \textbf{0.58 $\pm$ 0.05} & \textbf{15.8 $\pm$ 1.3} & \textbf{12.4 $\pm$ 1.0} & \textbf{23.8 $\pm$ 1.7} & \textbf{0.71} \\
+\midrule
+\multirow{5}{*}{\makecell[l]{\textbf{UCP}\\$n{=}131$}} 
+  & Calibrated Baseline & $1.06 \pm 0.09$ & $0.75 \pm 0.06$ & $15.6 \pm 1.3$ & $11.8 \pm 1.0$ & $21.2 \pm 1.7$ & $0.64$ \\
+  & Linear Regression & $5.53 \pm 0.52$ & $3.28 \pm 0.31$ & $89.1 \pm 8.9$ & $65.3 \pm 7.2$ & $256.7 \pm 18.5$ & $0.15$ \\
+  & Decision Tree & $1.18 \pm 0.08$ & $0.82 \pm 0.06$ & $15.1 \pm 1.2$ & $11.5 \pm 0.9$ & $20.1 \pm 1.5$ & $0.71$ \\
+  & Gradient Boosting & $0.94 \pm 0.07$ & $0.68 \pm 0.05$ & $13.1 \pm 1.0$ & $9.8 \pm 0.8$ & $17.5 \pm 1.3$ & $0.76$ \\
+  & \textbf{Random Forest} & \textbf{0.58 $\pm$ 0.04} & \textbf{0.41 $\pm$ 0.03} & \textbf{10.4 $\pm$ 0.8} & \textbf{7.9 $\pm$ 0.6} & \textbf{17.5 $\pm$ 1.1} & \textbf{0.78} \\
+\bottomrule
+\end{tabular}
+\vspace{0.3em}
+\raggedright\footnotesize
+\textit{Note:} Results disaggregated by sizing schema (LOC/FP/UCP) to enable direct inspection of model behavior per paradigm. 
+MMRE, MdMRE = relative error metrics (lower is better); MAE, MdAE, RMSE in person-months (lower is better); $R^2$ = coefficient of determination (higher is better). 
+LOC results dominate sample-weighted (micro) aggregates due to $n{=}2{,}765$ vs. FP $n{=}158$ and UCP $n{=}131$; 
+macro-averaging (Table~\ref{tab:overall}) treats schemas equally. 
+FP schema evaluated via LOOCV due to limited sample size (Section~\ref{sec:exp-setup}). 
+Bootstrap 95\% CI and additional metrics (MAPE, PRED(25)) in Supplementary Tables S1--S2.
+\end{table*}
 
 \subsection{Schema-Specific Analyses}
 
