@@ -8,6 +8,7 @@
 \usepackage{booktabs}
 \usepackage{amsmath, amssymb}
 \usepackage{multirow}
+\usepackage{makecell}
 \usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
 \usepackage[numbers]{natbib}
@@ -284,61 +285,90 @@ still produce large relative errors \cite{kitchenham2001evaluating}.
 \subsection{Sources and Schema Partitioning}
 \label{sec:dataset-manifest}
 
-To address Reviewer concerns about reproducibility and provenance transparency, Table~\ref{tab:dataset-manifest} provides a comprehensive manifest of all data sources used in this study. We aggregated publicly available datasets from peer-reviewed research and open repositories (1993--2022), ensuring full auditability through explicit provenance tracking, deduplication rules, and train-test split documentation.
+To address Reviewer concerns about reproducibility and provenance transparency, Table~\ref{tab:dataset-summary} summarizes our 18 datasets spanning 1979--2023, and Figure~\ref{fig:dataset-timeline} visualizes temporal coverage across schemas. Detailed provenance (DOI, URL, licenses, deduplication rules, MD5 hashes) is provided in Table S1 (Supplementary Materials), enabling full audit trails and independent replication.
 
-\begin{table*}[t]
+\begin{table}[h]
 \centering
-\caption{Dataset Provenance Manifest (auditable). Counts reported after schema mapping and unit harmonization. Train/test splits vary across 10 random seeds; split protocol described in Sec.~\ref{sec:exp-setup}.}
-\label{tab:dataset-manifest}
-\tiny
-\begin{tabular}{@{}l c l c r r r r l l@{}}
+\caption{Dataset summary by schema. Detailed provenance manifest (source URLs, DOIs, licenses, deduplication rules, MD5 hashes) in Table S1, Supplementary Materials.}
+\label{tab:dataset-summary}
+\small
+\begin{tabular}{l c c c c c}
 \toprule
-\textbf{Source} & \textbf{Year} & \textbf{DOI / URL} & \textbf{Schema} & \textbf{Raw $n$} & \textbf{Dup. rm} & \textbf{Invalid rm} & \textbf{Final $n$} & \textbf{Terms} & \textbf{Access} \\
+\textbf{Schema} & \textbf{Sources} & \textbf{Period} & \textbf{Raw Projects} & \textbf{After Dedup.} & \textbf{Dedup. \%} \\
 \midrule
-\multicolumn{10}{l}{\textit{LOC-based datasets}} \\
-\quad DASE (Rodríguez et al.)\textsuperscript{\dag} & 2023 & \texttt{github.com/danrodgar/DASE} & LOC & 1,203 & 120 & 33 & 1,050 & See source & Public \\
-\quad Freeman et al. & 2022 & \texttt{github.com/Freeman-md/software-project-development-estimator} & LOC & 487 & 28 & 9 & 450 & See source & Public \\
-\quad Derek Jones\textsuperscript{*} & 2022 & \texttt{github.com/Derek-Jones/Software-estimation-datasets} & LOC & 328 & 12 & 4 & 312 & CC0 & Public \\
-\quad NASA MDP (nasa93) & 1993 & PROMISE repository & LOC & 93 & 0 & 0 & 93 & See source & Public \\
-\quad Telecom1 & 2001 & PROMISE repository & LOC & 18 & 0 & 0 & 18 & See source & Public \\
-\quad Maxwell & 2002 & PROMISE repository & LOC & 62 & 0 & 0 & 62 & See source & Public \\
-\quad Miyazaki & 1994 & PROMISE repository & LOC & 48 & 0 & 0 & 48 & See source & Public \\
-\quad Chinese (China) & 2007 & PROMISE repository & LOC & 499 & 10 & 3 & 486 & See source & Public \\
-\quad Finnish & 1990 & PROMISE repository & LOC & 38 & 0 & 0 & 38 & See source & Public \\
-\quad Kitchenham & 2002 & PROMISE repository & LOC & 145 & 0 & 0 & 145 & See source & Public \\
-\quad COCOMO81 & 1981 & \texttt{10.1109/TSE.1984.5010193} & LOC & 63 & 0 & 0 & 63 & See source & Public \\
+LOC & 11 datasets\textsuperscript{a} & 1981--2023 & 2,984 & 2,765 & $-$7.3\% \\
+FP  & 4 datasets\textsuperscript{b}  & 1979--2005 & 167   & 158   & $-$5.4\% \\
+UCP & 3 datasets\textsuperscript{c}  & 1993--2023 & 139   & 131   & $-$5.8\% \\
 \midrule
-\multicolumn{5}{l}{\textbf{LOC Subtotal}} & \textbf{2,984} & \textbf{170} & \textbf{49} & \textbf{2,765} \\
-\midrule
-\multicolumn{10}{l}{\textit{Function Point (FP) datasets}} \\
-\quad Albrecht (1979) & 1979 & \texttt{10.1147/sj.183.0171} & FP & 26 & 2 & 0 & 24 & See source & Public \\
-\quad Desharnais\textsuperscript{*} & 1989 & \texttt{github.com/Derek-Jones/Software-estimation-datasets} & FP & 81 & 3 & 1 & 77 & CC0 & Public \\
-\quad Kemerer & 1987 & \texttt{10.1145/38807.38814} & FP & 15 & 0 & 0 & 15 & See source & Public \\
-\quad ISBSG (subset) & 2005 & Commercial (public subset) & FP & 45 & 2 & 1 & 42 & Restricted & Subset \\
-\midrule
-\multicolumn{5}{l}{\textbf{FP Subtotal}} & \textbf{167} & \textbf{7} & \textbf{2} & \textbf{158} \\
-\midrule
-\multicolumn{10}{l}{\textit{Use Case Point (UCP) datasets}} \\
-\quad Silhavy et al.\textsuperscript{*} & 2017 & \texttt{10.1016/j.infsof.2016.12.001} \& \texttt{Derek-Jones repo} & UCP & 74 & 3 & 0 & 71 & CC0 & Public \\
-\quad Huynh et al.\textsuperscript{\ddag} & 2023 & \texttt{10.1109/ACCESS.2023.3286372} \& \texttt{zenodo.org/7022735} & UCP & 53 & 4 & 1 & 48 & CC-BY & Public \\
-\quad Karner (original) & 1993 & Reconstructed from~\cite{karner1993metrics} & UCP & 12 & 0 & 0 & 12 & N/A & Reconstructed \\
-\midrule
-\multicolumn{5}{l}{\textbf{UCP Subtotal}} & \textbf{139} & \textbf{7} & \textbf{1} & \textbf{131} \\
-\midrule
-\multicolumn{5}{l}{\textbf{Grand Total (All Schemas)}} & \textbf{3,290} & \textbf{184} & \textbf{52} & \textbf{3,054} \\
+\textbf{Total} & \textbf{18} & \textbf{1979--2023} & \textbf{3,290} & \textbf{3,054} & \textbf{$-$7.2\%} \\
 \bottomrule
-\multicolumn{10}{l}{\footnotesize \textit{Notes:} ``Dup. rm'' = exact and near-duplicates removed (matched on normalized project name, size, effort); ``Invalid rm'' = unit-ambiguous or missing (size, effort) rows.} \\
-\multicolumn{10}{l}{\footnotesize ``Terms'' = data usage terms as stated by source repository or dataset page; when unspecified, we provide rebuild scripts without redistributing raw files.} \\
-\multicolumn{10}{l}{\footnotesize ``Access'' = Public (freely available), Subset (limited commercial release), Reconstructed (from published tables/figures).} \\
-\multicolumn{10}{l}{\footnotesize \textsuperscript{\dag}DASE = Data Analysis in Software Engineering repository (Rodríguez et al., aggregated datasets 1979--2022, CC0-1.0).} \\
-\multicolumn{10}{l}{\footnotesize \textsuperscript{*}Derek-Jones = Curated public software estimation datasets repository (github.com/Derek-Jones/Software-estimation-datasets, CC0).} \\
-\multicolumn{10}{l}{\footnotesize \textsuperscript{\ddag}Huynh et al. (2023): ``Comparing Stacking Ensemble and Deep Learning for Software Project Effort Estimation'', IEEE Access, vol.~11, pp.~60590--60604.} \\
-\multicolumn{10}{l}{\footnotesize Train/test splits (80/20 stratified, 10 seeds) detailed in Sec.~\ref{sec:exp-setup}. Rebuild scripts, harmonization code, and MD5 hashes available at \texttt{github.com/[author-anon]} (anonymous during review).} \\
 \end{tabular}
-\end{table*}
+\vspace{0.3em}
+\raggedright\footnotesize
+\textsuperscript{a}LOC (11): DASE (Rodríguez 2023, 1,050 projects), Freeman (2022, 450), Derek Jones curated (2022, 312), plus 8 PROMISE repository datasets (NASA93, Telecom1, Maxwell, Miyazaki, Chinese, Finnish, Kitchenham, COCOMO81; total 953). \\
+\textsuperscript{b}FP (4): Albrecht (1979, 24), Desharnais (1989, 77), Kemerer (1987, 15), ISBSG public subset (2005, 42). \\
+\textsuperscript{c}UCP (3): Silhavy et al. (2017, 71), Huynh et al. (2023, 48), Karner reconstructed (1993, 12). \\
+\textit{Note:} Deduplication removed exact and near-duplicates matched on normalized project name, size, and effort. Train/test splits (80/20 stratified, 10 random seeds) detailed in Sec.~\ref{sec:exp-setup}.
+\end{table}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.85\linewidth,
+    height=0.45\linewidth,
+    xlabel={Publication Year},
+    ylabel={Projects per Schema},
+    ybar,
+    bar width=6pt,
+    legend style={at={(0.5,-0.25)}, anchor=north, legend columns=3, font=\footnotesize},
+    xtick={1980,1990,2000,2010,2020},
+    xticklabels={1980,1990,2000,2010,2020},
+    ymin=0, ymax=550,
+    grid=major,
+    grid style={dashed,gray!30},
+    nodes near coords align={vertical},
+]
+
+% LOC datasets by year (grouped by publication year)
+\addplot[fill=blue!70, draw=blue!90] coordinates {
+    (1981,63)   % COCOMO81
+    (1990,38)   % Finnish
+    (1993,93)   % NASA93
+    (1994,48)   % Miyazaki
+    (2001,18)   % Telecom1
+    (2002,207)  % Maxwell 62 + Kitchenham 145
+    (2007,486)  % Chinese
+    (2022,762)  % Freeman 450 + Derek Jones 312
+    (2023,1050) % DASE
+};
+\addlegendentry{LOC}
+
+% FP datasets by year
+\addplot[fill=red!70, draw=red!90] coordinates {
+    (1979,24)   % Albrecht
+    (1987,15)   % Kemerer
+    (1989,77)   % Desharnais
+    (2005,42)   % ISBSG subset
+};
+\addlegendentry{FP}
+
+% UCP datasets by year
+\addplot[fill=green!70, draw=green!90] coordinates {
+    (1993,12)   % Karner
+    (2017,71)   % Silhavy
+    (2023,48)   % Huynh
+};
+\addlegendentry{UCP}
+
+\end{axis}
+\end{tikzpicture}
+\caption{Dataset temporal coverage (1979--2023) by schema. LOC schemas dominate with significant growth post-2000 (DASE aggregation in 2023 contributes 1,050 projects). FP datasets peaked in 1980s--1990s (Albrecht, Desharnais, Kemerer) but remain limited ($n{=}158$ total). UCP schemas emerged in 1990s (Karner 1993) with recent contributions (Silhavy 2017, Huynh 2023). Bars represent projects per source publication year; datasets span multiple project completion years internally.}
+\label{fig:dataset-timeline}
+\end{figure}
 
 \paragraph{Data sources and provenance.}
-For each dataset, we retained: (i) original source name, (ii) publication year, (iii) DOI or GitHub URL, (iv) schema type (LOC/FP/UCP), (v) raw record counts, (vi) duplicates removed, (vii) invalid/unit-ambiguous rows removed, and (viii) final usable counts. This manifest enables full audit trails and future replication studies. To avoid ambiguity under multi-seed evaluation (10 seeds, stratified splits), we report final cleaned counts in the manifest and describe the complete train/test split protocol separately in Sec.~\ref{sec:exp-setup}. 
+Table~\ref{tab:dataset-summary} provides an aggregated view by schema; detailed per-dataset information (source name, publication year, DOI/GitHub URL, raw counts, duplicates removed, invalid rows removed, final counts, licenses, MD5 hashes) is documented in Table S1 (Supplementary Materials) to enable full audit trails and independent replication. Figure~\ref{fig:dataset-timeline} visualizes the temporal distribution of datasets: LOC schemas show strong growth post-2000, FP datasets concentrate in 1980s--1990s, and UCP schemas emerged in 1990s with recent additions. To avoid ambiguity under multi-seed evaluation (10 seeds, stratified splits), we report final cleaned counts and describe the complete train/test split protocol in Sec.~\ref{sec:exp-setup}. 
 
 \paragraph{Repository cross-validation.}
 To ensure data authenticity and traceability, we cross-validated our compilation against three established public repositories: (i) \textbf{Derek Jones' curated collection}~\cite{jones2022estimation} (github.com/Derek-Jones/Software-estimation-datasets), providing canonical versions of Desharnais, Finnish, Miyazaki, and NASA93 datasets with documented provenance chains; (ii) \textbf{DASE repository}~\cite{rodriguez2023dase} (github.com/danrodgar/DASE), an aggregated collection of effort estimation datasets (1979--2022) used in data analysis coursework, from which we extracted harmonized LOC-based projects; and (iii) \textbf{Zenodo archival deposits}~\cite{huynh2023stacking,zenodo7022735}, ensuring persistent DOIs for UCP datasets and enabling long-term reproducibility. Where multiple versions of the same dataset existed (e.g., China dataset in both PROMISE and Derek-Jones repositories), we selected the version with the most complete metadata and original publication trail. This triangulation process ensures our manifest reflects the most authoritative and well-documented data sources available in the public domain.
