@@ -4,45 +4,45 @@ The top-level auxiliary file: main.aux
 The style file: unsrtnat.bst
 Database file #1: refs.bib
 Warning--I didn't find a database entry for "boehm2000software"
-You've used 21 entries,
+You've used 26 entries,
             2481 wiz_defined-function locations,
-            679 strings with 7637 characters,
-and the built_in function-call counts, 8297 in all, are:
-= -- 737
-> -- 357
-< -- 14
-+ -- 145
-- -- 102
-* -- 637
-:= -- 1294
-add.period$ -- 64
-call.type$ -- 21
-change.case$ -- 40
-chr.to.int$ -- 20
-cite$ -- 21
-duplicate$ -- 418
-empty$ -- 793
-format.name$ -- 134
-if$ -- 1768
+            708 strings with 8601 characters,
+and the built_in function-call counts, 9902 in all, are:
+= -- 883
+> -- 428
+< -- 19
++ -- 175
+- -- 122
+* -- 732
+:= -- 1553
+add.period$ -- 84
+call.type$ -- 26
+change.case$ -- 50
+chr.to.int$ -- 25
+cite$ -- 26
+duplicate$ -- 494
+empty$ -- 945
+format.name$ -- 163
+if$ -- 2114
 int.to.chr$ -- 2
-int.to.str$ -- 22
-missing$ -- 23
-newline$ -- 113
-num.names$ -- 63
-pop$ -- 163
+int.to.str$ -- 27
+missing$ -- 24
+newline$ -- 143
+num.names$ -- 78
+pop$ -- 210
 preamble$ -- 1
-purify$ -- 21
+purify$ -- 26
 quote$ -- 0
-skip$ -- 244
+skip$ -- 295
 stack$ -- 0
-substring$ -- 517
-swap$ -- 61
-text.length$ -- 2
+substring$ -- 564
+swap$ -- 71
+text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 141
+type$ -- 176
 warning$ -- 0
-while$ -- 79
+while$ -- 91
 width$ -- 0
-write$ -- 280
+write$ -- 352
 (There was 1 warning)

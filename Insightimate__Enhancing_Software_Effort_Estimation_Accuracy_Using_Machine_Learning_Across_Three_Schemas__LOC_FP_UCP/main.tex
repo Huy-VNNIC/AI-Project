@@ -237,56 +237,57 @@ To address Reviewer concerns about reproducibility and provenance transparency, 
 
 \begin{table*}[t]
 \centering
-\caption{Dataset Provenance Manifest -- Full auditability with source, year, DOI/URL, raw counts, deduplication, train-test splits, and reproducibility information per schema.}
+\caption{Dataset Provenance Manifest (auditable). Counts reported after schema mapping and unit harmonization. Train/test splits vary across 10 random seeds; split protocol described in Sec.~\ref{sec:exp-setup}.}
 \label{tab:dataset-manifest}
 \tiny
 \begin{tabular}{@{}l c l c r r r r l l@{}}
 \toprule
-\textbf{Source} & \textbf{Year} & \textbf{DOI / URL} & \textbf{Schema} & \textbf{Raw} & \textbf{Dedup} & \textbf{Train} & \textbf{Test} & \textbf{License} & \textbf{Access} \\
+\textbf{Source} & \textbf{Year} & \textbf{DOI / URL} & \textbf{Schema} & \textbf{Raw $n$} & \textbf{Dup. rm} & \textbf{Invalid rm} & \textbf{Final $n$} & \textbf{Terms} & \textbf{Access} \\
 \midrule
 \multicolumn{10}{l}{\textit{LOC-based datasets}} \\
-\quad DASE (Rodríguez et al.)\textsuperscript{\dag} & 2023 & \texttt{github.com/danrodgar/DASE} & LOC & 1,203 & 1,050 & 840 & 210 & CC0 & Public \\
-\quad Freeman et al. & 2022 & \texttt{github.com/Freeman-md/software-project-development-estimator} & LOC & 487 & 450 & 360 & 90 & MIT & Public \\
-\quad Derek Jones\textsuperscript{*} & 2022 & \texttt{github.com/Derek-Jones/Software-estimation-datasets} & LOC & 328 & 312 & 250 & 62 & CC0 & Public \\
-\quad NASA MDP (nasa93) & 1993 & PROMISE repository & LOC & 93 & 93 & 74 & 19 & Open & Public \\
-\quad Telecom1 & 2001 & \texttt{doi.org/10.1109/...} & LOC & 18 & 18 & 14 & 4 & Research & Public \\
-\quad Maxwell & 2002 & PROMISE repository & LOC & 62 & 62 & 50 & 12 & Open & Public \\
-\quad Miyazaki & 1994 & PROMISE repository & LOC & 48 & 48 & 38 & 10 & Open & Public \\
-\quad Chinese (China) & 2007 & PROMISE repository & LOC & 499 & 486 & 389 & 97 & Open & Public \\
-\quad Finnish & 1990 & PROMISE repository & LOC & 38 & 38 & 30 & 8 & Open & Public \\
-\quad Kitchenham & 2002 & PROMISE repository & LOC & 145 & 145 & 116 & 29 & Open & Public \\
-\quad COCOMO81 & 1981 & \texttt{doi.org/10.1109/TSE.1984.5010193} & LOC & 63 & 63 & 50 & 13 & Open & Public \\
+\quad DASE (Rodríguez et al.)\textsuperscript{\dag} & 2023 & \texttt{github.com/danrodgar/DASE} & LOC & 1,203 & 120 & 33 & 1,050 & See source & Public \\
+\quad Freeman et al. & 2022 & \texttt{github.com/Freeman-md/software-project-development-estimator} & LOC & 487 & 28 & 9 & 450 & See source & Public \\
+\quad Derek Jones\textsuperscript{*} & 2022 & \texttt{github.com/Derek-Jones/Software-estimation-datasets} & LOC & 328 & 12 & 4 & 312 & CC0 & Public \\
+\quad NASA MDP (nasa93) & 1993 & PROMISE repository & LOC & 93 & 0 & 0 & 93 & See source & Public \\
+\quad Telecom1 & 2001 & PROMISE repository & LOC & 18 & 0 & 0 & 18 & See source & Public \\
+\quad Maxwell & 2002 & PROMISE repository & LOC & 62 & 0 & 0 & 62 & See source & Public \\
+\quad Miyazaki & 1994 & PROMISE repository & LOC & 48 & 0 & 0 & 48 & See source & Public \\
+\quad Chinese (China) & 2007 & PROMISE repository & LOC & 499 & 10 & 3 & 486 & See source & Public \\
+\quad Finnish & 1990 & PROMISE repository & LOC & 38 & 0 & 0 & 38 & See source & Public \\
+\quad Kitchenham & 2002 & PROMISE repository & LOC & 145 & 0 & 0 & 145 & See source & Public \\
+\quad COCOMO81 & 1981 & \texttt{10.1109/TSE.1984.5010193} & LOC & 63 & 0 & 0 & 63 & See source & Public \\
 \midrule
-\multicolumn{5}{l}{\textbf{LOC Subtotal}} & \textbf{2,984} & \textbf{2,765} & \textbf{2,211} & \textbf{554} & & \\
+\multicolumn{5}{l}{\textbf{LOC Subtotal}} & \textbf{2,984} & \textbf{170} & \textbf{49} & \textbf{2,765} & & \\
 \midrule
 \multicolumn{10}{l}{\textit{Function Point (FP) datasets}} \\
-\quad Albrecht (1979) & 1979 & \texttt{10.1147/sj.183.0171} & FP & 26 & 24 & 19 & 5 & Open & Public \\
-\quad Desharnais\textsuperscript{*} & 1989 & \texttt{github.com/Derek-Jones/Software-estimation-datasets} & FP & 81 & 77 & 62 & 15 & CC0 & Public \\
-\quad Kemerer & 1987 & \texttt{10.1145/38807.38814} & FP & 15 & 15 & 12 & 3 & Open & Public \\
-\quad ISBSG (subset) & 2005 & Commercial (public subset) & FP & 45 & 42 & 34 & 8 & Restricted & Subset \\
+\quad Albrecht (1979) & 1979 & \texttt{10.1147/sj.183.0171} & FP & 26 & 2 & 0 & 24 & See source & Public \\
+\quad Desharnais\textsuperscript{*} & 1989 & \texttt{github.com/Derek-Jones/Software-estimation-datasets} & FP & 81 & 3 & 1 & 77 & CC0 & Public \\
+\quad Kemerer & 1987 & \texttt{10.1145/38807.38814} & FP & 15 & 0 & 0 & 15 & See source & Public \\
+\quad ISBSG (subset) & 2005 & Commercial (public subset) & FP & 45 & 2 & 1 & 42 & Restricted & Subset \\
 \midrule
-\multicolumn{5}{l}{\textbf{FP Subtotal}} & \textbf{167} & \textbf{158} & \textbf{127} & \textbf{31} & & \\
+\multicolumn{5}{l}{\textbf{FP Subtotal}} & \textbf{167} & \textbf{7} & \textbf{2} & \textbf{158} & & \\
 \midrule
 \multicolumn{10}{l}{\textit{Use Case Point (UCP) datasets}} \\
-\quad Silhavy et al.\textsuperscript{*} & 2017 & \texttt{10.1016/j.infsof.2016.12.001} \& \texttt{Derek-Jones repo} & UCP & 74 & 71 & 57 & 14 & CC0 & Public \\
-\quad Huynh et al.\textsuperscript{\ddag} & 2023 & \texttt{10.1109/ACCESS.2023.3286372} \& \texttt{zenodo.org/7022735} & UCP & 53 & 48 & 38 & 10 & CC-BY & Public \\
-\quad Karner (original) & 1993 & Technical report (reconstructed) & UCP & 12 & 12 & 10 & 2 & N/A & Reconstructed \\
+\quad Silhavy et al.\textsuperscript{*} & 2017 & \texttt{10.1016/j.infsof.2016.12.001} \& \texttt{Derek-Jones repo} & UCP & 74 & 3 & 0 & 71 & CC0 & Public \\
+\quad Huynh et al.\textsuperscript{\ddag} & 2023 & \texttt{10.1109/ACCESS.2023.3286372} \& \texttt{zenodo.org/7022735} & UCP & 53 & 4 & 1 & 48 & CC-BY & Public \\
+\quad Karner (original) & 1993 & Reconstructed from~\cite{karner1993metrics} & UCP & 12 & 0 & 0 & 12 & N/A & Reconstructed \\
 \midrule
-\multicolumn{5}{l}{\textbf{UCP Subtotal}} & \textbf{139} & \textbf{131} & \textbf{105} & \textbf{26} & & \\
+\multicolumn{5}{l}{\textbf{UCP Subtotal}} & \textbf{139} & \textbf{7} & \textbf{1} & \textbf{131} & & \\
 \midrule
-\multicolumn{5}{l}{\textbf{Grand Total (All Schemas)}} & \textbf{3,290} & \textbf{3,054} & \textbf{2,443} & \textbf{611} & & \\
+\multicolumn{5}{l}{\textbf{Grand Total (All Schemas)}} & \textbf{3,290} & \textbf{184} & \textbf{52} & \textbf{3,054} & & \\
 \bottomrule
-\multicolumn{10}{l}{\footnotesize \textit{Note:} License = data usage terms; Access = Public (freely available), Subset (limited release), Reconstructed (from published paper).} \\
-\multicolumn{10}{l}{\footnotesize \textsuperscript{\dag}DASE = Data Analysis in Software Engineering repository (Rodríguez et al., aggregated datasets 1979--2022).} \\
-\multicolumn{10}{l}{\footnotesize \textsuperscript{*}Derek-Jones = Curated public software estimation datasets repository (github.com/Derek-Jones/Software-estimation-datasets).} \\
+\multicolumn{10}{l}{\footnotesize \textit{Notes:} ``Dup. rm'' = exact and near-duplicates removed (matched on normalized project name, size, effort); ``Invalid rm'' = unit-ambiguous or missing (size, effort) rows.} \\
+\multicolumn{10}{l}{\footnotesize ``Terms'' = data usage terms as stated by source repository or dataset page; when unspecified, we provide rebuild scripts without redistributing raw files.} \\
+\multicolumn{10}{l}{\footnotesize ``Access'' = Public (freely available), Subset (limited commercial release), Reconstructed (from published tables/figures).} \\
+\multicolumn{10}{l}{\footnotesize \textsuperscript{\dag}DASE = Data Analysis in Software Engineering repository (Rodríguez et al., aggregated datasets 1979--2022, CC0-1.0).} \\
+\multicolumn{10}{l}{\footnotesize \textsuperscript{*}Derek-Jones = Curated public software estimation datasets repository (github.com/Derek-Jones/Software-estimation-datasets, CC0).} \\
 \multicolumn{10}{l}{\footnotesize \textsuperscript{\ddag}Huynh et al. (2023): ``Comparing Stacking Ensemble and Deep Learning for Software Project Effort Estimation'', IEEE Access, vol.~11, pp.~60590--60604.} \\
-\multicolumn{10}{l}{\footnotesize Rebuild scripts (commit \texttt{a7f3c2d}), harmonization code, and MD5 hashes archived at DOI: 10.5281/zenodo.XXXXXX (anonymous link during review).} \\
-\multicolumn{10}{l}{\footnotesize Public release planned upon acceptance at \texttt{github.com/[author-repo]/effort-estimation-reproducibility} with full replication package.} \\
+\multicolumn{10}{l}{\footnotesize Train/test splits (80/20 stratified, 10 seeds) detailed in Sec.~\ref{sec:exp-setup}. Rebuild scripts, harmonization code, and MD5 hashes available at \texttt{github.com/[author-anon]} (anonymous during review).} \\
 \end{tabular}
 \end{table*}
 
 \paragraph{Data sources and provenance.}
-For each dataset, we retained: (i) original source name, (ii) publication year, (iii) DOI or GitHub URL, (iv) schema type (LOC/FP/UCP), (v) raw record counts, and (vi) post-deduplication counts. This manifest enables full audit trails and future replication studies. 
+For each dataset, we retained: (i) original source name, (ii) publication year, (iii) DOI or GitHub URL, (iv) schema type (LOC/FP/UCP), (v) raw record counts, (vi) duplicates removed, (vii) invalid/unit-ambiguous rows removed, and (viii) final usable counts. This manifest enables full audit trails and future replication studies. To avoid ambiguity under multi-seed evaluation (10 seeds, stratified splits), we report final cleaned counts in the manifest and describe the complete train/test split protocol separately in Sec.~\ref{sec:exp-setup}. 
 
 \paragraph{Repository cross-validation.}
 To ensure data authenticity and traceability, we cross-validated our compilation against three established public repositories: (i) \textbf{Derek Jones' curated collection}~\cite{jones2022estimation} (github.com/Derek-Jones/Software-estimation-datasets), providing canonical versions of Desharnais, Finnish, Miyazaki, and NASA93 datasets with documented provenance chains; (ii) \textbf{DASE repository}~\cite{rodriguez2023dase} (github.com/danrodgar/DASE), an aggregated collection of effort estimation datasets (1979--2022) used in data analysis coursework, from which we extracted harmonized LOC-based projects; and (iii) \textbf{Zenodo archival deposits}~\cite{huynh2023stacking,zenodo7022735}, ensuring persistent DOIs for UCP datasets and enabling long-term reproducibility. Where multiple versions of the same dataset existed (e.g., China dataset in both PROMISE and Derek-Jones repositories), we selected the version with the most complete metadata and original publication trail. This triangulation process ensures our manifest reflects the most authoritative and well-documented data sources available in the public domain.
@@ -463,7 +464,7 @@ indicating scale invariance commonly observed in empirical software engineering 
 \end{figure*}
 
 \section{Experimental Setup}
-
+\label{sec:exp-setup}
 
 
 \subsection{Train–Test Protocol}

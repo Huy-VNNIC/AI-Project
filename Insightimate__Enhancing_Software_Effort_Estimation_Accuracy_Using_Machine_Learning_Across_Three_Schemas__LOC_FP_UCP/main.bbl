@@ -1,4 +1,4 @@
-\begin{thebibliography}{21}
+\begin{thebibliography}{26}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -38,6 +38,41 @@ Tore Foss, Erik Stensrud, Barbara Kitchenham, and Ivar Myrtveit.
 \newblock A simulation study of the model evaluation criterion mmre.
 \newblock \emph{IEEE Transactions on Software Engineering}, 29\penalty0
   (11):\penalty0 985--995, 2003.
+
+\bibitem[Karner(1993)]{karner1993metrics}
+Gustav Karner.
+\newblock Metrics for objectory.
+\newblock Technical Report LiTH-IDA-Ex-9344:21, University of Link\"oping,
+  Sweden, 1993.
+\newblock Diploma thesis, Department of Computer and Information Science.
+
+\bibitem[Jones(2022)]{jones2022estimation}
+Derek~M. Jones.
+\newblock Software estimation datasets - curated public collection.
+\newblock \url{https://github.com/Derek-Jones/Software-estimation-datasets},
+  2022.
+\newblock Accessed: 2026-02-06.
+
+\bibitem[Rodr{\'i}guez and Dolado(2023)]{rodriguez2023dase}
+Daniel Rodr{\'i}guez and Javier Dolado.
+\newblock Dase: Data analysis in software engineering repository.
+\newblock \url{https://github.com/danrodgar/DASE}, 2023.
+\newblock Aggregated effort estimation datasets 1979--2022. CC0-1.0 license.
+
+\bibitem[Huynh et~al.(2023)Huynh, Silhavy, Prokopova, and
+  Silhavy]{huynh2023stacking}
+Hoc~Thai Huynh, Radek Silhavy, Zdenka Prokopova, and Petr Silhavy.
+\newblock Comparing stacking ensemble and deep learning for software project
+  effort estimation.
+\newblock \emph{IEEE Access}, 11:\penalty0 60590--60604, 2023.
+\newblock \doi{10.1109/ACCESS.2023.3286372}.
+
+\bibitem[Huynh and Silhavy(2023)]{zenodo7022735}
+Hoc~Thai Huynh and Radek Silhavy.
+\newblock Ucp dataset for software effort estimation.
+\newblock Zenodo, 2023.
+\newblock Supplementary data for IEEE Access paper on stacking ensemble
+  methods.
 
 \bibitem[Efron and Tibshirani(1994)]{efron1994bootstrap}
 Bradley Efron and Robert~J. Tibshirani.

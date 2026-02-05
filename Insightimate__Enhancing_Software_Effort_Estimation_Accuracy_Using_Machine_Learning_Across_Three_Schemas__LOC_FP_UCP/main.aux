@@ -42,6 +42,7 @@
 \@writefile{toc}{\contentsline {paragraph}{Prediction at 25\% (PRED(25)).}{4}{section*.7}\protected@file@percent }
 \newlabel{eq:pred25}{{7}{4}{Prediction at 25\% (PRED(25))}{equation.2.7}{}}
 \citation{kitchenham2001evaluating}
+\citation{karner1993metrics}
 \citation{jones2022estimation}
 \citation{rodriguez2023dase}
 \citation{huynh2023stacking,zenodo7022735}
@@ -56,8 +57,8 @@
 \newlabel{sec:dataset-manifest}{{3.1}{5}{Sources and Schema Partitioning}{subsection.3.1}{}}
 \@writefile{toc}{\contentsline {paragraph}{Data sources and provenance.}{5}{section*.12}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Repository cross-validation.}{5}{section*.13}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Dataset Provenance Manifest -- Full auditability with source, year, DOI/URL, raw counts, deduplication, train-test splits, and reproducibility information per schema.\relax }}{6}{table.caption.11}\protected@file@percent }
-\newlabel{tab:dataset-manifest}{{1}{6}{Dataset Provenance Manifest -- Full auditability with source, year, DOI/URL, raw counts, deduplication, train-test splits, and reproducibility information per schema.\relax }{table.caption.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Dataset Provenance Manifest (auditable). Counts reported after schema mapping and unit harmonization. Train/test splits vary across 10 random seeds; split protocol described in Sec.\nobreakspace  {}\ref  {sec:exp-setup}.\relax }}{6}{table.caption.11}\protected@file@percent }
+\newlabel{tab:dataset-manifest}{{1}{6}{Dataset Provenance Manifest (auditable). Counts reported after schema mapping and unit harmonization. Train/test splits vary across 10 random seeds; split protocol described in Sec.~\ref {sec:exp-setup}.\relax }{table.caption.11}{}}
 \@writefile{toc}{\contentsline {paragraph}{Inclusion criteria.}{6}{section*.14}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Exclusion and de-duplication.}{6}{section*.15}\protected@file@percent }
 \@writefile{toc}{\contentsline {paragraph}{Leakage control.}{6}{section*.16}\protected@file@percent }
@@ -82,6 +83,7 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Hyperparameter optimization curves for Decision Tree and Random Forest models. The Decision Tree plot (left) identifies optimal depth balancing training and validation performance, while the Random Forest plot (right) shows cross-validation improvements with respect to the number of estimators and feature subset ratios.\relax }}{10}{figure.caption.26}\protected@file@percent }
 \newlabel{fig:dt-rf-tuning}{{7}{10}{Hyperparameter optimization curves for Decision Tree and Random Forest models. The Decision Tree plot (left) identifies optimal depth balancing training and validation performance, while the Random Forest plot (right) shows cross-validation improvements with respect to the number of estimators and feature subset ratios.\relax }{figure.caption.26}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Experimental Setup}{11}{section.4}\protected@file@percent }
+\newlabel{sec:exp-setup}{{4}{11}{Experimental Setup}{section.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Train–Test Protocol}{11}{subsection.4.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces High-level experimental pipeline (per schema). Data are split into \textbf  {80\% Training} and \textbf  {20\% Test}; \textbf  {5-fold CV} is used for tuning inside training only. The best configuration is refit on full training, evaluated once on test, and results are averaged over \textbf  {10 random seeds}.\relax }}{11}{figure.caption.27}\protected@file@percent }
 \newlabel{fig:exp-pipeline}{{8}{11}{High-level experimental pipeline (per schema). Data are split into \textbf {80\% Training} and \textbf {20\% Test}; \textbf {5-fold CV} is used for tuning inside training only. The best configuration is refit on full training, evaluated once on test, and results are averaged over \textbf {10 random seeds}.\relax }{figure.caption.27}{}}
@@ -169,20 +171,25 @@
 \bibcite{azzeh2019cross}{{3}{2019}{{Azzeh and Nassif}}{{}}}
 \bibcite{kitchenham2001evaluating}{{4}{2001}{{Kitchenham et~al.}}{{Kitchenham, Pickard, MacDonell, and Shepperd}}}
 \bibcite{foss2003bias}{{5}{2003}{{Foss et~al.}}{{Foss, Stensrud, Kitchenham, and Myrtveit}}}
-\bibcite{efron1994bootstrap}{{6}{1994}{{Efron and Tibshirani}}{{}}}
-\bibcite{wilcoxon1945individual}{{7}{1945}{{Wilcoxon}}{{}}}
-\bibcite{breiman2001random}{{8}{2001}{{Breiman}}{{}}}
-\bibcite{holm1979simple}{{9}{1979}{{Holm}}{{}}}
-\bibcite{macbeth2011cliffs}{{10}{2011}{{Macbeth et~al.}}{{Macbeth, Razumiejczyk, and Ledesma}}}
-\bibcite{demvsar2006statistical}{{11}{2006}{{Dem{\v {s}}ar}}{{}}}
-\bibcite{garcia2010advanced}{{12}{2010}{{Garcia et~al.}}{{Garcia, Fernandez, Luengo, and Herrera}}}
-\bibcite{pedregosa2011scikit}{{13}{2011}{{Pedregosa et~al.}}{{}}}
-\bibcite{cruz2019open}{{14}{2019}{{Cruz and Abreu}}{{}}}
-\bibcite{lopez2021empirical}{{15}{2021}{{Lopez et~al.}}{{Lopez, Rodriguez, and Garcia}}}
-\bibcite{friedman2001greedy}{{16}{2001}{{Friedman}}{{}}}
-\bibcite{pandey2023comprehensive}{{17}{2023}{{Pandey et~al.}}{{Pandey, Sharma, and Saha}}}
-\bibcite{alqadi2021deep}{{18}{2021}{{Alqadi and Abran}}{{}}}
-\bibcite{nair2020open}{{19}{2020}{{Nair and Menzies}}{{}}}
-\bibcite{tanveer2023comprehensive}{{20}{2023{}}{{Tanveer et~al.}}{{Tanveer, Hussain, Zahid, et~al.}}}
-\bibcite{yu2021transfer}{{21}{2021}{{Yu et~al.}}{{Yu, Xia, Lo, and Hassan}}}
-\gdef \@abspage@last{23}
+\bibcite{karner1993metrics}{{6}{1993}{{Karner}}{{}}}
+\bibcite{jones2022estimation}{{7}{2022}{{Jones}}{{}}}
+\bibcite{rodriguez2023dase}{{8}{2023}{{Rodr{\'i}guez and Dolado}}{{}}}
+\bibcite{huynh2023stacking}{{9}{2023}{{Huynh et~al.}}{{Huynh, Silhavy, Prokopova, and Silhavy}}}
+\bibcite{zenodo7022735}{{10}{2023}{{Huynh and Silhavy}}{{}}}
+\bibcite{efron1994bootstrap}{{11}{1994}{{Efron and Tibshirani}}{{}}}
+\bibcite{wilcoxon1945individual}{{12}{1945}{{Wilcoxon}}{{}}}
+\bibcite{breiman2001random}{{13}{2001}{{Breiman}}{{}}}
+\bibcite{holm1979simple}{{14}{1979}{{Holm}}{{}}}
+\bibcite{macbeth2011cliffs}{{15}{2011}{{Macbeth et~al.}}{{Macbeth, Razumiejczyk, and Ledesma}}}
+\bibcite{demvsar2006statistical}{{16}{2006}{{Dem{\v {s}}ar}}{{}}}
+\bibcite{garcia2010advanced}{{17}{2010}{{Garcia et~al.}}{{Garcia, Fernandez, Luengo, and Herrera}}}
+\bibcite{pedregosa2011scikit}{{18}{2011}{{Pedregosa et~al.}}{{}}}
+\bibcite{cruz2019open}{{19}{2019}{{Cruz and Abreu}}{{}}}
+\bibcite{lopez2021empirical}{{20}{2021}{{Lopez et~al.}}{{Lopez, Rodriguez, and Garcia}}}
+\bibcite{friedman2001greedy}{{21}{2001}{{Friedman}}{{}}}
+\bibcite{pandey2023comprehensive}{{22}{2023}{{Pandey et~al.}}{{Pandey, Sharma, and Saha}}}
+\bibcite{alqadi2021deep}{{23}{2021}{{Alqadi and Abran}}{{}}}
+\bibcite{nair2020open}{{24}{2020}{{Nair and Menzies}}{{}}}
+\bibcite{tanveer2023comprehensive}{{25}{2023{}}{{Tanveer et~al.}}{{Tanveer, Hussain, Zahid, et~al.}}}
+\bibcite{yu2021transfer}{{26}{2021}{{Yu et~al.}}{{Yu, Xia, Lo, and Hassan}}}
+\gdef \@abspage@last{24}
