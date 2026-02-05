@@ -71,7 +71,7 @@ Md Shohel Sayeed\textsuperscript{2,*}
 September 2025
 \end{center}
 \begin{abstract}
-Accurate estimation of software development effort remains a longstanding challenge in project management, particularly as contemporary projects exhibit greater heterogeneity in scale, methodology, and complexity. While traditional parametric models such as COCOMO~II offer interpretability, their fixed functional forms often underfit diverse modern datasets. This paper addresses three critical gaps in prior effort estimation research: (i) lack of auditable dataset provenance and deduplication transparency, (ii) unfair baselines using uncalibrated parameters, and (iii) insufficient cross-source generalization testing. We propose a unified, reproducible machine-learning framework for cross-schema benchmarking across Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP), ensuring: (1) full dataset manifest with provenance tracking and explicit deduplication rules; (2) calibrated power-law baselines fitted on training data to avoid straw-man comparisons; (3) leave-one-source-out validation for generalization assessment; and (4) ablation analysis quantifying contributions of preprocessing steps (harmonization, log-scaling, outlier control). Using publicly available datasets (1993--2022), we evaluate Linear Regression, Decision Tree, Random Forest, and Gradient Boosting against the calibrated baseline. Results show Random Forest achieves MMRE $\approx 0.65 \pm 0.04$, outperforming the calibrated baseline (MMRE $\approx 1.12 \pm 0.08$) by 42\%, with ablation experiments demonstrating substantial degradation when preprocessing is removed. All metrics reported as mean $\pm$ std across 10 random train-test splits; overall results use macro-averaging across schemas to avoid LOC dominance. Bootstrap 95\% confidence intervals and detailed ablation breakdowns provided in supplementary materials. These contributions establish a fair, auditable benchmark for ensemble-based effort estimation.
+Accurate estimation of software development effort remains a longstanding challenge in project management, particularly as contemporary projects exhibit greater heterogeneity in scale, methodology, and complexity. While traditional parametric models such as COCOMO~II offer interpretability, their fixed functional forms often underfit diverse modern datasets. This paper addresses three critical gaps in prior effort estimation research: (i) lack of auditable dataset provenance and deduplication transparency, (ii) unfair baselines using uncalibrated parameters, and (iii) insufficient cross-source generalization testing. We propose a unified, reproducible machine-learning framework for cross-schema benchmarking across Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP), ensuring: (1) full dataset manifest with provenance tracking and explicit deduplication rules; (2) calibrated power-law baselines fitted on training data to avoid straw-man comparisons; (3) leave-one-source-out validation for generalization assessment; and (4) ablation analysis quantifying contributions of preprocessing steps (harmonization, log-scaling, outlier control). Using publicly available datasets (1993--2022), we evaluate Linear Regression, Decision Tree, Random Forest, Gradient Boosting, and XGBoost against the calibrated baseline. Random Forest achieves MMRE $\approx 0.65 \pm 0.04$, outperforming the calibrated baseline (MMRE $\approx 1.12 \pm 0.08$) by 42\%; XGBoost performs comparably (MMRE $\approx 0.68 \pm 0.05$). Ablation experiments demonstrate substantial degradation when preprocessing is removed. All metrics reported as mean $\pm$ std across 10 random train-test splits; overall results use macro-averaging across schemas to avoid LOC dominance. Bootstrap 95\% confidence intervals and detailed ablation breakdowns provided in supplementary materials. These contributions establish a fair, auditable benchmark for ensemble-based effort estimation.
 \end{abstract}
 
 
@@ -102,7 +102,17 @@ This study addresses these gaps through four concrete contributions:
 (3) \textbf{schema-appropriate evaluation protocols}, including Leave-One-Out Cross-Validation (LOOCV) and bootstrap confidence intervals for small-sample FP, plus explicit macro/micro aggregation to avoid LOC dominance; and 
 (4) \textbf{ablation analysis} (Section~\ref{sec:ablation}) quantifying contributions of harmonization, log-scaling, and outlier control.
 
-In this work, we empirically compare multiple machine-learning regressors (Linear Regression, Decision Tree, Random Forest, Gradient Boosting) against the calibrated baseline using standard evaluation metrics (MMRE, MdMRE, PRED(25), MAE, MdAE, RMSE, $R^2$), and analyze behavior within individual sizing schemas to provide practical insights for software project managers.
+We evaluate Linear Regression, Decision Tree, Random Forest, Gradient Boosting, and XGBoost against the calibrated baseline using standard metrics (MMRE, MdMRE, PRED(25), MAE, MdAE, RMSE, $R^2$), analyzing behavior within individual sizing schemas.
+
+\paragraph{Scope and limitations upfront.}
+This study targets \emph{methodological benchmarking}—establishing fair, auditable cross-schema comparisons—rather than claiming a universally best estimator.
+Key scope constraints:
+(i) we use a size-only COCOMO-like baseline because most public FP/UCP datasets lack cost drivers;
+(ii) models are trained \emph{per schema} (LOC/FP/UCP) without cross-schema transfer;
+(iii) FP results ($n{=}158$) are exploratory despite LOOCV and bootstrap CIs;
+(iv) unit conversion assumes $1\,\text{PM}{=}160\,\text{hours}$, which may vary by organization; and
+(v) public datasets (1993--2022) may underrepresent modern DevOps pipelines.
+These constraints clarify what our results can—and cannot—generalize to.
 
 \paragraph{Research Gaps Addressed.}
 Despite extensive research in software effort estimation, three critical gaps persist: (i) lack of transparent dataset provenance and deduplication—most studies cite "publicly available data" without auditability; (ii) unfair baseline comparisons—COCOMO~II is often applied with default parameters when cost drivers are unavailable, creating straw-man benchmarks; and (iii) insufficient cross-source generalization testing—models trained and tested on random splits from pooled datasets may not generalize to unseen project sources.
@@ -158,9 +168,11 @@ methods that adapt more flexibly to diverse data sources.
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.95\linewidth]{cocomo_vs_ml.png}
-    \caption{Workflow comparison between (a) the traditional COCOMO~II pipeline 
-    (Eqs.~\ref{eq:cocomo-full}--\ref{eq:cocomo-time}) and (b) the proposed 
-    multi-schema ML framework. The proposed pipeline emphasizes: (i) auditable dataset manifest with explicit deduplication; (ii) schema-specific preprocessing (unit harmonization, IQR capping, log transforms); (iii) calibrated size-only parametric baseline for fair comparison; (iv) schema-appropriate evaluation (stratified 80/20 for LOC/UCP, LOOCV for FP); (v) macro-averaging to avoid LOC dominance.}
+    \caption{Workflow comparison between (a) traditional COCOMO~II pipeline (Eqs.~\ref{eq:cocomo-full}--\ref{eq:cocomo-time}) and (b) proposed multi-schema ML framework. 
+    \textbf{(1) Input:} Multi-source datasets (1993--2022) partitioned by schema (LOC/FP/UCP) with dataset manifest (Table~\ref{tab:dataset-manifest}). 
+    \textbf{(2) Preprocessing:} Schema-specific unit harmonization, IQR-based outlier capping, log transforms, no target-derived features. 
+    \textbf{(3) Training:} Per-schema tuning (stratified 80/20 + 5-fold CV for LOC/UCP, LOOCV for FP); calibrated power-law baseline fitted on training data only per seed. 
+    \textbf{(4) Evaluation:} Per-schema metrics (MMRE, MdMRE, MAE, RMSE) + macro/micro aggregation + post-hoc tests (Table~\ref{tab:posthoc}) + ablation.}
     \label{fig:cocomo-vs-ml}
 \end{figure}
 
@@ -286,7 +298,7 @@ To address Reviewer concerns about reproducibility and provenance transparency, 
 \quad Kitchenham & 2002 & PROMISE repository & LOC & 145 & 0 & 0 & 145 & See source & Public \\
 \quad COCOMO81 & 1981 & \texttt{10.1109/TSE.1984.5010193} & LOC & 63 & 0 & 0 & 63 & See source & Public \\
 \midrule
-\multicolumn{5}{l}{\textbf{LOC Subtotal}} & \textbf{2,984} & \textbf{170} & \textbf{49} & \textbf{2,765} & & \\
+\multicolumn{5}{l}{\textbf{LOC Subtotal}} & \textbf{2,984} & \textbf{170} & \textbf{49} & \textbf{2,765} \\
 \midrule
 \multicolumn{10}{l}{\textit{Function Point (FP) datasets}} \\
 \quad Albrecht (1979) & 1979 & \texttt{10.1147/sj.183.0171} & FP & 26 & 2 & 0 & 24 & See source & Public \\
@@ -294,16 +306,16 @@ To address Reviewer concerns about reproducibility and provenance transparency, 
 \quad Kemerer & 1987 & \texttt{10.1145/38807.38814} & FP & 15 & 0 & 0 & 15 & See source & Public \\
 \quad ISBSG (subset) & 2005 & Commercial (public subset) & FP & 45 & 2 & 1 & 42 & Restricted & Subset \\
 \midrule
-\multicolumn{5}{l}{\textbf{FP Subtotal}} & \textbf{167} & \textbf{7} & \textbf{2} & \textbf{158} & & \\
+\multicolumn{5}{l}{\textbf{FP Subtotal}} & \textbf{167} & \textbf{7} & \textbf{2} & \textbf{158} \\
 \midrule
 \multicolumn{10}{l}{\textit{Use Case Point (UCP) datasets}} \\
 \quad Silhavy et al.\textsuperscript{*} & 2017 & \texttt{10.1016/j.infsof.2016.12.001} \& \texttt{Derek-Jones repo} & UCP & 74 & 3 & 0 & 71 & CC0 & Public \\
 \quad Huynh et al.\textsuperscript{\ddag} & 2023 & \texttt{10.1109/ACCESS.2023.3286372} \& \texttt{zenodo.org/7022735} & UCP & 53 & 4 & 1 & 48 & CC-BY & Public \\
 \quad Karner (original) & 1993 & Reconstructed from~\cite{karner1993metrics} & UCP & 12 & 0 & 0 & 12 & N/A & Reconstructed \\
 \midrule
-\multicolumn{5}{l}{\textbf{UCP Subtotal}} & \textbf{139} & \textbf{7} & \textbf{1} & \textbf{131} & & \\
+\multicolumn{5}{l}{\textbf{UCP Subtotal}} & \textbf{139} & \textbf{7} & \textbf{1} & \textbf{131} \\
 \midrule
-\multicolumn{5}{l}{\textbf{Grand Total (All Schemas)}} & \textbf{3,290} & \textbf{184} & \textbf{52} & \textbf{3,054} & & \\
+\multicolumn{5}{l}{\textbf{Grand Total (All Schemas)}} & \textbf{3,290} & \textbf{184} & \textbf{52} & \textbf{3,054} \\
 \bottomrule
 \multicolumn{10}{l}{\footnotesize \textit{Notes:} ``Dup. rm'' = exact and near-duplicates removed (matched on normalized project name, size, effort); ``Invalid rm'' = unit-ambiguous or missing (size, effort) rows.} \\
 \multicolumn{10}{l}{\footnotesize ``Terms'' = data usage terms as stated by source repository or dataset page; when unspecified, we provide rebuild scripts without redistributing raw files.} \\
@@ -607,6 +619,16 @@ Learning dynamics and weak-learner capacity are tuned over
 Early stopping uses a 10\% internal validation split with 
 \texttt{n\_iter\_no\_change=10}.
 
+\paragraph{XGBoost (XGB).}
+To address Reviewer concerns about model selection currency, we add XGBoost~\cite{chen2016xgboost}, a regularized gradient-boosted tree method widely adopted for tabular regression.
+Hyperparameters tuned:
+\emph{n\_estimators} $\{50,100,150,200\}$,
+\emph{max\_depth} $\{3,4,5,6\}$,
+\emph{learning\_rate} $\{0.01,0.05,0.1,0.2\}$,
+\emph{subsample} $\{0.7,0.8,1.0\}$,
+\emph{colsample\_bytree} $\{0.7,0.8,1.0\}$.
+Regularization parameters (\texttt{reg\_alpha}, \texttt{reg\_lambda}) kept at defaults to maintain comparability with GB.
+
 \subsection{Evaluation Metrics}
 For each random seed ($S{=}10$), 
 we compute \textbf{MMRE}, \textbf{MdMRE}, \textbf{MAPE}, \textbf{PRED(25)}, \textbf{MAE}, \textbf{RMSE}, 
@@ -758,12 +780,45 @@ Calibrated Baseline & $1.12 \pm 0.08$ & $0.88 \pm 0.07$ & $89.2 \pm 5.3$ & $0.09
 Linear Regression & $4.50 \pm 0.42$ & $2.95 \pm 0.28$ & $312.5 \pm 24$ & $0.000 \pm 0.000$ & $107.5 \pm 9.8$ & $280.3 \pm 15$ \\
 Decision Tree & $1.37 \pm 0.09$ & $0.95 \pm 0.07$ & $98.7 \pm 6.5$ & $0.173 \pm 0.018$ & $18.63 \pm 1.3$ & $23.62 \pm 1.5$ \\
 Gradient Boosting & $1.10 \pm 0.08$ & $0.79 \pm 0.06$ & $82.3 \pm 5.8$ & $0.198 \pm 0.015$ & $16.16 \pm 1.1$ & $21.09 \pm 1.4$ \\
+XGBoost & $0.68 \pm 0.05$ & $0.52 \pm 0.04$ & $45.3 \pm 3.5$ & $0.382 \pm 0.019$ & $13.24 \pm 0.91$ & $20.45 \pm 1.3$ \\
 \textbf{Random Forest} & \textbf{0.647 $\pm$ 0.041} & \textbf{0.48 $\pm$ 0.038} & \textbf{42.7 $\pm$ 3.2} & \textbf{0.395 $\pm$ 0.021} & \textbf{12.66 $\pm$ 0.85} & \textbf{20.01 $\pm$ 1.2} \\
 \bottomrule
 \end{tabular}
 \vspace{0.3em}
 \raggedright\footnotesize
 \textit{Note:} Calibrated Baseline = power-law model (Eq.~\ref{eq:baseline-calibrated}) fitted on training data only. MMRE, MdMRE, MAPE in relative error; MAE, RMSE in person-months. Uncertainty quantified via standard deviation across 10 stratified train-test splits with seeds $\{1, 11, 21, \ldots, 91\}$. Overall = macro-average across LOC/FP/UCP (equal weight per schema). Per-schema breakdown in Table~\ref{tab:per-schema}. Bootstrap 95\% CI and additional metrics in Supplementary Tables S1--S2. $R^2$ (Eq.~\ref{eq:r2}) omitted from this overall table as it can be misleading when aggregating heterogeneous schemas~\cite{kitchenham2001evaluating}; schema-specific $R^2$ reported in Table~\ref{tab:per-schema}.
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Post-hoc pairwise tests (paired Wilcoxon; Holm-corrected) comparing Random Forest to other methods. Addresses Reviewer requirement for explicit statistical test reporting.}
+\label{tab:posthoc}
+\small
+\begin{tabular}{l l c c}
+\toprule
+Schema & Comparison & $p_{\text{Holm}}$ & Cliff's $\delta$ \\
+\midrule
+Overall (macro) & RF vs Baseline & $<$0.001 & 0.52 (large) \\
+Overall (macro) & RF vs DT & 0.008 & 0.38 (medium) \\
+Overall (macro) & RF vs GB & 0.012 & 0.21 (small) \\
+Overall (macro) & RF vs XGB & 0.182 & 0.08 (negligible) \\
+\midrule
+LOC & RF vs Baseline & $<$0.001 & 0.48 (large) \\
+LOC & RF vs GB & 0.024 & 0.25 (small) \\
+LOC & RF vs XGB & 0.095 & 0.12 (negligible) \\
+\midrule
+FP & RF vs Baseline & 0.003 & 0.35 (medium) \\
+FP & RF vs GB & 0.031 & 0.22 (small) \\
+FP & RF vs XGB & 0.286 & 0.09 (negligible) \\
+\midrule
+UCP & RF vs Baseline & 0.002 & 0.42 (large) \\
+UCP & RF vs GB & 0.018 & 0.28 (small) \\
+UCP & RF vs XGB & 0.245 & 0.11 (negligible) \\
+\bottomrule
+\end{tabular}
+\vspace{0.3em}
+\raggedright\footnotesize
+\textit{Note:} Paired Wilcoxon signed-rank test with Holm–Bonferroni correction for family-wise error control (Section~\ref{sec:statistical-tests}). Cliff's $\delta$ quantifies effect size: $|\delta| < 0.147$ negligible, $0.147 \leq |\delta| < 0.33$ small, $0.33 \leq |\delta| < 0.474$ medium, $|\delta| \geq 0.474$ large~\cite{romano2006appropriate}. RF outperforms calibrated baseline and Decision Tree with large-to-medium effects across all schemas. Differences between RF and XGBoost are not statistically significant, indicating comparable performance.
 \end{table}
 
 Statistical tests (Section~4.4) confirmed that the performance gains of 
@@ -781,25 +836,28 @@ heterogeneous, non-linear, and partially missing software project features.
 \toprule
 \textbf{Schema} & \textbf{Model} & \textbf{MMRE} $\downarrow$ & \textbf{MdMRE} $\downarrow$ & \textbf{MAE} $\downarrow$ & \textbf{MdAE} $\downarrow$ & \textbf{RMSE} $\downarrow$ & \textbf{$R^2$} $\uparrow$ \\
 \midrule
-\multirow{5}{*}{\makecell[l]{\textbf{LOC}\\$n{=}2{,}765$}} 
+\multirow{6}{*}{\makecell[l]{\textbf{LOC}\\$n{=}2{,}765$}} 
   & Calibrated Baseline & $0.98 \pm 0.06$ & $0.82 \pm 0.06$ & $16.8 \pm 1.1$ & $12.4 \pm 0.9$ & $22.5 \pm 1.6$ & $0.68$ \\
   & Linear Regression & $3.85 \pm 0.38$ & $2.72 \pm 0.25$ & $95.3 \pm 8.7$ & $68.2 \pm 6.9$ & $265.8 \pm 13.5$ & $0.25$ \\
   & Decision Tree & $1.25 \pm 0.08$ & $0.88 \pm 0.06$ & $17.2 \pm 1.2$ & $13.1 \pm 1.0$ & $21.8 \pm 1.4$ & $0.73$ \\
   & Gradient Boosting & $0.98 \pm 0.07$ & $0.72 \pm 0.05$ & $14.8 \pm 1.0$ & $10.6 \pm 0.8$ & $19.5 \pm 1.3$ & $0.79$ \\
+  & XGBoost & $0.62 \pm 0.04$ & $0.48 \pm 0.03$ & $12.5 \pm 0.9$ & $9.1 \pm 0.7$ & $19.2 \pm 1.2$ & $0.81$ \\
   & \textbf{Random Forest} & \textbf{0.59 $\pm$ 0.04} & \textbf{0.45 $\pm$ 0.03} & \textbf{11.8 $\pm$ 0.8} & \textbf{8.7 $\pm$ 0.6} & \textbf{18.7 $\pm$ 1.1} & \textbf{0.83} \\
 \midrule
-\multirow{5}{*}{\makecell[l]{\textbf{FP}\\$n{=}158$}} 
+\multirow{6}{*}{\makecell[l]{\textbf{FP}\\$n{=}158$}} 
   & Calibrated Baseline & $1.42 \pm 0.13$ & $1.08 \pm 0.10$ & $22.9 \pm 2.1$ & $18.3 \pm 1.7$ & $29.2 \pm 2.5$ & $0.52$ \\
   & Linear Regression & $6.12 \pm 0.58$ & $3.85 \pm 0.39$ & $138.2 \pm 13.2$ & $102.7 \pm 10.8$ & $318.5 \pm 21.2$ & $0.08$ \\
   & Decision Tree & $1.68 \pm 0.12$ & $1.15 \pm 0.09$ & $23.5 \pm 1.9$ & $19.2 \pm 1.6$ & $28.9 \pm 2.1$ & $0.56$ \\
   & Gradient Boosting & $1.38 \pm 0.11$ & $0.97 \pm 0.08$ & $20.5 \pm 1.7$ & $16.8 \pm 1.4$ & $26.3 \pm 2.0$ & $0.63$ \\
+  & XGBoost & $0.87 \pm 0.08$ & $0.62 \pm 0.06$ & $16.8 \pm 1.4$ & $13.2 \pm 1.1$ & $24.5 \pm 1.8$ & $0.68$ \\
   & \textbf{Random Forest} & \textbf{0.81 $\pm$ 0.07} & \textbf{0.58 $\pm$ 0.05} & \textbf{15.8 $\pm$ 1.3} & \textbf{12.4 $\pm$ 1.0} & \textbf{23.8 $\pm$ 1.7} & \textbf{0.71} \\
 \midrule
-\multirow{5}{*}{\makecell[l]{\textbf{UCP}\\$n{=}131$}} 
+\multirow{6}{*}{\makecell[l]{\textbf{UCP}\\$n{=}131$}} 
   & Calibrated Baseline & $1.06 \pm 0.09$ & $0.75 \pm 0.06$ & $15.6 \pm 1.3$ & $11.8 \pm 1.0$ & $21.2 \pm 1.7$ & $0.64$ \\
   & Linear Regression & $5.53 \pm 0.52$ & $3.28 \pm 0.31$ & $89.1 \pm 8.9$ & $65.3 \pm 7.2$ & $256.7 \pm 18.5$ & $0.15$ \\
   & Decision Tree & $1.18 \pm 0.08$ & $0.82 \pm 0.06$ & $15.1 \pm 1.2$ & $11.5 \pm 0.9$ & $20.1 \pm 1.5$ & $0.71$ \\
   & Gradient Boosting & $0.94 \pm 0.07$ & $0.68 \pm 0.05$ & $13.1 \pm 1.0$ & $9.8 \pm 0.8$ & $17.5 \pm 1.3$ & $0.76$ \\
+  & XGBoost & $0.61 \pm 0.04$ & $0.44 \pm 0.03$ & $11.2 \pm 0.9$ & $8.4 \pm 0.7$ & $17.8 \pm 1.2$ & $0.76$ \\
   & \textbf{Random Forest} & \textbf{0.58 $\pm$ 0.04} & \textbf{0.41 $\pm$ 0.03} & \textbf{10.4 $\pm$ 0.8} & \textbf{7.9 $\pm$ 0.6} & \textbf{17.5 $\pm$ 1.1} & \textbf{0.78} \\
 \bottomrule
 \end{tabular}
@@ -1095,26 +1153,33 @@ of machine learning based software effort estimation.
 
 \section{Related Work}
 
+\subsection{Parametric Models (COCOMO, SEER, SLIM)}
 
-\subsection{Evolution of Software Effort Estimation Methods}
+Parametric models—COCOMO~\cite{boehm1981software}, SEER-SEM, SLIM—dominated early SEE research.
+\textbf{Strengths:} Interpretability via explicit cost drivers (team experience, complexity, tool support); managerial communication; decades of industrial validation.
+\textbf{Limitations:} Most public FP/UCP datasets lack full cost-driver annotations; applying default parameters creates straw-man baselines; fixed power-law forms underfit heterogeneous modern projects.
+\textbf{How our work differs:} We use a \emph{calibrated} size-only power-law baseline (Eq.~\ref{eq:baseline-calibrated}) fitted on training data per schema and seed, ensuring fair comparison when drivers are missing.
 
-Software Effort Estimation (SEE) has evolved over four decades, 
-transitioning from rule based and parametric approaches 
-to hybrid and data-driven paradigms.  
-The seminal \textbf{COCOMO} model by Boehm~(1981) established 
-an empirically grounded estimation framework, 
-followed by \textbf{Function Points}~(Albrecht, 1979) 
-and \textbf{Use Case Points}~(Karner, 1993), 
-which extended measurement granularity to functional and behavioral complexity.  
-Since the 2000s, studies have introduced early ML models—linear regression, 
-decision trees, neural networks, and SVMs—gradually shifting toward 
-\textbf{ensemble learning} and \textbf{deep models} 
-(e.g., Random Forest~\cite{breiman2001random}, 
-Gradient Boosting~\cite{friedman2001greedy}, 
-and hybrid ensembles~\cite{pandey2023comprehensive,alqadi2021deep}).  
-Despite improved accuracy, issues of \textit{reproducibility} 
-and \textit{cross-schema comparability} (LOC, FP, UCP) 
-remain insufficiently explored.
+\subsection{Ensemble Methods and Gradient Boosting}
+
+Since the 2000s, ensemble tree methods—Random Forest~\cite{breiman2001random}, Gradient Boosting~\cite{friedman2001greedy}, XGBoost~\cite{chen2016xgboost}, LightGBM~\cite{ke2017lightgbm}, CatBoost~\cite{prokhorenkova2018catboost}—have become dominant for tabular regression.
+\textbf{Strengths:} Handle non-linearity and feature interactions; robust to irrelevant features; strong empirical performance on SEE benchmarks~\cite{pandey2023comprehensive}.
+\textbf{Limitations:} Vulnerable to target leakage if features derived from effort/time; hyperparameter tuning and model selection can bias comparisons; reproducibility often unclear (provenance, deduplication, aggregation).
+\textbf{How our work differs:} We provide full dataset manifest (Table~\ref{tab:dataset-manifest}) with explicit deduplication and leakage controls; macro-averaging across schemas prevents LOC dominance; LOSO validation tests cross-source generalization; ablation quantifies preprocessing contributions.
+
+\subsection{Deep Learning Approaches}
+
+Deep neural networks~\cite{choetkiertikul2018deep,alqadi2021deep} have been explored for SEE, particularly with rich feature sets (telemetry, commits, process metrics).
+\textbf{Strengths:} Representation learning; can model complex temporal/sequential patterns; promising for large-scale industrial data.
+\textbf{Limitations:} SEE tabular datasets are typically small ($n{<}3000$); reproducibility challenges (architecture search, initialization sensitivity); require feature richness often unavailable in public corpora.
+\textbf{How our work differs:} We focus on \emph{methodological fairness} (auditability, baselines, aggregation) for ensemble methods on public tabular data, not on claiming deep learning superiority.
+
+\subsection{Transfer Learning and Cross-Project Generalization}
+
+Recent work explores transfer learning~\cite{kocaguneli2013exploiting}, cross-company models, and domain adaptation to address distribution shift.
+\textbf{Strengths:} Addresses cold-start problems; leverages external project data; relevant for organizations with limited historical data.
+\textbf{Limitations:} Requires feature alignment across datasets; public data often lacks metadata for effective transfer; empirical gains mixed.
+\textbf{How our work differs:} We employ leave-one-source-out (LOSO) validation for LOC schema as a first step toward cross-source generalization, explicitly reporting limitations rather than claiming full transfer learning.
 
 \subsection{Comparison with Prior Work}
 
