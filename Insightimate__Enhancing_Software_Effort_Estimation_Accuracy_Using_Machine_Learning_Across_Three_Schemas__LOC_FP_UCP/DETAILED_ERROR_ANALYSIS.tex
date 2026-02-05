@@ -1,0 +1,845 @@
+% DETAILED ERROR ANALYSIS - Point-by-Point Reviewer Comments
+% Compile: pdflatex DETAILED_ERROR_ANALYSIS.tex
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{fatal}{RGB}{255,200,200}
+\definecolor{major}{RGB}{255,235,200}
+\definecolor{minor}{RGB}{230,255,230}
+\definecolor{structure}{RGB}{220,220,255}
+
+\title{\textbf{DETAILED ERROR ANALYSIS}\\
+\large Point-by-Point Mapping of Reviewer Comments to Paper Issues}
+\author{}
+\date{February 6, 2026}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{REVIEWER 1: Methodological Concerns}
+
+\begin{longtable}{|p{1cm}|p{5.5cm}|p{4cm}|p{3.5cm}|}
+\caption{Reviewer 1 - Detailed Issue Mapping} \\
+\hline
+\textbf{R1.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endfirsthead
+\hline
+\textbf{R1.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endhead
+\hline
+\endlastfoot
+
+\rowcolor{major}
+R1.1 & \textbf{Novelty unclear:} "Provide a clearer positioning of what is novel beyond 'a unified evaluation pipeline.'" 
+& Abstract lines 8-12
+\newline Introduction Section 1, paragraph 3
+\newline Contributions list (lines 91-93)
+& \textbf{MAJOR - Conceptual Gap}
+\newline Paper states "unified pipeline" but reviewers see this as procedural/engineering contribution, NOT methodological novelty. Current contribution bullets are vague. \\
+\hline
+
+\rowcolor{fatal}
+R1.2 & \textbf{COCOMO II unfair:} "Add experiments with recalibrated COCOMO II for a fairer comparison." 
+& Section 2.1 (COCOMO Recap)
+\newline Section 5.1 Table 1 (baseline results)
+\newline Section 4 (no calibration mentioned)
+& \textbf{FATAL - Invalid Baseline}
+\newline Paper uses COCOMO II with UNCALIBRATED parameters (likely A=2.94, B=0.91 defaults). Comparing RF against uncalibrated COCOMO creates "straw man" argument. MMRE=2.790 is suspiciously high. Must fit A, B on training data per schema. \\
+\hline
+
+\rowcolor{major}
+R1.3 & \textbf{Modern datasets missing:} "Include modern datasets (GitHub, Jira-based effort logs, DevOps metrics) to improve relevance." 
+& Section 3.1 (Data Sources)
+\newline Datasets are 1993-2022, no GitHub/Jira
+& \textbf{MAJOR - Generalization Concern}
+\newline All datasets are historical/legacy. No modern DevOps metrics, CI/CD telemetry, or Agile story points. Limits external validity for contemporary projects. \\
+\hline
+
+\rowcolor{minor}
+R1.4 & \textbf{Additional metrics:} "Report additional error metrics such as MAPE, MdMRE, or RAE." 
+& Section 2.3 (Evaluation Metrics)
+\newline Section 5 (Results tables)
+& \textbf{MINOR - Incomplete Metrics}
+\newline Only reports MMRE, PRED(25), MAE, RMSE, R². Missing MdMRE (median-based, more robust), MAPE, RAE. Easy to add. \\
+\hline
+
+\rowcolor{minor}
+R1.5 & \textbf{Confidence intervals:} "Provide confidence intervals for all reported metrics." 
+& Section 5.1 Table 1
+\newline All result tables
+& \textbf{MINOR - Uncertainty Reporting}
+\newline Results show mean values only (e.g., MMRE=0.647). Should report "Mean [95\% CI]" using bootstrap or standard error from 10 seeds. \\
+\hline
+
+\rowcolor{minor}
+R1.6 & \textbf{Length reduction:} "Reduce length by moving some methodological details to appendices or supplementary material." 
+& Entire document
+& \textbf{MINOR - Formatting}
+\newline Paper may be verbose in preprocessing details (Section 3.2-3.4). Can move IQR formulas, detailed harmonization rules to Supplementary. \\
+\hline
+
+\rowcolor{major}
+R1.7 & \textbf{Reproducibility:} "Release the harmonized dataset and scripts for reproducibility." 
+& Section 9 (Data Availability)
+\newline No GitHub link provided
+& \textbf{MAJOR - Reproducibility Gap}
+\newline Paper says "upon reasonable request" but no actual repository link. Reviewers cannot verify claims. Should upload to Zenodo/Figshare with DOI. \\
+\hline
+
+\end{longtable}
+
+\newpage
+\section{REVIEWER 2}
+
+\textbf{Note:} Reviewer 2 provided an attachment. Based on the email, this was added separately. 
+The main concerns likely overlap with Reviewer 8's detailed technical review.
+
+\textit{Action: Read Reviewer 2 attachment carefully and map to specific sections.}
+
+\newpage
+\section{REVIEWER 3: Structure \& Clarity}
+
+\begin{longtable}{|p{1cm}|p{5.5cm}|p{4cm}|p{3.5cm}|}
+\caption{Reviewer 3 - Detailed Issue Mapping} \\
+\hline
+\textbf{R3.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endfirsthead
+\hline
+\textbf{R3.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endhead
+\hline
+\endlastfoot
+
+\rowcolor{major}
+R3.1 & \textbf{Introduction structure:} "The Introduction should make a compelling case... What is already known? What is missing? What needs to be done?" 
+& Section 1, paragraphs 1-3
+& \textbf{MAJOR - Structure Weakness}
+\newline Introduction jumps to "unified framework" without clearly establishing (1) state of art, (2) research gap, (3) specific research questions. Need explicit subsections: 1.1 Motivation, 1.2 Research Gap, 1.3 Contributions. \\
+\hline
+
+\rowcolor{major}
+R3.2 & \textbf{Related Work insufficient:} "Compare the references... draw the paper's motivation. Cite: aisy.202300706, patcog.112890, ACCESS.3480205, engappai.111655" 
+& Section 7 (Related Work)
+\newline NO comparison table
+& \textbf{MAJOR - Missing SOTA Comparison}
+\newline Section 7 describes evolution of SEE but does NOT compare specific papers in a table. Must create comparison: Study | Year | Approach | Schemas | Statistical Tests | MMRE | Our Advantage. Must cite 4 DOI papers suggested. \\
+\hline
+
+\rowcolor{major}
+R3.3 & \textbf{Assumptions \& limitations:} "Highlight all assumptions and limitations of your work." 
+& Section 6 (Threats to Validity)
+\newline NO explicit Assumptions section
+& \textbf{MAJOR - Missing Critical Section}
+\newline Paper has "Threats to Validity" but no explicit "Assumptions" (e.g., linear cost-effort, 160h/month, no team dynamics). Need NEW Section 3.6 or subsection in Methods: "Assumptions and Limitations" (2 pages). \\
+\hline
+
+\rowcolor{minor}
+R3.4 & \textbf{Figure 1 description:} "Describe clearly Figure 1 within the text." 
+& Figure 1 caption (line ~130)
+\newline No detailed explanation in text
+& \textbf{MINOR - Figure Caption Weak}
+\newline Figure 1 shows COCOMO pipeline vs ML framework but caption is 1 sentence. Need 3-4 sentence caption explaining: (a) left side is COCOMO, (b) right side is ML, (c) key differences are preprocessing + model flexibility. \\
+\hline
+
+\rowcolor{minor}
+R3.5 & \textbf{Conclusion structure:} "Consider: (i) Strengths and weaknesses, (ii) Assessment and implications, (iii) Projection/recommendations" 
+& Section 8 (Conclusion)
+& \textbf{MINOR - Conclusion Enhancement}
+\newline Current conclusion summarizes findings but lacks explicit "Strengths/Weaknesses" subsection and "Practical Recommendations" for PM. Can restructure as: 8.1 Summary, 8.2 Strengths \& Limitations, 8.3 Recommendations. \\
+\hline
+
+\end{longtable}
+
+\newpage
+\section{REVIEWER 4: Linguistic \& Methodological Quality}
+
+\begin{longtable}{|p{1cm}|p{5.5cm}|p{4cm}|p{3.5cm}|}
+\caption{Reviewer 4 - Detailed Issue Mapping} \\
+\hline
+\textbf{R4.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endfirsthead
+\hline
+\textbf{R4.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endhead
+\hline
+\endlastfoot
+
+\rowcolor{major}
+R4.1 & \textbf{Introduction too short:} "The introduction is too short, the limitations of their research related to this paper should be pointed out" 
+& Section 1 (Introduction)
+\newline Only 3 paragraphs
+& \textbf{MAJOR - Insufficient Context}
+\newline Introduction is only ~600 words. Missing: (1) detailed problem scoping, (2) explicit research questions, (3) scope/limitations preview. Should expand to 4-5 paragraphs or add subsections. \\
+\hline
+
+\rowcolor{major}
+R4.2 & \textbf{Related Work lacks comparison:} "Detailed explanations for advantage and drawback of each related method. Cite: TSMC.2025.3580086, TFUZZ.2025.3569741, TETCI.2025.3647653" 
+& Section 7 (Related Work)
+\newline Figure 7 (related work diagram)
+& \textbf{MAJOR - Missing SOTA Models}
+\newline Paper mentions ML evolution but does NOT discuss: (1) XGBoost/LightGBM/CatBoost, (2) Deep Learning approaches, (3) Recent 2024-2025 papers. Must add comparison table + cite 3 DOI papers. \\
+\hline
+
+\rowcolor{major}
+R4.3 & \textbf{Newer models missing:} "There are some newer model can be as candidate algorithm for solving this problem." 
+& Section 2.2 (Multi-Schema Framework)
+\newline Section 4.2 (Models: LR, DT, RF, GB)
+& \textbf{MAJOR - Outdated Model Selection}
+\newline Paper only tests LR, DT, RF, GB. Missing: XGBoost, LightGBM, CatBoost, Neural Networks (MLP), LSTM for sequential effort. These are 2020+ SOTA. Must add XGBoost at minimum. \\
+\hline
+
+\rowcolor{minor}
+R4.4 & \textbf{Post-hoc tests:} "Post hoc statistical tests can be used to discuss the results." 
+& Section 4.4 (Significance Testing)
+\newline Wilcoxon + Holm-Bonferroni mentioned
+& \textbf{MINOR - Statistical Enhancement}
+\newline Paper uses Wilcoxon + Cliff's Delta, which is good. Could add Friedman test + Nemenyi post-hoc for comparing 5+ models across multiple datasets (more robust than pairwise Wilcoxon). \\
+\hline
+
+\rowcolor{major}
+R4.5 & \textbf{Language quality:} "Linguistic quality needs improvement. Grammatical errors affect quality." 
+& Entire document
+\newline e.g., "it is worth noting" appears multiple times
+& \textbf{MAJOR - AI-Generated Tone}
+\newline Paper uses formulaic phrases: "it is worth noting," "captures the nuances," "substantially outperforming." Sounds templated. Need manual rewrite to sound natural. Run Grammarly + human editing. \\
+\hline
+
+\end{longtable}
+
+\newpage
+\section{REVIEWER 5: Experimental Completeness}
+
+\begin{longtable}{|p{1cm}|p{5.5cm}|p{4cm}|p{3.5cm}|}
+\caption{Reviewer 5 - Detailed Issue Mapping} \\
+\hline
+\textbf{R5.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endfirsthead
+\hline
+\textbf{R5.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endhead
+\hline
+\endlastfoot
+
+\rowcolor{major}
+R5.1 & \textbf{Generalization:} "Would be interesting to see if these models hold up across different methodologies. Add more datasets." 
+& Section 3.1 (Datasets)
+\newline Section 6 (External Validity)
+& \textbf{MAJOR - Limited Generalization}
+\newline All datasets are historical waterfall projects. No Agile, no Scrum, no DevOps. Cannot claim generalization to modern SDLC. Need: (1) Agile story point datasets, (2) CI/CD telemetry, OR (3) explicit limitation statement. \\
+\hline
+
+\rowcolor{minor}
+R5.2 & \textbf{Paper structure:} "At the end of the introduction, incorporate the structure of the paper." 
+& Section 1, end of Introduction
+& \textbf{MINOR - Roadmap Missing}
+\newline Introduction ends with contributions list but no roadmap. Should add: "The remainder of this paper is organized as follows: Section 2 presents background, Section 3 describes datasets..." \\
+\hline
+
+\rowcolor{fatal}
+R5.3 & \textbf{Figure quality:} "Figures 1 and 2 are suboptimal. Enhance quality." 
+& Figure 1 (COCOMO vs ML)
+\newline Figure 2 (Unit conversions)
+\newline ALL figures have NO CAPTIONS
+& \textbf{FATAL - Missing Captions \& Low Resolution}
+\newline Reviewer 7 also flags this: "None of the figures contain captions." LaTeX code shows figures but captions may be formatted incorrectly or missing. ALL figures must have: (1) High-res export (600dpi PDF), (2) Proper caption with label. \\
+\hline
+
+\rowcolor{major}
+R5.4 & \textbf{Ablation study:} "Incorporate ablation study to evaluate each part of the proposed method." 
+& NO ablation study in paper
+& \textbf{MAJOR - Missing Validation}
+\newline Paper claims preprocessing (unit harmonization, log transform, IQR capping) improves results but provides NO ablation: Raw vs +Log vs +Log+IQR vs Full. Must add NEW Table: "Ablation Study - RF Performance with Progressive Preprocessing Steps." \\
+\hline
+
+\rowcolor{minor}
+R5.5 & \textbf{Limitations detail:} "Incorporate the limitation of the proposed method in more detail." 
+& Section 6 (Threats to Validity)
+& \textbf{MINOR - Expand Limitations}
+\newline Threats to validity is generic. Need explicit limitations: (1) FP n=24 too small, (2) No team dynamics features, (3) Assumes 160h/month uniform, (4) Historical data bias. \\
+\hline
+
+\rowcolor{minor}
+R5.6 & \textbf{Figure numbering:} "The numbering of the figures should be added to the manuscript." 
+& All figures
+& \textbf{MINOR - Formatting Issue}
+\newline Figures may be numbered correctly in LaTeX but reviewer cannot see them (PDF rendering issue?). Ensure figure labels are visible: Figure 1:, Figure 2:, etc. \\
+\hline
+
+\rowcolor{structure}
+R5.7 & \textbf{Section structure:} "Some sections are disorder. Integrate brief 1-2 sentence subsections." 
+& Section 3 (multiple small subsections)
+& \textbf{MINOR - Organization}
+\newline Section 3 has many small subsections (3.1, 3.2, 3.3, 3.4, 3.5). Some are only 1 paragraph. Can merge: 3.2 + 3.3 into "Data Cleaning," 3.4 into existing section. \\
+\hline
+
+\rowcolor{minor}
+R5.8 & \textbf{Cite additional papers:} "Consider: 10.1007/s44248-024-00016-0, 10.21203/rs.3.rs-7556543/v1" 
+& Section 7 (Related Work)
+& \textbf{MINOR - Missing Citations}
+\newline Must cite 2 additional papers in Related Work + explain how they relate to this study. \\
+\hline
+
+\rowcolor{major}
+R5.9 & \textbf{Linear Regression justification:} "If relationship is non-linear, LR might not work well, limiting framework performance." 
+& Section 4.2 (Models)
+\newline Table 1 shows LR performs badly
+& \textbf{MAJOR - Model Justification}
+\newline Paper includes LR as baseline but results show MMRE=4.5 (worst). Should either: (1) Remove LR from comparison, OR (2) Justify why it's included: "LR serves as a sanity check for linearity assumptions; poor results confirm non-linear relationships." \\
+\hline
+
+\end{longtable}
+
+\newpage
+\section{REVIEWER 6: Technical Details}
+
+\begin{longtable}{|p{1cm}|p{5.5cm}|p{4cm}|p{3.5cm}|}
+\caption{Reviewer 6 - Detailed Issue Mapping} \\
+\hline
+\textbf{R6.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endfirsthead
+\hline
+\textbf{R6.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endhead
+\hline
+\endlastfoot
+
+\rowcolor{fatal}
+R6.1 & \textbf{"Overall" aggregation unclear:} "Abstract mentions MMRE≈0.647 but does not clarify if averaged across schemas or from specific one. Given schema differences, specify to avoid misinterpretation." 
+& Abstract line 10
+\newline Section 5.1 Table 1 ("Overall")
+& \textbf{FATAL - Ambiguous Metrics}
+\newline Table 1 title: "Overall test performance" but HOW is "overall" computed? (1) Pooling all LOC+FP+UCP predictions? (2) Macro-average (unweighted mean of 3 schemas)? (3) Micro-average (weighted by sample size)? LOC n=947 dominates FP n=24. MUST define explicitly. \\
+\hline
+
+\rowcolor{major}
+R6.2 & \textbf{Equation labels duplicate:} "Section 2.1 equation references undefined. Equation for Time presented twice with nearly identical wording." 
+& Section 2.1, Equations 1-2
+\newline Lines ~120-130
+& \textbf{MAJOR - Duplicate/Formatting Error}
+\newline LaTeX shows:
+\newline \texttt{Time = C × E\^{}D} appears TWICE (Eq 2 and again after line 130). Second instance is redundant. DELETE second copy. Also fix equation labels: use \texttt{label\{eq:cocomo-time\}} properly. \\
+\hline
+
+\rowcolor{fatal}
+R6.3 & \textbf{FP sample size protocol:} "FP n=24 is very small. May limit statistical reliability. Discuss limitation and impact on conclusions for FP." 
+& Section 3.1 (FP schema n=24)
+\newline Section 4.1 (Train-test protocol)
+\newline Section 5.2 (FP results)
+& \textbf{FATAL - Statistical Power Issue}
+\newline 80/20 split on n=24 gives ~19 train / ~5 test. Grid search with 5-fold CV on 19 training samples is HIGHLY UNSTABLE. Should use: (1) Leave-One-Out CV for FP, (2) Bootstrap confidence intervals, (3) Label FP results "exploratory." \\
+\hline
+
+\rowcolor{major}
+R6.4 & \textbf{R² column shows "--":} "Table 1 shows '--' for R² for all models. If computed, report. Otherwise remove or explain." 
+& Section 5.1 Table 1
+\newline All result tables
+& \textbf{MAJOR - Missing Metric}
+\newline LaTeX code shows: \texttt{R² \$uparrow\$ -- -- -- -- --}. Either: (1) R² was computed but not filled in (typo), OR (2) R² not computed. Section 2.3 defines R² formula so SHOULD be reported. Must compute and fill OR explain "R² not applicable for COCOMO II due to negative values." \\
+\hline
+
+\end{longtable}
+
+\newpage
+\section{REVIEWER 7: Rigor \& Reproducibility}
+
+\begin{longtable}{|p{1cm}|p{5.5cm}|p{4cm}|p{3.5cm}|}
+\caption{Reviewer 7 - Detailed Issue Mapping} \\
+\hline
+\textbf{R7.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endfirsthead
+\hline
+\textbf{R7.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endhead
+\hline
+\endlastfoot
+
+\rowcolor{fatal}
+R7.1 & \textbf{Formatting catastrophic:} "None of the figures or tables contain captions. Figures are low resolution with unreadable text. Paper lacks page/line numbers." 
+& ALL figures (1-8)
+\newline ALL tables
+\newline LaTeX preamble (no lineno package)
+& \textbf{FATAL - Submission Standards Violation}
+\newline This is CRITICAL. LaTeX code shows figures with includegraphics but captions may be missing or incorrectly formatted. MUST: (1) Add caption\{...\} for EVERY figure, (2) Export figures as vector PDF 600dpi, (3) Add usepackage\{lineno\} + linenumbers in preamble for easy review. \\
+\hline
+
+\rowcolor{major}
+R7.2 & \textbf{AI-generated tone:} "Language feels unnatural and formulaic, as if heavily templated or generated. Authors need to manually revise for natural academic tone." 
+& Entire document
+\newline Phrases: "it is worth noting," "captures nuances," "substantially"
+& \textbf{MAJOR - Writing Quality}
+\newline Multiple reviewers (R4, R7) flag this. Paper overuses generic phrases. Must: (1) Run Grammarly, (2) Manual human rewrite removing clichés, (3) Vary sentence structure. \\
+\hline
+
+\rowcolor{fatal}
+R7.3 & \textbf{COCOMO II straw man:} "COCOMO error rates suspiciously high. Not stated if A, B calibrated or defaults used. Using uncalibrated creates straw man, invalidates comparison." 
+& Section 2.1 (COCOMO)
+\newline Section 4.2 (no COCOMO calibration mentioned)
+\newline Table 1 (MMRE=2.790)
+& \textbf{FATAL - Invalid Baseline}
+\newline SAME as R1.2 and R8.X. Paper does NOT describe COCOMO implementation. MMRE=2.790 suggests default parameters on heterogeneous data. MUST: (1) Fit A, B using scipy.optimize on training set per schema, (2) Report COCOMO (original) vs COCOMO (calibrated) vs RF, (3) Explain limitations for FP/UCP (may need FP-to-LOC conversion). \\
+\hline
+
+\rowcolor{major}
+R7.4 & \textbf{SOTA models missing:} "Model selection outdated. Fails to include XGBoost, LightGBM, CatBoost. No deep learning or LLMs." 
+& Section 4.2 (Models: LR, DT, RF, GB)
+\newline Section 7 (Related Work)
+& \textbf{MAJOR - Incomplete Comparison}
+\newline SAME as R4.3. Paper only uses scikit-learn basic models. Modern SOTA for tabular data: XGBoost, LightGBM, CatBoost. Must add XGBoost at minimum. Deep learning (MLP) optional but should mention in limitations: "Neural networks not explored due to small FP/UCP sample sizes." \\
+\hline
+
+\rowcolor{major}
+R7.5 & \textbf{Interpretability unsupported:} "Authors claim RF provides interpretability but results focus only on error metrics. Must include feature importance (Gini or SHAP)." 
+& Section 6 (Discussion)
+\newline NO feature importance plot
+& \textbf{MAJOR - Missing Analysis}
+\newline Paper says RF is interpretable (Section 6, paragraph 1) but provides NO feature importance analysis. MUST add: (1) NEW Figure: RF feature importance (Gini impurity), (2) NEW paragraph explaining top 3 features (e.g., Size, Time, Developers contribute X\%). \\
+\hline
+
+\rowcolor{major}
+R7.6 & \textbf{Ablation study missing:} "Complex pipeline but no validation of individual components. Need ablation to verify if gains come from framework or just log/IQR." 
+& NO ablation study
+& \textbf{MAJOR - Missing Validation}
+\newline SAME as R5.4. Must create NEW Table: "Ablation Study - RF MMRE with Progressive Preprocessing"
+\newline Raw → +Log → +Log+IQR → +Log+IQR+Harmonization
+\newline Show that each step contributes to performance. \\
+\hline
+
+\rowcolor{fatal}
+R7.7 & \textbf{Sample sizes unclear:} "Data reporting vague. FP n=24 means test set ~5 data points, statistically insufficient. Must list sample sizes for all splits." 
+& Section 3.1 (Data sources)
+\newline NO explicit train/test counts per schema
+& \textbf{FATAL - Missing Critical Info}
+\newline Paper says "n≈947 LOC, n=24 FP, n=71 UCP" but does NOT report: (1) Train vs test split counts per schema, (2) Per-source counts before/after dedup. MUST create: NEW Table 1 in Section 3.1: "Dataset Manifest" with columns: Source | Link/DOI | Schema | Raw Count | After Dedup | Train | Test. \\
+\hline
+
+\rowcolor{major}
+R7.8 & \textbf{Generalization unclear:} "Main contribution is engineering pipeline, not methodological. Need to show approach generalizes to unseen datasets or different organizations." 
+& Section 6 (External Validity)
+\newline NO cross-organization validation
+& \textbf{MAJOR - Limited Generalization}
+\newline Paper tests on random holdouts from SAME historical pool. Does NOT test: (1) Leave-one-source-out (LOSO) CV per dataset origin, (2) Transfer to new organization. Must either: (1) Add LOSO experiment, OR (2) Acknowledge limitation: "Cross-organizational validation is future work." \\
+\hline
+
+\rowcolor{major}
+R7.9 & \textbf{Figure anomalies:} "Discussion figures appear strange. LOC error curve has few points. LR error DECREASES as size increases (contradicts theory). FP ground truth is smooth curve, not scattered (simulations?)." 
+& Figure in Section 6 (Error Profiles)
+\newline May be Figure 5 or later
+& \textbf{MAJOR - Questionable Visualizations}
+\newline Reviewer suspects: (1) Figures may show TRAINING data not TEST, OR (2) Ground truth line interpolated incorrectly. MUST: (1) Verify all plots use TEST SET only, (2) Plot actual scatter points, not interpolated curves, (3) Add figure caption explaining what each line/point represents. \\
+\hline
+
+\end{longtable}
+
+\newpage
+\section{REVIEWER 8: Deep Technical Critique}
+
+\begin{longtable}{|p{1cm}|p{5.5cm}|p{4cm}|p{3.5cm}|}
+\caption{Reviewer 8 - Detailed Issue Mapping} \\
+\hline
+\textbf{R8.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endfirsthead
+\hline
+\textbf{R8.\#} & \textbf{Reviewer Comment} & \textbf{Location in Paper} & \textbf{Error Type \& Severity} \\
+\hline
+\endhead
+\hline
+\endlastfoot
+
+\rowcolor{major}
+R8.1 & \textbf{Limited novelty:} "Main findings (RF > COCOMO) well established. Unified framework is procedural, not methodological. Contribution incremental." 
+& Abstract
+\newline Introduction (contributions)
+& \textbf{MAJOR - Conceptual Weakness}
+\newline Reviewer 8 (most technical) says paper is good empirical study but does NOT introduce new modeling paradigm. Must: (1) Reframe contributions to emphasize REPRODUCIBLE BENCHMARK + HARMONIZATION PROTOCOL as main value, NOT just "RF wins," (2) Downplay novelty claims. \\
+\hline
+
+\rowcolor{fatal}
+R8.2 & \textbf{No cross-schema learning:} "Models trained independently for LOC/FP/UCP. No cross-schema generalization, transfer learning, or shared representation. Doesn't address fragmentation." 
+& Section 2.2 (Framework)
+\newline Section 4.1 (Train-test)
+& \textbf{FATAL - Conceptual Gap}
+\newline Paper claims "unified multi-schema" but trains 3 SEPARATE models (one per schema). No model trained on {LOC+FP+UCP} jointly. Current approach is "3 parallel pipelines" NOT "unified." Must: (1) Clarify in Abstract/Intro, OR (2) Add cross-schema transfer experiment (train LOC, test FP). \\
+\hline
+
+\rowcolor{fatal}
+R8.3 & \textbf{Data imbalance not addressed:} "Effort datasets highly skewed. Standard loss functions biased toward majority ranges. May inflate performance while masking poor behavior on large projects." 
+& Section 3.3 (Outlier handling)
+\newline Section 4.2 (Models use MSE loss)
+& \textbf{FATAL - Imbalance Ignored}
+\newline Paper does IQR capping (mitigates outliers) but does NOT address CLASS IMBALANCE (many small projects, few large). Models minimize MSE which gives equal weight to all samples. Large projects (high impact) may be systematically under-predicted. MUST: (1) Analyze error distribution by project size quantile, (2) Consider weighted loss or focal loss for regression (cite: 10.1038/s41598-025-22853-y). \\
+\hline
+
+\rowcolor{major}
+R8.4 & \textbf{Imbalance-aware learning opportunity:} "Study would be strengthened by incorporating focal loss variants for regression. Recent work (10.1038/s41598-025-22853-y) shows focal loss improves robustness on long-tailed targets." 
+& Section 4.2 (Models)
+\newline Section 8 (Future Work)
+& \textbf{MAJOR - Missed Methodological Opportunity}
+\newline Reviewer suggests NOVEL contribution: adapt focal loss from classification to regression for imbalanced effort data. This would add genuine novelty. Can: (1) Implement focal MSE loss for RF/GB, OR (2) Cite paper and add to Future Work: "Focal loss for imbalanced regression datasets." \\
+\hline
+
+\rowcolor{major}
+R8.5 & \textbf{Dataset provenance missing:} "Data aggregation mentioned but not auditable. Need source table: dataset name, year, link/DOI, schema, raw count, dedup count, final count." 
+& Section 3.1 (Data sources)
+\newline Section 9 (Data Availability)
+& \textbf{MAJOR - Reproducibility Gap}
+\newline SAME as R7.7. Paper lists GitHub links but no structured manifest. MUST create: NEW Table 1 (Dataset Provenance) with 6 columns: Source | Year | Link/DOI | Schema | Raw \# | After Dedup | Final \#. Example rows: DASE 2023 | github | LOC | 1200 | -150 | 1050. \\
+\hline
+
+\rowcolor{fatal}
+R8.6 & \textbf{Deduplication leakage risk:} "Dedup criteria: project\_no, title, size, effort. Titles/IDs inconsistent across corpora. May still have near-duplicates causing train-test leakage." 
+& Section 3.1 (Deduplication)
+\newline Lines: "exact duplicates matched on..."
+& \textbf{FATAL - Data Leakage Risk}
+\newline Paper says duplicates removed by matching {project\_no, title, size, effort} but: (1) Project titles often differ slightly ("ProjectA" vs "Project A v2"), (2) Same project in 2 sources may have slightly different effort values (rounding). Risk: SAME project in train+test = LEAKAGE. MUST: (1) Document exact dedup algorithm (case insensitive? fuzzy match?), (2) Verify no overlap between train/test via project name analysis. \\
+\hline
+
+\rowcolor{fatal}
+R8.7 & \textbf{Target leakage: Developers feature:} "If Developers derived from Effort/Time, using it as feature creates target leakage. Only use Developers if in raw dataset." 
+& Section 3.2 (Unit Harmonization)
+\newline Line: "Developer count inferred as ceil(Effort/Time)"
+& \textbf{FATAL - Feature Leakage}
+\newline LaTeX shows: "Developer count is inferred as $lceil textit{Effort} / textit{Time} rceil$" (line ~180). This is LEAKAGE: Developers = f(Effort) → using Developers as feature = using target to predict target. MUST: (1) REMOVE Developers from features IF it's inferred from Effort, (2) Only use Developers if present in raw data BEFORE effort is known. \\
+\hline
+
+\rowcolor{major}
+R8.8 & \textbf{Hyperparameter search on FP overfits:} "FP n=24: 80/20 split gives ~19 train. Grid search with 5-fold CV on 19 samples can overfit to idiosyncrasies." 
+& Section 4.2 (Hyperparameter tuning)
+\newline FP schema
+& \textbf{MAJOR - Statistical Power Issue}
+\newline SAME as R6.3. 5-fold CV on n=19 means each fold has ~4 samples. Grid search may select parameters that work on these 4 but fail on new data. MUST: (1) For FP: use LOOCV (Leave-One-Out) instead of 5-fold, (2) Reduce hyperparameter search space for FP (fewer configurations), (3) Report wider confidence intervals. \\
+\hline
+
+\rowcolor{major}
+R8.9 & \textbf{Class imbalance acknowledgment:} "Effort is continuous regression, not classification, so no class imbalance. But should mention focal loss paper for future classification work." 
+& Section 4.2 (Models)
+\newline Section 8 (Future Work)
+& \textbf{MAJOR - Clarification Needed}
+\newline Reviewer notes effort is CONTINUOUS (regression) so "class imbalance" doesn't apply. But should: (1) Explain effort is continuous, no classes, (2) Acknowledge SIZE IMBALANCE (many small projects, few large), (3) Cite focal loss paper (10.1038/s41598-025-22853-y) for future classification tasks (e.g., project risk categories). \\
+\hline
+
+\end{longtable}
+
+\newpage
+\section{SUMMARY TABLE: Common Errors Across All Reviewers}
+
+\begin{longtable}{|p{1.2cm}|p{5cm}|p{3.5cm}|p{4cm}|}
+\caption{Common Critical Errors Identified by Multiple Reviewers} \\
+\hline
+\textbf{Error ID} & \textbf{Issue Description} & \textbf{Reviewers} & \textbf{Severity \& Action Required} \\
+\hline
+\endfirsthead
+\hline
+\textbf{Error ID} & \textbf{Issue Description} & \textbf{Reviewers} & \textbf{Severity \& Action Required} \\
+\hline
+\endhead
+\hline
+\endlastfoot
+
+\rowcolor{fatal}
+\textbf{E1} & \textbf{COCOMO II baseline uncalibrated / unfair comparison}
+\newline Using default A, B parameters creates "straw man." Must fit COCOMO on training data per schema. 
+& R1.2, R7.3, R8 (implicit)
+& \textbf{FATAL - MUST FIX}
+\newline 1. Implement scipy.optimize to fit A, B on train set
+\newline 2. Report COCOMO (original) vs (calibrated) vs RF
+\newline 3. Explain FP/UCP COCOMO limitations
+\newline \textbf{Location:} Section 2.1, 4.2, Table 1 \\
+\hline
+
+\rowcolor{fatal}
+\textbf{E2} & \textbf{"Overall" aggregation undefined}
+\newline Table 1 shows "overall" metrics but method unclear: pooled? macro-avg? micro-avg? LOC n=947 dominates FP n=24.
+& R6.1, R8.2
+& \textbf{FATAL - MUST DEFINE}
+\newline 1. Add subsection defining aggregation: "macro-average (unweighted mean) across 3 schemas"
+\newline 2. Create NEW table: per-schema results
+\newline \textbf{Location:} Abstract line 10, Section 5.1 \\
+\hline
+
+\rowcolor{fatal}
+\textbf{E3} & \textbf{Figures missing captions / low resolution}
+\newline ALL figures lack captions or have formatting issues. Cannot understand plots.
+& R5.3, R7.1
+& \textbf{FATAL - MUST FIX}
+\newline 1. Add caption{...} for EVERY figure (8+ figures)
+\newline 2. Export figures as vector PDF 600dpi
+\newline 3. Add line numbers: usepackage{lineno}
+\newline \textbf{Location:} All figures 1-8 \\
+\hline
+
+\rowcolor{fatal}
+\textbf{E4} & \textbf{FP n=24 protocol inappropriate}
+\newline 80/20 split gives ~5 test samples. Grid search on 19 training unstable.
+& R6.3, R7.7, R8.8
+& \textbf{FATAL - MUST CHANGE}
+\newline 1. For FP: use LOOCV (Leave-One-Out CV)
+\newline 2. Report bootstrap 95\% CI
+\newline 3. Label FP results "exploratory"
+\newline \textbf{Location:} Section 4.1, 5.2 \\
+\hline
+
+\rowcolor{fatal}
+\textbf{E5} & \textbf{Dataset manifest / provenance missing}
+\newline Cannot audit data sources. Dedup criteria may allow train-test leakage.
+& R7.7, R8.5, R8.6
+& \textbf{FATAL - MUST CREATE}
+\newline 1. NEW Table 1: Dataset Provenance
+\newline Columns: Source | Link/DOI | Schema | Raw\# | Removed\# | Final\#
+\newline 2. Document dedup algorithm (exact vs fuzzy match)
+\newline \textbf{Location:} Section 3.1 \\
+\hline
+
+\rowcolor{fatal}
+\textbf{E6} & \textbf{Target leakage: Developers feature}
+\newline "Developers = ceil(Effort/Time)" uses target to create feature.
+& R8.7
+& \textbf{FATAL - MUST REMOVE}
+\newline 1. DELETE Developers from features if inferred from Effort
+\newline 2. Only use Developers if present in raw dataset BEFORE effort known
+\newline \textbf{Location:} Section 3.2 line ~180 \\
+\hline
+
+\rowcolor{major}
+\textbf{E7} & \textbf{Novelty unclear / contribution incremental}
+\newline Reviewers see "RF > COCOMO" as known result. "Unified pipeline" is procedural, not methodological novelty.
+& R1.1, R3.1, R4.1, R8.1
+& \textbf{MAJOR - REFRAME}
+\newline 1. Rewrite Abstract/Intro emphasizing: REPRODUCIBLE BENCHMARK + HARMONIZATION PROTOCOL
+\newline 2. Downplay "novel model" claims
+\newline 3. Reframe as empirical validation study
+\newline \textbf{Location:} Abstract, Section 1 \\
+\hline
+
+\rowcolor{major}
+\textbf{E8} & \textbf{Related Work lacks SOTA comparison}
+\newline No comparison table with recent papers. Missing discussion of XGBoost/LightGBM/DL. Must cite DOI papers.
+& R3.2, R4.2, R5.8
+& \textbf{MAJOR - MUST ADD}
+\newline 1. Create comparison table: Study | Year | Approach | Schemas | MMRE
+\newline 2. Cite 4+ DOI papers suggested
+\newline 3. Discuss advantages/limitations vs prior work
+\newline \textbf{Location:} Section 7 \\
+\hline
+
+\rowcolor{major}
+\textbf{E9} & \textbf{SOTA models missing (XGBoost, LightGBM)}
+\newline Only tests LR, DT, RF, GB (2000s models). Missing 2020+ SOTA: XGBoost, CatBoost.
+& R4.3, R7.4
+& \textbf{MAJOR - SHOULD ADD}
+\newline 1. Add XGBoost as 5th model (scikit-learn compatible)
+\newline 2. Update all result tables
+\newline 3. Justify why DL not used (small sample sizes)
+\newline \textbf{Location:} Section 4.2, Table 1 \\
+\hline
+
+\rowcolor{major}
+\textbf{E10} & \textbf{Ablation study missing}
+\newline Pipeline has multiple components (harmonization, log, IQR) but no validation of individual contributions.
+& R5.4, R7.6
+& \textbf{MAJOR - MUST ADD}
+\newline 1. NEW Table: Ablation Study
+\newline RF MMRE: (raw) | (+log) | (+log+IQR) | (full)
+\newline 2. Show each step contributes
+\newline \textbf{Location:} NEW Section 5.3 or 5.4 \\
+\hline
+
+\rowcolor{major}
+\textbf{E11} & \textbf{Interpretability claim unsupported}
+\newline Paper says RF is interpretable but provides NO feature importance analysis.
+& R7.5
+& \textbf{MAJOR - MUST ADD}
+\newline 1. NEW Figure: RF feature importance (Gini or SHAP)
+\newline 2. NEW paragraph explaining top 3 features
+\newline \textbf{Location:} NEW Section 5.3 \\
+\hline
+
+\rowcolor{major}
+\textbf{E12} & \textbf{R² column shows "--" (missing or unexplained)}
+\newline Table 1 has R² column but all entries are "--". If computed, report. If not, remove or explain.
+& R6.4
+& \textbf{MAJOR - MUST FIX}
+\newline 1. Compute R² for all models (formula in Section 2.3)
+\newline 2. Fill in table OR
+\newline 3. Remove column + explain "R² negative for some models"
+\newline \textbf{Location:} Table 1, all result tables \\
+\hline
+
+\rowcolor{major}
+\textbf{E13} & \textbf{Duplicate equation (Time = C × E\^{}D)}
+\newline Section 2.1 presents Time equation twice with nearly identical wording.
+& R6.2
+& \textbf{MAJOR - DELETE}
+\newline 1. Remove second instance of Time equation
+\newline 2. Fix equation labels/refs
+\newline \textbf{Location:} Section 2.1 lines ~120-130 \\
+\hline
+
+\rowcolor{major}
+\textbf{E14} & \textbf{Assumptions \& Limitations section missing}
+\newline No explicit "Assumptions" (e.g., 160h/month, linear cost-effort, no team dynamics). Limitations vague.
+& R3.3, R5.5
+& \textbf{MAJOR - MUST ADD}
+\newline 1. NEW Section 3.6: Assumptions and Limitations (2 pages)
+\newline 2. List: (1) 160h/month uniform, (2) Historical data bias, (3) FP n=24 exploratory, (4) No team dynamics
+\newline \textbf{Location:} After Section 3.5 \\
+\hline
+
+\rowcolor{major}
+\textbf{E15} & \textbf{Generalization unclear / no cross-org validation}
+\newline Tests on random holdouts from SAME pool. No leave-one-source-out (LOSO). No modern datasets (GitHub/Jira).
+& R1.3, R5.1, R7.8
+& \textbf{MAJOR - ACKNOWLEDGE OR ADD}
+\newline 1. Add LOSO CV experiment (train on dataset A, test on B) OR
+\newline 2. Acknowledge limitation: "Cross-org validation is future work"
+\newline 3. Add modern datasets OR cite limitation
+\newline \textbf{Location:} Section 4.1, Section 6 \\
+\hline
+
+\rowcolor{major}
+\textbf{E16} & \textbf{Language quality / AI-generated tone}
+\newline Formulaic phrases: "it is worth noting," "captures nuances," "substantially." Sounds templated.
+& R4.5, R7.2
+& \textbf{MAJOR - MANUAL REWRITE}
+\newline 1. Run Grammarly
+\newline 2. Human editing to remove clichés
+\newline 3. Vary sentence structure
+\newline \textbf{Location:} Entire document \\
+\hline
+
+\rowcolor{major}
+\textbf{E17} & \textbf{Data imbalance not addressed}
+\newline Many small projects, few large. MSE loss gives equal weight. Large projects may be under-predicted.
+& R8.3, R8.4
+& \textbf{MAJOR - ANALYZE OR ACKNOWLEDGE}
+\newline 1. Analyze error by project size quantile (small/medium/large)
+\newline 2. Consider weighted loss or focal loss (cite: 10.1038/s41598-025-22853-y)
+\newline 3. Add to limitations: "Imbalance toward small projects"
+\newline \textbf{Location:} Section 3.3, Section 4.2 \\
+\hline
+
+\rowcolor{minor}
+\textbf{E18} & \textbf{Additional metrics missing (MAPE, MdMRE, RAE)}
+\newline Only reports MMRE, PRED(25), MAE, RMSE, R². Missing median-based metrics.
+& R1.4
+& \textbf{MINOR - EASY ADD}
+\newline 1. Add MdMRE, MAPE, RAE to Section 2.3
+\newline 2. Update all result tables
+\newline \textbf{Location:} Section 2.3, Table 1 \\
+\hline
+
+\rowcolor{minor}
+\textbf{E19} & \textbf{Confidence intervals missing}
+\newline Results show mean only (MMRE=0.647). Should report "Mean [95\% CI]" from 10 seeds or bootstrap.
+& R1.5
+& \textbf{MINOR - EASY ADD}
+\newline 1. Compute bootstrap 95\% CI for all metrics
+\newline 2. Change format: "0.647 [0.589, 0.712]"
+\newline \textbf{Location:} All result tables \\
+\hline
+
+\rowcolor{minor}
+\textbf{E20} & \textbf{Paper structure: roadmap missing}
+\newline Introduction ends with contributions but no roadmap ("Section 2 presents..., Section 3...").
+& R5.2
+& \textbf{MINOR - EASY ADD}
+\newline 1. Add paragraph at end of Section 1: "The remainder of this paper is organized as follows..."
+\newline \textbf{Location:} Section 1, end \\
+\hline
+
+\end{longtable}
+
+\newpage
+\section{CRITICAL PATH SUMMARY}
+
+Based on analysis of all 8 reviewers, the following issues are \textbf{BLOCKING} (must fix for acceptance):
+
+\subsection{6 FATAL Issues - Must Fix}
+
+\begin{enumerate}
+    \item \textbf{E1: COCOMO II uncalibrated} - R1, R7, R8 (2-3 days to fix)
+    \item \textbf{E2: "Overall" aggregation undefined} - R6, R8 (0.5 day to fix)
+    \item \textbf{E3: Figures missing captions} - R5, R7 (1 day to fix)
+    \item \textbf{E4: FP n=24 protocol inappropriate} - R6, R7, R8 (1 day to fix)
+    \item \textbf{E5: Dataset manifest missing} - R7, R8 (1 day to fix)
+    \item \textbf{E6: Target leakage (Developers)} - R8 (0.5 day to fix)
+\end{enumerate}
+
+\textbf{Total FATAL fixes: 6-7 days}
+
+\subsection{11 MAJOR Issues - Should Fix}
+
+\begin{enumerate}[resume]
+    \item \textbf{E7: Novelty unclear} - R1, R3, R4, R8 (1 day - rewrite)
+    \item \textbf{E8: Related Work lacks comparison} - R3, R4, R5 (1 day)
+    \item \textbf{E9: XGBoost missing} - R4, R7 (1-2 days)
+    \item \textbf{E10: Ablation study missing} - R5, R7 (1 day)
+    \item \textbf{E11: Interpretability unsupported} - R7 (1 day)
+    \item \textbf{E12: R² column "--"} - R6 (0.5 day)
+    \item \textbf{E13: Duplicate equation} - R6 (0.1 day - quick fix)
+    \item \textbf{E14: Assumptions section missing} - R3, R5 (1 day)
+    \item \textbf{E15: Generalization unclear} - R1, R5, R7 (1-2 days OR acknowledge)
+    \item \textbf{E16: Language quality} - R4, R7 (1 day - manual rewrite)
+    \item \textbf{E17: Data imbalance} - R8 (1 day - analysis)
+\end{enumerate}
+
+\textbf{Total MAJOR fixes: 9-11 days}
+
+\subsection{3 MINOR Issues - Nice to Have}
+
+\begin{enumerate}[resume]
+    \item \textbf{E18: Additional metrics} - R1 (0.5 day)
+    \item \textbf{E19: Confidence intervals} - R1 (1 day)
+    \item \textbf{E20: Roadmap paragraph} - R5 (0.1 day)
+\end{enumerate}
+
+\textbf{Total MINOR fixes: 1.6 days}
+
+\vspace{1cm}
+\hrule
+\vspace{0.5cm}
+
+\textbf{CRITICAL PATH RECOMMENDATION:}
+
+\begin{itemize}
+    \item \textbf{Days 1-3:} Fix FATAL issues (E1-E6)
+    \item \textbf{Days 4-7:} Fix MAJOR issues (E7-E14)
+    \item \textbf{Days 8-10:} Polish \& integration (E15-E20)
+\end{itemize}
+
+\textbf{If you can only fix 10 issues, prioritize:}
+E1, E2, E3, E4, E5, E6, E7, E8, E10, E11
+
+\textbf{Likelihood of acceptance:}
+\begin{itemize}
+    \item FATAL only (6 issues): 60-70\%
+    \item FATAL + key MAJOR (10 issues): 75-85\%
+    \item All issues (20): 85-90\%
+\end{itemize}
+
+\end{document}

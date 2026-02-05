@@ -1,0 +1,760 @@
+% REVISION PRIORITY TABLES - Bảng ưu tiên sửa bài
+% Compile: xelatex REVISION_PRIORITY_TABLES.tex
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{fontspec}
+\setmainfont{DejaVu Serif}
+\setsansfont{DejaVu Sans}
+\setmonofont{DejaVu Sans Mono}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{critical}{RGB}{255,200,200}
+\definecolor{major}{RGB}{255,235,200}
+\definecolor{minor}{RGB}{230,255,230}
+
+\title{\textbf{Revision Priority \& Action Tables}\\
+\large Bảng Ưu Tiên Sửa Bài và Hành Động Cụ Thể}
+\author{Revision Plan for Manuscript 6863b9b0-4db8-4b53-843f-5be5e907cf62}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Tóm tắt tình huống}
+\begin{itemize}
+    \item \textbf{Decision:} Major Revision (cơ hội accept CAO nếu sửa tốt)
+    \item \textbf{Số reviewers:} 8 reviewers
+    \item \textbf{Thời hạn:} 10 ngày làm việc (có thể xin thêm 5-7 ngày)
+    \item \textbf{Chiến lược:} Ưu tiên sửa các vấn đề CRITICAL trước, sau đó MAJOR
+\end{itemize}
+
+\newpage
+\section{BẢNG 1: Priority Matrix - Ma Trận Ưu Tiên}
+
+\subsection{Bảng 1A: Tổng quan các vấn đề cần sửa}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.5cm}|
+                   >{\raggedright\arraybackslash}p{4.5cm}|
+                   >{\centering\arraybackslash}p{1.2cm}|
+                   >{\centering\arraybackslash}p{1.2cm}|
+                   >{\centering\arraybackslash}p{1.5cm}|
+                   >{\centering\arraybackslash}p{3cm}}
+\caption{Ma trận ưu tiên sửa bài - Nhóm theo mức độ nghiêm trọng} \label{tab:priority}\\
+\toprule
+\# & \textbf{Vấn đề} & \textbf{Mức độ} & \textbf{Rev.} & \textbf{Thời gian} & \textbf{Ưu tiên thực hiện} \\
+\midrule
+\endfirsthead
+
+\multicolumn{6}{c}{\tablename\ \thetable\ -- \textit{Continued from previous page}} \\
+\toprule
+\# & \textbf{Vấn đề} & \textbf{Mức độ} & \textbf{Rev.} & \textbf{Thời gian} & \textbf{Ưu tiên} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{6}{r}{\textit{Continued on next page}} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+% CRITICAL ISSUES - MÀU ĐỎ
+\rowcolor{critical}
+\multicolumn{6}{l}{\textbf{CRITICAL - Chí mạng (không sửa → bị reject)}} \\
+\midrule
+
+1 & \textbf{"Overall across schemas" mơ hồ} 
+  & FATAL 
+  & R6, R8 
+  & 0.5 ngày 
+  & \textbf{1 - LÀM NGAY} \\
+\arrayrulecolor{critical}\hline\arrayrulecolor{black}
+
+2 & \textbf{COCOMO II baseline không fair}
+  & FATAL 
+  & R1, R7, R8 
+  & 2-3 ngày 
+  & \textbf{2 - BẮT BUỘC} \\
+\arrayrulecolor{critical}\hline\arrayrulecolor{black}
+
+3 & \textbf{Target leakage: Developers = Effort/Time}
+  & FATAL 
+  & R8 
+  & 0.5 ngày 
+  & \textbf{3 - NHANH} \\
+\arrayrulecolor{critical}\hline\arrayrulecolor{black}
+
+4 & \textbf{FP n=24 - protocol không hợp lý}
+  & FATAL 
+  & R6, R7, R8 
+  & 1 ngày 
+  & \textbf{4 - CẦN LÀM} \\
+\arrayrulecolor{critical}\hline\arrayrulecolor{black}
+
+5 & \textbf{Dataset manifest / provenance thiếu}
+  & FATAL 
+  & R7, R8 
+  & 1 ngày 
+  & \textbf{5 - QUAN TRỌNG} \\
+\arrayrulecolor{critical}\hline\arrayrulecolor{black}
+
+6 & \textbf{Formatting: no captions, mờ, thiếu line \#}
+  & FATAL 
+  & R5, R6, R7 
+  & 1 ngày 
+  & \textbf{6 - DỄ LÀM} \\
+
+\midrule
+% MAJOR ISSUES - MÀU CAM
+\rowcolor{major}
+\multicolumn{6}{l}{\textbf{MAJOR - Quan trọng (không sửa → khó accept)}} \\
+\midrule
+
+7 & \textbf{Equation/label lỗi \& lặp Time}
+  & MAJOR 
+  & R6 
+  & 0.5 ngày 
+  & 7 \\
+\arrayrulecolor{major}\hline\arrayrulecolor{black}
+
+8 & \textbf{R² cột "--" trong bảng}
+  & MAJOR 
+  & R6 
+  & 0.5 ngày 
+  & 8 \\
+\arrayrulecolor{major}\hline\arrayrulecolor{black}
+
+9 & \textbf{Novelty yếu ("pipeline thôi")}
+  & MAJOR 
+  & R1, R3, R8 
+  & 1 ngày 
+  & \textbf{9 - QUAN TRỌNG} \\
+\arrayrulecolor{major}\hline\arrayrulecolor{black}
+
+10 & \textbf{Related Work thiếu so sánh \& DOIs}
+   & MAJOR 
+   & R3, R4, R5 
+   & 1 ngày 
+   & \textbf{10 - CẦN LÀM} \\
+\arrayrulecolor{major}\hline\arrayrulecolor{black}
+
+11 & \textbf{SOTA models thiếu (XGBoost/LightGBM)}
+   & MAJOR 
+   & R4, R7 
+   & 1-2 ngày 
+   & 11 - nếu kịp \\
+\arrayrulecolor{major}\hline\arrayrulecolor{black}
+
+12 & \textbf{Interpretability claim - thiếu phân tích}
+   & MAJOR 
+   & R7 
+   & 1 ngày 
+   & 12 \\
+\arrayrulecolor{major}\hline\arrayrulecolor{black}
+
+13 & \textbf{Ablation study thiếu}
+   & MAJOR 
+   & R5, R7 
+   & 1 ngày 
+   & 13 \\
+\arrayrulecolor{major}\hline\arrayrulecolor{black}
+
+14 & \textbf{Generalization: leave-one-out}
+   & MAJOR 
+   & R7, R8 
+   & 1-2 ngày 
+   & 14 - nếu kịp \\
+
+\midrule
+% MINOR ISSUES - MÀU XANH
+\rowcolor{minor}
+\multicolumn{6}{l}{\textbf{MINOR - Cải thiện (để tăng điểm)}} \\
+\midrule
+
+15 & Language quality / AI-like tone
+   & MINOR 
+   & R4, R7 
+   & 1 ngày 
+   & 15 - polish \\
+\arrayrulecolor{minor}\hline\arrayrulecolor{black}
+
+16 & Additional metrics (MAPE, MdMRE, RAE)
+   & MINOR 
+   & R1 
+   & 0.5 ngày 
+   & 16 - nhanh \\
+\arrayrulecolor{minor}\hline\arrayrulecolor{black}
+
+17 & Confidence intervals (bootstrap CI)
+   & MINOR 
+   & R1 
+   & 1 ngày 
+   & 17 \\
+\arrayrulecolor{minor}\hline\arrayrulecolor{black}
+
+18 & Reduce length → Supplementary
+   & MINOR 
+   & R1 
+   & 1 ngày 
+   & 18 \\
+
+\end{longtable}
+
+\subsection{Bảng 1B: Timeline khuyến nghị (10 ngày)}
+
+\begin{table}[h]
+\centering
+\caption{Phân bổ thời gian 10 ngày}
+\begin{tabular}{c|p{8cm}|c}
+\toprule
+\textbf{Ngày} & \textbf{Công việc} & \textbf{Priority IDs} \\
+\midrule
+\rowcolor{critical} 
+1-2 & \textbf{CRITICAL block 1:} Overall aggregation + COCOMO calibrate + leakage + FP protocol & 1, 2, 3, 4 \\
+\midrule
+\rowcolor{critical}
+3 & \textbf{CRITICAL block 2:} Dataset manifest + Formatting & 5, 6 \\
+\midrule
+\rowcolor{major}
+4-5 & \textbf{MAJOR block 1:} Novelty + Related Work + DOIs + equations & 7, 8, 9, 10 \\
+\midrule
+\rowcolor{major}
+6-7 & \textbf{MAJOR block 2:} Interpretability + Ablation + metrics & 12, 13, 16, 17 \\
+\midrule
+\rowcolor{minor}
+8 & \textbf{OPTIONAL:} XGBoost (nếu kịp) hoặc polish language & 11, 15 \\
+\midrule
+9 & \textbf{Integration \& Review:} Tích hợp tất cả, check consistency & All \\
+\midrule
+10 & \textbf{Final check \& Submit:} Thầy review, finalize response letter & All \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+\section{BẢNG 2: Action Tables - Bảng Hành Động Chi Tiết}
+
+\subsection{Bảng 2A: Response to Reviewers - Trả lời từng câu hỏi}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.7cm}|
+                   >{\raggedright\arraybackslash}p{5cm}|
+                   >{\raggedright\arraybackslash}p{8.5cm}}
+\caption{Point-by-point response structure} \\
+\toprule
+\textbf{Rev} & \textbf{Câu hỏi / Yêu cầu} & \textbf{Response Strategy} \\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{Rev} & \textbf{Câu hỏi / Yêu cầu} & \textbf{Response Strategy} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{3}{r}{\textit{Continued on next page}} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+% REVIEWER 1
+\multicolumn{3}{l}{\cellcolor{gray!30}\textbf{REVIEWER 1 - Methodological Concerns}} \\
+\midrule
+
+R1.1 & Clarify novelty beyond "unified pipeline" 
+     & \textbf{Action:} Viết lại Abstract + Intro nhấn mạnh 3 novelties: (1) Multi-schema harmonization với auditable manifest, (2) Fair calibrated baseline, (3) Statistical rigor (Wilcoxon + Cliff's Delta) \\
+     & & \textbf{Changes:} Abstract lines 8-12, Intro Section 1.3, NEW Table so sánh với prior work \\
+\hline
+
+R1.2 & Recalibrate COCOMO II for fair comparison
+     & \textbf{Action:} Fit A, B parameters trên training data từng schema → báo cáo COCOMO II (original) vs. (calibrated) vs. RF \\
+     & & \textbf{Changes:} NEW Methods subsection "Baseline Calibration", NEW Table 3 kết quả, Discussion update \\
+\hline
+
+R1.3 & Add modern datasets (GitHub/Jira)
+     & \textbf{Strategy:} (A) Nếu kịp: thu thập mini-validation 30-50 projects từ GitHub với effort trong README → report MMRE. (B) Nếu không kịp: giải thích limitation và đưa Future Work \\
+     & & \textbf{Changes:} Data section + Results hoặc Limitations \\
+\hline
+
+R1.4 & Report MAPE, MdMRE, RAE
+     & \textbf{Action:} Thêm 3 metrics vào code, update tất cả tables \\
+     & & \textbf{Changes:} Section 2.4 (Metrics), Table 1, 3, 4 \\
+\hline
+
+R1.5 & Confidence intervals for all metrics
+     & \textbf{Action:} Bootstrap 95\% CI hoặc CI từ 10 seeds → format "Mean [95\% CI]" \\
+     & & \textbf{Changes:} All result tables, add error bars to figures \\
+\hline
+
+R1.6 & Reduce length → Supplementary
+     & \textbf{Action:} Chuyển hyperparameter grids, dataset details, extended stats sang Supplementary PDF \\
+     & & \textbf{Changes:} Main text giảm từ 38 → 28 pages \\
+\hline
+
+R1.7 & Release data \& code
+     & \textbf{Action:} Tạo GitHub repo + Zenodo DOI \\
+     & & \textbf{Changes:} Data Availability section \\
+
+\midrule
+% REVIEWER 3
+\multicolumn{3}{l}{\cellcolor{gray!30}\textbf{REVIEWER 3 - Structure \& Positioning}} \\
+\midrule
+
+R3.1 & Intro: novelty unclear
+     & \textbf{Action:} Restructure Introduction: What is known → Gap → Our contribution → Why it matters \\
+     & & \textbf{Changes:} Section 1 (3 subsections) \\
+\hline
+
+R3.2 & Related Work thiếu so sánh + cite 4 DOIs
+     & \textbf{Action:} (1) Cite 4 papers họ suggest, (2) NEW comparison table (8 studies), (3) Discuss gap \\
+     & & Papers: aisy.202300706 (AI in SE), patcog.112890 (ML methods), ACCESS.3480205 (SEE MMRE=1.15), engappai.111655 (ensemble) \\
+     & & \textbf{Changes:} NEW Section 2: Related Work (3 pages) \\
+\hline
+
+R3.3 & Highlight assumptions \& limitations
+     & \textbf{Action:} NEW Section 3.6: 5 assumptions + 5 limitations với mitigation \\
+     & & \textbf{Changes:} 2-page section in Methods \\
+\hline
+
+R3.4 & Figure 1 description unclear
+     & \textbf{Action:} Viết lại caption chi tiết 15 lines workflow, redesign figure với color-code \\
+     & & \textbf{Changes:} Figure 1 caption \& figure \\
+\hline
+
+R3.5 & Conclusion: add strengths/weaknesses/implications
+     & \textbf{Action:} Restructure Conclusion thành 4 subsections: Findings, Limitations, Implications, Future \\
+     & & \textbf{Changes:} Section 7 expand 2 → 4.5 pages \\
+
+\midrule
+% REVIEWER 6
+\multicolumn{3}{l}{\cellcolor{gray!30}\textbf{REVIEWER 6 - Technical Details}} \\
+\midrule
+
+R6.1 & Abstract: "overall" ambiguous
+     & \textbf{Action:} Clarify "macro-average across LOC/FP/UCP" in abstract \\
+\hline
+
+R6.2 & Equation labels missing
+     & \textbf{Action:} Fix all \texttt{\textbackslash label\{eq:...\}} references \\
+\hline
+
+R6.3 & FP n=24 too small
+     & \textbf{Action:} Acknowledge explicitly, recommend LOOCV for FP, report wider CIs \\
+\hline
+
+R6.4 & R² column "--"
+     & \textbf{Action:} Compute R² for all models or remove column \\
+\hline
+
+R6.5 & Time equation duplicated
+     & \textbf{Action:} Delete duplicate (line 124-128) \\
+\hline
+
+R6.6 & "Enhanced COCOMO II" undefined
+     & \textbf{Action:} Define in Methods or remove term \\
+
+\midrule
+% REVIEWER 7
+\multicolumn{3}{l}{\cellcolor{gray!30}\textbf{REVIEWER 7 - Rigorous Critique}} \\
+\midrule
+
+R7.1 & No figure captions
+     & \textbf{Action:} Add captions to ALL figures/tables \\
+\hline
+
+R7.2 & Writing "formulaic/AI-generated"
+     & \textbf{Action:} Manual polish: reduce repetition, natural phrasing \\
+\hline
+
+R7.3 & COCOMO baseline validity
+     & \textbf{Action:} → Same as R1.2 (calibrate) \\
+\hline
+
+R7.4 & SOTA models missing (XGBoost)
+     & \textbf{Action:} Add XGBoost as 5th model nếu kịp, else: explain scope \\
+\hline
+
+R7.5 & Interpretability: no feature importance
+     & \textbf{Action:} Add Gini/permutation importance figure + 1 paragraph \\
+\hline
+
+R7.6 & Ablation study missing
+     & \textbf{Action:} RF with: (no log) → +log → +IQR → full \\
+\hline
+
+R7.7 & FP n=24 → test set ~5 samples
+     & \textbf{Action:} → Same as R6.3 \\
+\hline
+
+R7.8 & Generalization: same pool split
+     & \textbf{Action:} Leave-one-source-out for LOC nếu kịp \\
+\hline
+
+R7.9 & Figure anomalies (smooth FP curve)
+     & \textbf{Action:} Check if showing model predictions (smooth) vs. actual data (scatter) \\
+
+\midrule
+% REVIEWER 8
+\multicolumn{3}{l}{\cellcolor{gray!30}\textbf{REVIEWER 8 - Deepest Technical Review}} \\
+\midrule
+
+R8.1 & "Overall across schemas" undefined
+     & \textbf{Action:} → Same as Priority \#1: Define macro/micro aggregation \\
+\hline
+
+R8.2 & COCOMO baseline not reproducible
+     & \textbf{Action:} → Same as R1.2 + R7.3 \\
+\hline
+
+R8.3 & Dataset provenance missing
+     & \textbf{Action:} → Same as Priority \#5: Dataset manifest table \\
+\hline
+
+R8.4 & Developers = Effort/Time → leakage
+     & \textbf{Action:} → Same as Priority \#3: Don't use inferred Developers as feature \\
+\hline
+
+R8.5 & FP protocol inappropriate
+     & \textbf{Action:} → Same as Priority \#4 \\
+\hline
+
+R8.6 & Limited novelty (RF > COCOMO known)
+     & \textbf{Action:} → Same as R1.1 + R3.1 \\
+\hline
+
+R8.7 & No cross-schema learning
+     & \textbf{Action:} Clarify: "schema-specific training" (not joint). Future: transfer learning \\
+\hline
+
+R8.8 & Data imbalance not treated
+     & \textbf{Action:} (A) Nếu kịp: add quantile regression or weighted loss. (B) Else: discuss in Limitations + Future \\
+\hline
+
+R8.9 & Suggest focal loss / imbalance-aware
+     & \textbf{Action:} Cite DOI 10.1038/s41598-025-22853-y, explain why not done (scope), add to Future \\
+
+\end{longtable}
+
+\newpage
+\subsection{Bảng 2B: LaTeX File Changes - Sửa ở đâu trong main.tex}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.7cm}|
+                   >{\raggedright\arraybackslash}p{3.5cm}|
+                   >{\raggedright\arraybackslash}p{3cm}|
+                   >{\raggedright\arraybackslash}p{6cm}}
+\caption{Mapping: Issue → Location in LaTeX → How to fix} \\
+\toprule
+\textbf{\#} & \textbf{Vấn đề} & \textbf{Vị trí trong main.tex} & \textbf{Cách sửa} \\
+\midrule
+\endfirsthead
+
+\toprule
+\textbf{\#} & \textbf{Vấn đề} & \textbf{Vị trí} & \textbf{Cách sửa} \\
+\midrule
+\endhead
+
+\bottomrule
+\endlastfoot
+
+% CRITICAL
+\rowcolor{critical}
+1 & Overall aggregation unclear 
+  & Abstract (line 10) + Results before Table 1 
+  & Add: "Overall metrics computed as macro-average (unweighted mean) across LOC/FP/UCP test sets." + NEW per-schema table \\
+\hline
+
+\rowcolor{critical}
+2 & COCOMO baseline 
+  & Section 2.1 + Section 4.2 (Modeling)
+  & NEW subsection: "Baseline Calibration Protocol" → fit A, B on train → report original vs calibrated \\
+\hline
+
+\rowcolor{critical}
+3 & Developers leakage
+  & Section 3.2 (Unit Harmonization) + Feature list
+  & REMOVE: Developers = ceil(Effort/Time) from features. Only use if in raw data \\
+\hline
+
+\rowcolor{critical}
+4 & FP n=24 protocol
+  & Section 4.1 (Train-Test)
+  & For FP: "Due to small sample size (n=24), we employ leave-one-out CV and bootstrap 95\% CIs. Results considered exploratory." \\
+\hline
+
+\rowcolor{critical}
+5 & Dataset manifest
+  & Section 3.1 (Sources)
+  & NEW table: Source | Link/DOI | Schema | Raw \# | After dedup | Final \# \\
+\hline
+
+\rowcolor{critical}
+6 & Formatting
+  & Preamble + all figures
+  & (1) Add \texttt{\textbackslash usepackage\{lineno\}}, \texttt{\textbackslash linenumbers}; (2) All figures: vector PDF 600dpi + proper captions \\
+\hline
+
+% MAJOR
+\rowcolor{major}
+7 & Equation lỗi
+  & Section 2.1 (lines 120-130)
+  & Delete duplicate Time equation (line 124-128) \\
+\hline
+
+\rowcolor{major}
+8 & R² missing
+  & Table 1 (line 570)
+  & Compute R² or change caption to "R² omitted for parametric baseline" \\
+\hline
+
+\rowcolor{major}
+9 & Novelty weak
+  & Abstract + Intro Section 1.3
+  & Rewrite: 3 clear novelties (harmonization + fair baseline + statistical rigor) \\
+\hline
+
+\rowcolor{major}
+10 & Related Work
+   & NEW Section 2 (before Background)
+   & Add 2-3 pages: cite 4 DOIs + comparison table (8 studies) \\
+\hline
+
+\rowcolor{major}
+11 & SOTA models
+   & Section 4.2 (Models)
+   & Add XGBoost: "We also evaluate XGBoost (v2.0) with learning rate 0.01-0.3, max depth 3-6..." \\
+\hline
+
+\rowcolor{major}
+12 & Interpretability
+   & Results Section 5.3
+   & NEW figure: Feature importance (Gini or permutation) for RF + 1 paragraph explaining top 3 features \\
+\hline
+
+\rowcolor{major}
+13 & Ablation study
+   & Results Section 5.4 (NEW)
+   & NEW table: RF performance with (raw) | (+log) | (+log+IQR) | (full pipeline) \\
+\hline
+
+\rowcolor{major}
+14 & Generalization
+   & Experimental Setup 4.1
+   & Add: "To assess cross-source generalization, we perform leave-one-dataset-out evaluation for LOC schema (train on A,B,C → test on D)." \\
+
+\end{longtable}
+
+\newpage
+\section{BẢNG 3: Quyết Định Chiến Lược (Cho Thầy Mận)}
+
+\subsection{Bảng 3A: Các quyết định cần Thầy chốt NGAY}
+
+\begin{table}[h]
+\centering
+\caption{Strategic decisions needed immediately}
+\begin{tabular}{>{\raggedright\arraybackslash}p{5cm}|
+                >{\raggedright\arraybackslash}p{4cm}|
+                >{\raggedright\arraybackslash}p{5cm}}
+\toprule
+\textbf{Quyết định} & \textbf{Options} & \textbf{Khuyến nghị} \\
+\midrule
+
+\textbf{1. COCOMO recalibration} & 
+  (A) Làm đầy đủ (2-3 ngày) 
+  \newline (B) Chỉ giải thích & 
+  \textbf{Option A} - Tăng cơ hội accept 15-20\%. Chứng minh RF tốt hơn cả optimized baseline → stronger claim \\
+\hline
+
+\textbf{2. GitHub/Jira data} & 
+  (A) Thu thập mini-set (3-4 ngày) 
+  \newline (B) Giải thích limitation & 
+  \textbf{Option B} - GitHub không có ground truth tốt. Giải thích honest + đưa Future Work là đủ \\
+\hline
+
+\textbf{3. XGBoost experiment} & 
+  (A) Thêm XGBoost (1-2 ngày) 
+  \newline (B) Không thêm & 
+  \textbf{Option A nếu kịp} - XGBoost là SOTA, dễ implement, tăng điểm với R4/R7. Nếu không kịp thì B + explain scope \\
+\hline
+
+\textbf{4. Ablation study} & 
+  (A) Làm đầy đủ (1 ngày) 
+  \newline (B) Đơn giản hóa & 
+  \textbf{Option A} - Dễ làm: chỉ cần chạy RF với 4 configs (raw/+log/+IQR/full) → 1 table. Reviewer R5/R7 yêu cầu rõ \\
+\hline
+
+\textbf{5. Xin thêm thời gian?} & 
+  (A) Xin thêm 5-7 ngày 
+  \newline (B) Không xin & 
+  \textbf{Option A} - Gần Tết, 10 ngày hơi gấp. Xin thêm 5 ngày (tổng 15) để làm tốt hơn. Journals thường cho \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Bảng 3B: Phân công Huy vs. Thầy}
+
+\begin{table}[h]
+\centering
+\caption{Work division}
+\begin{tabular}{>{\raggedright\arraybackslash}p{5cm}|
+                >{\raggedright\arraybackslash}p{4.5cm}|
+                >{\raggedright\arraybackslash}p{4.5cm}}
+\toprule
+\textbf{Công việc} & \textbf{Huy (technical)} & \textbf{Thầy (strategic)} \\
+\midrule
+
+\textbf{Days 1-2: CRITICAL} & 
+  - Code: aggregation definition, COCOMO calibration, remove Developers leakage, FP LOOCV 
+  \newline - LaTeX: fix equations, formatting & 
+  Review overall strategy \\
+\hline
+
+\textbf{Days 3-4: Data \& Novelty} & 
+  - Create dataset manifest 
+  \newline - Draft novelty text (Intro) & 
+  - Edit Introduction 
+  \newline - Review novelty positioning \\
+\hline
+
+\textbf{Days 5-6: Experiments} & 
+  - XGBoost implementation 
+  \newline - Ablation study 
+  \newline - Feature importance plots & 
+  Strategy: decide if XGBoost or skip \\
+\hline
+
+\textbf{Days 7-8: Related Work \& Writing} & 
+  - Read 4 suggested papers 
+  \newline - Create comparison table & 
+  - Write Related Work section 
+  \newline - Integrate citations \\
+\hline
+
+\textbf{Days 9-10: Integration} & 
+  - Integrate all changes 
+  \newline - Consistency check 
+  \newline - Generate all figures & 
+  - Final review 
+  \newline - Approve response letter 
+  \newline - Submit \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+\section{BẢNG 4: Templates - Mẫu Trả Lời}
+
+\subsection{Template 1: Khi đồng ý và làm theo}
+
+\begin{quote}
+\textbf{Template Response:}
+
+\textit{We thank the reviewer for this excellent suggestion. We have [specific action taken]:}
+
+\begin{itemize}
+    \item \textit{[Specific change 1 with location in manuscript]}
+    \item \textit{[Specific change 2]}
+\end{itemize}
+
+\textbf{Changes in manuscript:}
+\begin{itemize}
+    \item \textit{Section X: [description of change]}
+    \item \textit{Figure/Table Y: [description]}
+\end{itemize}
+
+\textbf{Results:} \textit{[Outcome of the change, e.g., "Calibrated COCOMO II improved MMRE from 2.79 to 1.85, but RF still outperforms (0.65, p<0.001)."]}
+\end{quote}
+
+\subsection{Template 2: Khi giải thích limitation}
+
+\begin{quote}
+\textbf{Template Response:}
+
+\textit{We appreciate this valuable comment. While we acknowledge [concern], we respectfully note that [limitation/constraint]:}
+
+\begin{itemize}
+    \item \textit{[Reason 1]}
+    \item \textit{[Reason 2]}
+\end{itemize}
+
+\textit{However, we have [partial mitigation]:}
+\begin{itemize}
+    \item \textit{[Action taken]}
+\end{itemize}
+
+\textit{We explicitly acknowledge this limitation in Section X.Y and recommend [future work] in our revised Conclusion (Section 7.3).}
+\end{quote}
+
+\subsection{Template 3: Khi không đồng ý (dùng CẨN THẬN)}
+
+\begin{quote}
+\textbf{Template Response:}
+
+\textit{We respectfully disagree with this assessment because [reason]. Our approach [justification] is appropriate for this study because:}
+
+\begin{enumerate}
+    \item \textit{[Evidence 1 with citation]}
+    \item \textit{[Evidence 2]}
+\end{enumerate}
+
+\textit{Prior work [citations] supports this methodology. However, to prevent misunderstanding, we have clarified our reasoning in Section X (lines Y-Z).}
+\end{quote}
+
+\newpage
+\section{Phụ Lục: Key Reminders}
+
+\subsection{Những điểm TUYỆT ĐỐI phải làm}
+
+\begin{enumerate}
+    \item \textbf{Overall aggregation:} Define macro-average explicitly (1 câu trong Abstract + 1 đoạn trong Results)
+    
+    \item \textbf{COCOMO calibration:} Fit A, B on training data → compare original vs calibrated vs RF
+    
+    \item \textbf{Remove leakage:} KHÔNG dùng Developers = Effort/Time làm feature
+    
+    \item \textbf{FP protocol:} Dùng LOOCV cho FP, báo cáo bootstrap CIs, gọi kết quả "exploratory"
+    
+    \item \textbf{Dataset manifest:} Table với 6 cột: Source | Link | Schema | Raw \# | Removed | Final
+    
+    \item \textbf{Figure captions:} ALL figures phải có caption đầy đủ + high quality (vector)
+    
+    \item \textbf{Cite 4 DOIs:} R3 suggest 4 papers → phải cite + discuss trong Related Work
+    
+    \item \textbf{R² values:} Compute hoặc remove column + explain
+\end{enumerate}
+
+\subsection{Likelihood of Acceptance}
+
+\begin{itemize}
+    \item \textbf{Nếu làm CRITICAL (1-6) đầy đủ:} 60-70\% chance
+    \item \textbf{Nếu làm CRITICAL + MAJOR (1-10):} 75-85\% chance
+    \item \textbf{Nếu làm tất cả (1-14):} 85-90\% chance
+\end{itemize}
+
+\textbf{Recommendation:} Ưu tiên 1-10, làm 11-14 nếu còn thời gian. Có thể xin thêm 5 ngày để làm tốt hơn.
+
+\subsection{Contact Strategy}
+
+\textbf{Email to Editor (nếu cần thêm time):}
+
+\begin{quote}
+\textit{Dear Editor,}
+
+\textit{We have received the thoughtful and detailed reviews for manuscript 6863b9b0-4db8-4b53-843f-5be5e907cf62. We are committed to addressing all reviewer concerns comprehensively.}
+
+\textit{Given the extensive revisions requested (8 reviewers with substantial methodological improvements including baseline recalibration, additional experiments, and dataset documentation), we respectfully request a 5-day extension to ensure the highest quality revision. This will allow us to implement all requested changes rigorously rather than superficially.}
+
+\textit{We expect to submit the revised manuscript within 15 working days from the original deadline.}
+
+\textit{Thank you for your consideration.}
+\end{quote}
+
+\end{document}

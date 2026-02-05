@@ -7,7 +7,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse, FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.encoders import jsonable_encoder
 from starlette.responses import Response as StarletteResponse
 from io import BytesIO
 from pydantic import BaseModel
@@ -35,12 +34,6 @@ from requirement_analyzer.analyzer import RequirementAnalyzer
 from requirement_analyzer.estimator import EffortEstimator
 from requirement_analyzer.task_integration import get_integration
 from requirement_analyzer.utils import preprocess_text_for_estimation, improve_confidence_level
-from requirement_analyzer.task_gen import (
-    get_pipeline,
-    TaskGenerationRequest,
-    TaskGenerationResponse,
-    TaskFeedback
-)
 
 # Model cho request API
 class RequirementText(BaseModel):
@@ -111,156 +104,14 @@ class COCOMOParameters(BaseModel):
     # Estimation Method
     method: Optional[str] = "weighted_average"
 
-# Khởi tạo FastAPI app với Swagger UI configuration
+# Khởi tạo FastAPI app
 app = FastAPI(
-    title="Software Effort Estimation & Task Generation API",
-    description="""
-    ## API Phân tích Requirements và Ước lượng Nỗ lực
-    
-    API này cung cấp các chức năng:
-    - 📊 **V1 Estimation**: Ước lượng nỗ lực với COCOMO II, LOC, Multi-model
-    - 🤖 **V2 Requirements Engineering**: Phân tích, làm mịn, phát hiện gaps, slice requirements
-    - 📝 **Task Generation**: Tự động sinh tasks từ requirements
-    - 🔄 **Integration**: Kết nối với Jira, Trello
-    
-    ### 🔐 Security
-    - Rate limiting: 100 requests per 60 seconds
-    - File validation: Max 2MB, safe file types only
-    
-    ### 📚 Documentation
-    - **Swagger UI**: `/docs` (Interactive API documentation)
-    - **ReDoc**: `/redoc` (Alternative documentation)
-    - **OpenAPI Schema**: `/openapi.json` (Machine-readable spec)
-    - **JSON Schemas**: `/api/schemas` (Data model schemas)
-    """,
-    version="2.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json",
-    openapi_tags=[
-        {
-            "name": "Health",
-            "description": "Health check endpoints"
-        },
-        {
-            "name": "V1 Estimation",
-            "description": "COCOMO II và LOC estimation endpoints"
-        },
-        {
-            "name": "Task Generation",
-            "description": "AI-powered task generation từ requirements"
-        },
-        {
-            "name": "V2 Requirements Engineering",
-            "description": "Pipeline phân tích và làm mịn requirements"
-        },
-        {
-            "name": "Integration",
-            "description": "Jira, Trello integration endpoints"
-        },
-        {
-            "name": "Schemas",
-            "description": "JSON Schema definitions"
-        }
-    ]
+    title="Software Effort Estimation API",
+    description="API để phân tích yêu cầu phần mềm và ước lượng nỗ lực phát triển",
+    version="1.0.0"
 )
 
-# ============================================================================
-# Security & Rate Limiting Middleware
-# ============================================================================
-from collections import defaultdict
-from datetime import datetime, timedelta
-
-# Simple rate limiter (in-memory)
-request_counts = defaultdict(list)
-RATE_LIMIT_REQUESTS = 100  # requests per window
-RATE_LIMIT_WINDOW = 60  # seconds
-
-@app.middleware("http")
-async def security_middleware(request: Request, call_next):
-    """
-    Security middleware for:
-    - Rate limiting
-    - Request validation
-    - Logging suspicious activity
-    """
-    client_ip = request.client.host
-    now = datetime.now()
-    
-    # Rate limiting (simple sliding window)
-    request_counts[client_ip] = [
-        ts for ts in request_counts[client_ip]
-        if now - ts < timedelta(seconds=RATE_LIMIT_WINDOW)
-    ]
-    
-    if len(request_counts[client_ip]) >= RATE_LIMIT_REQUESTS:
-        logger.warning(f"⚠️ Rate limit exceeded for {client_ip}")
-        return JSONResponse(
-            status_code=429,
-            content={
-                "error": "Rate limit exceeded",
-                "message": f"Maximum {RATE_LIMIT_REQUESTS} requests per {RATE_LIMIT_WINDOW}s"
-            }
-        )
-    
-    request_counts[client_ip].append(now)
-    
-    # Log suspicious requests
-    if request.method not in ["GET", "POST", "OPTIONS"]:
-        logger.warning(f"⚠️ Suspicious method {request.method} from {client_ip}")
-    
-    # Block common attack paths
-    blocked_paths = ["/login", "/admin", "/.env", "/wp-admin", "/phpMyAdmin"]
-    if any(blocked in str(request.url.path) for blocked in blocked_paths):
-        logger.warning(f"⚠️ Blocked suspicious path {request.url.path} from {client_ip}")
-        return JSONResponse(status_code=404, content={"error": "Not found"})
-    
-    response = await call_next(request)
-    return response
-
-# ============================================================================
-# END Security Middleware
-# ============================================================================
-
 # Khởi tạo các thành phần
-analyzer = RequirementAnalyzer()
-estimator = EffortEstimator()
-
-# Initialize task generation pipeline with config
-try:
-    from requirement_analyzer.task_gen.config import (
-        GENERATOR_MODE,
-        LLM_PROVIDER,
-        LLM_MODEL,
-        LLM_API_KEY,
-        get_pipeline_config
-    )
-    
-    # Print config on startup
-    config = get_pipeline_config()
-    logger.info(f"Task generation config: {config}")
-    
-    # Initialize with LLM if mode=llm, model if mode=model, else template
-    if GENERATOR_MODE == "llm":
-        logger.info(f"Initializing LLM pipeline ({LLM_PROVIDER}/{LLM_MODEL or 'auto'})...")
-        task_pipeline = get_pipeline(
-            generator_mode="llm",
-            llm_provider=LLM_PROVIDER,
-            llm_model=LLM_MODEL,
-            llm_api_key=LLM_API_KEY
-        )
-    elif GENERATOR_MODE == "model":
-        logger.info("Initializing model-based pipeline (trained ML models)...")
-        task_pipeline = get_pipeline(generator_mode="model")
-    else:
-        logger.info("Initializing template pipeline...")
-        task_pipeline = get_pipeline()
-    
-    logger.info(f"✓ Task generation pipeline loaded (mode={GENERATOR_MODE})")
-except Exception as e:
-    logger.warning(f"⚠️  Task generation pipeline not available: {e}")
-    task_pipeline = None
-
 analyzer = RequirementAnalyzer()
 estimator = EffortEstimator()
 
@@ -271,201 +122,26 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 async def main_page(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/task-generation", response_class=HTMLResponse)
-async def task_generation_page(request: Request):
-    """Task generation UI page"""
-    return templates.TemplateResponse("task_generation.html", {"request": request})
-
 @app.get("/favicon.ico")
 async def favicon():
-    """Serve favicon or 1x1 transparent PNG (avoids h11 protocol issues)"""
+    """Serve favicon to prevent 404 errors"""
     favicon_path = Path(__file__).parent / "static" / "favicon.ico"
     if favicon_path.exists():
         return FileResponse(favicon_path)
-    # Always return 200 OK with PNG bytes => no 204/h11 edge cases
-    png_data = (
-        b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01'
-        b'\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01'
-        b'\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82'
-    )
-    return Response(content=png_data, media_type="image/png")
+    # Return empty response if favicon doesn't exist
+    return JSONResponse(content={}, status_code=204)
 
-@app.get("/health", tags=["Health"])
+@app.get("/health")
 def health_check():
     """
     Health check endpoint for monitoring
-    
-    Returns:
-        - status: healthy/unhealthy
-        - service: service name
     """
     return {"status": "healthy", "service": "ai-estimation-api"}
 
-
-@app.get("/api/schemas", tags=["Schemas"], summary="Get all JSON Schemas")
-def get_json_schemas():
-    """
-    Export JSON Schema definitions cho tất cả data models
-    
-    Trả về JSON schemas cho:
-    - V1 Models: RequirementText, TaskList, EstimationRequest, etc.
-    - V2 Models: Requirement, RefinementOutput, Gap, SliceOutput, etc.
-    - Task Generation Models: TaskGenerationRequest, TaskGenerationResponse
-    
-    JSON Schema có thể dùng để:
-    - Validate input/output data
-    - Generate client code (TypeScript, Python, etc.)
-    - API documentation tools
-    - Form generation
-    """
-    try:
-        schemas = {}
-        
-        # V1 Models
-        schemas["RequirementText"] = RequirementText.model_json_schema()
-        schemas["TaskList"] = TaskList.model_json_schema()
-        schemas["COCOMOParameters"] = COCOMOParameters.model_json_schema()
-        
-        # Task Generation Models
-        from requirement_analyzer.task_gen import TaskGenerationRequest, TaskGenerationResponse, TaskFeedback
-        schemas["TaskGenerationRequest"] = TaskGenerationRequest.model_json_schema()
-        schemas["TaskGenerationResponse"] = TaskGenerationResponse.model_json_schema()
-        schemas["TaskFeedback"] = TaskFeedback.model_json_schema()
-        
-        # V2 Requirements Engineering Models
-        try:
-            from requirement_analyzer.task_gen.schemas_v2 import (
-                Requirement,
-                AcceptanceCriterion,
-                RefinementOutput,
-                Gap,
-                GapReport,
-                Slice,
-                SlicingOutput,
-                INVESTScore,
-                UserStory,
-                Subtask,
-                SeverityLevel,
-                RequirementType,
-                GapType,
-                SliceRationale,
-                TaskRole
-            )
-            
-            # Data Models
-            schemas["Requirement"] = Requirement.model_json_schema()
-            schemas["AcceptanceCriterion"] = AcceptanceCriterion.model_json_schema()
-            schemas["RefinementOutput"] = RefinementOutput.model_json_schema()
-            schemas["Gap"] = Gap.model_json_schema()
-            schemas["GapReport"] = GapReport.model_json_schema()
-            schemas["UserStory"] = UserStory.model_json_schema()
-            schemas["Subtask"] = Subtask.model_json_schema()
-            schemas["Slice"] = Slice.model_json_schema()
-            schemas["SlicingOutput"] = SlicingOutput.model_json_schema()
-            schemas["INVESTScore"] = INVESTScore.model_json_schema()
-            
-            # Enums
-            schemas["SeverityLevel"] = {
-                "type": "string",
-                "enum": [e.value for e in SeverityLevel],
-                "description": "Severity levels for gaps and issues"
-            }
-            schemas["RequirementType"] = {
-                "type": "string",
-                "enum": [e.value for e in RequirementType],
-                "description": "Types of requirements"
-            }
-            schemas["GapType"] = {
-                "type": "string",
-                "enum": [e.value for e in GapType],
-                "description": "Types of gaps detected in requirements"
-            }
-            schemas["SliceRationale"] = {
-                "type": "string",
-                "enum": [e.value for e in SliceRationale],
-                "description": "Rationale for creating a story slice"
-            }
-            schemas["TaskRole"] = {
-                "type": "string",
-                "enum": [e.value for e in TaskRole],
-                "description": "Roles for task assignment"
-            }
-            
-        except ImportError as e:
-            logger.warning(f"V2 schemas not available: {e}")
-        
-        return {
-            "openapi_version": "3.1.0",
-            "info": {
-                "title": "Software Effort Estimation API - Data Models",
-                "version": "2.0.0",
-                "description": "JSON Schema definitions for all API data models"
-            },
-            "schemas": schemas,
-            "schema_count": len(schemas),
-            "categories": {
-                "v1_estimation": ["RequirementText", "TaskList", "COCOMOParameters"],
-                "task_generation": ["TaskGenerationRequest", "TaskGenerationResponse", "TaskFeedback"],
-                "v2_requirements": ["Requirement", "RefinementOutput", "Gap", "GapReport", "UserStory", "Subtask", "Slice", "SlicingOutput"],
-                "v2_quality": ["INVESTScore", "AcceptanceCriterion"],
-                "enums": ["SeverityLevel", "RequirementType", "GapType", "SliceRationale", "TaskRole"]
-            }
-        }
-        
-    except Exception as e:
-        logger.error(f"Error generating schemas: {e}")
-        raise HTTPException(status_code=500, detail=f"Error generating schemas: {str(e)}")
-
-
-@app.get("/api/schemas/{model_name}", tags=["Schemas"], summary="Get specific JSON Schema")
-def get_schema_by_name(model_name: str):
-    """
-    Lấy JSON Schema cho một model cụ thể
-    
-    Parameters:
-        - model_name: Tên model (RequirementText, RefinementOutput, Gap, etc.)
-    
-    Example:
-        GET /api/schemas/RefinementOutput
-    """
-    try:
-        # Get all schemas first
-        all_schemas = get_json_schemas()
-        
-        if model_name not in all_schemas["schemas"]:
-            available = ", ".join(all_schemas["schemas"].keys())
-            raise HTTPException(
-                status_code=404,
-                detail=f"Schema '{model_name}' not found. Available schemas: {available}"
-            )
-        
-        return {
-            "model_name": model_name,
-            "schema": all_schemas["schemas"][model_name],
-            "openapi_version": "3.1.0"
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error getting schema for {model_name}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@app.post("/estimate", tags=["V1 Estimation"], summary="Simple text estimation")
+@app.post("/estimate")
 def estimate_effort_simple(req: RequirementText):
     """
     Endpoint đơn giản để ước lượng effort từ văn bản requirements
-    
-    **Input:**
-    - text: Văn bản requirements (Vietnamese/English)
-    - method: Integration method (weighted_average, best_model, stacking, bayesian_average)
-    
-    **Output:**
-    - Total effort (person-months)
-    - Duration (months)
-    - Team size
-    - Confidence level
-    - Model breakdown
     """
     try:
         # Sử dụng method được chỉ định hoặc mặc định
@@ -486,12 +162,10 @@ def estimate_effort_simple(req: RequirementText):
         logger.error(f"Error in estimate_effort_simple: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/analyze", tags=["V1 Estimation"], summary="Analyze requirements document")
+@app.post("/analyze")
 def analyze_requirements(req: RequirementText):
     """
     Phân tích tài liệu yêu cầu và trả về kết quả phân tích
-    
-    **Output:** Requirements analysis with metrics and insights
     """
     try:
         # Phân tích văn bản
@@ -517,19 +191,15 @@ def analyze_requirements(req: RequirementText):
         logger.error(f"Error estimating effort: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/upload-requirements", tags=["V1 Estimation"], summary="Upload and estimate from file")
+@app.post("/upload-requirements")
 async def upload_requirements(file: UploadFile = File(...), method: str = Form("weighted_average")):
     """
     Tải lên tài liệu yêu cầu và ước lượng nỗ lực
     
-    **Supported formats:**
+    Supported formats:
     - .txt, .md: Plain text files
     - .pdf: PDF documents
     - .doc, .docx: Microsoft Word documents
-    
-    **Parameters:**
-    - file: Document file (max 2MB)
-    - method: Integration method (weighted_average, best_model, etc.)
     """
     try:
         # Import parser here to avoid circular imports
@@ -592,12 +262,10 @@ async def upload_requirements(file: UploadFile = File(...), method: str = Form("
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/estimate-from-tasks", tags=["V1 Estimation"], summary="Estimate from task list")
+@app.post("/estimate-from-tasks")
 def estimate_from_tasks(tasks: TaskList):
     """
     Ước lượng nỗ lực từ danh sách công việc (tasks)
-    
-    **Input:** Array of tasks with title, description, priority, complexity
     """
     try:
         # Chuyển đổi tasks thành văn bản yêu cầu
@@ -1031,495 +699,6 @@ async def cocomo_form_page(request: Request):
 async def debug_page(request: Request):
     return templates.TemplateResponse("debug.html", {"request": request})
 
-
-# ============================================================================
-# TASK GENERATION ENDPOINTS (NEW)
-# ============================================================================
-
-@app.get("/api/task-generation/status")
-async def task_generation_status():
-    """Get task generation service status and mode"""
-    if task_pipeline is None:
-        return {
-            "available": False,
-            "mode": None,
-            "message": "Task generation service not initialized"
-        }
-    
-    return {
-        "available": True,
-        "mode": task_pipeline.generator_mode,
-        "generator_class": type(task_pipeline.generator).__name__,
-        "message": f"Task generation ready (mode: {task_pipeline.generator_mode})"
-    }
-
-
-@app.post("/api/task-generation/generate", tags=["Task Generation"], summary="Generate tasks from text")
-async def generate_tasks_api(request: TaskGenerationRequest):
-    """
-    Generate tasks from requirements text - New UI endpoint
-    
-    **Input:**
-    - text: Requirements document text
-    - max_tasks: Maximum tasks to generate (default: 50)
-    - requirement_threshold: Detection confidence threshold (default: 0.5)
-    - epic_name: Optional epic name
-    - domain_hint: Optional domain classification
-    
-    **Output:**
-    - tasks: Array of generated tasks with title, description, priority, complexity
-    - stats: Generation statistics
-    - total_story_points: Estimated story points
-    - estimated_duration_days: Estimated duration
-    """
-    if task_pipeline is None:
-        raise HTTPException(
-            status_code=503,
-            detail="Task generation service not available. Models not loaded."
-        )
-    
-    try:
-        logger.info(f"📋 Generating tasks from text ({len(request.text)} chars)")
-        
-        # Use getattr with defaults for optional fields
-        response = task_pipeline.generate_tasks(
-            text=request.text,
-            max_tasks=getattr(request, 'max_tasks', 50),
-            requirement_threshold=getattr(request, 'requirement_threshold', 0.5),
-            epic_name=getattr(request, 'epic_name', None),
-            domain_hint=getattr(request, 'domain_hint', None)
-        )
-        
-        logger.info(f"✅ Generated {len(response.tasks)} tasks")
-        
-        # Use jsonable_encoder to properly serialize datetime and Pydantic models
-        result = {
-            "tasks": jsonable_encoder(response.tasks),
-            "total_tasks": response.total_tasks,
-            "stats": response.stats,
-            "processing_time": response.processing_time,
-            "mode": response.mode,
-            "generator_version": response.generator_version
-        }
-        
-        # Add optional fields if present
-        if response.total_story_points is not None:
-            result["total_story_points"] = response.total_story_points
-        if response.estimated_duration_days is not None:
-            result["estimated_duration_days"] = response.estimated_duration_days
-        
-        return JSONResponse(content=result)
-        
-    except Exception as e:
-        logger.error(f"Error generating tasks: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/api/task-generation/generate-from-file", tags=["Task Generation"], summary="Generate tasks from file")
-async def generate_tasks_from_file(
-    file: UploadFile = File(...),
-    max_tasks: int = Form(200),
-    requirement_threshold: float = Form(0.3)
-):
-    """
-    Generate tasks from uploaded file (txt/docx/pdf)
-    
-    **Improved pipeline:**
-    1. Extract text from file (auto-detect format)
-    2. Extract requirement candidates (filter notes/headings)
-    3. Generate tasks from requirements
-    
-    **Supported formats:** .txt, .md, .pdf, .doc, .docx
-    **Max file size:** 2MB
-    """
-    if task_pipeline is None:
-        raise HTTPException(
-            status_code=503,
-            detail="Task generation service not available"
-        )
-    
-    try:
-        # Read file content
-        file_bytes = await file.read()
-        
-        logger.info(f"📋 Processing file: {file.filename} ({len(file_bytes)} bytes)")
-        
-        # Step 1: Extract text from file (auto-detect format)
-        from requirement_analyzer.ingestion import extract_text
-        raw_text = extract_text(file.filename, file_bytes)
-        
-        if not raw_text or len(raw_text) < 10:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Could not extract text from file. File might be empty or unsupported format."
-            )
-        
-        logger.info(f"   Extracted {len(raw_text)} characters from file")
-        
-        # Step 2: Extract requirement candidates (using filters)
-        from requirement_analyzer.task_gen.filters import extract_requirements_from_text
-        requirements = extract_requirements_from_text(raw_text)
-        
-        if not requirements:
-            logger.warning("No requirements found in document after filtering")
-            return JSONResponse(content={
-                "tasks": [],
-                "total_tasks": 0,
-                "stats": {},
-                "processing_time": 0.0,
-                "mode": task_pipeline.generator_mode,
-                "generator_version": "1.0.0",
-                "source_file": file.filename,
-                "ingestion": {
-                    "total_chars": len(raw_text),
-                    "requirements_extracted": 0,
-                    "threshold": requirement_threshold,
-                    "message": "No requirements detected after filtering. Document may contain only notes/headings."
-                }
-            })
-        
-        logger.info(f"   Extracted {len(requirements)} requirement candidates")
-        
-        # Step 3: Generate tasks using generate_from_sentences (BYPASS SEGMENTER)
-        # Each requirement line is treated as separate sentence - no merging
-        # For file uploads: disable quality filter to keep all detected tasks
-        import time
-        start_time = time.time()
-        
-        # Count actual detected requirements (not just extracted lines)
-        detection_results = task_pipeline.detector.detect(requirements, threshold=requirement_threshold)
-        detected_count = sum(1 for is_req, _ in detection_results if is_req)
-        
-        tasks = task_pipeline.generate_from_sentences(
-            requirements,
-            epic_name=None,
-            requirement_threshold=requirement_threshold,
-            enable_quality_filter=False,  # Keep all tasks for file uploads
-            enable_deduplication=True      # But still remove duplicates
-        )
-        
-        processing_time = time.time() - start_time
-        
-        # Build response with comprehensive stats
-        result = {
-            "tasks": jsonable_encoder(tasks),
-            "total_tasks": len(tasks),
-            "stats": {
-                "requirements_extracted": len(requirements),
-                "requirements_detected": detected_count,  # Actual count from detector
-                "tasks_generated": len(tasks),  # Final tasks after postprocessing
-                "processing_time": processing_time
-            },
-            "processing_time": processing_time,
-            "mode": task_pipeline.generator_mode,
-            "generator_version": "1.0.0",
-            "source_file": file.filename,
-            "ingestion": {
-                "total_chars": len(raw_text),
-                "requirements_extracted": len(requirements),
-                "threshold": requirement_threshold,
-                "method": "generate_from_sentences (bypass segmenter)"
-            }
-        }
-        
-        logger.info(f"✅ Generated {result['total_tasks']} tasks from file {file.filename}")
-        return JSONResponse(content=result)
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error processing file: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/generate-tasks", response_model=TaskGenerationResponse)
-async def generate_tasks(request: TaskGenerationRequest):
-    """
-    Generate tasks from requirement document
-    
-    Main endpoint for AI task generation
-    """
-    if task_pipeline is None:
-        raise HTTPException(
-            status_code=503,
-            detail="Task generation service not available. Please train models first."
-        )
-    
-    try:
-        logger.info(f"📋 Generating tasks from document ({len(request.text)} chars)")
-        
-        response = task_pipeline.generate_tasks(
-            text=request.text,
-            max_tasks=request.max_tasks,
-            epic_name=request.epic_name,
-            domain_hint=request.domain_hint
-        )
-        
-        logger.info(f"✅ Generated {response.total_tasks} tasks in {response.processing_time:.2f}s")
-        
-        return response
-        
-    except Exception as e:
-        logger.error(f"Error generating tasks: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/generate-tasks-estimate")
-async def generate_tasks_and_estimate(request: TaskGenerationRequest):
-    """
-    Generate tasks AND estimate effort/story points
-    
-    Combines task generation with effort estimation
-    """
-    if task_pipeline is None:
-        raise HTTPException(
-            status_code=503,
-            detail="Task generation service not available"
-        )
-    
-    try:
-        # 1. Generate tasks
-        logger.info(f"📋 Generating tasks with estimation...")
-        
-        task_response = task_pipeline.generate_tasks(
-            text=request.text,
-            max_tasks=request.max_tasks,
-            epic_name=request.epic_name,
-            domain_hint=request.domain_hint
-        )
-        
-        tasks = task_response.tasks
-        
-        if not tasks:
-            return {
-                "tasks": [],
-                "total_tasks": 0,
-                "estimation": None,
-                "message": "No tasks generated"
-            }
-        
-        # 2. Estimate effort if requested
-        if request.include_story_points:
-            logger.info(f"📊 Estimating effort for {len(tasks)} tasks...")
-            
-            # Convert tasks to estimation format
-            task_list = [
-                {
-                    "title": task.title,
-                    "description": task.description,
-                    "type": task.type,
-                    "priority": task.priority,
-                    "role": task.role
-                }
-                for task in tasks
-            ]
-            
-            # Call existing estimator
-            try:
-                estimation_result = estimator.estimate_from_requirements(
-                    request.text,
-                    method="weighted_average"
-                )
-                
-                total_effort = estimation_result.get('total_effort_hours', 0)
-                
-                # Allocate story points based on priority and complexity
-                tasks_with_points = _allocate_story_points(tasks, total_effort)
-                
-                # Update tasks in response
-                for i, task in enumerate(tasks):
-                    task.story_points = tasks_with_points[i]['story_points']
-                    task.estimated_hours = tasks_with_points[i]['estimated_hours']
-                
-                task_response.total_story_points = sum(t['story_points'] for t in tasks_with_points)
-                task_response.estimated_duration_days = estimation_result.get('duration_months', 0) * 22  # approx working days
-                
-            except Exception as e:
-                logger.warning(f"⚠️  Effort estimation failed: {e}")
-        
-        # Build response
-        response_dict = task_response.dict()
-        response_dict['message'] = f"Successfully generated {len(tasks)} tasks"
-        
-        return JSONResponse(content=response_dict)
-        
-    except Exception as e:
-        logger.error(f"Error in generate-tasks-estimate: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/upload-requirements-generate-tasks")
-async def upload_and_generate_tasks(
-    file: UploadFile = File(...),
-    max_tasks: int = Form(50),
-    epic_name: Optional[str] = Form(None)
-):
-    """
-    Upload requirement document and generate tasks
-    """
-    if task_pipeline is None:
-        raise HTTPException(status_code=503, detail="Task generation service not available")
-    
-    try:
-        # Parse document
-        from requirement_analyzer.document_parser import DocumentParser
-        
-        content = await file.read()
-        filename = file.filename
-        file_ext = os.path.splitext(filename)[1].lower()
-        
-        if file_ext not in ['.txt', '.doc', '.docx', '.pdf', '.md']:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Unsupported file format: {file_ext}. Supported: .txt, .doc, .docx, .pdf, .md"
-            )
-        
-        parser = DocumentParser()
-        text = parser.parse(content, file_ext)
-        
-        if not text or len(text.strip()) < 50:
-            raise HTTPException(
-                status_code=400,
-                detail="Document is too short or empty"
-            )
-        
-        # Generate tasks
-        response = task_pipeline.generate_tasks(
-            text=text,
-            max_tasks=max_tasks,
-            epic_name=epic_name
-        )
-        
-        return response
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error uploading and generating tasks: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/tasks/feedback")
-async def submit_task_feedback(feedback: TaskFeedback):
-    """
-    Submit feedback on generated task (for learning loop)
-    
-    Stores user edits and acceptance to improve model later
-    """
-    try:
-        # Store feedback (implement storage later)
-        logger.info(f"📝 Received feedback for task {feedback.task_id}: accepted={feedback.accepted}")
-        
-        # TODO: Save to database for future model improvement
-        # For now, just acknowledge
-        
-        return {
-            "status": "success",
-            "message": "Feedback received",
-            "task_id": feedback.task_id
-        }
-        
-    except Exception as e:
-        logger.error(f"Error saving feedback: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-def _allocate_story_points(tasks: List, total_effort_hours: float) -> List[Dict]:
-    """
-    Allocate story points to tasks based on effort and complexity
-    
-    Uses priority, type, and role as weights
-    """
-    if not tasks or total_effort_hours <= 0:
-        return [{'story_points': 3, 'estimated_hours': 8} for _ in tasks]
-    
-    # Define weight factors
-    priority_weights = {'Low': 0.8, 'Medium': 1.0, 'High': 1.3, 'Critical': 1.5}
-    type_weights = {
-        'security': 1.2,
-        'data': 1.1,
-        'integration': 1.15,
-        'performance': 1.1,
-        'interface': 1.0,
-        'functional': 1.0
-    }
-    role_weights = {
-        'Security': 1.2,
-        'DevOps': 1.1,
-        'Backend': 1.0,
-        'Data': 1.0,
-        'Frontend': 0.9,
-        'QA': 0.8
-    }
-    
-    # Calculate weights for each task
-    task_weights = []
-    for task in tasks:
-        priority = getattr(task, 'priority', 'Medium')
-        task_type = getattr(task, 'type', 'functional')
-        role = getattr(task, 'role', 'Backend')
-        
-        weight = (
-            priority_weights.get(priority, 1.0) *
-            type_weights.get(task_type, 1.0) *
-            role_weights.get(role, 1.0)
-        )
-        task_weights.append(weight)
-    
-    total_weight = sum(task_weights)
-    
-    # Allocate hours
-    fibonacci = [1, 2, 3, 5, 8, 13, 21, 34]
-    result = []
-    
-    for i, task in enumerate(tasks):
-        # Calculate hours for this task
-        task_hours = (task_weights[i] / total_weight) * total_effort_hours
-        
-        # Convert to story points (Fibonacci)
-        # Rough mapping: 1 point = 1-4 hours, 2 = 4-8, 3 = 8-16, etc.
-        if task_hours <= 4:
-            points = 1
-        elif task_hours <= 8:
-            points = 2
-        elif task_hours <= 16:
-            points = 3
-        elif task_hours <= 24:
-            points = 5
-        elif task_hours <= 40:
-            points = 8
-        elif task_hours <= 60:
-            points = 13
-        else:
-            points = 21
-        
-        result.append({
-            'story_points': points,
-            'estimated_hours': round(task_hours, 1)
-        })
-    
-    return result
-
-
-# ============================================================================
-# END TASK GENERATION ENDPOINTS
-# ============================================================================
-
-# ============================================================================
-# V2 ENDPOINTS - Requirements Engineering Pipeline
-# ============================================================================
-try:
-    from requirement_analyzer.api_v2 import router as v2_router
-    app.include_router(v2_router)
-    logger.info("✅ V2 API endpoints registered")
-except Exception as e:
-    logger.warning(f"⚠️ V2 endpoints not available: {e}")
-
-# ============================================================================
-# END V2 ENDPOINTS
-# ============================================================================
-
-
 # Mount static files last to avoid route conflicts
 # Use html=True to properly serve static files
 try:
@@ -1535,13 +714,7 @@ except Exception as e:
 def start_server(host="0.0.0.0", port=8000):
     """
     Khởi động server API
-    
-    Production deployment: Binding to 0.0.0.0 for network access.
-    Rate limiting and security middleware are enabled.
     """
-    logger.info(f"🚀 Starting server on {host}:{port}")
-    logger.info(f"   Security: Rate limiting enabled (100 req/60s)")
-    logger.info(f"   Network: {'Public binding with auth' if host == '0.0.0.0' else 'Localhost only'}")
     uvicorn.run("requirement_analyzer.api:app", host=host, port=port, reload=True)
 
 if __name__ == "__main__":

@@ -1,0 +1,13 @@
+\contentsline {section}{\numberline {1}REVIEWER 1: Methodological Concerns}{2}{section.1}%
+\contentsline {section}{\numberline {2}REVIEWER 2}{4}{section.2}%
+\contentsline {section}{\numberline {3}REVIEWER 3: Structure \& Clarity}{5}{section.3}%
+\contentsline {section}{\numberline {4}REVIEWER 4: Linguistic \& Methodological Quality}{7}{section.4}%
+\contentsline {section}{\numberline {5}REVIEWER 5: Experimental Completeness}{9}{section.5}%
+\contentsline {section}{\numberline {6}REVIEWER 6: Technical Details}{12}{section.6}%
+\contentsline {section}{\numberline {7}REVIEWER 7: Rigor \& Reproducibility}{14}{section.7}%
+\contentsline {section}{\numberline {8}REVIEWER 8: Deep Technical Critique}{18}{section.8}%
+\contentsline {section}{\numberline {9}SUMMARY TABLE: Common Errors Across All Reviewers}{23}{section.9}%
+\contentsline {section}{\numberline {10}CRITICAL PATH SUMMARY}{28}{section.10}%
+\contentsline {subsection}{\numberline {10.1}6 FATAL Issues - Must Fix}{28}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}11 MAJOR Issues - Should Fix}{28}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}3 MINOR Issues - Nice to Have}{28}{subsection.10.3}%

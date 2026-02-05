@@ -1,0 +1,141 @@
+\begin{thebibliography}{21}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Boehm(2000)]{boehm2000cocomo}
+Barry Boehm.
+\newblock \emph{COCOMO II Model Definition Manual}.
+\newblock USC, 2000.
+
+\bibitem[Tanveer et~al.(2023{\natexlab{a}})Tanveer, Hussain, Zahid,
+  et~al.]{tanveer2023survey}
+Muhammad Tanveer, Imran Hussain, Naveed Zahid, et~al.
+\newblock A survey on machine learning techniques for software effort
+  estimation: Trends, challenges, and opportunities.
+\newblock \emph{Journal of Systems and Software}, 200:\penalty0 111618,
+  2023{\natexlab{a}}.
+
+\bibitem[Azzeh and Nassif(2019)]{azzeh2019cross}
+Mohammad Azzeh and Ali~Bou Nassif.
+\newblock Cross-company effort estimation using ensemble learning and feature
+  selection.
+\newblock \emph{Empirical Software Engineering}, 24\penalty0 (6):\penalty0
+  3821--3848, 2019.
+
+\bibitem[Kitchenham et~al.(2001)Kitchenham, Pickard, MacDonell, and
+  Shepperd]{kitchenham2001evaluating}
+Barbara Kitchenham, Lesley Pickard, Stephen MacDonell, and Martin Shepperd.
+\newblock Evaluating software engineering prediction systems.
+\newblock \emph{Information and Software Technology}, 43\penalty0
+  (11):\penalty0 733--743, 2001.
+
+\bibitem[Foss et~al.(2003)Foss, Stensrud, Kitchenham, and
+  Myrtveit]{foss2003bias}
+Tore Foss, Erik Stensrud, Barbara Kitchenham, and Ivar Myrtveit.
+\newblock A simulation study of the model evaluation criterion mmre.
+\newblock \emph{IEEE Transactions on Software Engineering}, 29\penalty0
+  (11):\penalty0 985--995, 2003.
+
+\bibitem[Efron and Tibshirani(1994)]{efron1994bootstrap}
+Bradley Efron and Robert~J. Tibshirani.
+\newblock \emph{An Introduction to the Bootstrap}.
+\newblock Chapman \& Hall/CRC, Boca Raton, FL, 1994.
+
+\bibitem[Wilcoxon(1945)]{wilcoxon1945individual}
+Frank Wilcoxon.
+\newblock Individual comparisons by ranking methods.
+\newblock \emph{Biometrics Bulletin}, 1\penalty0 (6):\penalty0 80--83, 1945.
+
+\bibitem[Breiman(2001)]{breiman2001random}
+Leo Breiman.
+\newblock Random forests.
+\newblock \emph{Machine Learning}, 45\penalty0 (1):\penalty0 5--32, 2001.
+
+\bibitem[Holm(1979)]{holm1979simple}
+Sture Holm.
+\newblock A simple sequentially rejective multiple test procedure.
+\newblock \emph{Scandinavian Journal of Statistics}, 6\penalty0 (2):\penalty0
+  65--70, 1979.
+
+\bibitem[Macbeth et~al.(2011)Macbeth, Razumiejczyk, and
+  Ledesma]{macbeth2011cliffs}
+Gary Macbeth, Esteban Razumiejczyk, and Rub{\'e}n Ledesma.
+\newblock Cliff’s delta calculator: A non-parametric effect size program for
+  two groups of observations.
+\newblock \emph{Universitas Psychologica}, 10\penalty0 (2):\penalty0 545--555,
+  2011.
+
+\bibitem[Dem{\v{s}}ar(2006)]{demvsar2006statistical}
+Janez Dem{\v{s}}ar.
+\newblock Statistical comparisons of classifiers over multiple data sets.
+\newblock \emph{Journal of Machine Learning Research}, 7:\penalty0 1--30, 2006.
+
+\bibitem[Garcia et~al.(2010)Garcia, Fernandez, Luengo, and
+  Herrera]{garcia2010advanced}
+Salvador Garcia, Alberto Fernandez, Jesus Luengo, and Francisco Herrera.
+\newblock Advanced nonparametric tests for multiple comparisons in
+  computational intelligence and data mining.
+\newblock \emph{Information Sciences}, 180\penalty0 (10):\penalty0 2044--2064,
+  2010.
+
+\bibitem[Pedregosa et~al.(2011)]{pedregosa2011scikit}
+Fabian Pedregosa et~al.
+\newblock Scikit-learn: Machine learning in python.
+\newblock \emph{Journal of Machine Learning Research}, 12:\penalty0 2825--2830,
+  2011.
+
+\bibitem[Cruz and Abreu(2019)]{cruz2019open}
+Luis Cruz and Rui Abreu.
+\newblock Open science in software engineering research: The case for open data
+  and replication.
+\newblock \emph{Empirical Software Engineering}, 24\penalty0 (6):\penalty0
+  3829--3849, 2019.
+
+\bibitem[Lopez et~al.(2021)Lopez, Rodriguez, and Garcia]{lopez2021empirical}
+Belen Lopez, Juan~C Rodriguez, and Salvador Garcia.
+\newblock Empirical software engineering reproducibility: A systematic review.
+\newblock \emph{Information and Software Technology}, 136:\penalty0 106579,
+  2021.
+
+\bibitem[Friedman(2001)]{friedman2001greedy}
+Jerome~H Friedman.
+\newblock Greedy function approximation: A gradient boosting machine.
+\newblock \emph{Annals of Statistics}, pages 1189--1232, 2001.
+
+\bibitem[Pandey et~al.(2023)Pandey, Sharma, and Saha]{pandey2023comprehensive}
+P.~Pandey, T.~Sharma, and S.~Saha.
+\newblock Hybrid ensemble learning for software effort estimation using
+  meta-heuristic optimization.
+\newblock \emph{Applied Soft Computing}, 135:\penalty0 110054, 2023.
+
+\bibitem[Alqadi and Abran(2021)]{alqadi2021deep}
+A.~Alqadi and A.~Abran.
+\newblock Deep learning models for software effort estimation: An empirical
+  study.
+\newblock \emph{IEEE Access}, 9:\penalty0 135012--135026, 2021.
+
+\bibitem[Nair and Menzies(2020)]{nair2020open}
+Vineeth Nair and Tim Menzies.
+\newblock Open problems in reproducibility, replication, and transparency in
+  software engineering.
+\newblock In \emph{Proceedings of the 42nd International Conference on Software
+  Engineering: New Ideas and Emerging Results}, pages 1--4. IEEE, 2020.
+
+\bibitem[Tanveer et~al.(2023{\natexlab{b}})Tanveer, Hussain, Zahid,
+  et~al.]{tanveer2023comprehensive}
+Muhammad Tanveer, Imran Hussain, Naveed Zahid, et~al.
+\newblock A comprehensive analysis of ensemble learning models for software
+  effort estimation.
+\newblock \emph{IEEE Access}, 11:\penalty0 76590--76608, 2023{\natexlab{b}}.
+
+\bibitem[Yu et~al.(2021)Yu, Xia, Lo, and Hassan]{yu2021transfer}
+Yong Yu, Xin Xia, David Lo, and Ahmed~E Hassan.
+\newblock Transfer learning in software engineering: A systematic mapping
+  study.
+\newblock \emph{Empirical Software Engineering}, 26\penalty0 (3):\penalty0
+  1--46, 2021.
+
+\end{thebibliography}
