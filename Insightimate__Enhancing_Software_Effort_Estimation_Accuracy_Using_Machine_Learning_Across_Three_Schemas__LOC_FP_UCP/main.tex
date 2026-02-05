@@ -98,7 +98,7 @@ As a result, the community lacks a cross-schema benchmark that is simultaneously
 
 \paragraph{Our approach.}
 This study addresses these gaps through four concrete contributions: 
-(1) an \textbf{auditable dataset manifest} (Table~\ref{tab:dataset-manifest}) documenting source, year, DOI/URL, raw counts, deduplication rules, and rebuild scripts for full reproducibility; 
+(1) an \textbf{auditable dataset manifest} (Table~\ref{tab:dataset-summary}) documenting source, year, DOI/URL, raw counts, deduplication rules, and rebuild scripts for full reproducibility; 
 (2) a \textbf{fair calibrated parametric baseline} (Section~\ref{sec:baseline})—a size-only power-law model fitted on training data per schema and seed—ensuring principled comparison when cost drivers are missing; 
 (3) \textbf{schema-appropriate evaluation protocols}, including Leave-One-Out Cross-Validation (LOOCV) and bootstrap confidence intervals for small-sample FP, plus explicit macro/micro aggregation to avoid LOC dominance; and 
 (4) \textbf{ablation analysis} (Section~\ref{sec:ablation}) quantifying contributions of harmonization, log-scaling, and outlier control.
@@ -120,7 +120,7 @@ Despite extensive research in software effort estimation, three critical gaps pe
 
 \noindent The contributions of this paper address these gaps through five concrete novelties:
 \begin{enumerate}[leftmargin=2em]
-    \item \textbf{Auditable Dataset Manifest with Leakage Control:} We provide a comprehensive provenance table (see Table~\ref{tab:dataset-manifest}) documenting source, year, DOI/URL, raw counts, deduplication rules, and train-test splits for full reproducibility.
+    \item \textbf{Auditable Dataset Manifest with Leakage Control:} We provide a comprehensive provenance table (see Table~\ref{tab:dataset-summary}) documenting source, year, DOI/URL, raw counts, deduplication rules, and train-test splits for full reproducibility.
     \item \textbf{Fair Calibrated Parametric Baseline:} We replace uncalibrated COCOMO~II with a calibrated power-law baseline fitted on training data only (Section~\ref{sec:baseline}), ensuring fair comparison when cost drivers are missing.
     \item \textbf{Schema-Specific Training with Cross-Source Generalization:} We adopt \textbf{schema-specific training} (LOC/FP/UCP independently) to prevent semantic feature mismatch across sizing paradigms, complemented with leave-one-source-out validation to assess cross-source robustness. This clarifies that our contribution is a \emph{benchmarking methodology}, not cross-schema transfer learning (reserved for future work).
     \item \textbf{Ablation Study:} We quantify the individual contribution of harmonization, log-scaling, and outlier control through systematic ablation experiments (Section~\ref{sec:ablation}).
@@ -180,7 +180,7 @@ methods that adapt more flexibly to diverse data sources.
     \centering
     \includegraphics[width=0.95\linewidth]{cocomo_vs_ml.png}
     \caption{Workflow comparison between (a) traditional COCOMO~II pipeline (Eqs.~\ref{eq:cocomo-full}--\ref{eq:cocomo-time}) and (b) proposed multi-schema ML framework. 
-    \textbf{(1) Input:} Multi-source datasets (1993--2022) partitioned by schema (LOC/FP/UCP) with dataset manifest (Table~\ref{tab:dataset-manifest}). 
+    \textbf{(1) Input:} Multi-source datasets (1993--2022) partitioned by schema (LOC/FP/UCP) with dataset manifest (Table~\ref{tab:dataset-summary}). 
     \textbf{(2) Preprocessing:} Schema-specific unit harmonization, IQR-based outlier capping, log transforms, no target-derived features. 
     \textbf{(3) Training:} Per-schema tuning (stratified 80/20 + 5-fold CV for LOC/UCP, LOOCV for FP); calibrated power-law baseline fitted on training data only per seed. 
     \textbf{(4) Evaluation:} Per-schema metrics (MMRE, MdMRE, MAE, RMSE) + macro/micro aggregation + post-hoc tests (Table~\ref{tab:posthoc}) + ablation.}
@@ -189,7 +189,7 @@ methods that adapt more flexibly to diverse data sources.
 
 \paragraph{Walk-through of Figure~\ref{fig:cocomo-vs-ml}.}
 Figure~\ref{fig:cocomo-vs-ml} illustrates the end-to-end pipeline.
-\textbf{Step 1 (Input):} We ingest heterogeneous datasets from multiple sources (1993--2022) and partition them by schema (LOC/FP/UCP) according to the dataset manifest (Table~\ref{tab:dataset-manifest}).
+\textbf{Step 1 (Input):} We ingest heterogeneous datasets from multiple sources (1993--2022) and partition them by schema (LOC/FP/UCP) according to the dataset manifest (Table~\ref{tab:dataset-summary}).
 \textbf{Step 2 (Preprocessing):} We apply unit harmonization (effort $\to$ person-months, LOC $\to$ KLOC), handle missing values via median imputation (only for raw-reported features, no target-derived features), apply IQR-based outlier capping, and optional log transforms for linear models.
 \textbf{Step 3 (Training):} We train and tune models \emph{within each schema independently} using the designated protocol: stratified 80/20 split with 5-fold inner CV for hyperparameter selection (LOC/UCP), or Leave-One-Out Cross-Validation (LOOCV) for FP due to limited sample size ($n=158$). The calibrated baseline (Eq.~\ref{eq:baseline-calibrated}) is fitted on training data only per seed.
 \textbf{Step 4 (Evaluation):} We evaluate on held-out test data (or pooled LOOCV predictions for FP) and report per-schema metrics (MMRE, MdMRE, MAE, MdAE, RMSE), plus overall macro-averaged and micro-averaged performance (Section~\ref{sec:aggregation}).
@@ -1380,7 +1380,7 @@ While outside the scope of this benchmarking study, cross-schema transfer repres
 This paper's schema-specific approach provides the necessary \textit{baseline performance} for future transfer learning studies to demonstrate improvement over independent schema-specific training.
 
 \paragraph{Deduplication and Leakage Risks.}
-Despite rigorous deduplication rules (Table~\ref{tab:dataset-manifest}), residual near-duplicates may persist due to:
+Despite rigorous deduplication rules (Table~\ref{tab:dataset-summary}, detailed in Table S1), residual near-duplicates may persist due to:
 \begin{itemize}[leftmargin=1.5em]
     \item Projects re-reported across multiple publications with slight measurement variations;
     \item Forked or iterative project versions that share substantial code/effort characteristics;
@@ -1411,7 +1411,7 @@ Parametric models—COCOMO~\cite{boehm1981software}, SEER-SEM, SLIM—dominated 
 Since the 2000s, ensemble tree methods—Random Forest~\cite{breiman2001random}, Gradient Boosting~\cite{friedman2001greedy}, XGBoost~\cite{chen2016xgboost}, LightGBM~\cite{ke2017lightgbm}, CatBoost~\cite{prokhorenkova2018catboost}—have become dominant for tabular regression.
 \textbf{Strengths:} Handle non-linearity and feature interactions; robust to irrelevant features; strong empirical performance on SEE benchmarks~\cite{pandey2023comprehensive}.
 \textbf{Limitations:} Vulnerable to target leakage if features derived from effort/time; hyperparameter tuning and model selection can bias comparisons; reproducibility often unclear (provenance, deduplication, aggregation).
-\textbf{How our work differs:} We provide full dataset manifest (Table~\ref{tab:dataset-manifest}) with explicit deduplication and leakage controls; macro-averaging across schemas prevents LOC dominance; LOSO validation tests cross-source generalization; ablation quantifies preprocessing contributions.
+\textbf{How our work differs:} We provide full dataset manifest (Table~\ref{tab:dataset-summary}, details in Table S1) with explicit deduplication and leakage controls; macro-averaging across schemas prevents LOC dominance; LOSO validation tests cross-source generalization; ablation quantifies preprocessing contributions.
 
 \subsection{Deep Learning Approaches}
 
@@ -1457,7 +1457,7 @@ Alqadi et al. (2021)~\cite{alqadi2021deep} & LOC & NASA93, Cocomo81 & Deep NN, H
 
 \paragraph{Gap relative to prior work.}
 While prior studies have explored stronger learners (ensembles, deep models, hybrid architectures), our work targets three \\textbf{methodological gaps} that limit reproducibility and fairness in cross-schema benchmarking:
-(i) \\textbf{Dataset provenance}\textemdash we provide a full manifest (Table~\\ref{tab:dataset-manifest}) with source URLs, DOIs, year ranges, raw/deduplicated counts, licensing terms, and rebuild scripts, enabling independent replication;
+(i) \\textbf{Dataset provenance}\textemdash we provide a full manifest (Table~\\ref{tab:dataset-summary}, detailed in Table S1) with source URLs, DOIs, year ranges, raw/deduplicated counts, licensing terms, and rebuild scripts, enabling independent replication;
 (ii) \\textbf{Fair parametric baseline}\textemdash our size-only power-law baseline (Eq.~\\ref{eq:baseline-calibrated}) is calibrated on training data per schema and seed, avoiding straw-man COCOMO~II comparisons when cost drivers are unavailable;
 (iii) \\textbf{Explicit aggregation}\textemdash we report both macro-averaged (equal weight per schema) and micro-averaged (pooled) metrics, preventing LOC dominance in overall conclusions, and adopt LOOCV + bootstrap CI for small-sample FP.
 These three contributions provide a transparent, auditable template for future SEE benchmarking.
@@ -1526,7 +1526,7 @@ This study introduced a unified, auditable cross-schema framework for software e
 enabling systematic benchmarking across LOC-, FP-, and UCP-based representations
 with full reproducibility guarantees.
 Four concrete novelties distinguish this work from prior benchmarks:
-(1) \textbf{dataset manifest with provenance tracking} (Table~\ref{tab:dataset-manifest}),
+(1) \textbf{dataset manifest with provenance tracking} (Table~\ref{tab:dataset-summary}, Figure~\ref{fig:dataset-timeline}),
 providing transparent deduplication and leakage control;
 (2) \textbf{fair calibrated power-law baseline} (Section~\ref{sec:baseline}),
 avoiding straw-man comparisons when cost drivers are unavailable;
@@ -1592,7 +1592,7 @@ This work provides:
 Beyond confirming the strength of ensemble learners,
 the key contribution is a \textbf{reproducible and auditable benchmarking methodology}:
 a fair calibrated parametric baseline under missing drivers,
-explicit provenance and leakage controls (Table~\ref{tab:dataset-manifest}),
+explicit provenance and leakage controls (Table~\ref{tab:dataset-summary}, Figure~\ref{fig:dataset-timeline}),
 cross-source generalization tests,
 and systematic ablation (Section~\ref{sec:ablation}).
 This framework provides a transparent, extensible foundation
