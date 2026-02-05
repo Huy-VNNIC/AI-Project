@@ -83,7 +83,7 @@ Accurately estimating software development effort is a critical factor in determ
 
 A wide range of factors affect estimation accuracy, including project size, functional complexity, development methodology, team capability, and organizational context. Traditional parametric models such as COCOMO~II provide interpretability and have historically been adopted in industrial settings, yet their fixed functional forms struggle to generalize across heterogeneous contemporary datasets. This motivates the exploration of more flexible, data-driven approaches capable of capturing non-linear patterns and adapting to diverse project characteristics.
 
-In this work, we address these challenges by designing a unified machine-learning framework for software effort estimation. Specifically, this study pursues three objectives: (i) to develop an integrated estimation framework that supports three major sizing schemas—Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP); (ii) to empirically compare the performance of multiple machine-learning regressors against the widely used COCOMO~II model using standard evaluation metrics such as MMRE, PRED(25), MAE, RMSE, and $R^2$; and (iii) to analyze the behavior of each model within individual sizing schemas in order to provide practical insights for software project managers.
+In this work, we address these challenges by designing a unified machine-learning framework for software effort estimation. Specifically, this study pursues three objectives: (i) to develop an integrated estimation framework that supports three major sizing schemas—Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP); (ii) to empirically compare the performance of multiple machine-learning regressors against a calibrated size-only parametric baseline using standard evaluation metrics such as MMRE, PRED(25), MAE, MdAE, RMSE, and $R^2$; and (iii) to analyze the behavior of each model within individual sizing schemas in order to provide practical insights for software project managers.
 
 \paragraph{Research Gaps Addressed.}
 Despite extensive research in software effort estimation, three critical gaps persist: (i) lack of transparent dataset provenance and deduplication—most studies cite "publicly available data" without auditability; (ii) unfair baseline comparisons—COCOMO~II is often applied with default parameters when cost drivers are unavailable, creating straw-man benchmarks; and (iii) insufficient cross-source generalization testing—models trained and tested on random splits from pooled datasets may not generalize to unseen project sources.
@@ -150,7 +150,7 @@ methods that adapt more flexibly to diverse data sources.
 
 \subsection{Multi-Schema ML Framework}
 
-We introduce a unified machine-learning framework that trains a separate regressor for each sizing schema—Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP)—and compares their predictive performance with COCOMO~II. For each schema $s \in \{\text{LOC}, \text{FP}, \text{UCP}\}$, the framework learns a mapping
+We introduce a unified machine-learning framework that trains a separate regressor for each sizing schema—Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP)—and compares their predictive performance with a calibrated parametric baseline (COCOMO-like power-law model). For each schema $s \in \{\text{LOC}, \text{FP}, \text{UCP}\}$, the framework learns a mapping
 
 \begin{equation}
 \hat{E}^{(s)} = f^{(s)}(x^{(s)}),
@@ -685,7 +685,10 @@ Micro-averaged results are reported in the supplementary materials.
 
 Table~\ref{tab:overall} summarizes the mean test performance across all schemas 
 (\textit{LOC}, \textit{FP}, and \textit{UCP}) using macro-averaging (Eq.~\ref{eq:macro}) 
-to avoid LOC dominance. All metrics include 95\% confidence intervals to quantify prediction uncertainty.
+to avoid LOC dominance. Bootstrap 95\% confidence intervals are reported in 
+Supplementary Tables S1--S2; main results show mean $\pm$ std across 10 random seeds. 
+Per-schema results (LOC, FP, UCP breakdowns) are provided in Section~\ref{sec:error-profiles} 
+and Supplementary Materials for detailed analysis.
 
 Among the tested models, the \textbf{Random Forest (RF)} consistently achieved the best overall accuracy, 
 followed by \textbf{Gradient Boosting (GB)} and \textbf{Decision Tree (DT)}. 
@@ -698,12 +701,17 @@ yielding MMRE $>4.5$ with extremely wide confidence intervals.
 
 Key findings:
 \begin{itemize}[leftmargin=1.5em]
-    \item RF achieved \textbf{42\% lower MMRE} than the Calibrated Baseline (0.647 vs. 1.12), 
-    with tight confidence intervals indicating stable performance.
+    \item RF achieved the \textbf{lowest MAE and MdAE} among all models, 
+    demonstrating robust central tendency. 
+    Relative error metrics (MMRE, MdMRE) consistently favored RF over the Calibrated Baseline 
+    (MMRE: 0.647 vs. 1.12, a 42\% improvement), 
+    though MMRE is reported for comparability and not used as the sole criterion due to known bias toward underestimates.
     \item MdMRE (median relative error) confirmed RF's robustness: 0.48 vs. 0.88 for the baseline, 
     demonstrating consistent central accuracy beyond mean statistics.
     \item MAPE results showed RF achieved 42.7\% error vs. 89.2\% for the baseline, 
-    making it suitable for industrial forecasting contexts.
+    making it suitable for industrial forecasting contexts. 
+    For FP schema with limited sample size, PRED(25) showed higher variance; 
+    we therefore emphasize MAE/MdAE for small-sample robustness.
     \item GB performed comparably to RF on MMRE but showed slightly higher MdMRE (0.79), 
     suggesting occasional outlier predictions.
 \end{itemize}
@@ -752,7 +760,7 @@ but overfit smaller ones.
 confirming the limitations of linear assumptions for effort prediction.
 
 \paragraph{FP Schema.}
-The Function Point (FP) schema exhibited higher variability due to its small sample size ($n=24$) 
+The Function Point (FP) schema exhibited higher variability due to its limited sample size ($n=158$) 
 and heterogeneous functional complexity.  
 Traditional regression systematically overpredicted high-FP projects ($>300$~FP), 
 whereas \textbf{Random Forest} achieved up to 40\% lower MAE and provided 
@@ -982,7 +990,7 @@ Statistical inference reliability was reinforced through
 Wilcoxon signed-rank tests with Holm–Bonferroni correction 
 and effect-size reporting via Cliff’s~$\delta$ (Section~4.4).  
 Nevertheless, multiple comparisons can increase Type~II error risk, 
-especially for small-sample schemas (e.g., FP, $n{=}24$).  
+especially for limited-sample schemas (e.g., FP, $n{=}158$).  
 Hence, significance should be interpreted as indicative rather than definitive.
 
 \paragraph{Summary.}
@@ -1194,8 +1202,14 @@ schema by standardizing effort units, normalizing size metrics, and removing dup
 Illustrative examples of the integrated dataset include FP-based samples (Desharnais),
 LOC samples (e.g., project\_id/loc/kloc/effort\_pm), and UCP samples (Silhavy et al.).
 
-The harmonized dataset and preprocessing scripts can be obtained from the corresponding
-author upon reasonable request. All data used in this work are anonymized and contain no
+\textbf{Reproducibility Package:} We release: (i) rebuild scripts that download and parse each source 
+from the original public repositories, (ii) the complete harmonization pipeline (unit conversion, 
+deduplication, outlier handling), and (iii) MD5 checksums for the produced cleaned tables. 
+Due to third-party licensing restrictions (e.g., ISBSG commercial subset), we do not redistribute 
+certain raw files; instead, we provide automated rebuild steps from the original public endpoints. 
+The reproducibility package, experimental code, and supplementary results are available via 
+an anonymous GitHub repository during review (link provided to editor) and will be permanently 
+archived with a Zenodo DOI upon acceptance. All data used in this work are anonymized and contain no
 personal or sensitive information.
 % =====================================================
 % 10. Declarations (Required by Springer Nature)
