@@ -1,4 +1,4 @@
-\begin{thebibliography}{46}
+\begin{thebibliography}{44}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -10,13 +10,12 @@ Barry Boehm.
 \newblock \emph{COCOMO II Model Definition Manual}.
 \newblock USC, 2000.
 
-\bibitem[Tanveer et~al.(2023{\natexlab{a}})Tanveer, Hussain, Zahid,
+\bibitem[Tanveer et~al.(2023)Tanveer, Hussain, Zahid,
   et~al.]{tanveer2023survey}
 Muhammad Tanveer, Imran Hussain, Naveed Zahid, et~al.
 \newblock A survey on machine learning techniques for software effort
   estimation: Trends, challenges, and opportunities.
-\newblock \emph{Journal of Systems and Software}, 200:\penalty0 111618,
-  2023{\natexlab{a}}.
+\newblock \emph{Journal of Systems and Software}, 200:\penalty0 111618, 2023.
 
 \bibitem[Azzeh and Nassif(2019)]{azzeh2019cross}
 Mohammad Azzeh and Ali~Bou Nassif.
@@ -287,26 +286,12 @@ Leandro~L Minku and Xin Yao.
 \newblock \emph{Information and Software Technology}, 55\penalty0 (8):\penalty0
   1512--1528, 2013.
 
-\bibitem[Wen et~al.(2012)Wen, Li, Lin, Hu, and Huang]{wen2012systematic}
-Jianfeng Wen, Shixian Li, Zhiyong Lin, Yong Hu, and Changqin Huang.
-\newblock Systematic literature review of machine learning based software
-  development effort estimation models.
-\newblock \emph{Information and Software Technology}, 54\penalty0 (1):\penalty0
-  41--59, 2012.
-
 \bibitem[Nair and Menzies(2020)]{nair2020open}
 Vineeth Nair and Tim Menzies.
 \newblock Open problems in reproducibility, replication, and transparency in
   software engineering.
 \newblock In \emph{Proceedings of the 42nd International Conference on Software
   Engineering: New Ideas and Emerging Results}, pages 1--4. IEEE, 2020.
-
-\bibitem[Tanveer et~al.(2023{\natexlab{b}})Tanveer, Hussain, Zahid,
-  et~al.]{tanveer2023comprehensive}
-Muhammad Tanveer, Imran Hussain, Naveed Zahid, et~al.
-\newblock A comprehensive analysis of ensemble learning models for software
-  effort estimation.
-\newblock \emph{IEEE Access}, 11:\penalty0 76590--76608, 2023{\natexlab{b}}.
 
 \bibitem[Yu et~al.(2021)Yu, Xia, Lo, and Hassan]{yu2021transfer}
 Yong Yu, Xin Xia, David Lo, and Ahmed~E Hassan.

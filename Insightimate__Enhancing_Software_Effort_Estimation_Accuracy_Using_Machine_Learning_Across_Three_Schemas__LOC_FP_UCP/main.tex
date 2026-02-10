@@ -758,26 +758,8 @@ that improvements are both statistically valid and practically meaningful~\cite{
 
 
 \subsection{Implementation \& Reproducibility}
-All experiments ran in a reproducible \textbf{Python 3.10} environment.  
-Core libraries:  
-\texttt{scikit-learn v1.3.0}~\cite{pedregosa2011scikit},  
-\texttt{NumPy v1.26+}, \texttt{Pandas v2.0+},  
-\texttt{SciPy v1.11+}, and  
-\texttt{Matplotlib/Seaborn}.  
-A deterministic seed set $\{1,11,21,\dots,91\}$ controls 
-data splits, CV shuffling, and ensemble bootstraps.  
-All configurations, preprocessing parameters, and CV results 
-are logged as structured \texttt{JSON}.  
-Trained artifacts are versioned per schema (LOC, FP, UCP) 
-for full traceability.
-
-Hardware was uniform: \textbf{8–16 CPU cores}, \textbf{32–64 GB RAM}, no GPU.  
-A unified orchestration script automates:  
-(1) data loading and harmonization;  
-(2) train–test splitting and CV;  
-(3) grid search;  
-(4) evaluation \& logging;  
-(5) aggregation \& significance testing.  
+All experiments use \textbf{Python 3.10} with \texttt{scikit-learn v1.3.0}~\cite{pedregosa2011scikit}, deterministic seeds $\{1,11,21,\dots,91\}$, and structured \texttt{JSON} logging.  
+Complete package versions, hardware specifications, and orchestration details are provided in Section~9 (Data Availability).
 All runs are fully deterministic and portable, 
 aligning with reproducibility best practices in 
 empirical software engineering~\cite{cruz2019open,lopez2021empirical}.
@@ -1426,24 +1408,9 @@ Beyond the stated assumptions, several validity threats may affect the interpret
 We categorize them following standard empirical software engineering practice 
 into \textit{internal}, \textit{external}, \textit{construct}, and \textit{conclusion} validity.
 
-\paragraph{Internal Validity.}
-This aspect concerns whether observed outcomes genuinely arise 
-from the modeled variables rather than uncontrolled factors.
-Although data preprocessing (unit harmonization, IQR capping, schema partitioning) 
-reduces inconsistencies, residual noise in public datasets may persist—
-for example, incomplete project documentation or varying productivity conventions.
-The multi-seed cross-validation strategy mitigates random effects,
-yet unobserved confounders (e.g., domain-specific tools) 
-could still influence effort distributions.
+\paragraph{Internal Validity.}Although data preprocessing reduces inconsistencies, residual noise in public datasets may persist (incomplete documentation, varying productivity conventions). Multi-seed cross-validation mitigates random effects, yet unobserved confounders (domain tools) could influence effort distributions.
 
-\paragraph{External Validity.}
-Our conclusions are derived mainly from open and legacy datasets 
-(1993–2022) across LOC-, FP-, and UCP-based schemas.
-While these capture diverse paradigms, they may not fully represent
-modern DevOps or continuous integration environments 
-where metrics evolve dynamically. 
-Future work will incorporate industrial repositories and real-time telemetry 
-to assess model robustness under continuous feedback loops.
+\paragraph{External Validity.}Our conclusions derive from open and legacy datasets (1993–2022) across LOC/FP/UCP schemas. While capturing diverse paradigms, they may not fully represent modern DevOps environments. Future work will incorporate industrial repositories and real-time telemetry.
 
 \paragraph{Construct Validity.}
 Effort and size metrics inherently vary across organizations—
@@ -1483,41 +1450,20 @@ The FP dataset ($n{=}158$) is relatively small compared to LOC ($n{=}2{,}765$) a
 Our calibrated power-law baseline (Eq.~\ref{eq:baseline-calibrated}) uses only size metrics (KLOC/FP/UCP) without full COCOMO~II cost drivers (team experience, product complexity, platform constraints). This design ensures fair comparison when drivers are missing in public datasets, but may underestimate baseline performance in industrial settings where driver data is available. The baseline represents a \textit{lower bound} for parametric methods, not the full potential of COCOMO~II.
 
 \paragraph{Model Selection Scope.}
-We evaluate five representative methods (LR, DT, RF, GB, XGBoost) selected to span the complexity spectrum from simple linear baselines to modern ensemble learners. While other gradient boosting variants exist (LightGBM~\cite{ke2017lightgbm}, CatBoost~\cite{prokhorenkova2018catboost}), they share similar algorithmic foundations (gradient-based tree boosting) and typically achieve comparable performance on tabular data~\cite{prokhorenkova2018catboost}. Our focus is establishing a \textbf{benchmarking methodology} (manifest, baseline, protocols) rather than exhaustive model comparison; future work can apply this framework to evaluate LightGBM/CatBoost or domain-specific architectures.
+We evaluate five representative methods (LR, DT, RF, GB, XGBoost) spanning simple linear baselines to modern ensemble learners. Other gradient boosting variants (LightGBM~\cite{ke2017lightgbm}, CatBoost~\cite{prokhorenkova2018catboost}) share similar algorithmic foundations and typically achieve comparable performance~\cite{prokhorenkova2018catboost}. Our focus is establishing a \textbf{benchmarking methodology} rather than exhaustive model comparison; future work can apply this framework to additional learners.
 
 \paragraph{Cross-Schema Transfer Not Attempted.}
-Models are trained \textbf{independently per schema} (LOC/FP/UCP) without cross-schema transfer learning, multi-task learning, or shared representation learning. This design choice is intentional, not a limitation: LOC, FP, and UCP represent fundamentally different sizing philosophies with distinct feature semantics (e.g., KLOC measures code volume, FP measures functional complexity, UCP measures use-case actors/scenarios). Pooling heterogeneous schemas for joint training risks \textbf{semantic feature mismatch}—conflating unrelated predictor spaces and degrading performance on all schemas.
-
-\textbf{Rationale for schema-specific training:}
-\begin{itemize}[leftmargin=1.5em]
-    \item \textbf{Feature space incompatibility}: LOC projects have different auxiliary features (language, domain) than FP projects (transaction types, complexity adjustments) and UCP projects (actor classifications, technical factors). Direct pooling without careful feature alignment creates false equivalences.
-    \item \textbf{Prevents information leakage}: Schema-partitioned training ensures models cannot exploit cross-schema correlations that would not exist in deployment (where schema choice is typically project-specific and predetermined).
-    \item \textbf{Interpretability}: Schema-specific models allow direct comparison of sizing paradigms under controlled conditions, supporting the paper's benchmarking objective.
-\end{itemize}
-
-\textbf{Future work: Cross-schema transfer learning.}
-While outside the scope of this benchmarking study, cross-schema transfer represents a promising research direction requiring:
-\begin{enumerate}[leftmargin=1.5em]
-    \item \textbf{Feature alignment strategies}: Meta-learning representations, domain-invariant embeddings, or explicit semantic mapping functions to translate between LOC/FP/UCP feature spaces.
-    \item \textbf{Multi-task learning}: Joint optimization with schema-specific output heads, sharing lower-layer representations while maintaining schema-specific decision boundaries.
-    \item \textbf{Evaluation protocols}: Leave-one-schema-out validation to assess zero-shot transfer, and few-shot adaptation experiments to quantify sample efficiency gains.
-\end{enumerate}
-
-Our schema-specific approach establishes \textit{baseline performance} for future transfer learning studies to demonstrate improvement over independent schema-specific training.
+Models are trained \textbf{independently per schema} (LOC/FP/UCP) without cross-schema transfer learning. This is intentional: LOC, FP, and UCP represent fundamentally different sizing philosophies with distinct feature semantics (KLOC=code volume, FP=functional complexity, UCP=use-case interactions). Pooling heterogeneous schemas for joint training risks \textbf{semantic feature mismatch}.
+Schema-specific training ensures: (i) feature space compatibility within each schema; (ii) no information leakage from cross-schema correlations that wouldn't exist in deployment; (iii) interpretability for direct paradigm comparison.
+Future cross-schema transfer work requires feature alignment strategies (meta-learning, domain-invariant embeddings), multi-task learning with schema-specific output heads, and leave-one-schema-out validation protocols. Our schema-specific approach establishes \textit{baseline performance} for such future studies.
 
 \paragraph{Deduplication and Leakage Risks.}
-Despite rigorous deduplication rules (Table~\ref{tab:dataset-summary}, detailed in Table S1), residual near-duplicates may persist due to:
-\begin{itemize}[leftmargin=1.5em]
-    \item Projects re-reported across multiple publications with slight measurement variations;
-    \item Forked or iterative project versions that share substantial code/effort characteristics;
-    \item Incomplete metadata preventing perfect matching (e.g., missing project names in older sources).
-\end{itemize}
-We control for exact duplicates (name + size + effort) and report deduplication counts transparently, but \textit{semantic overlap} (e.g., similar-domain projects) cannot be fully eliminated from public corpora without access to proprietary repository histories.
+Despite rigorous deduplication rules (Table~\ref{tab:dataset-summary}, detailed in Table S1), residual near-duplicates may persist: projects re-reported with slight variations, forked versions, or incomplete metadata preventing perfect matching.
+We control for exact duplicates (name + size + effort) and report deduplication counts transparently, but \textit{semantic overlap} cannot be fully eliminated from public corpora without proprietary repository histories.
 
 \paragraph{Modern DevOps Underrepresentation.}
-Public datasets span 1993--2022 but are biased toward legacy waterfall/iterative projects. Agile/DevOps environments with continuous integration, microservices, and sprint-based effort tracking may exhibit different scaling behaviors not captured by traditional LOC/FP/UCP metrics. \textbf{Data availability constraints:} We attempted to incorporate modern DevOps telemetry (GitHub Actions logs, Jira sprint data, CI/CD metrics) but encountered systematic barriers: (i) most organizational effort data remains proprietary due to competitive sensitivity, (ii) public repositories (e.g., GitHub) provide commit/issue metadata but lack \emph{ground-truth effort} labels required for supervised learning, and (iii) existing DevOps studies~\cite{fox2017devops,chen2020devops} typically report aggregate statistics rather than project-level datasets suitable for benchmarking. Generalization to modern contexts requires telemetry-enriched datasets (commit velocity, deployment frequency, lead time, mean time to recovery) with validated effort annotations—an open challenge for the community.
-
-\textbf{Framework applicability:} Despite data limitations, our preprocessing pipeline (unit harmonization, outlier control, schema-specific protocols), calibrated baseline methodology, and cross-source validation (LOSO) are \emph{dataset-agnostic} and directly applicable to future industrial and DevOps corpora. The contribution is methodological infrastructure for fair benchmarking, not definitive SOTA claims on modern contexts.
+Public datasets (1993--2022) are biased toward legacy waterfall/iterative projects. Agile/DevOps environments with continuous integration and sprint-based tracking may exhibit different scaling behaviors. \textbf{Data availability constraints:} Organizational effort data remains proprietary; public repositories (GitHub) lack ground-truth effort labels; existing DevOps studies~\cite{fox2017devops,chen2020devops} report aggregates rather than project-level datasets. Generalization to modern contexts requires telemetry-enriched datasets with validated effort annotations.
+\textbf{Framework applicability:} Despite data limitations, our preprocessing pipeline, calibrated baseline methodology, and cross-source validation (LOSO) are \emph{dataset-agnostic} and directly applicable to future industrial and DevOps corpora. The contribution is methodological infrastructure, not definitive SOTA claims on modern contexts.
 
 \noindent These limitations do not invalidate the findings but define the \textbf{scope of applicability}: our framework establishes a fair, auditable benchmark for ensemble methods on public LOC/FP/UCP datasets, with methodology robustness (ablation, LOSO, macro-averaging) transferable to future industrial and DevOps contexts.
 
@@ -1527,37 +1473,15 @@ Public datasets span 1993--2022 but are biased toward legacy waterfall/iterative
 \section{Related Work}
 \label{sec:related}
 
-\subsection{Parametric Models (COCOMO, SEER, SLIM)}
+\subsection{Prior Approaches in Software Effort Estimation}
 
-Parametric models—COCOMO~\cite{boehm1981software}, SEER-SEM, SLIM—dominated early SEE research.
-\textbf{Strengths:} Interpretability via explicit cost drivers (team experience, complexity, tool support); managerial communication; decades of industrial validation.
-\textbf{Limitations:} Most public FP/UCP datasets lack full cost-driver annotations; applying default parameters creates straw-man baselines; fixed power-law forms underfit heterogeneous modern projects.
-\textbf{How our work differs:} We use a \emph{calibrated} size-only power-law baseline (Eq.~\ref{eq:baseline-calibrated}) fitted on training data per schema and seed, ensuring fair comparison when drivers are missing.
-
-\subsection{Ensemble Methods and Gradient Boosting}
-
-Since the 2000s, ensemble tree methods—Random Forest~\cite{breiman2001random}, Gradient Boosting~\cite{friedman2001greedy}, XGBoost~\cite{chen2016xgboost}, LightGBM~\cite{ke2017lightgbm}, CatBoost~\cite{prokhorenkova2018catboost}—have become dominant for tabular regression.
-\textbf{Strengths:} Handle non-linearity and feature interactions; robust to irrelevant features; strong empirical performance on SEE benchmarks~\cite{pandey2023comprehensive}.
-\textbf{Limitations:} Vulnerable to target leakage if features derived from effort/time; hyperparameter tuning and model selection can bias comparisons; reproducibility often unclear (provenance, deduplication, aggregation).
-\textbf{How our work differs:} We provide full dataset manifest (Table~\ref{tab:dataset-summary}, details in Table S1) with explicit deduplication and leakage controls; macro-averaging across schemas prevents LOC dominance; LOSO validation tests cross-source generalization; ablation quantifies preprocessing contributions.
-
-\subsection{Deep Learning Approaches}
-
-Deep neural networks~\cite{choetkiertikul2018deep,alqadi2021deep} have been explored for SEE, particularly with rich feature sets (telemetry, commits, process metrics).
-\textbf{Strengths:} Representation learning; can model complex temporal/sequential patterns; promising for large-scale industrial data.
-\textbf{Limitations:} SEE tabular datasets are typically small ($n{<}3000$); reproducibility challenges (architecture search, initialization sensitivity); require feature richness often unavailable in public corpora.
-\textbf{How our work differs:} We focus on \emph{methodological fairness} (auditability, baselines, aggregation) for ensemble methods on public tabular data, not on claiming deep learning superiority.
-
-\subsection{Transfer Learning and Cross-Project Generalization}
-
-Recent work explores transfer learning~\cite{kocaguneli2013exploiting}, cross-company models, and domain adaptation to address distribution shift.
-\textbf{Strengths:} Addresses cold-start problems; leverages external project data; relevant for organizations with limited historical data.
-\textbf{Limitations:} Requires feature alignment across datasets; public data often lacks metadata for effective transfer; empirical gains mixed.
-\textbf{How our work differs:} We employ leave-one-source-out (LOSO) validation for LOC schema as a first step toward cross-source generalization, explicitly reporting limitations rather than claiming full transfer learning.
-
-\subsection{Emerging Approaches: Uncertainty, Fuzzy Logic, and Hybrid Methods}
-
-Recent advances explore uncertainty quantification and hybrid architectures to improve estimation robustness~\cite{liu2024fuzzy,wang2025pattern,zhang2024uncertainty,chen2025hybrid}. Fuzzy logic methods~\cite{liu2024fuzzy} handle imprecise project parameters, while pattern recognition approaches~\cite{wang2025pattern} leverage deep feature extraction for complex effort relationships. Uncertainty-aware models~\cite{zhang2024uncertainty} provide confidence intervals alongside point estimates, addressing practitioner concerns about prediction reliability. Hybrid ensemble frameworks~\cite{chen2025hybrid} combine parametric and non-parametric methods to balance interpretability with accuracy. These methods show promise but often require substantial feature engineering and domain expertise. Our work complements this direction by establishing transparent baseline comparisons and reproducible protocols, enabling fair evaluation of such advanced techniques in future studies.
+Software effort estimation has evolved through multiple paradigm shifts.
+\textbf{Parametric models} (COCOMO~\cite{boehm1981software}, SEER-SEM, SLIM) dominated early research, offering interpretability via explicit cost drivers but suffering from rigid power-law forms and limited adaptability to heterogeneous projects.
+\textbf{Ensemble methods}—Random Forest~\cite{breiman2001random}, Gradient Boosting~\cite{friedman2001greedy}, XGBoost~\cite{chen2016xgboost}—became dominant in the 2000s for tabular regression, handling non-linearity and feature interactions robustly, though reproducibility (provenance, deduplication, aggregation) often remains unclear~\cite{pandey2023comprehensive}.
+\textbf{Deep learning approaches}~\cite{choetkiertikul2018deep,alqadi2021deep} explore representation learning for rich telemetry datasets, but face reproducibility challenges and limited applicability to small public benchmarks ($n{<}3000$).
+\textbf{Transfer learning and cross-project models}~\cite{kocaguneli2013exploiting} address cold-start problems by leveraging external data, though feature alignment and empirical gains remain mixed.
+Recent \textbf{hybrid and uncertainty-aware methods}~\cite{liu2024fuzzy,wang2025pattern,zhang2024uncertainty,chen2025hybrid} combine parametric structure with non-parametric flexibility, offering confidence intervals and fuzzy parameter handling, but require substantial feature engineering.
+Our work complements these advances by establishing \emph{methodological infrastructure}—calibrated size-only baselines (Eq.~\ref{eq:baseline-calibrated}), full dataset provenance (Table~\ref{tab:dataset-summary}), macro-averaging to prevent LOC dominance, and LOSO validation for cross-source generalization—enabling fair evaluation of future estimation techniques.
 
 \subsection{Comparison with Prior Work}
 
@@ -1572,12 +1496,7 @@ Table~\ref{tab:related-compare} systematically compares representative SEE studi
 \toprule
 \textbf{Study} & \textbf{Schema} & \textbf{Datasets} & \textbf{Models} & \textbf{Eval. Protocol} & \textbf{Repro?} \\
 \midrule
-Boehm (1981)~\cite{boehm1981software} & LOC & COCOMO calibration data (proprietary industrial projects) & Parametric (power-law + effort multipliers) & Hold-out test & No \\
-Albrecht (1979) FP & FP & IBM internal projects (proprietary) & Linear regression & Retrospective validation & No \\
-Karner (1993) UCP & UCP & Ericsson case studies (proprietary) & Weighted sum formula & Industrial case & No \\
-\midrule
 Minku \& Yao (2013)~\cite{minku2013ensembles} & LOC & NASA93, COCOMO81 (public benchmarks)~\cite{jones2022estimation} & Bagging, Boosting, Online ensembles & Cross-validation & Partial \\
-Wen et al. (2012)~\cite{wen2012systematic} & LOC & ISBSG, COCOMO81 (mixed public/restricted) & SVM, NN, GP & Hold-out test & Partial \\
 Kocaguneli et al. (2012)~\cite{kocaguneli2013exploiting} & LOC & NASA93, Desharnais, Turkish (public benchmarks) & Analogy-based estimation & Leave-one-out CV & Partial \\
 Pandey et al. (2023)~\cite{pandey2023comprehensive} & LOC, FP & ISBSG, Desharnais (mixed) & RF, XGBoost, LightGBM & 5-fold CV & Partial \\
 Alqadi et al. (2021)~\cite{alqadi2021deep} & LOC & NASA93, COCOMO81 (public benchmarks)~\cite{jones2022estimation} & Deep NN, Hybrid ensembles & Stratified CV & No \\
@@ -1587,7 +1506,7 @@ Alqadi et al. (2021)~\cite{alqadi2021deep} & LOC & NASA93, COCOMO81 (public benc
 \end{tabular}
 \vspace{0.3em}
 \raggedright\footnotesize
-\textit{Note:} Public benchmarks (NASA93, COCOMO81, Desharnais) are documented in curated collections~\cite{jones2022estimation,rodriguez2023dase}. Original COCOMO (1981) calibration data was proprietary and distinct from the later-released NASA93 public benchmark. ISBSG repository imposes commercial licensing~\cite{isbsg2025overview}; we do not redistribute restricted data.
+\textit{Note:} Public benchmarks (NASA93, COCOMO81, Desharnais) are documented in curated collections~\cite{jones2022estimation,rodriguez2023dase}. ISBSG repository imposes commercial licensing~\cite{isbsg2025overview}; we do not redistribute restricted data. Historical parametric models (COCOMO 1981, Albrecht 1979 FP, Karner 1993 UCP) established foundational sizing schemas but used proprietary calibration data.
 \end{table*}
 
 \paragraph{Gap relative to prior work.}
@@ -1599,13 +1518,13 @@ These three contributions provide a transparent, auditable template for future S
 
 \subsection{Comparison of Estimation Paradigms}
 
-Figure~\ref{fig:related-work} (top-right) contrasts 
-three major paradigms: (i) traditional parametric models (COCOMO family), 
+Three major paradigms exist in software effort estimation: 
+(i) traditional parametric models (COCOMO family), 
 (ii) basic machine learning approaches (single models), and 
 (iii) ensemble learning methods (RF, GB, XGBoost).  
 Parametric models prioritize interpretability but lack adaptability.  
 Basic ML models improve accuracy yet often lose transparency.  
-Ensemble methods achieve the most balanced trade off between 
+Ensemble methods achieve the most balanced trade-off between 
 \textit{accuracy}, \textit{adaptability}, and \textit{ease of use}.  
 Our \textbf{calibrated power-law baseline} (Eq.~\ref{eq:baseline-calibrated}) preserves COCOMO's parametric structure 
 while embedding data-driven residual corrections, 
@@ -1624,7 +1543,7 @@ yet few works implement explicit unit harmonization
 or standardized evaluation pipelines.
 \subsection{Research Gap and Contribution}
 
-Across the SEE literature, research has advanced through four dimensions
+Across the SEE literature, research has advanced through four dimensions:
 \textit{theory formation}, \textit{model development}, 
 \textit{empirical validation}, and \textit{industry adoption}.  
 While traditional models dominate theoretical grounding 
@@ -1635,21 +1554,7 @@ Our contribution fills this void by introducing a
 that merges statistical transparency (COCOMO lineage) 
 with modern predictive accuracy (Random Forest / Gradient Boosting), 
 supporting both academic benchmarking and 
-real world software project estimation.
-
-
-
-\begin{figure*}[h]
-    \centering
-    \includegraphics[width=0.95\linewidth]{figures/related_work1.png}
-    \caption{Comprehensive overview of related research.  
-    (Top-left) Threats to validity across empirical studies;  
-    (Top-right) Comparison of estimation paradigms;  
-    (Bottom-left) Historical timeline of effort estimation methods;  
-    (Bottom-right) Research gap analysis linking empirical validation 
-    and industrial adoption.}
-    \label{fig:related-work}
-\end{figure*}
+real-world software project estimation.
 
 % =====================================================
 % 8. Conclusion and Reproducibility
@@ -1658,64 +1563,28 @@ real world software project estimation.
 \section{Conclusion and Reproducibility}
 
 \paragraph{Summary of Findings.}
-We have presented a \textbf{reproducible cross-schema benchmarking framework} for software effort estimation, establishing methodological infrastructure for fair comparison across LOC-, FP-, and UCP-based sizing paradigms.
-Four concrete methodological contributions distinguish this work:
-(1) \textbf{dataset manifest with provenance tracking} (Table~\ref{tab:dataset-summary}, Figure~\ref{fig:dataset-timeline}),
-providing transparent deduplication and leakage control;
-(2) \textbf{fair calibrated power-law baseline} (Section~\ref{sec:baseline}),
-avoiding straw-man comparisons when cost drivers are unavailable;
-(3) \textbf{cross-source generalization testing},
-assessing robustness beyond random hold-outs; and
-(4) \textbf{ablation study} (Section~\ref{sec:ablation}),
-quantifying preprocessing component contributions.
-
-\textit{Empirical demonstration:} Ensemble learners---most notably \textbf{Random Forest}---
-achieved 42\% lower MMRE ($0.65 \pm 0.04$ vs. $1.12 \pm 0.08$) compared to
-the calibrated parametric baseline, with low variance across multiple random train-test splits.
-While these results corroborate findings in recent literature
-on ensemble-based effort estimation~\cite{tanveer2023comprehensive,pandey2023comprehensive,alqadi2021deep}, the \emph{primary contribution is the benchmarking framework itself}, which future studies can adopt to evaluate new models or datasets under consistent, fair, and auditable conditions.
+We present a \textbf{reproducible cross-schema benchmarking framework} for software effort estimation across LOC, FP, and UCP sizing paradigms.
+Four methodological contributions distinguish this work:
+(1) dataset manifest with provenance tracking (Table~\ref{tab:dataset-summary}, Figure~\ref{fig:dataset-timeline});
+(2) fair calibrated power-law baseline (Section~\ref{sec:baseline}) avoiding straw-man comparisons;
+(3) cross-source generalization testing beyond random hold-outs; and
+(4) ablation study (Section~\ref{sec:ablation}) quantifying preprocessing contributions.
+Ensemble learners---most notably \textbf{Random Forest}---achieved 42\% lower MMRE ($0.65 \pm 0.04$ vs. $1.12 \pm 0.08$) compared to the calibrated baseline. The \emph{primary contribution is the benchmarking framework itself}, enabling future studies to evaluate new models under consistent, auditable conditions.
 
 \paragraph{Reproducibility Framework.}
-Reproducibility was enforced through standardized data harmonization,
-deterministic preprocessing pipelines, fixed random seeds,
-and structured experiment logging.
-All code, configurations, and harmonized datasets follow a unified directory layout,
-allowing deterministic re-execution on commodity hardware
-without GPU dependencies.
-This design aligns with recommended best practices in empirical software engineering
-for conducting transparent and repeatable experimental studies~\cite{cruz2019open,lopez2021empirical}.
-The unified schema further supports future comparison studies
-by ensuring consistent feature representations across LOC, FP, and UCP data sources.
+Reproducibility was enforced through standardized data harmonization, deterministic preprocessing pipelines, fixed random seeds, and structured experiment logging. All code, configurations, and harmonized datasets follow a unified directory layout for deterministic re-execution on commodity hardware without GPU dependencies, aligning with empirical software engineering best practices~\cite{cruz2019open,lopez2021empirical}.
 
 \paragraph{Future Directions.}
-Promising extensions of this research include:
-(i) enriching datasets with industrial metadata such as DevOps telemetry,
-team productivity indicators, and repository signals;
-(ii) incorporating process-level features (e.g., issue churn, code volatility);
-(iii) adopting transfer learning and domain adaptation~\cite{yu2021transfer}
-to enhance cross-organizational robustness; and
-(iv) deploying ensemble estimators in real project management environments
-for continuous calibration and real-time forecasting.
-Such directions will help close the gap between academic research
-and operational project decision-making.
+Promising extensions include: (i) enriching datasets with industrial DevOps telemetry; (ii) incorporating process-level features (issue churn, code volatility); (iii) adopting transfer learning~\cite{yu2021transfer} for cross-organizational robustness; (iv) deploying ensemble estimators in real project management for continuous calibration.
 
 \paragraph{Strengths.}
-This work provides: 
-(i) an \textbf{auditable dataset manifest} with explicit deduplication, licensing, and rebuild scripts—enabling independent replication; 
-(ii) a \textbf{fair calibrated parametric baseline} fitted on training data only, avoiding straw-man comparisons when cost drivers are unavailable; 
-(iii) \textbf{schema-appropriate evaluation protocols} (LOOCV for small-sample FP, stratified 80/20 for LOC/UCP, bootstrap confidence intervals); 
-(iv) \textbf{explicit macro/micro aggregation}, preventing LOC dominance in cross-schema conclusions; and 
-(v) \textbf{ablation analysis} (Section~\ref{sec:ablation}) demonstrating preprocessing contributions.
+This work provides: (i) auditable dataset manifest with explicit deduplication and rebuild scripts; (ii) fair calibrated parametric baseline avoiding straw-man comparisons; (iii) schema-appropriate evaluation protocols (LOOCV for FP, stratified 80/20 for LOC/UCP, bootstrap CI); (iv) explicit macro/micro aggregation preventing LOC dominance; (v) ablation analysis quantifying preprocessing contributions.
 
 \paragraph{Weaknesses.}
-(i) FP schema remains small ($n=158$) and exploratory, requiring validation on larger FP corpora; 
-(ii) no cross-schema transfer—models are schema-specific and do not leverage LOC knowledge for FP/UCP; 
-(iii) baseline excludes cost drivers due to data availability, limiting comparison to full COCOMO~II; 
-(iv) public legacy datasets (1993--2022) may not reflect modern DevOps or continuous integration practices.
+(i) FP schema remains small ($n=158$) and exploratory; (ii) no cross-schema transfer learning; (iii) baseline excludes cost drivers due to data availability; (iv) public legacy datasets may not reflect modern DevOps practices.
 
 \paragraph{Implications.}
-\textbf{Methodologically}, future SEE papers can adopt our manifest + baseline + aggregation template to make ``overall'' claims defensible and reproducible. 
-\textbf{Practically}, ensembles (RF/GB) provide robust default estimators when only size-like signals are available, achieving 42\% lower MMRE than calibrated parametric baselines while maintaining interpretable variable importance.
+Future SEE papers can adopt our manifest + baseline + aggregation template for defensible reproducible claims. Practically, ensembles (RF/GB) provide robust default estimators when only size signals are available, achieving 42\% lower MMRE than calibrated parametric baselines.
 
 \paragraph{Closing Remarks.}
 Beyond confirming the strength of ensemble learners,
@@ -1733,14 +1602,6 @@ with new telemetry and real-world project dynamics.
 We hope this framework will support practitioners, researchers,
 and tool builders in creating more adaptive,
 evidence-based estimation solutions.
-
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=0.95\linewidth]{figures/conclusion_framework.png}
-    \caption{Visual summary of the proposed framework, including model performance comparison,
-    reproducibility pipeline, and potential future extensions.}
-    \label{fig:conclusion}
-\end{figure*}
 
 
 
@@ -1806,16 +1667,13 @@ All data used in this work are anonymized and contain no personal or sensitive i
 % =====================================================
 
 \section*{Funding}
-This research received no specific grant from any funding agency in the public, 
-commercial, or not-for-profit sectors.
+This research received no specific grant from any funding agency.
 
 \section*{Competing Interests}
-The authors declare that they have no competing interests.
+The authors declare no competing interests.
 
 \section*{Ethics Approval and Consent to Participate}
-This study uses only publicly available, fully anonymized datasets. 
-No human participants or personal data were involved; therefore, 
-ethics approval and formal consent were not required.
+This study uses only publicly available, fully anonymized datasets. No human participants were involved; therefore, ethics approval was not required.
 
 \section*{Consent for Publication}
 Not applicable.
@@ -1840,14 +1698,6 @@ Final Approval of the Manuscript.
 Final Manuscript Coordination.
 
 All authors read and approved the final manuscript.
-
-
-
-
-
-
-
-
 
 \bibliographystyle{unsrtnat}
 \bibliography{refs}

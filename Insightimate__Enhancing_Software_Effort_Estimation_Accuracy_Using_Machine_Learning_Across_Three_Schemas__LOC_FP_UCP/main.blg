@@ -4,45 +4,45 @@ The top-level auxiliary file: main.aux
 The style file: unsrtnat.bst
 Database file #1: refs.bib
 Warning--there's a number but no volume in albrecht1983software
-You've used 46 entries,
+You've used 44 entries,
             2481 wiz_defined-function locations,
-            824 strings with 12520 characters,
-and the built_in function-call counts, 18830 in all, are:
-= -- 1680
-> -- 856
+            817 strings with 12199 characters,
+and the built_in function-call counts, 17913 in all, are:
+= -- 1606
+> -- 796
 < -- 38
-+ -- 339
-- -- 246
-* -- 1402
-:= -- 2908
-add.period$ -- 152
-call.type$ -- 46
-change.case$ -- 90
-chr.to.int$ -- 45
-cite$ -- 47
-duplicate$ -- 943
-empty$ -- 1759
-format.name$ -- 321
-if$ -- 4067
-int.to.chr$ -- 2
-int.to.str$ -- 47
-missing$ -- 45
-newline$ -- 249
-num.names$ -- 138
-pop$ -- 376
++ -- 316
+- -- 228
+* -- 1315
+:= -- 2758
+add.period$ -- 146
+call.type$ -- 44
+change.case$ -- 86
+chr.to.int$ -- 44
+cite$ -- 45
+duplicate$ -- 905
+empty$ -- 1682
+format.name$ -- 301
+if$ -- 3880
+int.to.chr$ -- 1
+int.to.str$ -- 45
+missing$ -- 43
+newline$ -- 239
+num.names$ -- 132
+pop$ -- 362
 preamble$ -- 1
-purify$ -- 46
+purify$ -- 44
 quote$ -- 0
-skip$ -- 592
+skip$ -- 575
 stack$ -- 0
-substring$ -- 1101
-swap$ -- 174
+substring$ -- 1041
+swap$ -- 168
 text.length$ -- 10
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 313
+type$ -- 299
 warning$ -- 1
-while$ -- 170
+while$ -- 162
 width$ -- 0
-write$ -- 626
+write$ -- 600
 (There was 1 warning)
