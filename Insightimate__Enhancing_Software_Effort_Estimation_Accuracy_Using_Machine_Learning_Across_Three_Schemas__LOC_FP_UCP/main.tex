@@ -522,34 +522,24 @@ before and after transformation. As illustrated in Figure~\ref{fig:size-effort-c
 the log–log transformation reveals a clear power-law relationship between software size and development effort, 
 indicating scale invariance commonly observed in empirical software engineering studies.
 
-\begin{figure*}[h]
-    \centering
-    \includegraphics[width=0.9\linewidth]{figures/train_test_split.png}
-    \caption{Size–effort correlation before and after log transformation. 
-    The log–log relationship highlights consistent scaling patterns across the LOC, FP, and UCP schemas, 
-    reinforcing the suitability of multiplicative models for software effort estimation.}
-    \label{fig:size-effort-corr}
-\end{figure*}
+% Figure removed to reduce redundancy (MODERATE value: content merged into figure below)
+% Original: train_test_split.png showed size-effort correlation before/after log transform
 
 \begin{figure*}[h]
     \centering
     \includegraphics[width=0.95\linewidth]{figures/size_effort_correlation.png}
-    \caption{Experimental design illustrating the train–test split (80/20) 
-    for each schema (LOC, FP, UCP). 
-    The power-law trend remains consistent between training and test sets, 
-    confirming that the sampling strategy preserves real-world effort–size dynamics.}
-    \label{fig:train-test-split}
+    \caption{Size–effort correlation and train–test split validation (80/20) for each schema (LOC, FP, UCP). 
+    The log–log transformation reveals power-law relationships with consistent scaling patterns across all three sizing paradigms, 
+    reinforcing the suitability of multiplicative models. 
+    Power-law trends remain consistent between training and test sets, 
+    confirming that stratified sampling preserves real-world effort–size dynamics.}
+    \label{fig:size-effort-corr}
 \end{figure*}
 
-\begin{figure*}[h]
-    \centering
-    \includegraphics[width=0.9\linewidth]{figures/decision_rf_tuning.png}
-    \caption{Hyperparameter optimization curves for Decision Tree and Random Forest models. 
-    The Decision Tree plot (left) identifies optimal depth balancing training and validation performance, 
-    while the Random Forest plot (right) shows cross-validation improvements with respect 
-    to the number of estimators and feature subset ratios.}
-    \label{fig:dt-rf-tuning}
-\end{figure*}
+% Figure removed to reduce page count (LOW value: technical hyperparameter details)
+% Original: decision_rf_tuning.png - DT depth vs RF n_estimators optimization
+% Key findings: DT optimal depth 8-12, RF optimal n_estimators 100-150
+% Full hyperparameter grid available in supplementary materials
 
 \section{Experimental Setup}
 \label{sec:exp-setup}
