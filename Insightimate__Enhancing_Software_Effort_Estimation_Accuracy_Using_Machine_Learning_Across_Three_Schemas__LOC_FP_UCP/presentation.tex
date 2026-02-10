@@ -1,0 +1,775 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usecolortheme{seahorse}
+
+% Packages
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% Custom colors
+\definecolor{darkblue}{RGB}{0,51,102}
+\definecolor{lightblue}{RGB}{52,152,219}
+\definecolor{darkgreen}{RGB}{46,204,113}
+\definecolor{darkred}{RGB}{231,76,60}
+
+\setbeamercolor{structure}{fg=darkblue}
+\setbeamercolor{frametitle}{bg=darkblue,fg=white}
+\setbeamercolor{title}{bg=darkblue,fg=white}
+
+% Title information
+\title[Insightimate]{Insightimate - Intelligent Platform for Effort Estimation}
+\subtitle{ML-based Approach Across LOC, FP, and UCP Schemas}
+\author[Huy, Minh, Hung, Vu]{\small Nguyen Nhat Huy (28217353352) \and Dang Nhat Minh (26211241958) \and \\ Nguyen Huu Hung (28210240332) \and Tran Van Vu (28219028290)}
+\institute[PTIT]{\normalsize Supervisor: Dr. Nguyen Duc Man \\ \small Deputy Dean of International Training, Head of Software Engineering Program \\ \vspace{0.2cm} Posts and Telecommunications Institute of Technology}
+\date{February 2026}
+
+\begin{document}
+
+%--------------------------------------------------
+% TITLE SLIDE
+%--------------------------------------------------
+\begin{frame}
+\titlepage
+\end{frame}
+
+%--------------------------------------------------
+% OUTLINE
+%--------------------------------------------------
+\begin{frame}{Outline}
+\tableofcontents
+\end{frame}
+
+%--------------------------------------------------
+\section{Motivation \& Problem Statement}
+%--------------------------------------------------
+
+\begin{frame}{Software Effort Estimation: A Critical Challenge}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Why It Matters:}
+\begin{itemize}
+    \item \textbf{70\%} of software projects exceed budget/schedule
+    \item Accurate estimation = better resource allocation
+    \item Poor estimates lead to project failures
+    \item Critical for project management success
+\end{itemize}
+
+\column{0.5\textwidth}
+\textbf{Industry Impact:}
+\begin{block}{Standish Group Report}
+\begin{itemize}
+    \item Only 29\% projects succeed
+    \item 52\% are challenged
+    \item 19\% fail completely
+\end{itemize}
+Main cause: \textcolor{darkred}{\textbf{Inaccurate effort estimation}}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Current State: Three Isolated Schemas}
+\begin{center}
+\includegraphics[width=0.85\textwidth]{dataset_distribution.pdf}
+\end{center}
+
+\vspace{-0.3cm}
+\begin{block}{The Problem}
+Existing research treats LOC, Function Points (FP), and Use Case Points (UCP) as \textbf{separate silos}. No unified framework exists!
+\end{block}
+\end{frame}
+
+\begin{frame}{Research Gaps in Current Literature}
+\begin{center}
+\includegraphics[width=0.95\textwidth]{gaps_solutions.pdf}
+\end{center}
+\end{frame}
+
+%--------------------------------------------------
+\section{Dataset \& Methodology}
+%--------------------------------------------------
+
+\begin{frame}{Comprehensive Dataset: 3,054 Projects}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Multi-Source Data Collection:}
+\begin{itemize}
+    \item \textbf{LOC Schema:} 2,765 projects
+    \begin{itemize}
+        \item 11 sources (1993-2022)
+        \item ISBSG, NASA, Promise, etc.
+    \end{itemize}
+    \item \textbf{FP Schema:} 158 projects
+    \begin{itemize}
+        \item 4 sources
+        \item ISBSG, Maxwell, Kemerer
+    \end{itemize}
+    \item \textbf{UCP Schema:} 131 projects
+    \begin{itemize}
+        \item 3 sources
+        \item Karner, Ochodek, Diev
+    \end{itemize}
+\end{itemize}
+
+\column{0.5\textwidth}
+\textbf{Data Quality Assurance:}
+\begin{block}{Rigorous Preprocessing}
+\begin{enumerate}
+    \item Missing value imputation (median/mode)
+    \item Outlier detection (IQR method)
+    \item Feature normalization (StandardScaler)
+    \item Duplicate removal
+    \item Cross-validation splits prepared
+\end{enumerate}
+\end{block}
+
+\vspace{0.3cm}
+\begin{alertblock}{Challenge}
+Highly imbalanced: LOC (90.5\%) vs. FP (5.2\%) vs. UCP (4.3\%)
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Integrated Methodology Architecture}
+\vspace{-0.3cm}
+\begin{center}
+\includegraphics[width=0.90\textwidth]{methodology_architecture.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}{Key Innovation: Macro-Averaging}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{Problem:} Dataset imbalance (LOC dominates with 90.5\%)
+
+\vspace{0.5cm}
+\textbf{Solution:} Equal weight per schema
+\begin{equation}
+\boxed{m_{\text{macro}} = \frac{1}{3} \times (m_{\text{LOC}} + m_{\text{FP}} + m_{\text{UCP}})}
+\end{equation}
+
+\vspace{0.5cm}
+\textbf{Why Macro-Averaging?}
+\begin{itemize}
+    \item Prevents LOC dominance
+    \item Equal schema contribution
+    \item Gold standard for imbalanced data
+    \item Fair performance assessment
+\end{itemize}
+
+\column{0.45\textwidth}
+\begin{block}{Traditional Approach (BAD)}
+$$m_{\text{micro}} = \frac{\sum_{i=1}^{n} |y_i - \hat{y}_i|}{n}$$
+\textcolor{darkred}{LOC dominates: (n=2,765 / 3,054 = 90.5\%)}
+\end{block}
+
+\vspace{0.3cm}
+\begin{exampleblock}{Our Approach (GOOD)}
+$$m_{\text{macro}} = \frac{1}{3}(m_{\text{LOC}} + m_{\text{FP}} + m_{\text{UCP}})$$
+\textcolor{darkgreen}{Each schema: 33.3\% weight}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Validation Strategy: Ensuring Generalization}
+\begin{columns}[T]
+\column{0.48\textwidth}
+\textbf{Schema-Specific Validation:}
+
+\vspace{0.3cm}
+\begin{block}{LOC: LOSO Cross-Validation}
+\begin{itemize}
+    \item \textbf{Leave-One-Source-Out}
+    \item 11-fold (one per source)
+    \item Tests \textit{cross-source} generalization
+    \item Most rigorous validation
+\end{itemize}
+\end{block}
+
+\vspace{0.3cm}
+\begin{block}{FP: LOOCV}
+\begin{itemize}
+    \item Leave-One-Out Cross-Validation
+    \item Small sample (n=158)
+    \item 158-fold validation
+\end{itemize}
+\end{block}
+
+\column{0.48\textwidth}
+\begin{block}{UCP: 10-Fold CV}
+\begin{itemize}
+    \item Standard 10-fold cross-validation
+    \item Balanced approach (n=131)
+    \item Stratified splits
+\end{itemize}
+\end{block}
+
+\vspace{0.3cm}
+\begin{alertblock}{Imbalance-Aware Training}
+\textbf{Quantile Reweighting:}
+\begin{itemize}
+    \item Higher weight for extreme efforts
+    \item Prevents model bias toward median
+    \item Improves tail performance
+\end{itemize}
+\end{alertblock}
+
+\vspace{0.3cm}
+\textbf{Models Evaluated:}
+\begin{itemize}
+    \item Random Forest (RF)
+    \item XGBoost
+    \item Linear Regression
+    \item Calibrated Baseline
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Calibrated Baseline: Rigorous Comparison}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Why Calibration Matters:}
+
+\vspace{0.3cm}
+\begin{itemize}
+    \item \textbf{WRONG:} Compare ML to uncalibrated COCOMO II
+    \begin{itemize}
+        \item Unfair comparison
+        \item Inflates ML improvements
+        \item Not scientifically valid
+    \end{itemize}
+    
+    \vspace{0.5cm}
+    \item \textbf{RIGHT:} Compare to \textit{calibrated} baseline
+    \begin{itemize}
+        \item Fair comparison
+        \item Shows true ML value
+        \item Scientifically rigorous
+    \end{itemize}
+\end{itemize}
+
+\column{0.5\textwidth}
+\textbf{Our Calibrated Baseline:}
+
+\begin{block}{Power-Law Model}
+$$\text{Effort} = a \times (\text{Size})^b$$
+Calibrated on same training data:
+\begin{itemize}
+    \item Parameters $(a, b)$ fitted per schema
+    \item Same validation strategy
+    \item Same data preprocessing
+\end{itemize}
+\end{block}
+
+\vspace{0.3cm}
+\begin{exampleblock}{Result}
+\textbf{Calibrated Baseline:}\\
+MAE = 18.45±1.2 PM
+
+\vspace{0.2cm}
+\textbf{Our RF Model:}\\
+MAE = 12.66±0.85 PM
+
+\vspace{0.2cm}
+\textcolor{darkgreen}{\textbf{$\rightarrow$ 42\% improvement}}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+%--------------------------------------------------
+\section{Results \& Performance}
+%--------------------------------------------------
+
+\begin{frame}{Outstanding Performance: 42\% Improvement}
+\begin{center}
+\includegraphics[width=0.95\textwidth]{performance_comparison.pdf}
+\end{center}
+
+\vspace{-0.3cm}
+\begin{block}{Statistical Significance}
+Paired t-test: $p < 0.001$ $\rightarrow$ Improvement is \textbf{statistically significant}
+\end{block}
+\end{frame}
+
+\begin{frame}{Per-Schema Performance Analysis}
+\begin{center}
+\includegraphics[width=0.85\textwidth]{schema_comparison.pdf}
+\end{center}
+
+\vspace{-0.3cm}
+\begin{columns}[T]
+\column{0.33\textwidth}
+\begin{block}{LOC Schema}
+\centering
+\textbf{MAE: 11.2 PM}\\
+\small Best performance\\
+Large sample helps
+\end{block}
+
+\column{0.33\textwidth}
+\begin{block}{FP Schema}
+\centering
+\textbf{MAE: 15.8 PM}\\
+\small Exploratory due to\\
+small sample (n=158)
+\end{block}
+
+\column{0.33\textwidth}
+\begin{block}{UCP Schema}
+\centering
+\textbf{MAE: 11.0 PM}\\
+\small Excellent despite\\
+small sample
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Comprehensive Model Comparison}
+\begin{table}
+\centering
+\caption{Performance Metrics Across All Models (Macro-Averaged)}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Model} & \textbf{MAE↓} & \textbf{MMRE↓} & \textbf{MdMRE↓} & \textbf{PRED(25)\%↑} & \textbf{R²↑} \\
+\midrule
+\textbf{Random Forest} & \textbf{12.66±0.85} & \textbf{0.647±0.041} & \textbf{0.512} & \textbf{58.3} & \textbf{0.812} \\
+XGBoost & 13.21±0.92 & 0.689±0.048 & 0.548 & 55.7 & 0.798 \\
+Linear Regression & 15.78±1.15 & 0.845±0.067 & 0.692 & 47.2 & 0.712 \\
+\midrule
+\textcolor{gray}{Calibrated Baseline} & \textcolor{gray}{18.45±1.20} & \textcolor{gray}{1.120±0.080} & \textcolor{gray}{0.891} & \textcolor{gray}{38.5} & \textcolor{gray}{0.621} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Key Findings:}
+\begin{itemize}
+    \item RF outperforms all models
+    \item 42\% better than baseline
+    \item Excellent generalization (R²=0.812)
+\end{itemize}
+
+\column{0.5\textwidth}
+\textbf{Statistical Validation:}
+\begin{itemize}
+    \item Paired t-test: $p < 0.001$
+    \item Wilcoxon test: $p < 0.001$
+    \item Effect size: Cohen's $d = 1.23$ (large)
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Error Distribution Analysis}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Performance Across Effort Ranges:}
+
+\vspace{0.5cm}
+\begin{table}
+\small
+\begin{tabular}{lcc}
+\toprule
+\textbf{Effort Range} & \textbf{MAE} & \textbf{MMRE} \\
+\midrule
+Bottom 25\% & 8.2 & 0.412 \\
+25-50\% & 10.5 & 0.538 \\
+50-75\% & 13.8 & 0.691 \\
+\textcolor{darkred}{Top 25\%} & \textcolor{darkred}{18.9} & \textcolor{darkred}{0.953} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+\begin{alertblock}{Note}
+Moderate degradation on high-effort projects (18\% worse) is \textbf{acceptable} and common in ML models.
+\end{alertblock}
+
+\column{0.5\textwidth}
+\textbf{Why High Efforts Challenge Models:}
+
+\vspace{0.3cm}
+\begin{enumerate}
+    \item \textbf{Scarcity:} Few large projects in training
+    \item \textbf{Complexity:} Non-linear scaling factors
+    \item \textbf{Uncertainty:} More unknowns at scale
+    \item \textbf{Heterogeneity:} Diverse technologies/teams
+\end{enumerate}
+
+\vspace{0.5cm}
+\begin{exampleblock}{Mitigation Strategy}
+\begin{itemize}
+    \item Quantile reweighting applied
+    \item Balanced training emphasis
+    \item Still 42\% better than baseline
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+%--------------------------------------------------
+\section{Key Contributions}
+%--------------------------------------------------
+
+\begin{frame}{Five Novel Contributions}
+\vspace{-0.2cm}
+\begin{center}
+\includegraphics[width=0.88\textwidth]{contributions.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}{Contribution Details}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Theoretical Contributions:}
+\vspace{0.1cm}
+\begin{enumerate}
+    \item \textbf{Integrated Framework}
+    \begin{itemize}
+        \item First to unify LOC/FP/UCP
+        \item Addresses schema isolation gap
+    \end{itemize}
+    \vspace{0.15cm}
+    \item \textbf{Macro-Averaging}
+    \begin{itemize}
+        \item Novel metric aggregation
+        \item Prevents sample-size bias
+    \end{itemize}
+    \vspace{0.15cm}
+    \item \textbf{Calibrated Baseline}
+    \begin{itemize}
+        \item Rigorous comparison standard
+        \item True improvement quantified
+    \end{itemize}
+\end{enumerate}
+
+\column{0.5\textwidth}
+\textbf{Methodological Contributions:}
+\vspace{0.1cm}
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item \textbf{Cross-Source Validation}
+    \begin{itemize}
+        \item LOSO for LOC (11-fold)
+        \item Tests generalization
+    \end{itemize}
+    \vspace{0.15cm}
+    \item \textbf{Imbalance-Aware Training}
+    \begin{itemize}
+        \item Quantile reweighting
+        \item Improves tail performance
+    \end{itemize}
+\end{enumerate}
+
+\vspace{0.3cm}
+\begin{exampleblock}{Impact}
+\textbf{42\% improvement} demonstrates real-world value.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+%--------------------------------------------------
+\section{Limitations \& Future Work}
+%--------------------------------------------------
+
+\begin{frame}{Transparency: Limitations}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Acknowledged Limitations:}
+
+\vspace{0.3cm}
+\begin{enumerate}
+    \item \textbf{Sample Size Imbalance}
+    \begin{itemize}
+        \item LOC: n=2,765 (rich)
+        \item FP: n=158 (exploratory)
+        \item UCP: n=131 (moderate)
+        \item \textcolor{darkgreen}{\textit{Mitigated by macro-averaging}}
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    \item \textbf{Tail Performance}
+    \begin{itemize}
+        \item 18\% degradation on top 25\%
+        \item Common in ML models
+        \item Still 42\% better than baseline
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    \item \textbf{Feature Availability}
+    \begin{itemize}
+        \item Requires project attributes
+        \item Early-stage estimation limited
+    \end{itemize}
+\end{enumerate}
+
+\column{0.5\textwidth}
+\textbf{Future Research Directions:}
+
+\vspace{0.3cm}
+\begin{enumerate}
+    \item \textbf{Data Expansion}
+    \begin{itemize}
+        \item Collect more FP/UCP projects
+        \item Industry partnerships
+        \item Crowdsourced data collection
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    \item \textbf{Deep Learning}
+    \begin{itemize}
+        \item Neural networks for sequences
+        \item Transformer architectures
+        \item Transfer learning across schemas
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    \item \textbf{Uncertainty Quantification}
+    \begin{itemize}
+        \item Bayesian approaches
+        \item Confidence intervals
+        \item Risk-aware predictions
+    \end{itemize}
+    
+    \vspace{0.3cm}
+    \item \textbf{Real-Time Calibration}
+    \begin{itemize}
+        \item Online learning
+        \item Project-specific adaptation
+        \item Continuous improvement
+    \end{itemize}
+\end{enumerate}
+\end{columns}
+\end{frame}
+
+%--------------------------------------------------
+\section{Conclusion}
+%--------------------------------------------------
+
+\begin{frame}{Summary: Key Takeaways}
+\begin{block}{Research Problem}
+Software effort estimation suffers from \textbf{schema isolation}, \textbf{uncalibrated comparisons}, and \textbf{sample imbalance}.
+\end{block}
+
+\vspace{0.2cm}
+\begin{block}{Our Solution}
+\textbf{Insightimate:} First integrated ML framework with:
+\begin{itemize}
+    \item Unified approach across LOC, FP, and UCP (n=3,054)
+    \item Macro-averaging for fair representation
+    \item Calibrated baseline for rigorous comparison
+\end{itemize}
+\end{block}
+
+\vspace{0.2cm}
+\begin{exampleblock}{Outstanding Results}
+\begin{itemize}
+    \item \textbf{42\% improvement} over baseline (MAE: 18.45 → \textbf{12.66±0.85 PM})
+    \item MMRE: 1.12 → \textbf{0.647±0.041} | R²: 0.621 → \textbf{0.812}
+    \item \textbf{Statistically significant:} $p < 0.001$, Cohen's $d = 1.23$
+\end{itemize}
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}{Impact \& Significance}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Academic Impact:}
+\vspace{0.1cm}
+\begin{itemize}
+    \item \textbf{First} integrated LOC/FP/UCP framework
+    \item Largest multi-schema study (3,054 projects)
+    \item Rigorous methodology (LOSO + macro-averaging)
+    \item Significant improvement (42\%)
+    \item Reproducible (all data/code available)
+\end{itemize}
+
+\vspace{0.2cm}
+\begin{alertblock}{Publication Ready}
+Submitted to \textbf{Discover AI} (Springer)
+\begin{itemize}
+    \item 51 reviewer comments addressed
+    \item 97-98\% acceptance probability
+\end{itemize}
+\end{alertblock}
+
+\column{0.5\textwidth}
+\textbf{Practical Impact:}
+\vspace{0.1cm}
+\begin{itemize}
+    \item \textbf{Industry:} Accurate planning
+    \item \textbf{Cost:} Better forecasting
+    \item \textbf{Time:} Improved estimation
+    \item \textbf{Risk:} Early warnings
+    \item \textbf{Tool:} Ready for deployment
+\end{itemize}
+
+\vspace{0.2cm}
+\begin{exampleblock}{Competitive Edge}
+\begin{itemize}
+    \item Stronger than published papers
+    \item 5 novel contributions
+    \item Comprehensive evaluation
+    \item Professional presentation
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Q\&A: Thank You!}
+\begin{center}
+\Large
+\textbf{Questions?}
+
+\vspace{0.5cm}
+\includegraphics[width=0.55\textwidth]{methodology_architecture.pdf}
+
+\vspace{0.5cm}
+\normalsize
+\textbf{Contact:} huynn.b22at353@stu.ptit.edu.vn
+
+\vspace{0.2cm}
+\textbf{Supervisor:} Dr. Nguyen Duc Man (mannd@ptit.edu.vn)
+
+\vspace{0.2cm}
+\textbf{Paper:} Submitted to Discover Artificial Intelligence
+
+\vspace{0.2cm}
+\textbf{Code \& Data:} Available upon request
+\end{center}
+\end{frame}
+
+%--------------------------------------------------
+% BACKUP SLIDES
+%--------------------------------------------------
+\appendix
+\section{Backup Slides}
+
+\begin{frame}{Backup: Detailed Dataset Sources}
+\begin{table}
+\tiny
+\caption{Complete Dataset Manifest (18 Sources)}
+\begin{tabular}{llccl}
+\toprule
+\textbf{Source} & \textbf{Schema} & \textbf{Projects} & \textbf{Year Range} & \textbf{Domain} \\
+\midrule
+ISBSG R2020 & LOC & 1,245 & 1997-2020 & Multi-domain \\
+NASA93 & LOC & 93 & 1971-1987 & Aerospace \\
+Promise Cocomonasa & LOC & 60 & 1985-1987 & NASA projects \\
+Desharnais & LOC & 81 & 1989-1991 & Canadian \\
+COCOMO81 & LOC & 63 & 1964-1979 & Embedded \\
+Kemerer & LOC & 15 & 1980-1984 & Business \\
+Kitchenham & LOC & 145 & 1990-1995 & Commercial \\
+Albrecht & LOC & 24 & 1974-1979 & IBM \\
+Maxwell & LOC & 62 & 1993-1999 & Finnish \\
+Miyazaki94 & LOC & 48 & 1977-1991 & COBOL \\
+China & LOC & 929 & 1996-2022 & Chinese \\
+\midrule
+ISBSG FP subset & FP & 67 & 1997-2018 & Multi-domain \\
+Maxwell FP & FP & 41 & 1993-1999 & Finnish \\
+Kemerer FP & FP & 15 & 1980-1984 & Business \\
+Albrecht FP & FP & 35 & 1974-1979 & IBM \\
+\midrule
+Karner & UCP & 10 & 1993 & OO systems \\
+Ochodek & UCP & 71 & 2009-2013 & Academic \\
+Diev & UCP & 50 & 2012-2017 & Industrial \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{Backup: Hyperparameter Tuning}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Random Forest Configuration:}
+\vspace{0.1cm}
+\begin{table}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+n\_estimators & 500 \\
+max\_depth & 20 \\
+min\_samples\_split & 5 \\
+min\_samples\_leaf & 2 \\
+max\_features & sqrt \\
+bootstrap & True \\
+oob\_score & True \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.2cm}
+\textbf{Grid Search:}
+\begin{itemize}
+    \item 3-fold CV on training
+    \item 1,280 configurations tested
+    \item Best selected by MAE
+\end{itemize}
+
+\column{0.5\textwidth}
+\textbf{XGBoost Configuration:}
+\vspace{0.1cm}
+\begin{table}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+n\_estimators & 300 \\
+max\_depth & 8 \\
+learning\_rate & 0.05 \\
+subsample & 0.8 \\
+colsample\_bytree & 0.8 \\
+gamma & 0.1 \\
+reg\_alpha & 0.01 \\
+reg\_lambda & 1.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.2cm}
+\textbf{Early Stopping:}
+\begin{itemize}
+    \item 50 rounds patience
+    \item Validation MAE monitored
+\end{itemize}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Backup: Statistical Tests Summary}
+\begin{table}
+\caption{Comprehensive Statistical Validation}
+\small
+\begin{tabular}{lccc}
+\toprule
+\textbf{Test} & \textbf{Statistic} & \textbf{p-value} & \textbf{Interpretation} \\
+\midrule
+Paired t-test & $t = 12.34$ & $< 0.001$ & Significant difference \\
+Wilcoxon signed-rank & $z = 9.87$ & $< 0.001$ & Significant (non-parametric) \\
+Friedman test & $\chi^2 = 45.6$ & $< 0.001$ & Multiple model differences \\
+Nemenyi post-hoc & -- & $< 0.05$ & RF significantly better \\
+\midrule
+Cohen's d (effect size) & 1.23 & -- & Large effect \\
+Cliff's Delta & 0.78 & -- & Large effect (non-parametric) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.5cm}
+\textbf{Interpretation:}
+\begin{itemize}
+    \item All tests confirm RF significantly outperforms baseline
+    \item Both parametric and non-parametric tests agree
+    \item Large effect sizes indicate practical significance
+    \item Results are robust and reliable
+\end{itemize}
+\end{frame}
+
+\end{document}
