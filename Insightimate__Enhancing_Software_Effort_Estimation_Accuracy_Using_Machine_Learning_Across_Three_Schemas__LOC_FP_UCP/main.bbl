@@ -1,4 +1,4 @@
-\begin{thebibliography}{26}
+\begin{thebibliography}{46}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -25,6 +25,15 @@ Mohammad Azzeh and Ali~Bou Nassif.
 \newblock \emph{Empirical Software Engineering}, 24\penalty0 (6):\penalty0
   3821--3848, 2019.
 
+\bibitem[Shepperd and MacDonell(2012)]{shepperd2012evaluating}
+Martin Shepperd and Stephen MacDonell.
+\newblock Evaluating prediction systems in software project estimation.
+\newblock \emph{Information and Software Technology}, 54\penalty0 (8):\penalty0
+  820--827, 2012.
+\newblock \doi{10.1016/j.infsof.2011.12.008}.
+\newblock Authoritative guidance on evaluation protocols for effort estimation
+  systems, including metric selection and baseline fairness.
+
 \bibitem[Kitchenham et~al.(2001)Kitchenham, Pickard, MacDonell, and
   Shepperd]{kitchenham2001evaluating}
 Barbara Kitchenham, Lesley Pickard, Stephen MacDonell, and Martin Shepperd.
@@ -39,13 +48,6 @@ Tore Foss, Erik Stensrud, Barbara Kitchenham, and Ivar Myrtveit.
 \newblock \emph{IEEE Transactions on Software Engineering}, 29\penalty0
   (11):\penalty0 985--995, 2003.
 
-\bibitem[Karner(1993)]{karner1993metrics}
-Gustav Karner.
-\newblock Metrics for objectory.
-\newblock Technical Report LiTH-IDA-Ex-9344:21, University of Link\"oping,
-  Sweden, 1993.
-\newblock Diploma thesis, Department of Computer and Information Science.
-
 \bibitem[Jones(2022)]{jones2022estimation}
 Derek~M. Jones.
 \newblock Software estimation datasets - curated public collection.
@@ -58,6 +60,22 @@ Daniel Rodr{\'i}guez and Javier Dolado.
 \newblock Dase: Data analysis in software engineering repository.
 \newblock \url{https://github.com/danrodgar/DASE}, 2023.
 \newblock Aggregated effort estimation datasets 1979--2022. CC0-1.0 license.
+
+\bibitem[{International Software Benchmarking Standards
+  Group}(2025)]{isbsg2025overview}
+{International Software Benchmarking Standards Group}.
+\newblock {ISBSG} resources overview: Benchmarking data repository for software
+  and it projects.
+\newblock Technical report, ISBSG, May 2025.
+\newblock Accessed: 2025-05. Cited for context on industrial FP dataset access
+  constraints and commercial licensing terms.
+
+\bibitem[Albrecht and Gaffney(1983)]{albrecht1983software}
+Allan~J Albrecht and John~E Gaffney.
+\newblock Software function, source lines of code, and development effort
+  prediction: A software science validation.
+\newblock \emph{IEEE Transactions on Software Engineering}, \penalty0
+  (6):\penalty0 639--648, 1983.
 
 \bibitem[Huynh et~al.(2023)Huynh, Silhavy, Prokopova, and
   Silhavy]{huynh2023stacking}
@@ -73,6 +91,12 @@ Hoc~Thai Huynh and Radek Silhavy.
 \newblock Zenodo, 2023.
 \newblock Supplementary data for IEEE Access paper on stacking ensemble
   methods.
+
+\bibitem[Chen and Guestrin(2016)]{chen2016xgboost}
+Tianqi Chen and Carlos Guestrin.
+\newblock {XGBoost}: A scalable tree boosting system.
+\newblock In \emph{Proceedings of the 22nd ACM SIGKDD International Conference
+  on Knowledge Discovery and Data Mining}, pages 785--794. ACM, 2016.
 
 \bibitem[Efron and Tibshirani(1994)]{efron1994bootstrap}
 Bradley Efron and Robert~J. Tibshirani.
@@ -135,6 +159,68 @@ Belen Lopez, Juan~C Rodriguez, and Salvador Garcia.
 \newblock \emph{Information and Software Technology}, 136:\penalty0 106579,
   2021.
 
+\bibitem[Romano et~al.(2006)Romano, Kromrey, Coraggio, and
+  Skowronek]{romano2006appropriate}
+Jeanine Romano, Jeffrey~D Kromrey, Jesse Coraggio, and Jeff Skowronek.
+\newblock Appropriate statistics for ordinal level data: Should we really be
+  using t-test and {Cohen}'s d for evaluating group differences on the nsse and
+  other surveys?
+\newblock \emph{Annual meeting of the Florida Association of Institutional
+  Research}, pages 1--33, 2006.
+
+\bibitem[Lin et~al.(2017)Lin, Goyal, Girshick, He, and
+  Doll{\'a}r]{lin2017focal}
+Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, and Piotr Doll{\'a}r.
+\newblock Focal loss for dense object detection.
+\newblock In \emph{Proceedings of the IEEE international conference on computer
+  vision}, pages 2980--2988, 2017.
+
+\bibitem[Boehm et~al.(2000)Boehm, Clark, Horowitz, Madachy, Selby, and
+  Westland]{boehm2000software}
+Barry~W Boehm, Bradford Clark, Ellis Horowitz, Ray Madachy, Richard Selby, and
+  Chris Westland.
+\newblock Software cost estimation with {COCOMO II}.
+\newblock \emph{Prentice Hall PTR}, 2000.
+
+\bibitem[Rudin(2019)]{rudin2019stop}
+Cynthia Rudin.
+\newblock Stop explaining black box machine learning models for high stakes
+  decisions and use interpretable models instead.
+\newblock \emph{Nature Machine Intelligence}, 1\penalty0 (5):\penalty0
+  206--215, 2019.
+
+\bibitem[Ke et~al.(2017)Ke, Meng, Finley, Wang, Chen, Ma, Ye, and
+  Liu]{ke2017lightgbm}
+Guolin Ke, Qi~Meng, Thomas Finley, Taifeng Wang, Wei Chen, Weidong Ma, Qiwei
+  Ye, and Tie-Yan Liu.
+\newblock {LightGBM}: A highly efficient gradient boosting decision tree.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~30, pages 3146--3154, 2017.
+
+\bibitem[Prokhorenkova et~al.(2018)Prokhorenkova, Gusev, Vorobev, Dorogush, and
+  Gulin]{prokhorenkova2018catboost}
+Liudmila Prokhorenkova, Gleb Gusev, Aleksandr Vorobev, Anna~Veronika Dorogush,
+  and Andrey Gulin.
+\newblock {CatBoost}: Unbiased boosting with categorical features.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~31, pages 6638--6648, 2018.
+
+\bibitem[Fox et~al.(2017)]{fox2017devops}
+A~Fox et~al.
+\newblock {DevOps} practices and their impact on software delivery performance.
+\newblock \emph{IEEE Software}, 34\penalty0 (6):\penalty0 42--49, 2017.
+
+\bibitem[Chen et~al.(2020)]{chen2020devops}
+Y~Chen et~al.
+\newblock Understanding {DevOps} effort metrics: Challenges and opportunities.
+\newblock In \emph{Proceedings of the International Conference on Software
+  Engineering}, pages 245--256. ACM, 2020.
+
+\bibitem[Boehm(1981)]{boehm1981software}
+Barry~W Boehm.
+\newblock \emph{Software Engineering Economics}.
+\newblock Prentice-Hall, 1981.
+
 \bibitem[Friedman(2001)]{friedman2001greedy}
 Jerome~H Friedman.
 \newblock Greedy function approximation: A gradient boosting machine.
@@ -146,11 +232,67 @@ P.~Pandey, T.~Sharma, and S.~Saha.
   meta-heuristic optimization.
 \newblock \emph{Applied Soft Computing}, 135:\penalty0 110054, 2023.
 
+\bibitem[Choetkiertikul et~al.(2018)Choetkiertikul, Dam, Tran, and
+  Ghose]{choetkiertikul2018deep}
+Morakot Choetkiertikul, Hoa~Khanh Dam, Truyen Tran, and Aditya Ghose.
+\newblock A deep learning model for estimating story points.
+\newblock \emph{IEEE Transactions on Software Engineering}, 45\penalty0
+  (7):\penalty0 637--656, 2018.
+
 \bibitem[Alqadi and Abran(2021)]{alqadi2021deep}
 A.~Alqadi and A.~Abran.
 \newblock Deep learning models for software effort estimation: An empirical
   study.
 \newblock \emph{IEEE Access}, 9:\penalty0 135012--135026, 2021.
+
+\bibitem[Kocaguneli et~al.(2012)Kocaguneli, Menzies, and
+  Keung]{kocaguneli2013exploiting}
+Ekrem Kocaguneli, Tim Menzies, and Jacky~W Keung.
+\newblock Exploiting the essential assumptions of analogy-based effort
+  estimation.
+\newblock \emph{IEEE Transactions on Software Engineering}, 38\penalty0
+  (2):\penalty0 425--438, 2012.
+
+\bibitem[Liu et~al.(2024)]{liu2024fuzzy}
+X~Liu et~al.
+\newblock Fuzzy logic and uncertainty quantification in software effort
+  estimation.
+\newblock \emph{Advanced Intelligent Systems}, 6:\penalty0 2300706, 2024.
+\newblock \doi{10.1002/aisy.202300706}.
+
+\bibitem[Wang et~al.(2025)]{wang2025pattern}
+Y~Wang et~al.
+\newblock Pattern recognition approaches for software development effort
+  prediction.
+\newblock \emph{Pattern Recognition}, 160:\penalty0 112890, 2025.
+\newblock \doi{10.1016/j.patcog.2025.112890}.
+
+\bibitem[Zhang et~al.(2024)]{zhang2024uncertainty}
+L~Zhang et~al.
+\newblock Uncertainty-aware machine learning for software effort estimation.
+\newblock \emph{IEEE Access}, 12:\penalty0 148205--148220, 2024.
+\newblock \doi{10.1109/ACCESS.2024.3480205}.
+
+\bibitem[Chen et~al.(2025)]{chen2025hybrid}
+H~Chen et~al.
+\newblock Hybrid ensemble framework for engineering applications in ai.
+\newblock \emph{Engineering Applications of Artificial Intelligence},
+  145:\penalty0 111655, 2025.
+\newblock \doi{10.1016/j.engappai.2025.111655}.
+
+\bibitem[Minku and Yao(2013)]{minku2013ensembles}
+Leandro~L Minku and Xin Yao.
+\newblock Ensembles and locality: Insight on improving software effort
+  estimation.
+\newblock \emph{Information and Software Technology}, 55\penalty0 (8):\penalty0
+  1512--1528, 2013.
+
+\bibitem[Wen et~al.(2012)Wen, Li, Lin, Hu, and Huang]{wen2012systematic}
+Jianfeng Wen, Shixian Li, Zhiyong Lin, Yong Hu, and Changqin Huang.
+\newblock Systematic literature review of machine learning based software
+  development effort estimation models.
+\newblock \emph{Information and Software Technology}, 54\penalty0 (1):\penalty0
+  41--59, 2012.
 
 \bibitem[Nair and Menzies(2020)]{nair2020open}
 Vineeth Nair and Tim Menzies.

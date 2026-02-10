@@ -3,46 +3,46 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: unsrtnat.bst
 Database file #1: refs.bib
-Warning--I didn't find a database entry for "boehm2000software"
-You've used 26 entries,
+Warning--there's a number but no volume in albrecht1983software
+You've used 46 entries,
             2481 wiz_defined-function locations,
-            708 strings with 8601 characters,
-and the built_in function-call counts, 9902 in all, are:
-= -- 883
-> -- 428
-< -- 19
-+ -- 175
-- -- 122
-* -- 732
-:= -- 1553
-add.period$ -- 84
-call.type$ -- 26
-change.case$ -- 50
-chr.to.int$ -- 25
-cite$ -- 26
-duplicate$ -- 494
-empty$ -- 945
-format.name$ -- 163
-if$ -- 2114
+            824 strings with 12520 characters,
+and the built_in function-call counts, 18830 in all, are:
+= -- 1680
+> -- 856
+< -- 38
++ -- 339
+- -- 246
+* -- 1402
+:= -- 2908
+add.period$ -- 152
+call.type$ -- 46
+change.case$ -- 90
+chr.to.int$ -- 45
+cite$ -- 47
+duplicate$ -- 943
+empty$ -- 1759
+format.name$ -- 321
+if$ -- 4067
 int.to.chr$ -- 2
-int.to.str$ -- 27
-missing$ -- 24
-newline$ -- 143
-num.names$ -- 78
-pop$ -- 210
+int.to.str$ -- 47
+missing$ -- 45
+newline$ -- 249
+num.names$ -- 138
+pop$ -- 376
 preamble$ -- 1
-purify$ -- 26
+purify$ -- 46
 quote$ -- 0
-skip$ -- 295
+skip$ -- 592
 stack$ -- 0
-substring$ -- 564
-swap$ -- 71
-text.length$ -- 3
+substring$ -- 1101
+swap$ -- 174
+text.length$ -- 10
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 176
-warning$ -- 0
-while$ -- 91
+type$ -- 313
+warning$ -- 1
+while$ -- 170
 width$ -- 0
-write$ -- 352
+write$ -- 626
 (There was 1 warning)
