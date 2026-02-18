@@ -371,39 +371,39 @@ $\bullet$ \textbf{GitHub README}: Moved hyperparameter grids to external documen
 
 \textit{Action Taken---Public Repository:}
 
-\textbf{GitHub Repository:} \url{https://github.com/huynguyen250896/AEE} (MIT License)
+\textbf{GitHub Repository:} All code, data, and reproducibility artifacts are publicly available at \href{https://github.com/Huy-VNNIC/AI-Project}{github.com/Huy-VNNIC/AI-Project} (MIT~License)
 
 \textbf{Contents:}
-\begin{enumerate}
-    \item \textbf{Dataset Manifest} (\texttt{dataset\_sources.csv}): 18~sources with DOI/URL, raw counts, final counts, deduplication percentages
-    \item \textbf{Processed Data} (\texttt{data\_final.csv}): 3,054 project records (Size, Effort, Schema, Source)
-    \item \textbf{Deduplication Log} (\texttt{deduplication\_log.csv}): Exact matching rules (identical Size+Effort+Source$\rightarrow$remove duplicate)
-    \item \textbf{Preprocessing Pipeline} (\texttt{preprocess.py}): Log-transforms, outlier filtering (-3$\sigma$ to +3$\sigma$)
-    \item \textbf{Training Scripts} (\texttt{train\_models.py}): RF/XGBoost/GB/DT/LR with exact hyperparameters
-    \item \textbf{Validation Scripts} (\texttt{loso\_validation.py}): Leave-One-Source-Out implementation
-    \item \textbf{Baseline Calibration} (\texttt{baseline\_calibration.py}): Power-law fitting code
-    \item \textbf{Evaluation Metrics} (\texttt{metrics.py}): MdMRE/MAPE/PRED implementations
-    \item \textbf{Bootstrap CI} (\texttt{bootstrap\_ci.py}): 1,000-resample confidence intervals
-    \item \textbf{Figure Generation} (\texttt{plots/}): Matplotlib scripts (300 DPI)
-    \item \textbf{Requirements} (\texttt{requirements.txt}): Python 3.9, scikit-learn 1.3.0, XGBoost 2.0.3
+\begin{enumerate}[itemsep=0pt]
+    \item \textbf{Dataset~Manifest} (\texttt{dataset\_sources.csv}): 18~sources with DOI/URL, raw counts, final counts, deduplication percentages
+    \item \textbf{Processed~Data} (\texttt{data\_final.csv}): 3,054 project records (Size, Effort, Schema, Source)
+    \item \textbf{Deduplication~Log} (\texttt{deduplication\_log.csv}): Exact matching rules (identical Size+Effort+Source$\rightarrow$remove duplicate)
+    \item \textbf{Preprocessing~Pipeline} (\texttt{preprocess.py}): Log-transforms, outlier filtering (-3$\sigma$ to +3$\sigma$)
+    \item \textbf{Training~Scripts} (\texttt{train\_models.py}): RF/XGBoost/GB/DT/LR with exact hyperparameters
+    \item \textbf{Validation~Scripts} (\texttt{loso\_validation.py}): Leave-One-Source-Out implementation
+    \item \textbf{Baseline~Calibration} (\texttt{baseline\_calibration.py}): Power-law fitting code
+    \item \textbf{Evaluation~Metrics} (\texttt{metrics.py}): MdMRE/MAPE/PRED implementations
+    \item \textbf{Bootstrap~CI} (\texttt{bootstrap\_ci.py}): 1,000-resample confidence intervals
+    \item \textbf{Figure~Generation} (\texttt{plots/}): Matplotlib scripts (300~DPI)
+    \item \textbf{Requirements} (\texttt{requirements.txt}): Python~3.9, scikit-learn~1.3.0, XGBoost~2.0.3
 \end{enumerate}
 
-\textbf{Data Access:}
-\begin{itemize}
-    \item \textbf{Public Sources}: NASA93, Cocomo81, Desharnais, Maxwell (direct DOI links in Table~1)
-    \item \textbf{ISBSG}: Commercial license---we provide aggregated statistics and feature distributions (not raw data)
-\end{itemize}
+\textbf{Data~Access:}
+\begin{itemize}[itemsep=0pt]
+    \item \textbf{Public~Sources:} NASA93, Cocomo81, Desharnais, Maxwell (direct DOI links in Table~1)
+    \item \textbf{ISBSG:} Commercial license---we provide aggregated statistics and feature distributions (not raw data)
+\end{itemize>
 
-\textbf{Rebuild Instructions:} \texttt{README.md} with 5-step workflow:
-\begin{enumerate}
+\textbf{Rebuild~Instructions:} \texttt{README.md} with 5-step workflow:
+\begin{enumerate}[itemsep=0pt]
     \item Clone repository
-    \item Install dependencies (\texttt{pip install -r requirements.txt})
-    \item Run preprocessing (\texttt{python preprocess.py})
-    \item Train models (\texttt{python train\_models.py})
-    \item Generate figures (\texttt{cd plots \&\& python generate\_all.py})
+    \item Install dependencies (\texttt{pip~install~-r~requirements.txt})
+    \item Run preprocessing (\texttt{python~preprocess.py})
+    \item Train models (\texttt{python~train\_models.py})
+    \item Generate figures (\texttt{cd~plots~\&\&~python~generate\_all.py})
 \end{enumerate}
 
-\textit{Verification:} Successfully rebuilt results on Ubuntu 22.04, Python 3.9.12, numpy 1.24.3 (deterministic with random\_seed=42). &
+\textit{Verification:} Successfully rebuilt results on Ubuntu~22.04, Python~3.9.12, numpy~1.24.3 (deterministic with \texttt{random\_seed=42}). &
 
 \textbf{Where Revised:}
 
