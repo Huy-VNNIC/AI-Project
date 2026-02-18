@@ -112,21 +112,21 @@ Complete provenance (18~sources, DOI/URL, raw vs final counts, deduplication \%,
 
 \textit{Positioning:} We contrast methodological focus against algorithmic novelty (Section~7, lines 1082-1089): ``Our contribution lies in establishing \textit{reproducible evaluation protocols}---analogous to ImageNet for computer vision---rather than proposing novel models.'' &
 
-\textbf{Where Revised:}
+\textbf{Where~Revised:}
 
-$\bullet$ \textbf{Abstract} (lines 70-84): Added ``macro-averaging prevents LOC dominance'' and ``calibrated baseline ensures fair comparison.''
+$\bullet$ Abstract (L70-84)
 
-$\bullet$ \textbf{Introduction} (lines 105-115): Expanded to 5 specific methodological innovations.
+$\bullet$ Intro (L105-115)
 
-$\bullet$ \textbf{Section~2.1.1} (lines 133-143): New ``Baseline Fairness and Calibration'' subsection.
+$\bullet$ §2.1.1 (L133-143): Baseline calibration
 
-$\bullet$ \textbf{Section~4.3} (lines 229-236): ``Cross-Schema Aggregation Protocol'' with formula.
+$\bullet$ §4.3 (L229-236): Macro-avg formula
 
-$\bullet$ \textbf{Section~4.5} (lines 668-694): Per-schema analysis.
+$\bullet$ §4.5 (L668-694): Per-schema
 
-$\bullet$ \textbf{Table~1} (lines 248-275): Dataset provenance table.
+$\bullet$ Table~1 (L248-275)
 
-$\bullet$ \textbf{Section~7} (lines 1082-1089): Methodological positioning. \\
+$\bullet$ §7 (L1082-1089) \\
 
 \midrule
 
@@ -164,17 +164,17 @@ This ensures \textbf{fair comparison}: baseline utilizes same training data as M
 
 \textit{Transparency:} We cite the fitting method explicitly and include calibration code in GitHub (\texttt{baseline\_calibration.py}). &
 
-\textbf{Where Revised:}
+\textbf{Where~Revised:}
 
-$\bullet$ \textbf{Section~2.1.1} (lines 133-143): New subsection ``Baseline Calibration Methodology'' with formula.
+$\bullet$ §2.1.1 (L133-143): Formula
 
-$\bullet$ \textbf{Section~4.2} (lines 218-228): Implemented least-squares fitting protocol.
+$\bullet$ §4.2 (L218-228): Least-squares
 
-$\bullet$ \textbf{Table~2} (lines 630-655): Calibrated baseline results (MMRE 2.790, MAE 35.2~PM).
+$\bullet$ Table~2 (L630-655)
 
-$\bullet$ \textbf{Section~6} (lines 937-945): Discusses value of calibration vs ML flexibility.
+$\bullet$ §6 (L937-945)
 
-$\bullet$ \textbf{GitHub repository}: Added \texttt{baseline\_calibration.py} with \texttt{curve\_fit} implementation. \\
+$\bullet$ GitHub: baseline\_calibration.py \\
 
 \midrule
 
@@ -209,17 +209,17 @@ $\bullet$ \textbf{GitHub repository}: Added \texttt{baseline\_calibration.py} wi
 
 \textit{Validation:} Section~4.7 (lines 763-828) presents \textbf{Leave-One-Source-Out} cross-validation demonstrating 21\% MAE degradation across 11 independent LOC sources---acceptable for cross-organizational transfer. &
 
-\textbf{Where Revised:}
+\textbf{Where~Revised:}
 
-$\bullet$ \textbf{Table~1} (lines 248-275): Dataset provenance table listing 18~sources with DOI/URL, raw counts, final counts, deduplication \%, date ranges.
+$\bullet$ Table~1 (L248-275): 18~sources
 
-$\bullet$ \textbf{Section~3.1} (lines 329-368): Expanded ``Data Collection'' with modern source descriptions.
+$\bullet$ §3.1 (L329-368)
 
-$\bullet$ \textbf{Section~4.1} (lines 497-525): Descriptive statistics showing 1979-2023 span.
+$\bullet$ §4.1 (L497-525): 1979-2023
 
-$\bullet$ \textbf{Section~4.7} (lines 763-828): LOSO validation on 11~sources (MAE 14.3 $\pm$ 3.2~PM).
+$\bullet$ §4.7 (L763-828): LOSO
 
-$\bullet$ \textbf{GitHub repository}: Manifest file \texttt{dataset\_sources.csv} with 18 entries. \\
+$\bullet$ GitHub: dataset\_sources.csv \\
 
 \midrule
 
@@ -260,17 +260,17 @@ $$\text{MAPE} = \frac{100}{n}\sum_{i=1}^{n} \left|\frac{E_i - \hat{E}_i}{E_i}\ri
 
 \textit{Validation:} All~7~metrics reported per schema and macro-averaged (Tables~2-3, lines~630-689). Both MdMRE and MAPE confirm RF superiority \textit{without outlier distortion}. &
 
-\textbf{Where Revised:}
+\textbf{Where~Revised:}
 
-$\bullet$ \textbf{Section~4.3} (lines 215-225): Added MdMRE and MAPE definitions with formulae.
+$\bullet$ §4.3 (L215-225): Formulae
 
-$\bullet$ \textbf{Table~2} (lines 630-655): Added MdMRE and MAPE columns for 6 models.
+$\bullet$ Table~2 (L630-655)
 
-$\bullet$ \textbf{Table~3} (lines 675-689): Per-schema MdMRE/MAPE breakdown.
+$\bullet$ Table~3 (L675-689)
 
-$\bullet$ \textbf{Section~5} (lines 785-805): Results interpretation emphasizing MdMRE robustness vs MMRE.
+$\bullet$ §5 (L785-805)
 
-$\bullet$ \textbf{Abstract} (lines 70-84): Mentioned 7-metric evaluation. \\
+$\bullet$ Abstract (L70-84) \\
 
 \midrule
 
@@ -367,53 +367,25 @@ $\bullet$ \textbf{GitHub README}: Moved hyperparameter grids to external documen
 
 \textbf{We added comprehensive reproducibility artifacts: GitHub repository, DOI links, rebuild scripts, and data manifests.}
 
-\textit{Acknowledgment:} Reproducibility crisis in ML demands active countermeasures. ``Code available on request'' is insufficient.
+\textit{Acknowledgment:} ``Code available on request'' is insufficient---reproducibility crisis demands active countermeasures.
 
-\textit{Action Taken---Public Repository:}
+\textit{Action Taken:}
 
-\textbf{GitHub Repository:} All code, data, and reproducibility artifacts are publicly available at \href{https://github.com/Huy-VNNIC/AI-Project}{github.com/Huy-VNNIC/AI-Project} (MIT~License)
+\textbf{GitHub:} \href{https://github.com/Huy-VNNIC/AI-Project}{Huy-VNNIC/AI-Project} (MIT) with dataset~manifest (18~sources), processed~data (3,054~projects), deduplication~log, training/validation~scripts, metrics~implementations, figures, requirements.
 
-\textbf{Contents:}
-\begin{enumerate}[itemsep=0pt]
-    \item \textbf{Dataset~Manifest} (\texttt{dataset\_sources.csv}): 18~sources with DOI/URL, raw counts, final counts, deduplication percentages
-    \item \textbf{Processed~Data} (\texttt{data\_final.csv}): 3,054 project records (Size, Effort, Schema, Source)
-    \item \textbf{Deduplication~Log} (\texttt{deduplication\_log.csv}): Exact matching rules (identical Size+Effort+Source$\rightarrow$remove duplicate)
-    \item \textbf{Preprocessing~Pipeline} (\texttt{preprocess.py}): Log-transforms, outlier filtering (-3$\sigma$ to +3$\sigma$)
-    \item \textbf{Training~Scripts} (\texttt{train\_models.py}): RF/XGBoost/GB/DT/LR with exact hyperparameters
-    \item \textbf{Validation~Scripts} (\texttt{loso\_validation.py}): Leave-One-Source-Out implementation
-    \item \textbf{Baseline~Calibration} (\texttt{baseline\_calibration.py}): Power-law fitting code
-    \item \textbf{Evaluation~Metrics} (\texttt{metrics.py}): MdMRE/MAPE/PRED implementations
-    \item \textbf{Bootstrap~CI} (\texttt{bootstrap\_ci.py}): 1,000-resample confidence intervals
-    \item \textbf{Figure~Generation} (\texttt{plots/}): Matplotlib scripts (300~DPI)
-    \item \textbf{Requirements} (\texttt{requirements.txt}): Python~3.9, scikit-learn~1.3.0, XGBoost~2.0.3
-\end{enumerate}
+\textbf{External~Repos:} (1)~\href{https://github.com/danrodgar/DASE}{danrodgar/DASE} (\texttt{telecom1.csv}: Size,Effort,158proj); (2)~\href{https://github.com/Derek-Jones/Software-estimation-datasets}{Derek-Jones/datasets} (\texttt{cocomoII.csv}: LOC,dates,drivers); (3)~\href{https://github.com/Freeman-md/software-project-development-estimator}{Freeman-md/estimator} (types,KLOC); (4)~\href{https://github.com/toniesteves/sw-effort-predictive-analysis}{toniesteves/sw-effort} (aggregated); (5)~\href{https://github.com/huynhhoc/effort-estimation-by-using-pre-trained-model}{huynhhoc/pre-trained} (UCP:EQ,EI,ILF,EIF).
 
-\textbf{Data~Access:}
-\begin{itemize}[itemsep=0pt]
-    \item \textbf{Public~Sources:} NASA93, Cocomo81, Desharnais, Maxwell (direct DOI links in Table~1)
-    \item \textbf{ISBSG:} Commercial license---we provide aggregated statistics and feature distributions (not raw data)
-\end{itemize>
+\textit{Verification:} Rebuilt~Ubuntu~22.04, Python~3.9, seed=42. &
 
-\textbf{Rebuild~Instructions:} \texttt{README.md} with 5-step workflow:
-\begin{enumerate}[itemsep=0pt]
-    \item Clone repository
-    \item Install dependencies (\texttt{pip~install~-r~requirements.txt})
-    \item Run preprocessing (\texttt{python~preprocess.py})
-    \item Train models (\texttt{python~train\_models.py})
-    \item Generate figures (\texttt{cd~plots~\&\&~python~generate\_all.py})
-\end{enumerate}
+\textbf{Where~Revised:}
 
-\textit{Verification:} Successfully rebuilt results on Ubuntu~22.04, Python~3.9.12, numpy~1.24.3 (deterministic with \texttt{random\_seed=42}). &
+$\bullet$ §3.3 (L415-432)
 
-\textbf{Where Revised:}
+$\bullet$ Table~1 (L248-275)
 
-$\bullet$ \textbf{Section~3.3} (lines 415-432): New ``Reproducibility'' subsection with GitHub URL, repository structure, rebuild instructions.
+$\bullet$ Abstract (L82-84)
 
-$\bullet$ \textbf{Table~1} (lines 248-275): DOI/URL column for each dataset.
-
-$\bullet$ \textbf{Abstract} (lines 82-84): Mentioned open-source artifacts.
-
-$\bullet$ \textbf{Conclusion} (lines 1248-1262): Reproducibility commitment statement. \\
+$\bullet$ Conclusion (L1248-1262) \\
 
 \bottomrule
 \end{longtable}
