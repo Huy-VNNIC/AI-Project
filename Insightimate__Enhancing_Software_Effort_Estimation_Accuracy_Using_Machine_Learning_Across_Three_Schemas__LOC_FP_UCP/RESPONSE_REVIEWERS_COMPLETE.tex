@@ -1,6 +1,7 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage[margin=0.75in]{geometry}
 \usepackage{times}
+\usepackage{array}
 \usepackage{longtable}
 \usepackage{booktabs}
 \usepackage[hidelinks]{hyperref}
@@ -27,9 +28,9 @@ We sincerely thank the Editor and all Reviewers for their exceptionally thorough
 The revised manuscript incorporates the following major improvements addressing concerns from multiple reviewers:
 
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Dataset Expansion (+192\%):} Increased from n=1,042 to \textbf{n=3,054 projects} across \textbf{18 independent sources} (1979-2023). The FP schema expanded from n=24 to \textbf{n=158 projects} (+558\%), substantially addressing statistical power concerns raised by Reviewers 2, 5, 6, and 7.
+    \item \textbf{Dataset Expansion (+192\%):} Increased from n=1,042 to \textbf{n=3,054~projects} across \textbf{18 independent sources} (1979-2023). The FP schema expanded from n=24 to \textbf{n=158~projects} (+558\%), substantially addressing statistical power concerns raised by Reviewers 2, 5, 6, and 7.
     
-    \item \textbf{State-of-the-Art Models:} Integrated \textbf{XGBoost} (modern gradient boosting with regularization) achieving MAE 13.24 PM compared to Random Forest 12.66 PM (<5\% difference), demonstrating that contemporary SOTA models converge to similar accuracy levels (Reviewers 4, 7).
+    \item \textbf{State-of-the-Art Models:} Integrated \textbf{XGBoost} (modern gradient boosting with regularization) achieving MAE 13.24~PM compared to Random Forest 12.66~PM (<5\% difference), demonstrating that contemporary SOTA models converge to similar accuracy levels (Reviewers 4, 7).
     
     \item \textbf{Enhanced Evaluation Metrics:} Added \textbf{MdMRE} (Median Magnitude of Relative Error) and \textbf{MAPE} (Mean Absolute Percentage Error) providing robust central-tendency statistics and business-friendly reporting formats (Reviewers 1, 2).
     
@@ -45,7 +46,7 @@ The revised manuscript incorporates the following major improvements addressing 
 \end{enumerate}
 
 \vspace{0.3em}
-\noindent \textbf{Document Structure:} Below, we provide detailed responses to each Reviewer in three-column table format: (1) Reviewer Comment (verbatim quote), (2) Response (detailed explanation with evidence), (3) Where Revised (specific line numbers and sections). All references are to the revised manuscript (25 pages, 1,286 lines LaTeX source).
+\noindent \textbf{Document Structure:} Below, we provide detailed responses to each Reviewer in three-column table format: (1) Reviewer Comment (verbatim quote), (2) Response (detailed explanation with evidence), (3) Where Revised (specific line numbers and sections). All references are to the revised manuscript (25~pages, 1,286~lines LaTeX source).
 
 \vspace{0.3em}
 \noindent We believe these comprehensive revisions substantially strengthen the manuscript's scientific validity, reproducibility, and contribution clarity. We are grateful for the opportunity to address these concerns.
@@ -61,7 +62,7 @@ On behalf of all co-authors
 
 \section*{Detailed Response to Reviewer 1}
 
-\begin{longtable}{p{0.28\linewidth}|p{0.42\linewidth}|p{0.25\linewidth}}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.26\linewidth}|>{\raggedright\arraybackslash}p{0.44\linewidth}|>{\raggedright\arraybackslash}p{0.22\linewidth}}
 \toprule
 \textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
 \midrule
@@ -90,26 +91,26 @@ On behalf of all co-authors
 
 We repositioned the core contribution to \textbf{three methodological innovations addressing reproducibility gaps}:
 
-\textbf{(1) Macro-averaged cross-schema evaluation protocol} (Section 4.3, lines 229-236):
+\textbf{(1) Macro-averaged cross-schema evaluation protocol} (Section~4.3, lines 229-236):
 
 We formalize metric aggregation across LOC/FP/UCP schemas using equal weighting:
 $$m_{\text{macro}} = \frac{1}{3}\sum_{s \in \{\text{LOC}, \text{FP}, \text{UCP}\}} m^{(s)}$$
 
 This prevents LOC corpus dominance (n=2,765, 90.5\% of projects) from masking FP (n=158, 5.2\%) and UCP (n=131, 4.3\%) performance. Prior studies either pool data---semantically invalid due to KLOC$\neq$FP$\neq$UCP incomparability---or report micro-averaged metrics without disclosure.
 
-\textbf{(2) Calibrated parametric baseline} (Section 2.1.1, lines 133-143):
+\textbf{(2) Calibrated parametric baseline} (Section~2.1.1, lines 133-143):
 
 We replace uncalibrated COCOMO II defaults with a \textit{training-data-fitted size-only power-law baseline} $E = A \times \text{Size}^B$ where coefficients $(A, B)$ are optimized via least-squares regression (\texttt{scipy.optimize.curve\_fit}) strictly on training folds.
 
-Results: Even with calibration, parametric baseline underperforms (MMRE 2.790 vs RF 0.647, MAE 35.2 vs 12.66 PM), confirming that \textbf{fixed functional forms struggle with heterogeneous project characteristics}.
+Results: Even with calibration, parametric baseline underperforms (MMRE 2.790 vs RF 0.647, MAE 35.2 vs 12.66~PM), confirming that \textbf{fixed functional forms struggle with heterogeneous project characteristics}.
 
-\textbf{(3) Auditable dataset manifest} (Table 1, lines 248-275):
+\textbf{(3) Auditable dataset manifest} (Table~1, lines 248-275):
 
-Complete provenance (18 sources, DOI/URL, raw vs final counts, deduplication \%, rebuild scripts) enables independent verification. GitHub repository includes \texttt{deduplication\_log.csv} with exact matching rules.
+Complete provenance (18~sources, DOI/URL, raw vs final counts, deduplication \%, rebuild scripts) enables independent verification. GitHub repository includes \texttt{deduplication\_log.csv} with exact matching rules.
 
-\textit{Empirical Validation:} Section 4.5 (lines 668-694) demonstrates \textbf{schema-specific modeling outperforms naive pooling} due to distinct feature semantics.
+\textit{Empirical Validation:} Section~4.5 (lines 668-694) demonstrates \textbf{schema-specific modeling outperforms naive pooling} due to distinct feature semantics.
 
-\textit{Positioning:} We contrast methodological focus against algorithmic novelty (Section 7, lines 1082-1089): ``Our contribution lies in establishing \textit{reproducible evaluation protocols}---analogous to ImageNet for computer vision---rather than proposing novel models.'' &
+\textit{Positioning:} We contrast methodological focus against algorithmic novelty (Section~7, lines 1082-1089): ``Our contribution lies in establishing \textit{reproducible evaluation protocols}---analogous to ImageNet for computer vision---rather than proposing novel models.'' &
 
 \textbf{Where Revised:}
 
@@ -117,15 +118,15 @@ $\bullet$ \textbf{Abstract} (lines 70-84): Added ``macro-averaging prevents LOC 
 
 $\bullet$ \textbf{Introduction} (lines 105-115): Expanded to 5 specific methodological innovations.
 
-$\bullet$ \textbf{Section 2.1.1} (lines 133-143): New ``Baseline Fairness and Calibration'' subsection.
+$\bullet$ \textbf{Section~2.1.1} (lines 133-143): New ``Baseline Fairness and Calibration'' subsection.
 
-$\bullet$ \textbf{Section 4.3} (lines 229-236): ``Cross-Schema Aggregation Protocol'' with formula.
+$\bullet$ \textbf{Section~4.3} (lines 229-236): ``Cross-Schema Aggregation Protocol'' with formula.
 
-$\bullet$ \textbf{Section 4.5} (lines 668-694): Per-schema analysis.
+$\bullet$ \textbf{Section~4.5} (lines 668-694): Per-schema analysis.
 
-$\bullet$ \textbf{Table 1} (lines 248-275): Dataset provenance table.
+$\bullet$ \textbf{Table~1} (lines 248-275): Dataset provenance table.
 
-$\bullet$ \textbf{Section 7} (lines 1082-1089): Methodological positioning. \\
+$\bullet$ \textbf{Section~7} (lines 1082-1089): Methodological positioning. \\
 
 \midrule
 
@@ -154,8 +155,8 @@ This ensures \textbf{fair comparison}: baseline utilizes same training data as M
 
 \textit{Results:} Even with calibration, parametric baseline underperforms:
 \begin{itemize}
-    \item \textbf{Baseline calibrated}: MMRE 2.790, MAE 35.2 PM (Table 2, lines 630-655)
-    \item \textbf{Random Forest}: MMRE 0.647, MAE 12.66 PM
+    \item \textbf{Baseline calibrated}: MMRE 2.790, MAE 35.2~PM (Table~2, lines 630-655)
+    \item \textbf{Random Forest}: MMRE 0.647, MAE 12.66~PM
     \item \textbf{Implication}: Fixed power-law insufficient for heterogeneous projects
 \end{itemize}
 
@@ -165,19 +166,19 @@ This ensures \textbf{fair comparison}: baseline utilizes same training data as M
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 2.1.1} (lines 133-143): New subsection ``Baseline Calibration Methodology'' with formula.
+$\bullet$ \textbf{Section~2.1.1} (lines 133-143): New subsection ``Baseline Calibration Methodology'' with formula.
 
-$\bullet$ \textbf{Section 4.2} (lines 218-228): Implemented least-squares fitting protocol.
+$\bullet$ \textbf{Section~4.2} (lines 218-228): Implemented least-squares fitting protocol.
 
-$\bullet$ \textbf{Table 2} (lines 630-655): Calibrated baseline results (MMRE 2.790, MAE 35.2 PM).
+$\bullet$ \textbf{Table~2} (lines 630-655): Calibrated baseline results (MMRE 2.790, MAE 35.2~PM).
 
-$\bullet$ \textbf{Section 6} (lines 937-945): Discusses value of calibration vs ML flexibility.
+$\bullet$ \textbf{Section~6} (lines 937-945): Discusses value of calibration vs ML flexibility.
 
 $\bullet$ \textbf{GitHub repository}: Added \texttt{baseline\_calibration.py} with \texttt{curve\_fit} implementation. \\
 
 \midrule
 
-``The datasets (Table 1) include very old sources (e.g., Nasa93 from 1979). Why were modern datasets like [...] not considered?'' &
+``The datasets (Table~1) include very old sources (e.g., Nasa93 from 1979). Why were modern datasets like [...] not considered?'' &
 
 \textbf{We extensively expanded the dataset with modern sources while retaining historical benchmarks.}
 
@@ -189,7 +190,7 @@ $\bullet$ \textbf{GitHub repository}: Added \texttt{baseline\_calibration.py} wi
 
 \textbf{Modern Additions:}
 \begin{itemize}
-    \item \textbf{ISBSG Release 2023} (n=1,923 projects, 1997-2022 development years): Commercial software from global organizations, includes web/mobile apps
+    \item \textbf{ISBSG Release 2023} (n=1,923~projects, 1997-2022 development years): Commercial software from global organizations, includes web/mobile apps
     \item \textbf{Desharnais \& Maxwell} (n=142, 2005-2012): Canadian software houses
     \item \textbf{CESAW, SCH, IBM-DP} (n=264, 2008-2018): Enterprise IT systems
     \item \textbf{Kitchenham-FPA} (n=158 FP projects, 2015-2022): Modern FP corpus addressing Reviewer 2/6/7 concerns (expanded from n=24 to n=158, +558\%)
@@ -206,17 +207,17 @@ $\bullet$ \textbf{GitHub repository}: Added \texttt{baseline\_calibration.py} wi
 
 \textit{Coverage:} Temporal span (44 years), domain diversity (aerospace, banking, telecom, web development), geographic representation (North America, Europe, Asia-Pacific).
 
-\textit{Validation:} Section 4.7 (lines 763-828) presents \textbf{Leave-One-Source-Out} cross-validation demonstrating 21\% MAE degradation across 11 independent LOC sources---acceptable for cross-organizational transfer. &
+\textit{Validation:} Section~4.7 (lines 763-828) presents \textbf{Leave-One-Source-Out} cross-validation demonstrating 21\% MAE degradation across 11 independent LOC sources---acceptable for cross-organizational transfer. &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 1} (lines 248-275): Dataset provenance table listing 18 sources with DOI/URL, raw counts, final counts, deduplication \%, date ranges.
+$\bullet$ \textbf{Table~1} (lines 248-275): Dataset provenance table listing 18~sources with DOI/URL, raw counts, final counts, deduplication \%, date ranges.
 
-$\bullet$ \textbf{Section 3.1} (lines 329-368): Expanded ``Data Collection'' with modern source descriptions.
+$\bullet$ \textbf{Section~3.1} (lines 329-368): Expanded ``Data Collection'' with modern source descriptions.
 
-$\bullet$ \textbf{Section 4.1} (lines 497-525): Descriptive statistics showing 1979-2023 span.
+$\bullet$ \textbf{Section~4.1} (lines 497-525): Descriptive statistics showing 1979-2023 span.
 
-$\bullet$ \textbf{Section 4.7} (lines 763-828): LOSO validation on 11 sources (MAE 14.3 $\pm$ 3.2 PM).
+$\bullet$ \textbf{Section~4.7} (lines 763-828): LOSO validation on 11~sources (MAE 14.3 $\pm$ 3.2~PM).
 
 $\bullet$ \textbf{GitHub repository}: Manifest file \texttt{dataset\_sources.csv} with 18 entries. \\
 
@@ -236,7 +237,7 @@ $$\text{MdMRE} = \text{median}\left(\left|\frac{E_i - \hat{E}_i}{E_i}\right|\rig
 
 \textit{Advantage:} Robust central-tendency statistic resistant to extreme outliers. Provides complementary perspective to MMRE.
 
-\textit{Results:} RF achieves \textbf{MdMRE 0.42} (42\% median error) vs baseline 1.85 (Table 2, lines 630-655), indicating \textbf{consistent accuracy across typical projects}.
+\textit{Results:} RF achieves \textbf{MdMRE 0.42} (42\% median error) vs baseline 1.85 (Table~2, lines 630-655), indicating \textbf{consistent accuracy across typical projects}.
 
 \textbf{(2) MAPE (Mean Absolute Percentage Error):}
 
@@ -244,7 +245,7 @@ $$\text{MAPE} = \frac{100}{n}\sum_{i=1}^{n} \left|\frac{E_i - \hat{E}_i}{E_i}\ri
 
 \textit{Advantage:} Business-friendly reporting format (percentage), symmetric scale, interpretable for non-technical stakeholders.
 
-\textit{Results:} RF achieves \textbf{MAPE 64.7\%} vs baseline 279.0\% (Table 2), demonstrating substantial improvement.
+\textit{Results:} RF achieves \textbf{MAPE 64.7\%} vs baseline 279.0\% (Table~2), demonstrating substantial improvement.
 
 \textbf{Full Metrics Suite (7 Metrics):}
 \begin{enumerate}
@@ -254,20 +255,20 @@ $$\text{MAPE} = \frac{100}{n}\sum_{i=1}^{n} \left|\frac{E_i - \hat{E}_i}{E_i}\ri
     \item PRED(25) (fraction within 25\% error---interpretable threshold)
     \item MAE (absolute error in PM---native scale)
     \item RMSE (penalizes large errors)
-    \item R² (variance explained---goodness-of-fit)
+    \item R$^2$ (variance explained---goodness-of-fit)
 \end{enumerate}
 
-\textit{Validation:} All 7 metrics reported per schema and macro-averaged (Tables 2-3, lines 630-689). MdMRE/MAPE confirm RF superiority \textit{without outlier distortion}. &
+\textit{Validation:} All~7~metrics reported per schema and macro-averaged (Tables~2-3, lines~630-689). Both MdMRE and MAPE confirm RF superiority \textit{without outlier distortion}. &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 4.3} (lines 215-225): Added MdMRE and MAPE definitions with formulae.
+$\bullet$ \textbf{Section~4.3} (lines 215-225): Added MdMRE and MAPE definitions with formulae.
 
-$\bullet$ \textbf{Table 2} (lines 630-655): Added MdMRE and MAPE columns for 6 models.
+$\bullet$ \textbf{Table~2} (lines 630-655): Added MdMRE and MAPE columns for 6 models.
 
-$\bullet$ \textbf{Table 3} (lines 675-689): Per-schema MdMRE/MAPE breakdown.
+$\bullet$ \textbf{Table~3} (lines 675-689): Per-schema MdMRE/MAPE breakdown.
 
-$\bullet$ \textbf{Section 5} (lines 785-805): Results interpretation emphasizing MdMRE robustness vs MMRE.
+$\bullet$ \textbf{Section~5} (lines 785-805): Results interpretation emphasizing MdMRE robustness vs MMRE.
 
 $\bullet$ \textbf{Abstract} (lines 70-84): Mentioned 7-metric evaluation. \\
 
@@ -292,14 +293,14 @@ $\bullet$ \textbf{Abstract} (lines 70-84): Mentioned 7-metric evaluation. \\
 
 \textit{Random Forest:}
 \begin{itemize}
-    \item \textbf{MAE}: 12.2 PM [95\% CI: 10.2, 15.8]
-    \item \textbf{RMSE}: 18.5 PM [95\% CI: 15.1, 24.3]
+    \item \textbf{MAE}: 12.2~PM [95\% CI: 10.2, 15.8]
+    \item \textbf{RMSE}: 18.5~PM [95\% CI: 15.1, 24.3]
     \item \textbf{Interpretation}: Wide intervals reflect sampling variability but exclude baseline (MAE 35.6 [30.2, 42.1])
 \end{itemize}
 
 \textit{XGBoost:}
 \begin{itemize}
-    \item \textbf{MAE}: 13.1 PM [95\% CI: 10.8, 16.5]
+    \item \textbf{MAE}: 13.1~PM [95\% CI: 10.8, 16.5]
     \item \textbf{Overlap with RF}: CIs intersect, no significant difference
 \end{itemize}
 
@@ -307,32 +308,32 @@ $\bullet$ \textbf{Abstract} (lines 70-84): Mentioned 7-metric evaluation. \\
 
 \textbf{LOC/UCP Schemas:} Narrower CIs due to larger sample sizes (n=2,765 and n=131 respectively).
 
-\textit{Presentation:} We report CIs in Table 3 footnote and discuss implications in Section 5 (lines 820-841): ``Bootstrap intervals confirm FP results are not artifacts of random sampling---RF outperforms baseline with 95\% confidence.'' &
+\textit{Presentation:} We report CIs in Table~3 footnote and discuss implications in Section~5 (lines 820-841): ``Bootstrap intervals confirm FP results are not artifacts of random sampling---RF outperforms baseline with 95\% confidence.'' &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 3} (lines 675-689): Added footnote with 95\% bootstrap CIs for FP schema (RF: [10.2, 15.8], XGBoost: [10.8, 16.5], Baseline: [30.2, 42.1]).
+$\bullet$ \textbf{Table~3} (lines 675-689): Added footnote with 95\% bootstrap CIs for FP schema (RF: [10.2, 15.8], XGBoost: [10.8, 16.5], Baseline: [30.2, 42.1]).
 
-$\bullet$ \textbf{Section 4.3} (lines 226-228): Bootstrap resampling protocol description.
+$\bullet$ \textbf{Section~4.3} (lines 226-228): Bootstrap resampling protocol description.
 
-$\bullet$ \textbf{Section 5} (lines 820-841): Statistical significance discussion.
+$\bullet$ \textbf{Section~5} (lines 820-841): Statistical significance discussion.
 
 $\bullet$ \textbf{GitHub repository}: \texttt{bootstrap\_ci.py} script for reproducibility. \\
 
 \midrule
 
-``The paper is quite long (25 pages). Consider condensing repeated explanations.'' &
+``The paper is quite long (25~pages). Consider condensing repeated explanations.'' &
 
 \textbf{We condensed redundant content while preserving methodological completeness.}
 
-\textit{Acknowledgment:} Initially 28 pages due to verbose justifications repeated across sections. Conciseness improves readability without sacrificing rigor.
+\textit{Acknowledgment:} Initially 28~pages due to verbose justifications repeated across sections. Conciseness improves readability without sacrificing rigor.
 
 \textit{Action Taken---Structural Optimization:}
 
 \textbf{(1) Consolidated Redundant Subsections:}
 \begin{itemize}
-    \item Merged Section 4.2 (Validation) and 4.8 (Statistical Tests) → unified ``Validation and Inference Protocol''
-    \item Combined scattered LOSO discussion into single Section 4.7
+    \item Merged Section~4.2 (Validation) and 4.8 (Statistical Tests) → unified ``Validation and Inference Protocol''
+    \item Combined scattered LOSO discussion into single Section~4.7
 \end{itemize}
 
 \textbf{(2) Streamlined Algorithm Descriptions:}
@@ -343,10 +344,10 @@ $\bullet$ \textbf{GitHub repository}: \texttt{bootstrap\_ci.py} script for repro
 
 \textbf{(3) Unified Provenance Reporting:}
 \begin{itemize}
-    \item Replaced scattered dataset references with consolidated Table 1 (single source of truth)
+    \item Replaced scattered dataset references with consolidated Table~1 (single source of truth)
 \end{itemize}
 
-\textbf{Final Page Count:} 25 pages (down from 28, 11\% reduction) while \textit{adding} MdMRE/MAPE/XGBoost/LOSO content.
+\textbf{Final Page Count:} 25~pages (down from 28, 11\% reduction) while \textit{adding} MdMRE/MAPE/XGBoost/LOSO content.
 
 \textit{Balance:} We retained methodological detail (calibration protocol, aggregation formula, deduplication rules) critical for reproducibility while eliminating stylistic verbosity. &
 
@@ -354,9 +355,9 @@ $\bullet$ \textbf{GitHub repository}: \texttt{bootstrap\_ci.py} script for repro
 
 $\bullet$ \textbf{Entire manuscript}: Three-pass editing for conciseness.
 
-$\bullet$ \textbf{Section 2} (lines 130-185): Condensed model descriptions from 5 pages to 3 pages.
+$\bullet$ \textbf{Section~2} (lines 130-185): Condensed model descriptions from 5~pages to 3~pages.
 
-$\bullet$ \textbf{Section 4} (lines 190-415): Consolidated validation subsections.
+$\bullet$ \textbf{Section~4} (lines 190-415): Consolidated validation subsections.
 
 $\bullet$ \textbf{GitHub README}: Moved hyperparameter grids to external documentation. \\
 
@@ -374,7 +375,7 @@ $\bullet$ \textbf{GitHub README}: Moved hyperparameter grids to external documen
 
 \textbf{Contents:}
 \begin{enumerate}
-    \item \textbf{Dataset Manifest} (\texttt{dataset\_sources.csv}): 18 sources with DOI/URL, raw counts, final counts, deduplication percentages
+    \item \textbf{Dataset Manifest} (\texttt{dataset\_sources.csv}): 18~sources with DOI/URL, raw counts, final counts, deduplication percentages
     \item \textbf{Processed Data} (\texttt{data\_final.csv}): 3,054 project records (Size, Effort, Schema, Source)
     \item \textbf{Deduplication Log} (\texttt{deduplication\_log.csv}): Exact matching rules (identical Size+Effort+Source$\rightarrow$remove duplicate)
     \item \textbf{Preprocessing Pipeline} (\texttt{preprocess.py}): Log-transforms, outlier filtering (-3$\sigma$ to +3$\sigma$)
@@ -389,7 +390,7 @@ $\bullet$ \textbf{GitHub README}: Moved hyperparameter grids to external documen
 
 \textbf{Data Access:}
 \begin{itemize}
-    \item \textbf{Public Sources}: NASA93, Cocomo81, Desharnais, Maxwell (direct DOI links in Table 1)
+    \item \textbf{Public Sources}: NASA93, Cocomo81, Desharnais, Maxwell (direct DOI links in Table~1)
     \item \textbf{ISBSG}: Commercial license---we provide aggregated statistics and feature distributions (not raw data)
 \end{itemize}
 
@@ -406,9 +407,9 @@ $\bullet$ \textbf{GitHub README}: Moved hyperparameter grids to external documen
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 3.3} (lines 415-432): New ``Reproducibility'' subsection with GitHub URL, repository structure, rebuild instructions.
+$\bullet$ \textbf{Section~3.3} (lines 415-432): New ``Reproducibility'' subsection with GitHub URL, repository structure, rebuild instructions.
 
-$\bullet$ \textbf{Table 1} (lines 248-275): DOI/URL column for each dataset.
+$\bullet$ \textbf{Table~1} (lines 248-275): DOI/URL column for each dataset.
 
 $\bullet$ \textbf{Abstract} (lines 82-84): Mentioned open-source artifacts.
 
@@ -420,7 +421,7 @@ $\bullet$ \textbf{Conclusion} (lines 1248-1262): Reproducibility commitment stat
 
 \section*{Detailed Response to Reviewer 2}
 
-\begin{longtable}{p{0.28\linewidth}|p{0.42\linewidth}|p{0.25\linewidth}}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.26\linewidth}|>{\raggedright\arraybackslash}p{0.44\linewidth}|>{\raggedright\arraybackslash}p{0.22\linewidth}}
 \toprule
 \textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
 \midrule
@@ -485,28 +486,28 @@ With LOC (n=2,765, 90.5\%), micro-averaging $\approx$ LOC-only performance. FP (
 
 \textit{Example (Random Forest):}
 \begin{itemize}
-    \item LOC: MAE 11.8 PM (n=2,765)
-    \item FP: MAE 12.2 PM (n=158)
-    \item UCP: MAE 14.0 PM (n=131)
-    \item \textbf{Macro-average}: MAE 12.66 PM
+    \item LOC: MAE 11.8~PM (n=2,765)
+    \item FP: MAE 12.2~PM (n=158)
+    \item UCP: MAE 14.0~PM (n=131)
+    \item \textbf{Macro-average}: MAE 12.66~PM
     \item \textit{Micro-average would yield}: $\frac{2765 \times 11.8 + 158 \times 12.2 + 131 \times 14.0}{3054} \approx 11.9$ PM (LOC-dominated)
 \end{itemize}
 
-Macro-averaging reveals UCP underperformance (14.0 PM) hidden in pooled metrics.
+Macro-averaging reveals UCP underperformance (14.0~PM) hidden in pooled metrics.
 
-\textit{Transparency:} We report \textit{both} per-schema metrics (Table 3, lines 675-689) and macro-aggregated metrics (Table 2, lines 630-655) for full transparency. &
+\textit{Transparency:} We report \textit{both} per-schema metrics (Table~3, lines 675-689) and macro-aggregated metrics (Table~2, lines 630-655) for full transparency. &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 4.3} (lines 229-236): New ``Cross-Schema Aggregation Protocol'' subsection with formula and rationale.
+$\bullet$ \textbf{Section~4.3} (lines 229-236): New ``Cross-Schema Aggregation Protocol'' subsection with formula and rationale.
 
 $\bullet$ \textbf{Abstract} (lines 76-78): Added ``macro-averaging prevents LOC dominance'' clause.
 
-$\bullet$ \textbf{Table 2} (lines 630-655): Clarified ``Macro-Avg'' footnote.
+$\bullet$ \textbf{Table~2} (lines 630-655): Clarified ``Macro-Avg'' footnote.
 
-$\bullet$ \textbf{Table 3} (lines 675-689): Separate per-schema results showing LOC/FP/UCP breakdown.
+$\bullet$ \textbf{Table~3} (lines 675-689): Separate per-schema results showing LOC/FP/UCP breakdown.
 
-$\bullet$ \textbf{Section 5} (lines 785-799): Discussed macro vs micro implications. \\
+$\bullet$ \textbf{Section~5} (lines 785-799): Discussed macro vs micro implications. \\
 
 \midrule
 
@@ -536,15 +537,15 @@ For each cross-validation fold $k=1,\ldots,K$:
 \textit{Calibrated Baseline:}
 \begin{itemize}
     \item MMRE: 2.790 (279\%)
-    \item MAE: 35.2 PM
-    \item RMSE: 58.7 PM
+    \item MAE: 35.2~PM
+    \item RMSE: 58.7~PM
 \end{itemize}
 
 \textit{Random Forest:}
 \begin{itemize}
     \item MMRE: 0.647 (64.7\%)
-    \item MAE: 12.66 PM (-64\% vs baseline)
-    \item RMSE: 22.8 PM (-61\% vs baseline)
+    \item MAE: 12.66~PM (-64\% vs baseline)
+    \item RMSE: 22.8~PM (-61\% vs baseline)
 \end{itemize}
 
 \textbf{Interpretation:}
@@ -560,7 +561,7 @@ Both baseline and ML models:
 \begin{itemize}
     \item Use \textit{identical training data} within each fold
     \item Predict on \textit{same held-out test sets}
-    \item Evaluated with \textit{same 7 metrics}
+    \item Evaluated with \textit{same 7~metrics}
 \end{itemize}
 
 The \textit{only} difference: baseline constrained to $E=A \times S^B$ parametric form, while RF adaptively learns splits.
@@ -569,27 +570,27 @@ The \textit{only} difference: baseline constrained to $E=A \times S^B$ parametri
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 2.1.1} (lines 133-143): New ``Baseline Calibration Methodology'' with least-squares formula.
+$\bullet$ \textbf{Section~2.1.1} (lines 133-143): New ``Baseline Calibration Methodology'' with least-squares formula.
 
-$\bullet$ \textbf{Section 4.2} (lines 218-224): Cross-validation protocol specifies baseline fitting per fold.
+$\bullet$ \textbf{Section~4.2} (lines 218-224): Cross-validation protocol specifies baseline fitting per fold.
 
-$\bullet$ \textbf{Table 2} (lines 630-655): ``Calibrated Baseline'' row with MMRE 2.790, MAE 35.2.
+$\bullet$ \textbf{Table~2} (lines 630-655): ``Calibrated Baseline'' row with MMRE 2.790, MAE 35.2.
 
-$\bullet$ \textbf{Section 6} (lines 937-951): Discussed calibration fairness and ML value-add.
+$\bullet$ \textbf{Section~6} (lines 937-951): Discussed calibration fairness and ML value-add.
 
 $\bullet$ \textbf{GitHub}: \texttt{baseline\_calibration.py} with \texttt{curve\_fit} implementation. \\
 
 \midrule
 
-``Table 1 lacks dataset provenance (DOI/URL, dates, deduplication rules). Without this, reproducibility is compromised.'' &
+``Table~1 lacks dataset provenance (DOI/URL, dates, deduplication rules). Without this, reproducibility is compromised.'' &
 
-\textbf{Outstanding point---we completely restructured Table 1 as a comprehensive dataset manifest.}
+\textbf{Outstanding point---we completely restructured Table~1 as a comprehensive dataset manifest.}
 
-\textit{Acknowledgment:} The original Table 1 listed source names only (e.g., ``NASA93'') without DOI, publication dates, raw counts, or deduplication methodology. This opacity prevents independent verification.
+\textit{Acknowledgment:} The original Table~1 listed source names only (e.g., ``NASA93'') without DOI, publication dates, raw counts, or deduplication methodology. This opacity prevents independent verification.
 
-\textit{Action Taken---Auditable Dataset Manifest (Table 1, lines 248-275):}
+\textit{Action Taken---Auditable Dataset Manifest (Table~1, lines 248-275):}
 
-\textbf{New Table 1 Structure (8 columns):}
+\textbf{New Table~1 Structure (8 columns):}
 
 \begin{enumerate}
     \item \textbf{Source Name}: E.g., ``NASA93'', ``ISBSG 2023''
@@ -622,14 +623,14 @@ $\bullet$ \textbf{GitHub}: \texttt{baseline\_calibration.py} with \texttt{curve\
     \item Domain: Multi-domain (banking, telecom, web, ERP)
 \end{itemize}
 
-\textbf{Deduplication Methodology (Section 3.2, lines 382-401):}
+\textbf{Deduplication Methodology (Section~3.2, lines 382-401):}
 
 \textit{Rule:} Remove project $j$ if $\exists$ prior project $i$ with:
 $$(\text{Size}_i = \text{Size}_j) \land (\text{Effort}_i = \text{Effort}_j) \land (\text{Source}_i = \text{Source}_j)$$
 
 \textit{Rationale:} Identical (Size, Effort, Source) tuples likely represent duplicate entries or versioned records within multi-release datasets (e.g., ISBSG releases 2020, 2021, 2023).
 
-\textit{No Cross-Source Deduplication:} We retain seemingly identical projects from \textit{different} sources (e.g., Maxwell has project with Size=50 KLOC, Effort=120 PM; Desharnais also has Size=50, Effort=120). These could be legitimately distinct projects---removing risks data loss.
+\textit{No Cross-Source Deduplication:} We retain seemingly identical projects from \textit{different} sources (e.g., Maxwell has project with Size=50 KLOC, Effort=120~PM; Desharnais also has Size=50, Effort=120). These could be legitimately distinct projects---removing risks data loss.
 
 \textbf{Leakage Prevention:}
 
@@ -640,28 +641,28 @@ Train/test splitting performed \textit{after} deduplication within each source, 
 \begin{itemize}
     \item \texttt{dataset\_sources.csv}: Machine-readable manifest (18 rows, 8 columns)
     \item \texttt{deduplication\_log.csv}: Removed records with original IDs
-    \item Table 1 (lines 248-275): Human-readable summary in manuscript
+    \item Table~1 (lines 248-275): Human-readable summary in manuscript
 \end{itemize}
 
 \textit{Total:} 18 independent sources, n=3,054 final projects (from 3,389 raw, 9.9\% deduplication rate). &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 1} (lines 248-275): Restructured as 8-column manifest (Source, Schema, Raw, Final, Dedup\%, Dates, DOI/URL, Domain).
+$\bullet$ \textbf{Table~1} (lines 248-275): Restructured as 8-column manifest (Source, Schema, Raw, Final, Dedup\%, Dates, DOI/URL, Domain).
 
-$\bullet$ \textbf{Section 3.1} (lines 329-368): Dataset description with source details.
+$\bullet$ \textbf{Section~3.1} (lines 329-368): Dataset description with source details.
 
-$\bullet$ \textbf{Section 3.2} (lines 382-401): Deduplication methodology with explicit rule.
+$\bullet$ \textbf{Section~3.2} (lines 382-401): Deduplication methodology with explicit rule.
 
 $\bullet$ \textbf{GitHub}: \texttt{dataset\_sources.csv} and \texttt{deduplication\_log.csv}. \\
 
 \midrule
 
-``The FP schema has only n=24 projects. This is statistically insufficient. How do results change if FP is excluded?'' &
+``The FP schema has only n=24~projects. This is statistically insufficient. How do results change if FP is excluded?'' &
 
-\textbf{Critical concern---we increased FP corpus from n=24 to n=158 projects (+558\%) and added bootstrap confidence intervals.}
+\textbf{Critical concern---we increased FP corpus from n=24 to n=158~projects (+558\%) and added bootstrap confidence intervals.}
 
-\textit{Acknowledgment:} n=24 severely limits statistical power. With 5-fold cross-validation, each test fold contains only ~5 projects. A single outlier can dominate metrics.
+\textit{Acknowledgment:} n=24 severely limits statistical power. With 5-fold cross-validation, each test fold contains only ~5~projects. A single outlier can dominate metrics.
 
 \textit{Action Taken---FP Dataset Expansion:}
 
@@ -676,7 +677,7 @@ We systematically collected additional FP projects from:
 
 \textbf{New FP Schema:}
 \begin{itemize}
-    \item Total: \textbf{n=158 projects} (up from n=24, +558\% increase)
+    \item Total: \textbf{n=158~projects} (up from n=24, +558\% increase)
     \item Development years: 1979-2022 (43-year span)
     \item Domain diversity: Banking (45\%), Telecom (28\%), ERP (18\%), Web (9\%)
 \end{itemize}
@@ -693,24 +694,24 @@ Due to moderate sample size (n=158), we use:
 
 \textit{Random Forest (n=158):}
 \begin{itemize}
-    \item MAE: 12.2 PM [95\% CI: 10.2, 15.8]
+    \item MAE: 12.2~PM [95\% CI: 10.2, 15.8]
     \item MMRE: 0.68 [95\% CI: 0.51, 0.89]
     \item PRED(25): 58\% [95\% CI: 49\%, 66\%]
 \end{itemize}
 
 \textit{Calibrated Baseline (n=158):}
 \begin{itemize}
-    \item MAE: 35.6 PM [95\% CI: 30.2, 42.1]
+    \item MAE: 35.6~PM [95\% CI: 30.2, 42.1]
     \item MMRE: 2.95 [95\% CI: 2.41, 3.58]
 \end{itemize}
 
-\textit{Statistical Significance:} Non-overlapping CIs confirm RF superiority with 95\% confidence---results not artifacts of random sampling.
+\textit{Statistical Significance:} Non-overlapping confidence intervals confirm RF superiority at 95\% confidence level---results are not artifacts of random sampling.
 
-\textbf{Ablation Study---Excluding FP (Section 6, lines 980-1005):}
+\textbf{Ablation Study---Excluding FP (Section~6, lines 980-1005):}
 
 \textit{LOC+UCP Only (n=2,896):}
 \begin{itemize}
-    \item RF Macro-Avg MAE: 12.9 PM (vs 12.66 with FP)
+    \item RF Macro-Avg MAE: 12.9~PM (vs 12.66 with FP)
     \item Minimal impact: FP contributes 1/3 weight in macro-average, but performance similar to LOC/UCP
 \end{itemize}
 
@@ -718,15 +719,15 @@ Due to moderate sample size (n=158), we use:
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 1} (lines 248-275): FP schema expanded to n=158 (Kitchenham n=82, ISBSG n=52, Albrecht n=24).
+$\bullet$ \textbf{Table~1} (lines 248-275): FP schema expanded to n=158 (Kitchenham n=82, ISBSG n=52, Albrecht n=24).
 
-$\bullet$ \textbf{Section 3.1} (lines 345-352): FP expansion details with sources.
+$\bullet$ \textbf{Section~3.1} (lines 345-352): FP expansion details with sources.
 
-$\bullet$ \textbf{Table 3} (lines 675-689): FP results with 95\% bootstrap CIs.
+$\bullet$ \textbf{Table~3} (lines 675-689): FP results with 95\% bootstrap CIs.
 
-$\bullet$ \textbf{Section 4.2} (lines 220-224): FP uses 5-fold CV + bootstrap CI.
+$\bullet$ \textbf{Section~4.2} (lines 220-224): FP uses 5-fold CV + bootstrap CI.
 
-$\bullet$ \textbf{Section 6} (lines 980-1005): Ablation study (LOC+UCP only). \\
+$\bullet$ \textbf{Section~6} (lines 980-1005): Ablation study (LOC+UCP only). \\
 
 \midrule
 
@@ -736,7 +737,7 @@ $\bullet$ \textbf{Section 6} (lines 980-1005): Ablation study (LOC+UCP only). \\
 
 \textit{Acknowledgment:} Training ML models on log-transformed effort ($\log(E)$) improves numerical stability and reduces heteroscedasticity. However, reporting metrics on log-scale obscures practical interpretation.
 
-\textit{Action Taken---Back-Transformation Protocol (Section 4.3, lines 237-246):}
+\textit{Action Taken---Back-Transformation Protocol (Section~4.3, lines 237-246):}
 
 \textbf{Training Phase (Log-Scale):}
 
@@ -763,9 +764,9 @@ $\bullet$ \textbf{Section 6} (lines 980-1005): Ablation study (LOC+UCP only). \\
 
 \textbf{Consistency Across Metrics:}
 
-All 7 metrics (MMRE, MdMRE, MAPE, PRED, MAE, RMSE, R²) computed on \textit{back-transformed predictions} $\hat{E}_i = \exp(\hat{y}_i) - 1$.
+All 7~metrics (MMRE, MdMRE, MAPE, PRED, MAE, RMSE, R²) computed on \textit{back-transformed predictions} $\hat{E}_i = \exp(\hat{y}_i) - 1$.
 
-\textbf{Potential Bias (Acknowledged in Section 8, lines 1198-1210):}
+\textbf{Potential Bias (Acknowledged in Section~8, lines 1198-1210):}
 
 Log-scale training imposes multiplicative error structure. Back-transformation via $\exp(\cdot)$ can introduce bias for projects with high uncertainty. We acknowledge this trade-off: log-scale improves model training stability but evaluation requires original-scale reporting for interpretability.
 
@@ -773,13 +774,13 @@ Log-scale training imposes multiplicative error structure. Back-transformation v
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 4.3} (lines 237-246): New ``Back-Transformation Protocol'' subsection with formula.
+$\bullet$ \textbf{Section~4.3} (lines 237-246): New ``Back-Transformation Protocol'' subsection with formula.
 
-$\bullet$ \textbf{Section 3.3} (lines 410-414): Log-transform justification (numerical stability, heteroscedasticity reduction).
+$\bullet$ \textbf{Section~3.3} (lines 410-414): Log-transform justification (numerical stability, heteroscedasticity reduction).
 
-$\bullet$ \textbf{Section 8} (lines 1198-1210): Acknowledged potential back-transform bias in limitations.
+$\bullet$ \textbf{Section~8} (lines 1198-1210): Acknowledged potential back-transform bias in limitations.
 
-$\bullet$ \textbf{Table 2 footnote} (lines 654-655): Clarified ``Metrics computed on original scale after inverse log-transform.'' \\
+$\bullet$ \textbf{Table~2 footnote} (lines 654-655): Clarified ``Metrics computed on original scale after inverse log-transform.'' \\
 
 \bottomrule
 \end{longtable}
@@ -787,7 +788,7 @@ $\bullet$ \textbf{Table 2 footnote} (lines 654-655): Clarified ``Metrics compute
 
 \section*{Detailed Response to Reviewer 3}
 
-\begin{longtable}{p{0.28\linewidth}|p{0.42\linewidth}|p{0.25\linewidth}}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.26\linewidth}|>{\raggedright\arraybackslash}p{0.44\linewidth}|>{\raggedright\arraybackslash}p{0.22\linewidth}}
 \toprule
 \textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
 \midrule
@@ -812,7 +813,7 @@ $\bullet$ \textbf{Table 2 footnote} (lines 654-655): Clarified ``Metrics compute
 
 \textit{Acknowledgment:} The original introduction mixed motivation, prior work, methods, and contributions without clear signposting, harming readability.
 
-\textit{Action Taken---Four-Part Introduction Structure (Section 1, lines 85-128):}
+\textit{Action Taken---Four-Part Introduction Structure (Section~1, lines 85-128):}
 
 \textbf{Part 1: Problem Statement (lines 85-95):}
 
@@ -841,7 +842,7 @@ $\bullet$ \textbf{Table 2 footnote} (lines 654-655): Clarified ``Metrics compute
 
 \textit{Five Specific Contributions:}
 \begin{enumerate}
-    \item \textbf{Large-scale multi-schema dataset} (n=3,054 projects, 18 sources, 1979-2023) with auditable provenance
+    \item \textbf{Large-scale multi-schema dataset} (n=3,054~projects, 18~sources, 1979-2023) with auditable provenance
     \item \textbf{Macro-averaged cross-schema evaluation} preventing LOC corpus dominance
     \item \textbf{Calibrated parametric baseline} ensuring fair ML comparison
     \item \textbf{Enhanced metrics suite} (MdMRE, MAPE) for robust statistical reporting
@@ -854,14 +855,14 @@ $\bullet$ \textbf{Table 2 footnote} (lines 654-655): Clarified ``Metrics compute
 
 \textit{Section Roadmap:}
 \begin{itemize}
-    \item Section 2: Related work and baseline methodology
-    \item Section 3: Dataset construction and preprocessing
-    \item Section 4: Experimental protocol (cross-validation, metrics, LOSO)
-    \item Section 5: Results (6 models, 7 metrics, 3 schemas)
-    \item Section 6: Analysis (ablation, feature importance)
-    \item Section 7: Discussion (implications, positioning)
-    \item Section 8: Threats to validity and limitations
-    \item Section 9: Conclusion and future work
+    \item Section~2: Related work and baseline methodology
+    \item Section~3: Dataset construction and preprocessing
+    \item Section~4: Experimental protocol (cross-validation, metrics, LOSO)
+    \item Section~5: Results (6 models, 7~metrics, 3 schemas)
+    \item Section~6: Analysis (ablation, feature importance)
+    \item Section~7: Discussion (implications, positioning)
+    \item Section~8: Threats to validity and limitations
+    \item Section~9: Conclusion and future work
 \end{itemize}
 
 \textbf{Transition Clarity:}
@@ -877,19 +878,19 @@ Added explicit bridging sentences:
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 1} (lines 85-128): Complete restructure as (1) Problem (lines 85-95), (2) Gap (lines 96-104), (3) Contributions (lines 105-115), (4) Structure (lines 116-128).
+$\bullet$ \textbf{Section~1} (lines 85-128): Complete restructure as (1) Problem (lines 85-95), (2) Gap (lines 96-104), (3) Contributions (lines 105-115), (4) Structure (lines 116-128).
 
 $\bullet$ \textbf{Abstract} (lines 70-84): Aligned contribution statements with introduction Part 3. \\
 
 \midrule
 
-``Related work (Section 2) lists papers without comparing methodologies or discussing advantages/disadvantages. Add comparative analysis.'' &
+``Related work (Section~2) lists papers without comparing methodologies or discussing advantages/disadvantages. Add comparative analysis.'' &
 
-\textbf{Outstanding suggestion---we restructured Section 2 as a comparative table with advantage/drawback columns.}
+\textbf{Outstanding suggestion---we restructured Section~2 as a comparative table with advantage/drawback columns.}
 
-\textit{Acknowledgment:} The original Section 2 was a ``laundry list'' of citations without synthesis. This fails to position our work or guide readers on what each prior study accomplished/limited.
+\textit{Acknowledgment:} The original Section~2 was a ``laundry list'' of citations without synthesis. This fails to position our work or guide readers on what each prior study accomplished/limited.
 
-\textit{Action Taken---Comparative Table (Table 2, lines 145-178):}
+\textit{Action Taken---Comparative Table (Table~2, lines 145-178):}
 
 \textbf{Table Structure (5 Columns):}
 
@@ -907,7 +908,7 @@ $\bullet$ \textbf{Abstract} (lines 70-84): Aligned contribution statements with 
 DOI: 10.1109/TSE.2012.32
 \begin{itemize}
     \item Schema: LOC-only
-    \item n: 612 projects
+    \item n: 612~projects
     \item \textbf{Advantage}: First large-scale analysis of effort multipliers in COCOMO II
     \item \textbf{Disadvantage}: No FP/UCP generalization; COCOMO defaults not calibrated; data not publicly shared
 \end{itemize}
@@ -924,12 +925,12 @@ DOI: 10.1109/TSE.2018.2792473
 \textit{Study 3:} Our Work (2026)
 \begin{itemize}
     \item Schema: \textbf{LOC + FP + UCP} (multi-schema)
-    \item n: 3,054 projects
+    \item n: 3,054~projects
     \item \textbf{Advantage}: Largest multi-schema corpus; macro-averaging protocol; calibrated baseline; bootstrap CIs; full provenance; GitHub artifacts
     \item \textbf{Disadvantage}: No deep learning (intentional---focus on reproducibility); commercial ISBSG requires license; no fine-grained sprint-level data
 \end{itemize}
 
-\textbf{Narrative Synthesis (Section 2.2, lines 179-220):}
+\textbf{Narrative Synthesis (Section~2.2, lines 179-220):}
 
 We added four paragraphs discussing:
 \begin{enumerate}
@@ -943,21 +944,21 @@ We added four paragraphs discussing:
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 2} (lines 145-178): New comparative table (12 studies, 5 columns).
+$\bullet$ \textbf{Table~2} (lines 145-178): New comparative table (12 studies, 5 columns).
 
-$\bullet$ \textbf{Section 2.2} (lines 179-220): Four-paragraph narrative synthesis.
+$\bullet$ \textbf{Section~2.2} (lines 179-220): Four-paragraph narrative synthesis.
 
-$\bullet$ \textbf{Section 2} restructure: 2.1 Baseline, 2.2 ML Approaches (with Table 2), 2.3 Our Positioning. \\
+$\bullet$ \textbf{Section~2} restructure: 2.1 Baseline, 2.2 ML Approaches (with Table~2), 2.3 Our Positioning. \\
 
 \midrule
 
-``Section 8 (Threats to Validity) is generic. Add specific limitations relevant to your study (e.g., ISBSG license restrictions, schema imbalance).'' &
+``Section~8 (Threats to Validity) is generic. Add specific limitations relevant to your study (e.g., ISBSG license restrictions, schema imbalance).'' &
 
-\textbf{Excellent point---we rewrote Section 8 with four study-specific limitation categories and mitigation strategies.}
+\textbf{Excellent point---we rewrote Section~8 with four study-specific limitation categories and mitigation strategies.}
 
 \textit{Acknowledgment:} Generic threats (``results may not generalize'') provide no actionable insight. Readers need \textit{specific} limitations and \textit{concrete} mitigation attempts.
 
-\textit{Action Taken---Four-Category Limitations (Section 8, lines 1140-1210):}
+\textit{Action Taken---Four-Category Limitations (Section~8, lines 1140-1210):}
 
 \textbf{(1) Data Limitations (lines 1140-1160):}
 
@@ -979,23 +980,23 @@ $\bullet$ \textbf{Section 2} restructure: 2.1 Baseline, 2.2 ML Approaches (with 
 
 \textit{Specific Issues:}
 \begin{itemize}
-    \item \textbf{Log-Transform Back-Projection}: Training on $\log(E)$ then evaluating on $E = \exp(\hat{y})$ can introduce bias for high-uncertainty projects
+    \item \textbf{Log-Transform Back-Projection}: Training on $\log(E)$ then evaluating on $E = \exp(\hat{y})$ can introduce bias for high-uncertainty~projects
     \item \textbf{Size-Only Features}: We use schema-specific size (LOC/FP/UCP) without contextual features (team experience, requirements volatility, technology stack)---limits accuracy ceiling
-    \item \textbf{No Transfer Learning}: Models trained schema-stratified---we do not attempt cross-schema transfer (e.g., train on LOC, test on FP) due to semantic incompatibility
+    \item \textbf{No Transfer Learning}: Models are trained schema-stratified. We do not attempt cross-schema transfer (e.g., train on LOC, test on FP) due to semantic incompatibility.
 \end{itemize}
 
 \textit{Mitigation Attempts:}
 \begin{itemize}
     \item Log-transform necessary for numerical stability---alternative (nonlinear scaling) tested but underperformed
     \item Feature expansion requires manual annotation unavailable for legacy datasets
-    \item Transfer learning acknowledged as top-priority future work (Section 9)
+    \item Transfer learning acknowledged as top-priority future work (Section~9)
 \end{itemize}
 
 \textbf{(3) Validation Limitations (lines 1181-1195):}
 
 \textit{Specific Issues:}
 \begin{itemize}
-    \item \textbf{LOSO Limited to LOC}: Cross-source validation feasible only for LOC schema (11 sources)---FP (3 sources) and UCP (4 sources) insufficient for robust LOSO
+    \item \textbf{LOSO Limited to LOC}: Cross-source validation feasible only for LOC schema (11~sources)---FP (3~sources) and UCP (4~sources) insufficient for robust LOSO
     \item \textbf{No Temporal Validation}: Train on old projects (1990s), test on recent projects (2020s)---requires stratified temporal splits unavailable due to uneven date ranges
 \end{itemize}
 
@@ -1024,7 +1025,7 @@ $\bullet$ \textbf{Section 2} restructure: 2.1 Baseline, 2.2 ML Approaches (with 
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 8} (lines 1140-1210): Complete rewrite as four categories (Data, Methodological, Validation, Generalizability) with specific issues and mitigations.
+$\bullet$ \textbf{Section~8} (lines 1140-1210): Complete rewrite as four categories (Data, Methodological, Validation, Generalizability) with specific issues and mitigations.
 
 $\bullet$ \textbf{Abstract} (lines 82-84): Mentioned limitations (ISBSG license, schema imbalance).
 
@@ -1032,27 +1033,27 @@ $\bullet$ \textbf{Conclusion} (lines 1240-1255): Reiterated key limitations and 
 
 \midrule
 
-``Figure 1 (architecture diagram) lacks explanatory caption. Add description of each component.'' &
+``Figure~1 (architecture diagram) lacks explanatory caption. Add description of each component.'' &
 
-\textbf{We expanded Figure 1 caption from 1 line to 8 lines with component-by-component explanation.}
+\textbf{We expanded Figure~1 caption from 1 line to 8~lines with component-by-component explanation.}
 
-\textit{Action Taken---Extended Caption (Figure 1, lines 442-458):}
+\textit{Action Taken---Extended Caption (Figure~1, lines 442-458):}
 
 \textbf{Old Caption (1 line):}
 
-``Figure 1: System architecture for multi-schema effort estimation.''
+``Figure~1: System architecture for multi-schema effort estimation.''
 
-\textbf{New Caption (8 lines):}
+\textbf{New Caption (8~lines):}
 
-``Figure 1: End-to-end pipeline for multi-schema effort estimation. \textbf{(A) Data Collection}: 18 independent sources (1979-2023) aggregated into LOC/FP/UCP schemas. \textbf{(B) Preprocessing}: Deduplication (9.9\% removed), outlier filtering (-3$\sigma$ to +3$\sigma$), log-transformation $y = \log(E+1)$. \textbf{(C) Schema-Stratified Training}: Separate models per schema ($M_{\text{LOC}}$, $M_{\text{FP}}$, $M_{\text{UCP}}$) preventing semantic mixing. \textbf{(D) Calibrated Baseline}: Power-law $E = A \times \text{Size}^B$ fitted via least-squares on training folds. \textbf{(E) Cross-Validation}: 5-fold CV for LOC/FP/UCP; LOSO for LOC-only cross-source validation. \textbf{(F) Evaluation}: 7 metrics (MMRE, MdMRE, MAPE, PRED, MAE, RMSE, R²) reported per-schema and macro-averaged. \textbf{(G) Artifacts}: GitHub repository with code, data manifest, and rebuild scripts.''
+``Figure~1: End-to-end pipeline for multi-schema effort estimation. \textbf{(A) Data Collection}: 18 independent sources (1979-2023) aggregated into LOC/FP/UCP schemas. \textbf{(B) Preprocessing}: Deduplication (9.9\% removed), outlier filtering (-3$\sigma$ to +3$\sigma$), log-transformation $y = \log(E+1)$. \textbf{(C) Schema-Stratified Training}: Separate models per schema ($M_{\text{LOC}}$, $M_{\text{FP}}$, $M_{\text{UCP}}$) preventing semantic mixing. \textbf{(D) Calibrated Baseline}: Power-law $E = A \times \text{Size}^B$ fitted via least-squares on training folds. \textbf{(E) Cross-Validation}: 5-fold CV for LOC/FP/UCP; LOSO for LOC-only cross-source validation. \textbf{(F) Evaluation}: 7~metrics (MMRE, MdMRE, MAPE, PRED, MAE, RMSE, R²) reported per-schema and macro-averaged. \textbf{(G) Artifacts}: GitHub repository with code, data manifest, and rebuild scripts.''
 
-\textit{Visual Alignment:} Caption letters (A-G) correspond to labeled boxes in Figure 1 diagram (updated to 300 DPI with matching labels). &
+\textit{Visual Alignment:} Caption letters (A-G) correspond to labeled boxes in Figure~1 diagram (updated to 300 DPI with matching labels). &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Figure 1 caption} (lines 442-458): Expanded from 1 to 8 lines with (A)-(G) component descriptions.
+$\bullet$ \textbf{Figure~1 caption} (lines 442-458): Expanded from 1 to 8~lines with (A)-(G) component descriptions.
 
-$\bullet$ \textbf{Figure 1 image}: Updated diagram with labeled boxes (A-G) at 300 DPI resolution. \\
+$\bullet$ \textbf{Figure~1 image}: Updated diagram with labeled boxes (A-G) at 300 DPI resolution. \\
 
 \midrule
 
@@ -1060,7 +1061,7 @@ $\bullet$ \textbf{Figure 1 image}: Updated diagram with labeled boxes (A-G) at 3
 
 \textbf{We restructured the conclusion into four distinct paragraphs: summary, implications, limitations, and detailed future work.}
 
-\textit{Action Taken---Four-Part Conclusion (Section 9, lines 1212-1280):}
+\textit{Action Taken---Four-Part Conclusion (Section~9, lines 1212-1280):}
 
 \textbf{Part 1: Summary (lines 1212-1225):}
 
@@ -1068,7 +1069,7 @@ Concise restatement of problem, gap, approach, and key findings:
 \begin{itemize}
     \item Problem: Fragmented single-schema evaluations
     \item Approach: Multi-schema dataset (n=3,054), macro-averaging, calibrated baseline
-    \item Finding: RF achieves MAE 12.66 PM (64\% improvement vs calibrated baseline), consistent across LOC/FP/UCP
+    \item Finding: RF achieves MAE 12.66~PM (64\% improvement vs calibrated baseline), consistent across LOC/FP/UCP
 \end{itemize}
 
 \textbf{Part 2: Implications (lines 1226-1242):}
@@ -1086,7 +1087,7 @@ Reiterated four key constraints:
 \begin{itemize}
     \item ISBSG license limits raw data sharing
     \item Schema imbalance (LOC 90.5\%) despite macro-averaging
-    \item Temporal bias (68\% pre-2010 projects)
+    \item Temporal bias (68\% pre-2010~projects)
     \item Western context dominance (82\% North America/Europe)
 \end{itemize}
 
@@ -1112,7 +1113,7 @@ Reiterated four key constraints:
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 9} (lines 1212-1280): Restructured as (1) Summary (lines 1212-1225), (2) Implications (lines 1226-1242), (3) Limitations (lines 1243-1255), (4) Future Work (lines 1256-1280). \\
+$\bullet$ \textbf{Section~9} (lines 1212-1280): Restructured as (1) Summary (lines 1212-1225), (2) Implications (lines 1226-1242), (3) Limitations (lines 1243-1255), (4) Future Work (lines 1256-1280). \\
 
 \bottomrule
 \end{longtable}
@@ -1120,7 +1121,7 @@ $\bullet$ \textbf{Section 9} (lines 1212-1280): Restructured as (1) Summary (lin
 
 \section*{Detailed Response to Reviewer 4}
 
-\begin{longtable}{p{0.28\linewidth}|p{0.42\linewidth}|p{0.25\linewidth}}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.26\linewidth}|>{\raggedright\arraybackslash}p{0.44\linewidth}|>{\raggedright\arraybackslash}p{0.22\linewidth}}
 \toprule
 \textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
 \midrule
@@ -1139,17 +1140,17 @@ $\bullet$ \textbf{Section 9} (lines 1212-1280): Restructured as (1) Summary (lin
 \bottomrule
 \endlastfoot
 
-``The introduction is too long (4 pages). Condense to 1.5-2 pages and move technical details to methods.'' &
+``The introduction is too long (4~pages). Condense to 1.5-2~pages and move technical details to methods.'' &
 
-\textbf{We condensed the introduction from 4 pages to 2.1 pages while retaining essential motivation and contributions.}
+\textbf{We condensed the introduction from 4~pages to 2.1~pages while retaining essential motivation and contributions.}
 
 \textit{Action Taken:}
 
 \textbf{Removed Content:}
 \begin{itemize}
-    \item Verbose COCOMO II formula derivations (moved to Section 2.1)
-    \item Extended dataset source descriptions (moved to Section 3.1 and Table 1)
-    \item Hyperparameter justifications (moved to Section 4.4 and GitHub README)
+    \item Verbose COCOMO II formula derivations (moved to Section~2.1)
+    \item Extended dataset source descriptions (moved to Section~3.1 and Table~1)
+    \item Hyperparameter justifications (moved to Section~4.4 and GitHub README)
 \end{itemize}
 
 \textbf{Retained Content:}
@@ -1159,25 +1160,25 @@ $\bullet$ \textbf{Section 9} (lines 1212-1280): Restructured as (1) Summary (lin
     \item Positioning statement (reproducibility infrastructure vs algorithmic novelty)
 \end{itemize}
 
-\textit{Result:} Introduction now 2.1 pages (down from 4, 47\% reduction) spanning lines 85-128 (44 lines). &
+\textit{Result:} Introduction now 2.1~pages (down from 4, 47\% reduction) spanning lines 85-128 (44~lines). &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 1} (lines 85-128): Condensed to 2.1 pages.
+$\bullet$ \textbf{Section~1} (lines 85-128): Condensed to 2.1~pages.
 
-$\bullet$ \textbf{Section 2.1} (lines 130-143): Moved COCOMO formula details.
+$\bullet$ \textbf{Section~2.1} (lines 130-143): Moved COCOMO formula details.
 
-$\bullet$ \textbf{Section 3.1} (lines 329-368): Moved dataset descriptions.
+$\bullet$ \textbf{Section~3.1} (lines 329-368): Moved dataset descriptions.
 
-$\bullet$ \textbf{Section 4.4} (lines 380-415): Moved hyperparameter details. \\
+$\bullet$ \textbf{Section~4.4} (lines 380-415): Moved hyperparameter details. \\
 
 \midrule
 
 ``The related work section cites papers but does not discuss them substantively. For example, why were specific methods from [X, Y, Z] not adopted?'' &
 
-\textbf{We restructured Section 2 as a comparative table (Table 2, lines 145-178) with Advantage/Disadvantage columns and added four-paragraph synthesis discussing adoption rationale.}
+\textbf{We restructured Section~2 as a comparative table (Table~2, lines 145-178) with Advantage/Disadvantage columns and added four-paragraph synthesis discussing adoption rationale.}
 
-\textit{Action Taken---Adoption Justification (Section 2.3, lines 179-220):}
+\textit{Action Taken---Adoption Justification (Section~2.3, lines 179-220):}
 
 \textbf{Example---Why We Did Not Adopt Deep Learning:}
 
@@ -1196,7 +1197,7 @@ $\bullet$ \textbf{Section 4.4} (lines 380-415): Moved hyperparameter details. \\
     \item \textbf{Interpretability}: Project managers need explainable estimates---DL black-box predictions lack actionable insights for mitigation planning
 \end{enumerate}
 
-\textit{Future Work:} We acknowledge DL exploration as high-priority pending larger datasets (Section 9, lines 1265-1270).
+\textit{Future Work:} We acknowledge DL exploration as high-priority pending larger datasets (Section~9, lines 1265-1270).
 
 \textbf{Example---Why We Did Not Test LightGBM:}
 
@@ -1204,12 +1205,12 @@ $\bullet$ \textbf{Section 4.4} (lines 380-415): Moved hyperparameter details. \\
 
 \textit{Why Not Adopted:}
 \begin{enumerate}
-    \item \textbf{Accuracy Parity}: Preliminary tests (not reported) showed LightGBM MAE 13.3 PM vs XGBoost 13.24 PM (<0.5\% difference)---negligible for small datasets (n<10,000)
+    \item \textbf{Accuracy Parity}: Preliminary tests (not reported) showed LightGBM MAE 13.3~PM vs XGBoost 13.24~PM (<0.5\% difference)---negligible for small datasets (n<10,000)
     \item \textbf{Training Speed Irrelevant}: Our 5-fold CV completes in 42 seconds on standard laptop---speed optimization unnecessary
     \item \textbf{Simplicity}: Limiting to 6 models (Baseline, LR, DT, GB, RF, XGBoost) enhances clarity---adding LightGBM risks redundancy
 \end{enumerate}
 
-\textit{Transparency:} We now cite LightGBM and explain non-adoption (Section 2.2, lines 201-208).
+\textit{Transparency:} We now cite LightGBM and explain non-adoption (Section~2.2, lines 201-208).
 
 \textbf{Example---IEEE Journal Recommendations:}
 
@@ -1220,25 +1221,25 @@ Reviewer 4 suggested three IEEE papers:
     \item DOI: 10.1109/TETCI.2025.3647653 (transfer learning across projects)
 \end{enumerate}
 
-\textit{Action:} Cited all three in Section 2.2 (lines 188-195) with:
+\textit{Action:} Cited all three in Section~2.2 (lines 188-195) with:
 \begin{itemize}
-    \item \textbf{Advantage/Disadvantage analysis} in Table 2
-    \item \textbf{Adoption discussion}: Cost-sensitive learning (acknowledged as future work), fuzzy systems (unnecessary---bootstrap CIs sufficient for uncertainty), transfer learning (top-priority future work—Section 9)
+    \item \textbf{Advantage/Disadvantage analysis} in Table~2
+    \item \textbf{Adoption discussion}: Cost-sensitive learning (acknowledged as future work), fuzzy systems (unnecessary---bootstrap CIs sufficient for uncertainty), transfer learning (top-priority future work—Section~9)
 \end{itemize} &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 2} (lines 145-178): Added 3 IEEE papers with Advantage/Disadvantage columns.
+$\bullet$ \textbf{Table~2} (lines 145-178): Added 3 IEEE papers with Advantage/Disadvantage columns.
 
-$\bullet$ \textbf{Section 2.3} (lines 179-220): Four-paragraph synthesis discussing adoption rationale (DL, LightGBM, cost-sensitive, fuzzy, transfer).
+$\bullet$ \textbf{Section~2.3} (lines 179-220): Four-paragraph synthesis discussing adoption rationale (DL, LightGBM, cost-sensitive, fuzzy, transfer).
 
-$\bullet$ \textbf{Section 9} (lines 1256-1280): Future work mentions DL, transfer learning, focal loss. \\
+$\bullet$ \textbf{Section~9} (lines 1256-1280): Future work mentions DL, transfer learning, focal loss. \\
 
 \midrule
 
 ``Consider adding more recent methods like XGBoost, LightGBM, or CatBoost to the model comparison.'' &
 
-\textbf{Excellent suggestion---we added XGBoost to the model suite, achieving MAE 13.24 PM (within 5\% of RF's 12.66 PM).}
+\textbf{Excellent suggestion---we added XGBoost to the model suite, achieving MAE 13.24~PM (within 5\% of RF's 12.66~PM).}
 
 \textit{Action Taken---XGBoost Integration:}
 
@@ -1258,9 +1259,9 @@ where $\Omega(f_k) = \gamma T + \frac{1}{2}\lambda \|\mathbf{w}\|^2$ penalizes t
 
 \textbf{Results---XGBoost Performance:}
 
-\textit{Macro-Averaged (Table 2, lines 630-655):}
+\textit{Macro-Averaged (Table~2, lines 630-655):}
 \begin{itemize}
-    \item \textbf{MAE}: 13.24 PM (vs RF 12.66, +4.6\%)
+    \item \textbf{MAE}: 13.24~PM (vs RF 12.66, +4.6\%)
     \item \textbf{MMRE}: 0.683 (vs RF 0.647, +5.6\%)
     \item \textbf{PRED(25)}: 59\% (vs RF 61\%, -2 pp)
     \item \textbf{R²}: 0.82 (vs RF 0.85, -0.03)
@@ -1272,23 +1273,23 @@ where $\Omega(f_k) = \gamma T + \frac{1}{2}\lambda \|\mathbf{w}\|^2$ penalizes t
 
 \textbf{Why Not LightGBM or CatBoost?}
 
-\textit{LightGBM:} Preliminary tests (not reported) showed MAE 13.3 PM (within 0.5\% of XGBoost)---negligible difference for datasets n<10,000.
+\textit{LightGBM:} Preliminary tests (not reported) showed MAE 13.3~PM (within 0.5\% of XGBoost)---negligible difference for datasets n<10,000.
 
-\textit{CatBoost:} Designed for categorical feature handling---our features (Size, log-Effort) are numeric, providing no advantage. Trial runs confirmed MAE 13.5 PM (similar to XGBoost).
+\textit{CatBoost:} Designed for categorical feature handling---our features (Size, log-Effort) are numeric, providing no advantage. Trial runs confirmed MAE 13.5~PM (similar to XGBoost).
 
-\textit{Decision:} Added XGBoost (most widely adopted SOTA) and discussed LightGBM/CatBoost parity in Section 6 (lines 952-975). &
+\textit{Decision:} Added XGBoost (most widely adopted SOTA) and discussed LightGBM/CatBoost parity in Section~6 (lines 952-975). &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 2} (lines 630-655): Added XGBoost row (MAE 13.24, MMRE 0.683, PRED 59\%, R² 0.82).
+$\bullet$ \textbf{Table~2} (lines 630-655): Added XGBoost row (MAE 13.24, MMRE 0.683, PRED 59\%, R² 0.82).
 
-$\bullet$ \textbf{Section 2.2} (lines 160-167): XGBoost methodology with regularization formula.
+$\bullet$ \textbf{Section~2.2} (lines 160-167): XGBoost methodology with regularization formula.
 
-$\bullet$ \textbf{Section 4.4} (lines 395-405): XGBoost hyperparameters (GridSearchCV optimal: 200 trees, depth 7, lr 0.1).
+$\bullet$ \textbf{Section~4.4} (lines 395-405): XGBoost hyperparameters (GridSearchCV optimal: 200 trees, depth 7, lr 0.1).
 
-$\bullet$ \textbf{Section 5} (lines 812-828): XGBoost results analysis (parity with RF).
+$\bullet$ \textbf{Section~5} (lines 812-828): XGBoost results analysis (parity with RF).
 
-$\bullet$ \textbf{Section 6} (lines 952-975): Discussion of SOTA model convergence and LightGBM/CatBoost. \\
+$\bullet$ \textbf{Section~6} (lines 952-975): Discussion of SOTA model convergence and LightGBM/CatBoost. \\
 
 \midrule
 
@@ -1296,7 +1297,7 @@ $\bullet$ \textbf{Section 6} (lines 952-975): Discussion of SOTA model convergen
 
 \textbf{Excellent methodological rigor---we added Wilcoxon signed-rank tests confirming RF superiority with p<0.001.}
 
-\textit{Action Taken---Statistical Hypothesis Testing (Section 4.8, lines 850-875):}
+\textit{Action Taken---Statistical Hypothesis Testing (Section~4.8, lines 850-875):}
 
 \textbf{Method:} Pairwise Wilcoxon signed-rank tests (non-parametric, suitable for skewed error distributions):
 
@@ -1307,7 +1308,7 @@ $\bullet$ \textbf{Section 6} (lines 952-975): Discussion of SOTA model convergen
     \item Report $p$-value and effect size (rank-biserial correlation)
 \end{enumerate}
 
-\textbf{Results---Pairwise Comparisons (Table 4, lines 880-910):}
+\textbf{Results---Pairwise Comparisons (Table~4, lines 880-910):}
 
 \textit{RF vs Calibrated Baseline:}
 \begin{itemize}
@@ -1358,11 +1359,11 @@ For 15 pairwise comparisons (6 models choose 2), adjusted significance threshold
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 4.8} (lines 850-875): New ``Statistical Significance Testing'' subsection with Wilcoxon protocol.
+$\bullet$ \textbf{Section~4.8} (lines 850-875): New ``Statistical Significance Testing'' subsection with Wilcoxon protocol.
 
-$\bullet$ \textbf{Table 4} (lines 880-910): Pairwise comparison matrix (6$\times$6) with $p$-values and effect sizes.
+$\bullet$ \textbf{Table~4} (lines 880-910): Pairwise comparison matrix (6$\times$6) with $p$-values and effect sizes.
 
-$\bullet$ \textbf{Section 5} (lines 838-849): Results summary emphasizing RF vs XGBoost parity.
+$\bullet$ \textbf{Section~5} (lines 838-849): Results summary emphasizing RF vs XGBoost parity.
 
 $\bullet$ \textbf{Abstract} (lines 78-80): Mentioned ``statistically significant improvement (p<0.001).'' \\
 
@@ -1384,7 +1385,7 @@ $\bullet$ \textbf{Abstract} (lines 78-80): Mentioned ``statistically significant
 \textbf{Pass 2: Redundancy Elimination:}
 \begin{itemize}
     \item Removed filler phrases: ``In this study'', ``It should be noted that'', ``It is important to mention''
-    \item Consolidated repetitive justifications (e.g., COCOMO calibration explained once in Section 2.1, referenced elsewhere)
+    \item Consolidated repetitive justifications (e.g., COCOMO calibration explained once in Section~2.1, referenced elsewhere)
 \end{itemize}
 
 \textbf{Pass 3: Technical Precision:}
@@ -1402,7 +1403,7 @@ $\bullet$ \textbf{Abstract} (lines 78-80): Mentioned ``statistically significant
 
 \textit{Before:} ``The results showed that RF performed better.''
 
-\textit{After:} ``RF achieved MAE 12.66 PM, outperforming the calibrated baseline (MAE 35.2, $p<0.001$).''
+\textit{After:} ``RF achieved MAE 12.66~PM, outperforming the calibrated baseline (MAE 35.2, $p<0.001$).''
 
 \textbf{Quality Assurance:}
 
@@ -1420,9 +1421,9 @@ $\bullet$ \textbf{Entire manuscript}: Three-pass editing (grammar, redundancy, p
 
 $\bullet$ \textbf{Most impacted sections}:
 \begin{itemize}
-    \item Section 1 (Introduction, lines 85-128)
-    \item Section 4 (Methods, lines 190-450)
-    \item Section 5 (Results, lines 630-849)
+    \item Section~1 (Introduction, lines 85-128)
+    \item Section~4 (Methods, lines 190-450)
+    \item Section~5 (Results, lines 630-849)
 \end{itemize} \\
 
 \bottomrule
@@ -1431,7 +1432,7 @@ $\bullet$ \textbf{Most impacted sections}:
 
 \section*{Detailed Response to Reviewer 5}
 
-\begin{longtable}{p{0.28\linewidth}|p{0.42\linewidth}|p{0.25\linewidth}}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.26\linewidth}|>{\raggedright\arraybackslash}p{0.44\linewidth}|>{\raggedright\arraybackslash}p{0.22\linewidth}}
 \toprule
 \textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
 \midrule
@@ -1450,13 +1451,13 @@ $\bullet$ \textbf{Most impacted sections}:
 \bottomrule
 \endlastfoot
 
-``The dataset expanded from 1,042 to 3,054 projects. Provide detailed breakdown by source, year, and domain in the main text (not just supplementary).'' &
+``The dataset expanded from 1,042 to 3,054~projects. Provide detailed breakdown by source, year, and domain in the main text (not just supplementary).'' &
 
-\textbf{We added comprehensive dataset breakdown in Table 1 (lines 248-275) with source, schema, counts, dates, domain, and DOI/URL.}
+\textbf{We added comprehensive dataset breakdown in Table~1 (lines 248-275) with source, schema, counts, dates, domain, and DOI/URL.}
 
 \textit{Already addressed in response to Reviewer 2.}
 
-See Table 1 restructure response above (Reviewer 2, Comment 3). Key additions:
+See Table~1 restructure response above (Reviewer 2, Comment 3). Key additions:
 \begin{itemize}
     \item 18 independent sources listed
     \item Date ranges per source (e.g., NASA93: 1971-1987, ISBSG: 1997-2022)
@@ -1466,9 +1467,9 @@ See Table 1 restructure response above (Reviewer 2, Comment 3). Key additions:
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 1} (lines 248-275): 8-column manifest.
+$\bullet$ \textbf{Table~1} (lines 248-275): 8-column manifest.
 
-$\bullet$ \textbf{Section 3.1} (lines 329-368): Narrative breakdown by era (1970s-1980s, 1990s-2000s, 2010s-2020s). \\
+$\bullet$ \textbf{Section~3.1} (lines 329-368): Narrative breakdown by era (1970s-1980s, 1990s-2000s, 2010s-2020s). \\
 
 \midrule
 
@@ -1478,16 +1479,16 @@ $\bullet$ \textbf{Section 3.1} (lines 329-368): Narrative breakdown by era (1970
 
 \textit{Action Taken---Hierarchical Structure:}
 
-\textbf{Example---Section 4 (Experimental Protocol) Restructure:}
+\textbf{Example---Section~4 (Experimental Protocol) Restructure:}
 
 \textit{Before (flat):}
 \begin{itemize}
-    \item Section 4: Experimental Protocol (12 pages, no subsections)
+    \item Section~4: Experimental Protocol (12~pages, no subsections)
 \end{itemize}
 
 \textit{After (hierarchical):}
 \begin{itemize}
-    \item Section 4: Experimental Protocol
+    \item Section~4: Experimental Protocol
     \begin{itemize}
         \item 4.1 Data Preprocessing
         \item 4.2 Train/Test Splitting and Cross-Validation
@@ -1504,8 +1505,8 @@ $\bullet$ \textbf{Section 3.1} (lines 329-368): Narrative breakdown by era (1970
 
 Added explicit bridging sentences at section/subsection boundaries:
 \begin{itemize}
-    \item \textit{Example (Section 3 → 4):} ``Having described dataset construction (Section 3), we now detail the experimental protocol ensuring fair model comparison (Section 4).''
-    \item \textit{Example (Within Section 4):} ``With cross-validation protocol established (4.2), we specify the seven metrics for performance evaluation (4.3).''
+    \item \textit{Example (Section~3 → 4):} ``Having described dataset construction (Section~3), we now detail the experimental protocol ensuring fair model comparison (Section~4).''
+    \item \textit{Example (Within Section~4):} ``With cross-validation protocol established (4.2), we specify the seven metrics for performance evaluation (4.3).''
 \end{itemize}
 
 \textit{Navigation Enhancement:} Table of Contents on page 2 (auto-generated via \texttt{\textbackslash tableofcontents}) with hyperlinked sections. &
@@ -1534,7 +1535,7 @@ $\bullet$ \textbf{Section boundaries}: Explicit transition sentences (e.g., line
 
 \textbf{Figure-by-Figure Updates:}
 
-\textit{Figure 2 (Actual vs Predicted Scatter):}
+\textit{Figure~2 (Actual vs Predicted Scatter):}
 \begin{itemize}
     \item 300 DPI PNG export
     \item Color-coded by schema (LOC: blue circles, FP: orange squares, UCP: green triangles)
@@ -1543,7 +1544,7 @@ $\bullet$ \textbf{Section boundaries}: Explicit transition sentences (e.g., line
     \item Caption expanded: ``Perfect predictions lie on 45° line. RF predictions cluster near diagonal (R²=0.85), while baseline shows wider scatter (R²=0.45).''
 \end{itemize}
 
-\textit{Figure 3 (Residual Distribution):}
+\textit{Figure~3 (Residual Distribution):}
 \begin{itemize}
     \item 300 DPI, histogram with 50 bins
     \item Overlay normal distribution curve (red dashed)
@@ -1551,18 +1552,18 @@ $\bullet$ \textbf{Section boundaries}: Explicit transition sentences (e.g., line
     \item Caption: ``RF residuals approximately normal (Shapiro-Wilk p=0.12), indicating unbiased predictions.''
 \end{itemize}
 
-\textit{Figure 4 (Feature Importance---Gini):}
+\textit{Figure~4 (Feature Importance---Gini):}
 \begin{itemize}
     \item 300 DPI horizontal bar chart
     \item Sorted by importance (Size: 0.82, next features <0.15)
     \item Caption: ``Size dominates (82\% Gini importance), confirming power-law relationship. Context features (Source, Domain) contribute <10\%.''
 \end{itemize}
 
-\textit{Figure 5 (LOSO Cross-Source Validation):}
+\textit{Figure~5 (LOSO Cross-Source Validation):}
 \begin{itemize}
-    \item 300 DPI boxplot (11 sources)
+    \item 300 DPI boxplot (11~sources)
     \item Median line (red), IQR box (blue), whiskers at 1.5×IQR
-    \item Caption: ``LOSO MAE ranges 11.2-17.8 PM across 11 LOC sources. Median degradation 21\% vs within-source CV.''
+    \item Caption: ``LOSO MAE ranges 11.2-17.8~PM across 11 LOC sources. Median degradation 21\% vs within-source CV.''
 \end{itemize}
 
 \textbf{Accessibility:}
@@ -1581,7 +1582,7 @@ $\bullet$ \textbf{GitHub}: \texttt{plots/} folder with Matplotlib scripts (\text
 
 ``Conduct ablation study: What happens if (a) macro-averaging is replaced with micro-averaging, (b) log-transform is removed, (c) outlier filtering is disabled?'' &
 
-\textbf{Excellent request---we added three-component ablation study (Section 6.2, lines 1005-1065) quantifying impact of each design choice.}
+\textbf{Excellent request---we added three-component ablation study (Section~6.2, lines 1005-1065) quantifying impact of each design choice.}
 
 \textit{Action Taken---Systematic Ablation Analysis:}
 
@@ -1593,9 +1594,9 @@ $\bullet$ \textbf{GitHub}: \texttt{plots/} folder with Matplotlib scripts (\text
 
 \textit{Results (Random Forest):}
 \begin{itemize}
-    \item \textbf{Macro-Avg MAE}: 12.66 PM (LOC: 11.8, FP: 12.2, UCP: 14.0)
-    \item \textbf{Micro-Avg MAE}: 11.9 PM (LOC-dominated: 90.5\% weight)
-    \item \textbf{Impact}: Micro-average masks UCP underperformance (14.0 PM hidden by LOC's 11.8)
+    \item \textbf{Macro-Avg MAE}: 12.66~PM (LOC: 11.8, FP: 12.2, UCP: 14.0)
+    \item \textbf{Micro-Avg MAE}: 11.9~PM (LOC-dominated: 90.5\% weight)
+    \item \textbf{Impact}: Micro-average masks UCP underperformance (14.0~PM hidden by LOC's 11.8)
 \end{itemize}
 
 \textit{Interpretation:} Macro-averaging reveals schema-specific weaknesses, critical for practitioners choosing measurement paradigm.
@@ -1608,8 +1609,8 @@ $\bullet$ \textbf{GitHub}: \texttt{plots/} folder with Matplotlib scripts (\text
 
 \textit{Results (Random Forest):}
 \begin{itemize}
-    \item \textbf{With Log-Transform}: MAE 12.66 PM, RMSE 22.8 PM
-    \item \textbf{Without Log-Transform}: MAE 15.3 PM (+21\%), RMSE 38.7 PM (+70\%)
+    \item \textbf{With Log-Transform}: MAE 12.66~PM, RMSE 22.8~PM
+    \item \textbf{Without Log-Transform}: MAE 15.3~PM (+21\%), RMSE 38.7~PM (+70\%)
 \end{itemize}
 
 \textit{Interpretation:} Original-scale training amplifies large-effort projects (heteroscedasticity)---model overfits high-effort outliers, degrading small-project accuracy. Log-transform stabilizes variance across effort range.
@@ -1622,15 +1623,15 @@ $\bullet$ \textbf{GitHub}: \texttt{plots/} folder with Matplotlib scripts (\text
 
 \textit{Results (Random Forest):}
 \begin{itemize}
-    \item \textbf{With Filtering (n=3,054)}: MAE 12.66 PM, MMRE 0.647
-    \item \textbf{Without Filtering (n=3,389, +11\%)}: MAE 18.2 PM (+44\%), MMRE 1.23 (+90\%)
+    \item \textbf{With Filtering (n=3,054)}: MAE 12.66~PM, MMRE 0.647
+    \item \textbf{Without Filtering (n=3,389, +11\%)}: MAE 18.2~PM (+44\%), MMRE 1.23 (+90\%)
 \end{itemize}
 
-\textit{Outliers Removed:} 335 projects (9.9\%) including:
+\textit{Outliers Removed:} 335~projects (9.9\%) including:
 \begin{itemize}
-    \item 52 projects with Effort=0 PM (data entry error)
+    \item 52~projects with Effort=0~PM (data entry error)
     \item 118 extreme Size values (>3$\sigma$, e.g., 12, 850 KLOC when $\mu=85$)
-    \item 165 extreme Effort values (e.g., 8,500 PM for 10 KLOC project)
+    \item 165 extreme Effort values (e.g., 8,500~PM for 10 KLOC project)
 \end{itemize}
 
 \textit{Interpretation:} Outliers disproportionately distort gradient boosting splits---filtering critical for robustness.
@@ -1639,15 +1640,15 @@ $\bullet$ \textbf{GitHub}: \texttt{plots/} folder with Matplotlib scripts (\text
 
 Testing \textit{all three ablations simultaneously} (micro-avg + no log + no filtering):
 \begin{itemize}
-    \item \textbf{MAE degrades to 24.5 PM} (93\% worse than baseline 12.66)
+    \item \textbf{MAE degrades to 24.5~PM} (93\% worse than baseline 12.66)
     \item Confirms synergistic importance of design choices
 \end{itemize} &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 6.2} (lines 1005-1065): New ``Ablation Study'' subsection with three experiments and combined test.
+$\bullet$ \textbf{Section~6.2} (lines 1005-1065): New ``Ablation Study'' subsection with three experiments and combined test.
 
-$\bullet$ \textbf{Table 5} (lines 1068-1085): Ablation results matrix (4 rows: baseline, macro→micro, log-removed, outliers-retained). \\
+$\bullet$ \textbf{Table~5} (lines 1068-1085): Ablation results matrix (4 rows: baseline, macro→micro, log-removed, outliers-retained). \\
 
 \midrule
 
@@ -1655,7 +1656,7 @@ $\bullet$ \textbf{Table 5} (lines 1068-1085): Ablation results matrix (4 rows: b
 
 \textit{Already addressed in response to Reviewer 3.}
 
-See Section 8 rewrite above (Reviewer 3, Comment 3) detailing four specific limitation categories:
+See Section~8 rewrite above (Reviewer 3, Comment 3) detailing four specific limitation categories:
 \begin{itemize}
     \item Data limitations (ISBSG license, schema imbalance, temporal bias)
     \item Methodological limitations (log-transform bias, size-only features, no transfer learning)
@@ -1665,11 +1666,11 @@ See Section 8 rewrite above (Reviewer 3, Comment 3) detailing four specific limi
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 8} (lines 1140-1210): Four-category limitations with quantitative evidence and mitigation attempts. \\
+$\bullet$ \textbf{Section~8} (lines 1140-1210): Four-category limitations with quantitative evidence and mitigation attempts. \\
 
 \midrule
 
-``Figure and table numbering is inconsistent (e.g., Table 2 appears before Table 1).'' &
+``Figure and table numbering is inconsistent (e.g., Table~2 appears before Table~1).'' &
 
 \textbf{We reordered all figures and tables to match citation sequence and verified numbering consistency.}
 
@@ -1679,17 +1680,17 @@ $\bullet$ \textbf{Section 8} (lines 1140-1210): Four-category limitations with q
 \begin{enumerate}
     \item Traced all \texttt{\textbackslash ref\{fig:...\}} and \texttt{\textbackslash ref\{tab:...\}} citations through manuscript
     \item Reordered float placements to match first-citation sequence
-    \item Verified numbering: Figure 1 (architecture) → Figure 2 (scatter) → ... → Figure 5 (LOSO)
+    \item Verified numbering: Figure~1 (architecture) → Figure~2 (scatter) → ... → Figure~5 (LOSO)
     \item Added \texttt{[H]} placement specifier (\texttt{float} package) for tables to prevent forward migration
 \end{enumerate}
 
 \textbf{Final Order:}
 \begin{itemize}
-    \item \textbf{Table 1} (lines 248-275): Dataset provenance (cited in Section 3.1)
-    \item \textbf{Table 2} (lines 630-655): Model performance (cited in Section 5.1)
-    \item \textbf{Table 3} (lines 675-689): Per-schema breakdown (cited in Section 5.2)
-    \item \textbf{Table 4} (lines 880-910): Wilcoxon pairwise tests (cited in Section 4.8)
-    \item \textbf{Table 5} (lines 1068-1085): Ablation results (cited in Section 6.2)
+    \item \textbf{Table~1} (lines 248-275): Dataset provenance (cited in Section~3.1)
+    \item \textbf{Table~2} (lines 630-655): Model performance (cited in Section~5.1)
+    \item \textbf{Table~3} (lines 675-689): Per-schema breakdown (cited in Section~5.2)
+    \item \textbf{Table~4} (lines 880-910): Wilcoxon pairwise tests (cited in Section~4.8)
+    \item \textbf{Table~5} (lines 1068-1085): Ablation results (cited in Section~6.2)
 \end{itemize}
 
 \textit{Verification:} Compiled PDF and manually checked that Table/Figure numbers increment sequentially---no skips or reversals. &
@@ -1704,13 +1705,13 @@ $\bullet$ \textbf{LaTeX source}: Added \texttt{[H]} placement to tables, adjuste
 
 ``Sections 4.6-4.9 feel disjointed. Consider merging into a unified 'Validation Protocol' section.'' &
 
-\textbf{We consolidated Sections 4.6-4.9 into unified Section 4.6 ``Comprehensive Validation Protocol'' with three subsections.}
+\textbf{We consolidated Sections 4.6-4.9 into unified Section~4.6 ``Comprehensive Validation Protocol'' with three subsections.}
 
-\textit{Action Taken---Section Consolidation (Section 4.6, lines 740-875):}
+\textit{Action Taken---Section Consolidation (Section~4.6, lines 740-875):}
 
 \textbf{New Structure:}
 
-Section 4.6: Comprehensive Validation Protocol
+Section~4.6: Comprehensive Validation Protocol
 \begin{itemize}
     \item 4.6.1 Within-Source Validation (5-fold CV for LOC/FP/UCP)
     \item 4.6.2 Cross-Source Validation (LOSO for LOC, bootstrap CI for FP/UCP)
@@ -1721,7 +1722,7 @@ Section 4.6: Comprehensive Validation Protocol
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 4}: Consolidated former 4.6, 4.7, 4.8, 4.9 into unified Section 4.6 (lines 740-875) with 3 subsections. \\
+$\bullet$ \textbf{Section~4}: Consolidated former 4.6, 4.7, 4.8, 4.9 into unified Section~4.6 (lines 740-875) with 3 subsections. \\
 
 \midrule
 
@@ -1729,35 +1730,35 @@ $\bullet$ \textbf{Section 4}: Consolidated former 4.6, 4.7, 4.8, 4.9 into unifie
 
 \textbf{We added 2 recent preprints (2024-2025) on focal loss and transfer learning for effort estimation.}
 
-\textit{Action Taken---Preprint Citations (Section 2.2, lines 195-205):}
+\textit{Action Taken---Preprint Citations (Section~2.2, lines 195-205):}
 
 \textbf{Preprint 1:} Nguyen et al. (2024)\\
 DOI: 10.1007/s44248-024-00016-0 (Discover Data, Springer preprint)\\
 \textit{Topic:} Cost-sensitive learning for class-imbalanced effort datasets\\
-\textit{Relevance:} Addresses LOC/FP/UCP corpus imbalance (90.5\% / 5.2\% / 4.3\%)---cited in Section 9 future work
+\textit{Relevance:} Addresses LOC/FP/UCP corpus imbalance (90.5\% / 5.2\% / 4.3\%)---cited in Section~9 future work
 
 \textbf{Preprint 2:} Zhang et al. (2025)\\
 DOI: 10.21203/rs.3.rs-7556543/v1 (Research Square preprint)\\
 \textit{Topic:} Focal loss for software effort estimation to down-weight easy examples\\
-\textit{Relevance:} Potential solution to schema imbalance---ranked as top-priority future work (Section 9, lines 1261-1265)
+\textit{Relevance:} Potential solution to schema imbalance---ranked as top-priority future work (Section~9, lines 1261-1265)
 
-\textit{Integration:} Table 2 (lines 145-178) includes both preprints with Advantage/Disadvantage analysis. &
+\textit{Integration:} Table~2 (lines 145-178) includes both preprints with Advantage/Disadvantage analysis. &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 2.2} (lines 195-205): Cited 2 preprints with topics and DOI.
+$\bullet$ \textbf{Section~2.2} (lines 195-205): Cited 2 preprints with topics and DOI.
 
-$\bullet$ \textbf{Table 2} (lines 145-178): Added preprints to comparative table.
+$\bullet$ \textbf{Table~2} (lines 145-178): Added preprints to comparative table.
 
-$\bullet$ \textbf{Section 9} (lines 1261-1270): Focal loss and cost-sensitive learning as future work. \\
+$\bullet$ \textbf{Section~9} (lines 1261-1270): Focal loss and cost-sensitive learning as future work. \\
 
 \midrule
 
-``Linear Regression performs poorly (MAE 28.5 PM). Why include it? Is it just a straw-man baseline?'' &
+``Linear Regression performs poorly (MAE 28.5~PM). Why include it? Is it just a straw-man baseline?'' &
 
 \textbf{Excellent question---we clarified LR's inclusion as a simple linear baseline demonstrating the value of non-linear modeling.}
 
-\textit{Action Taken---LR Justification (Section 6.3, lines 1090-1110):}
+\textit{Action Taken---LR Justification (Section~6.3, lines 1090-1110):}
 
 \textbf{Purpose of Linear Regression Baseline:}
 
@@ -1799,9 +1800,9 @@ LR is \textit{legitimately tested} with:
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 6.3} (lines 1090-1110): New ``Linear Regression as Simple Baseline'' subsection with justification.
+$\bullet$ \textbf{Section~6.3} (lines 1090-1110): New ``Linear Regression as Simple Baseline'' subsection with justification.
 
-$\bullet$ \textbf{Section 5} (lines 812-818): LR results discussion emphasizing non-linearity evidence. \\
+$\bullet$ \textbf{Section~5} (lines 812-818): LR results discussion emphasizing non-linearity evidence. \\
 
 \bottomrule
 \end{longtable}
@@ -1809,7 +1810,7 @@ $\bullet$ \textbf{Section 5} (lines 812-818): LR results discussion emphasizing 
 
 \section*{Detailed Response to Reviewer 6}
 
-\begin{longtable}{p{0.28\linewidth}|p{0.42\linewidth}|p{0.25\linewidth}}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.26\linewidth}|>{\raggedright\arraybackslash}p{0.44\linewidth}|>{\raggedright\arraybackslash}p{0.22\linewidth}}
 \toprule
 \textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
 \midrule
@@ -1858,21 +1859,21 @@ $\bullet$ \textbf{Abstract} (lines 76-78): Added macro-averaging explanation wit
 
 \textbf{Examples:}
 
-\textit{Equation 1: Calibrated Baseline (Section 2.1.1, lines 138-140):}
+\textit{Equation 1: Calibrated Baseline (Section~2.1.1, lines 138-140):}
 \begin{equation} \label{eq:baseline}
 E = A \times \text{Size}^B
 \end{equation}
 
 \textit{Referenced in text (line 142):} ``We fit Eq.~\eqref{eq:baseline} via least-squares...''
 
-\textit{Equation 2: Macro-Averaging (Section 4.3, lines 233-235):}
+\textit{Equation 2: Macro-Averaging (Section~4.3, lines 233-235):}
 \begin{equation} \label{eq:macro}
 m_{\text{macro}} = \frac{1}{3} \sum_{s \in \{\text{LOC}, \text{FP}, \text{UCP}\}} m^{(s)}
 \end{equation}
 
 \textit{Referenced in text (line 237):} ``Eq.~\eqref{eq:macro} ensures equal schema contribution...''
 
-\textit{Equation 3: MdMRE (Section 4.3, lines 216-218):}
+\textit{Equation 3: MdMRE (Section~4.3, lines 216-218):}
 \begin{equation} \label{eq:mdmre}
 \text{MdMRE} = \text{median}\left(\left|\frac{E_i - \hat{E}_i}{E_i}\right|\right)
 \end{equation}
@@ -1906,7 +1907,7 @@ $\bullet$ \textbf{Text references}: Added \texttt{Eq.~\textbackslash eqref\{...\
 
 \midrule
 
-``The FP schema has only n=24 projects, insufficient for LOOCV. Expand dataset or use bootstrap CI.'' &
+``The FP schema has only n=24~projects, insufficient for LOOCV. Expand dataset or use bootstrap CI.'' &
 
 \textit{Already addressed in response to Reviewer 2.}
 
@@ -1919,19 +1920,19 @@ See FP expansion response above (Reviewer 2, Comment 4):
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 1} (lines 248-275): FP sources (Kitchenham n=82, ISBSG n=52, Albrecht n=24).
+$\bullet$ \textbf{Table~1} (lines 248-275): FP sources (Kitchenham n=82, ISBSG n=52, Albrecht n=24).
 
-$\bullet$ \textbf{Table 3} (lines 675-689): FP results with bootstrap CIs. \\
+$\bullet$ \textbf{Table~3} (lines 675-689): FP results with bootstrap CIs. \\
 
 \midrule
 
-``Table 2 includes R² column, but R² is problematic for non-linear models. Justify or remove.'' &
+``Table~2 includes R² column, but R² is problematic for non-linear models. Justify or remove.'' &
 
 \textbf{Excellent methodological critique---we removed R² from primary results table and added detailed justification for its exclusion.}
 
 \textit{Acknowledgment:} R² (coefficient of determination) assumes linear relationships and can be misleading for non-linear models (tree ensembles, gradient boosting).
 
-\textit{Action Taken---R² Removal and Justification (Section 4.3, lines 247-265):}
+\textit{Action Taken---R² Removal and Justification (Section~4.3, lines 247-265):}
 
 \textbf{Why R² is Problematic for Effort Estimation:}
 
@@ -1961,13 +1962,13 @@ R² sensitive to log-transform decision:
 
 \textbf{Decision:}
 
-We \textbf{removed R² from Table 2} (lines 630-655) and instead report:
+We \textbf{removed R² from Table~2} (lines 630-655) and instead report:
 \begin{itemize}
     \item Primary metrics: MAE, MMRE, MdMRE, PRED(25)
     \item Secondary metrics: RMSE (penalizes large errors), MAPE (business-friendly)
 \end{itemize}
 
-\textbf{Acknowledgment in Text (Section 5, lines 805-815):}
+\textbf{Acknowledgment in Text (Section~5, lines 805-815):}
 
 ``We exclude R² from primary results due to conceptual mismatch with non-linear models. Preliminary R² values (RF: 0.85, XGBoost: 0.82, Baseline: 0.45) suggest strong correlation, but MAE/PRED provide more interpretable performance indicators.''
 
@@ -1975,25 +1976,25 @@ We \textbf{removed R² from Table 2} (lines 630-655) and instead report:
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Table 2} (lines 630-655): Removed R² column (now 6 columns: Model, MMRE, MdMRE, MAPE, PRED, MAE, RMSE).
+$\bullet$ \textbf{Table~2} (lines 630-655): Removed R² column (now 6 columns: Model, MMRE, MdMRE, MAPE, PRED, MAE, RMSE).
 
-$\bullet$ \textbf{Section 4.3} (lines 247-265): New subsection ``Why We Exclude R²'' with three rationale points.
+$\bullet$ \textbf{Section~4.3} (lines 247-265): New subsection ``Why We Exclude R²'' with three rationale points.
 
-$\bullet$ \textbf{Section 5} (lines 805-815): Mentioned R² removal with justification.
+$\bullet$ \textbf{Section~5} (lines 805-815): Mentioned R² removal with justification.
 
 $\bullet$ \textbf{GitHub}: \texttt{supplementary\_metrics.csv} with R² for transparency. \\
 
 \midrule
 
-``Section 3.3 mentions 'Time' as a feature but never uses it. Remove or explain.'' &
+``Section~3.3 mentions 'Time' as a feature but never uses it. Remove or explain.'' &
 
 \textbf{Excellent catch---we clarified that `Time' (project duration) is \textit{not} used as a feature despite availability, with explicit rationale.}
 
-\textit{Action Taken---Time Feature Exclusion (Section 3.3, lines 420-435):}
+\textit{Action Taken---Time Feature Exclusion (Section~3.3, lines 420-435):}
 
 \textbf{Original Ambiguity:}
 
-Section 3.3 listed `Time' (project duration in months) among collected fields, creating expectation of its use.
+Section~3.3 listed `Time' (project duration in months) among collected fields, creating expectation of its use.
 
 \textbf{Clarification:}
 
@@ -2022,9 +2023,9 @@ Our research question targets \textbf{size-only predictive power} (LOC/FP/UCP) t
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 3.3} (lines 420-435): Added ``Feature Selection Rationale'' subsection explaining Time exclusion (circular dependency, unavailability, focus on size).
+$\bullet$ \textbf{Section~3.3} (lines 420-435): Added ``Feature Selection Rationale'' subsection explaining Time exclusion (circular dependency, unavailability, focus on size).
 
-$\bullet$ \textbf{Section 4.4} (lines 387-392): Explicitly listed features used: Size (schema-specific), Source (categorical), Domain (categorical)---confirmed Time absent. \\
+$\bullet$ \textbf{Section~4.4} (lines 387-392): Explicitly listed features used: Size (schema-specific), Source (categorical), Domain (categorical)---confirmed Time absent. \\
 
 \midrule
 
@@ -2067,7 +2068,7 @@ $\bullet$ \textbf{Abstract, Introduction, Methods, Results, Conclusion}: Verifie
 
 \midrule
 
-``Missing cross-references: Tables 2-3 cited before Table 1, Section 5 references non-existent Section 4.9.'' &
+``Missing cross-references: Tables 2-3 cited before Table~1, Section~5 references non-existent Section~4.9.'' &
 
 \textbf{We audited all cross-references, reordered tables, and fixed broken section citations.}
 
@@ -2075,28 +2076,28 @@ $\bullet$ \textbf{Abstract, Introduction, Methods, Results, Conclusion}: Verifie
 
 \textbf{(1) Table Reordering:}
 
-\textit{Problem:} Original manuscript cited Table 2 (model results) in Section 3.1 before Table 1 (dataset provenance) cited in Section 3.2.
+\textit{Problem:} Original manuscript cited Table~2 (model results) in Section~3.1 before Table~1 (dataset provenance) cited in Section~3.2.
 
 \textit{Solution:}
 \begin{itemize}
-    \item Moved dataset provenance to Table 1 (Section 3.1, lines 248-275)
-    \item Model results now Table 2 (Section 5.1, lines 630-655)
-    \item Sequential citation: Table 1 → Table 2 → Table 3 → Table 4 → Table 5
+    \item Moved dataset provenance to Table~1 (Section~3.1, lines 248-275)
+    \item Model results now Table~2 (Section~5.1, lines 630-655)
+    \item Sequential citation: Table~1 → Table~2 → Table~3 → Table~4 → Table~5
 \end{itemize}
 
 \textbf{(2) Section Consolidation:}
 
-\textit{Problem:} Section 5 text (line 798) referenced ``Section 4.9'' which did not exist (only 4.1-4.8).
+\textit{Problem:} Section~5 text (line 798) referenced ``Section~4.9'' which did not exist (only 4.1-4.8).
 
 \textit{Solution:}
 \begin{itemize}
-    \item Consolidated Sections 4.6-4.9 into unified Section 4.6 (``Comprehensive Validation Protocol'') as per Reviewer 5 feedback
-    \item Updated all internal references: ``Section 4.9'' → ``Section 4.6.3''
+    \item Consolidated Sections 4.6-4.9 into unified Section~4.6 (``Comprehensive Validation Protocol'') as per Reviewer 5 feedback
+    \item Updated all internal references: ``Section~4.9'' → ``Section~4.6.3''
 \end{itemize}
 
 \textbf{(3) Figure References:}
 
-\textit{Problem:} Line 645 referenced ``Figure 3'' before Figure 2 introduced.
+\textit{Problem:} Line 645 referenced ``Figure~3'' before Figure~2 introduced.
 
 \textit{Solution:} Reordered figure placements to match sequential citation.
 
@@ -2118,7 +2119,7 @@ $\bullet$ \textbf{Abstract, Introduction, Methods, Results, Conclusion}: Verifie
 
 $\bullet$ \textbf{Table/Figure placement}: Reordered to match citation sequence.
 
-$\bullet$ \textbf{Section 5} (line 798): Changed ``Section 4.9'' → ``Section 4.6.3''.
+$\bullet$ \textbf{Section~5} (line 798): Changed ``Section~4.9'' → ``Section~4.6.3''.
 
 $\bullet$ \textbf{Entire manuscript}: Fixed 23 cross-reference inconsistencies. \\
 
@@ -2128,7 +2129,7 @@ $\bullet$ \textbf{Entire manuscript}: Fixed 23 cross-reference inconsistencies. 
 
 \section*{Detailed Response to Reviewer 7}
 
-\begin{longtable}{p{0.28\linewidth}|p{0.42\linewidth}|p{0.25\linewidth}}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.26\linewidth}|>{\raggedright\arraybackslash}p{0.44\linewidth}|>{\raggedright\arraybackslash}p{0.22\linewidth}}
 \toprule
 \textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
 \midrule
@@ -2176,7 +2177,7 @@ $\bullet$ \textbf{Entire manuscript}: Fixed 23 cross-reference inconsistencies. 
 \modulolinenumbers[5]  % Number every 5th line
 \end{verbatim}
 
-\textit{Effect:} Line numbers in left margin (every 5 lines: 5, 10, 15, ...) facilitate reviewer reference to specific locations.
+\textit{Effect:} Line numbers in left margin (every 5~lines: 5, 10, 15, ...) facilitate reviewer reference to specific locations.
 
 \textbf{(3) booktabs (Professional Tables):}
 
@@ -2231,14 +2232,14 @@ See calibrated baseline responses:
 \begin{itemize}
     \item \textbf{Reviewer 1, Comment 2}: Replaced uncalibrated COCOMO with training-fitted $E = A \times S^B$ via least-squares
     \item \textbf{Reviewer 2, Comment 2}: Detailed fitting protocol per cross-validation fold
-    \item \textbf{Results}: Calibrated baseline MAE 35.2 PM (vs RF 12.66, still 64\% improvement)
+    \item \textbf{Results}: Calibrated baseline MAE 35.2~PM (vs RF 12.66, still 64\% improvement)
 \end{itemize} &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 2.1.1} (lines 133-143): Calibration methodology.
+$\bullet$ \textbf{Section~2.1.1} (lines 133-143): Calibration methodology.
 
-$\bullet$ \textbf{Table 2} (lines 630-655): ``Calibrated Baseline'' row results. \\
+$\bullet$ \textbf{Table~2} (lines 630-655): ``Calibrated Baseline'' row results. \\
 
 \midrule
 
@@ -2248,7 +2249,7 @@ $\bullet$ \textbf{Table 2} (lines 630-655): ``Calibrated Baseline'' row results.
 
 See XGBoost addition (Reviewer 4, Comment 3):
 \begin{itemize}
-    \item Added XGBoost achieving MAE 13.24 PM (within 5\% of RF 12.66)
+    \item Added XGBoost achieving MAE 13.24~PM (within 5\% of RF 12.66)
     \item Discussed LightGBM/CatBoost parity (MAE differences <0.5\%)
 \end{itemize}
 
@@ -2261,10 +2262,10 @@ See XGBoost addition (Reviewer 4, Comment 3):
     
     \item \textbf{Feature Granularity}: DL excels with sequential/hierarchical data (time-series sprints, code commit histories). Legacy datasets provide only project-level aggregates (single Size/Effort pair per project)---insufficient temporal structure for LSTM/Transformer.
     
-    \item \textbf{Interpretability Priority}: Project managers need actionable insights (``Which features drive overruns?''). Tree-based models provide Gini importance (Figure 4, lines 785-799); DL offers opaque embeddings.
+    \item \textbf{Interpretability Priority}: Project managers need actionable insights (``Which features drive overruns?''). Tree-based models provide Gini importance (Figure~4, lines 785-799); DL offers opaque embeddings.
 \end{enumerate}
 
-\textit{Future Work (Section 9, lines 1265-1270):}
+\textit{Future Work (Section~9, lines 1265-1270):}
 
 We acknowledge DL as high-priority pending:
 \begin{itemize}
@@ -2277,27 +2278,27 @@ We acknowledge DL as high-priority pending:
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 2.3} (lines 210-220): Discussed DL data requirements and interpretation constraints.
+$\bullet$ \textbf{Section~2.3} (lines 210-220): Discussed DL data requirements and interpretation constraints.
 
-$\bullet$ \textbf{Section 9} (lines 1265-1270): DL future work with prerequisites. \\
+$\bullet$ \textbf{Section~9} (lines 1265-1270): DL future work with prerequisites. \\
 
 \midrule
 
-``Section 6 discusses feature importance but lacks interpretation. What do the Gini scores mean for practitioners?'' &
+``Section~6 discusses feature importance but lacks interpretation. What do the Gini scores mean for practitioners?'' &
 
-\textbf{We expanded Section 6.4 (Feature Importance, lines 1115-1138) with practitioner-oriented interpretation.}
+\textbf{We expanded Section~6.4 (Feature Importance, lines 1115-1138) with practitioner-oriented interpretation.}
 
 \textit{Action Taken---Actionable Interpretation:}
 
 \textbf{Original Content (Generic):}
 
-``Figure 4 shows feature importance. Size dominates (Gini = 0.82).''
+``Figure~4 shows feature importance. Size dominates (Gini = 0.82).''
 
 \textbf{Enhanced Content (Actionable):}
 
-\textbf{Section 6.4: Feature Importance Analysis and Practical Implications (lines 1115-1138)}
+\textbf{Section~6.4: Feature Importance Analysis and Practical Implications (lines 1115-1138)}
 
-``\textbf{Feature Importance via Gini Impurity (Figure 4, lines 785-799):}
+``\textbf{Feature Importance via Gini Impurity (Figure~4, lines 785-799):}
 
 Random Forest computes feature importance as \textit{mean decrease in Gini impurity} across all decision trees. Higher Gini scores indicate greater discriminatory power.
 
@@ -2327,7 +2328,7 @@ Random Forest computes feature importance as \textit{mean decrease in Gini impur
 
 Source and Domain contribute <10\% each---suggests:
 \begin{itemize}
-    \item \textbf{Cross-organizational generalization feasible}: Models trained on one organization's data transfer reasonably to others (validated by LOSO: 21\% degradation, Section 4.7)
+    \item \textbf{Cross-organizational generalization feasible}: Models trained on one organization's data transfer reasonably to others (validated by LOSO: 21\% degradation, Section~4.7)
     \item \textbf{Domain-specific tuning optional}: Banking vs Aerospace differences marginal---generic models acceptable
 \end{itemize}
 
@@ -2343,9 +2344,9 @@ High Size dominance (82\%) suggests \textbf{limited room for new features}. Addi
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 6.4} (lines 1115-1138): Expanded from 3 sentences to 25 lines with three practitioner implications (measurement investment, cross-org generalization, feature ceiling).
+$\bullet$ \textbf{Section~6.4} (lines 1115-1138): Expanded from 3 sentences to 25~lines with three practitioner implications (measurement investment, cross-org generalization, feature ceiling).
 
-$\bullet$ \textbf{Figure 4 caption} (lines 785-799): Added interpretation: ``Size 82\% Gini confirms power-law dominance; contextual features <10\% each.'' \\
+$\bullet$ \textbf{Figure~4 caption} (lines 785-799): Added interpretation: ``Size 82\% Gini confirms power-law dominance; contextual features <10\% each.'' \\
 
 \midrule
 
@@ -2355,14 +2356,14 @@ $\bullet$ \textbf{Figure 4 caption} (lines 785-799): Added interpretation: ``Siz
 
 See ablation study (Reviewer 5, Comment 4):
 \begin{itemize}
-    \item Macro vs micro-averaging: 12.66 vs 11.9 PM (micro masks UCP weakness)
+    \item Macro vs micro-averaging: 12.66 vs 11.9~PM (micro masks UCP weakness)
     \item Log-transform removal: +21\% MAE degradation
     \item Outlier filtering disabled: +44\% MAE degradation
 \end{itemize}
 
 \textbf{Additional Ablation---Schema-Stratified Training:}
 
-\textit{Experiment (Section 6.2, lines 1048-1065):}
+\textit{Experiment (Section~6.2, lines 1048-1065):}
 
 \textbf{Baseline:} Train schema-specific models ($M_{\text{LOC}}$, $M_{\text{FP}}$, $M_{\text{UCP}}$) separately
 
@@ -2374,8 +2375,8 @@ See ablation study (Reviewer 5, Comment 4):
 
 \textbf{Results:}
 \begin{itemize}
-    \item \textbf{Schema-Stratified (baseline)}: MAE 12.66 PM
-    \item \textbf{Pooled Model}: MAE 16.8 PM (+33\% degradation)
+    \item \textbf{Schema-Stratified (baseline)}: MAE 12.66~PM
+    \item \textbf{Pooled Model}: MAE 16.8~PM (+33\% degradation)
 \end{itemize}
 
 \textit{Interpretation:} Pooling dilutes schema-specific patterns:
@@ -2391,9 +2392,9 @@ Single model cannot simultaneously optimize for three distinct functional forms.
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 6.2} (lines 1048-1065): Added ``Ablation: Pooled vs Schema-Stratified'' experiment.
+$\bullet$ \textbf{Section~6.2} (lines 1048-1065): Added ``Ablation: Pooled vs Schema-Stratified'' experiment.
 
-$\bullet$ \textbf{Table 5} (lines 1068-1085): Row 4 added (Pooled Model: MAE 16.8, +33\%). \\
+$\bullet$ \textbf{Table~5} (lines 1068-1085): Row 4 added (Pooled Model: MAE 16.8, +33\%). \\
 
 \midrule
 
@@ -2408,41 +2409,41 @@ See FP expansion (Reviewer 2, Comment 4):
     \item Bootstrap 95\% CI added for uncertainty quantification
 \end{itemize}
 
-\textbf{Sample Size Discussion (Section 8, lines 1160-1175):}
+\textbf{Sample Size Discussion (Section~8, lines 1160-1175):}
 
 \textit{Explicit Acknowledgment:}
 
 ``\textbf{Moderate FP/UCP Sample Sizes:}
 
-Despite expansion (FP n=158, UCP n=131), these remain \textit{smaller} than LOC (n=2,765). 5-fold CV yields test folds of ~30-32 projects (FP/UCP) vs ~550 (LOC).
+Despite expansion (FP n=158, UCP n=131), these remain \textit{smaller} than LOC (n=2,765). 5-fold CV yields test folds of ~30-32~projects (FP/UCP) vs ~550 (LOC).
 
 \textit{Implications:}
 \begin{itemize}
-    \item \textbf{Wider confidence intervals}: FP bootstrap CI spans 5.6 PM ([10.2, 15.8]) vs 2.1 PM for LOC
-    \item \textbf{Outlier sensitivity}: Single extreme FP project (e.g., 500 FP, 1,200 PM) can shift fold-level MAE by ~3-5 PM
-    \item \textbf{Limited LOSO feasibility}: FP (3 sources) and UCP (4 sources) insufficient for robust Leave-One-Source-Out---require ≥10 sources
+    \item \textbf{Wider confidence intervals}: FP bootstrap CI spans 5.6~PM ([10.2, 15.8]) vs 2.1~PM for LOC
+    \item \textbf{Outlier sensitivity}: Single extreme FP project (e.g., 500 FP, 1,200~PM) can shift fold-level MAE by ~3-5~PM
+    \item \textbf{Limited LOSO feasibility}: FP (3~sources) and UCP (4~sources) insufficient for robust Leave-One-Source-Out---require ≥10~sources
 \end{itemize}
 
 \textit{Mitigation:}
 \begin{itemize}
     \item Bootstrap resampling (1,000 iterations) quantifies uncertainty
     \item Macro-averaging prevents LOC from dominating aggregate metrics
-    \item We report per-schema results (Table 3) for transparency---practitioners can assess FP/UCP reliability independently
+    \item We report per-schema results (Table~3) for transparency---practitioners can assess FP/UCP reliability independently
 \end{itemize}
 
-\textit{Future Work:} Expanding FP/UCP corpora to n>500 per schema (parity with LOC) is top priority (Section 9, lines 1258-1261).'' &
+\textit{Future Work:} Expanding FP/UCP corpora to n>500 per schema (parity with LOC) is top priority (Section~9, lines 1258-1261).'' &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 8} (lines 1160-1175): Added ``Moderate FP/UCP Sample Size'' limitation with implications and mitigations.
+$\bullet$ \textbf{Section~8} (lines 1160-1175): Added ``Moderate FP/UCP Sample Size'' limitation with implications and mitigations.
 
-$\bullet$ \textbf{Table 1} (lines 248-275): Updated FP n=158, UCP n=131. \\
+$\bullet$ \textbf{Table~1} (lines 248-275): Updated FP n=158, UCP n=131. \\
 
 \midrule
 
 ``Cross-source validation (LOSO) is promising but limited to LOC schema. Extend to FP/UCP or justify why not possible.'' &
 
-\textbf{We added detailed justification (Section 4.7, lines 805-828) explaining why LOSO infeasible for FP/UCP.}
+\textbf{We added detailed justification (Section~4.7, lines 805-828) explaining why LOSO infeasible for FP/UCP.}
 
 \textit{Action Taken---LOSO Feasibility Analysis:}
 
@@ -2451,28 +2452,28 @@ $\bullet$ \textbf{Table 1} (lines 248-275): Updated FP n=158, UCP n=131. \\
 \textit{Requirements:}
 \begin{itemize}
     \item ≥10 independent sources (to enable meaningful cross-source averaging)
-    \item ≥20 projects per source (for stable within-source training)
+    \item ≥20~projects per source (for stable within-source training)
 \end{itemize}
 
 \textit{LOC Schema:}
 \begin{itemize}
-    \item \textbf{11 sources}: NASA93, Cocomo81, Desharnais, Maxwell, Albrecht, Kemerer, SCH, CESAW, IBM-DP, Telecom, ISBSG-LOC
+    \item \textbf{11~sources}: NASA93, Cocomo81, Desharnais, Maxwell, Albrecht, Kemerer, SCH, CESAW, IBM-DP, Telecom, ISBSG-LOC
     \item \textbf{Projects per source}: 43-1,850 (median 95)
-    \item \textbf{LOSO Result}: MAE 14.3 ± 3.2 PM across 11 folds (21\% degradation vs within-source 11.8)
+    \item \textbf{LOSO Result}: MAE 14.3 ± 3.2~PM across 11 folds (21\% degradation vs within-source 11.8)
 \end{itemize}
 
 \textbf{Why LOSO Infeasible for FP:}
 
 \textit{FP Schema (n=158):}
 \begin{itemize}
-    \item \textbf{Only 3 sources}: Kitchenham (n=82), ISBSG-FP (n=52), Albrecht (n=24)
+    \item \textbf{Only 3~sources}: Kitchenham (n=82), ISBSG-FP (n=52), Albrecht (n=24)
     \item \textbf{Problem}: 3-fold LOSO yields high variance---single source difference (e.g., Albrecht banking-only vs ISBSG multi-domain) dominates results
     \item \textbf{Statistical Power}: With K=3 folds, standard error of mean MAE: $\text{SE} = \sigma/\sqrt{3} \approx 0.58\sigma$ (too wide for reliable inference)
 \end{itemize}
 
 \textit{UCP Schema (n=131):}
 \begin{itemize}
-    \item \textbf{Only 4 sources}: Ochodek (n=58), Dingsøyr (n=37), Karner (n=21), Ribu (n=15)
+    \item \textbf{Only 4~sources}: Ochodek (n=58), Dingsøyr (n=37), Karner (n=21), Ribu (n=15)
     \item \textbf{Problem}: 4-fold LOSO suffers same high-variance issue
     \item \textbf{Small-source impact}: Ribu (n=15) leaves only 116 training projects (vs 131 in 5-fold CV)---10\% training data loss
 \end{itemize}
@@ -2486,35 +2487,35 @@ For FP/UCP, we use \textbf{5-fold CV + 1,000-resample bootstrap}:
     \item Comparable statistical rigor
 \end{itemize}
 
-\textit{Future Work:} LOSO for FP/UCP feasible once corpus reaches ≥10 sources with ≥30 projects each (requires community data-sharing initiatives). &
+\textit{Future Work:} LOSO for FP/UCP feasible once corpus reaches ≥10~sources with ≥30~projects each (requires community data-sharing initiatives). &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 4.7} (lines 805-828): New subsection ``LOSO Feasibility by Schema'' explaining LOC (possible, 11 sources) vs FP/UCP (infeasible, 3-4 sources).
+$\bullet$ \textbf{Section~4.7} (lines 805-828): New subsection ``LOSO Feasibility by Schema'' explaining LOC (possible, 11~sources) vs FP/UCP (infeasible, 3-4~sources).
 
-$\bullet$ \textbf{Section 8} (lines 1182-1190): Acknowledged LOSO limitation for FP/UCP in threats to validity. \\
+$\bullet$ \textbf{Section~8} (lines 1182-1190): Acknowledged LOSO limitation for FP/UCP in threats to validity. \\
 
 \midrule
 
 ``Figures 2 and 5 show anomalies (LOC scatter outliers, FP actual-vs-predicted deviation). Investigate and explain.'' &
 
-\textbf{We added detailed anomaly investigation (Section 5.3, lines 865-920) with per-figure analysis.}
+\textbf{We added detailed anomaly investigation (Section~5.3, lines 865-920) with per-figure analysis.}
 
 \textit{Action Taken---Anomaly Deep-Dive:}
 
-\textbf{Figure 2 Anomaly (LOC Scatter Outliers, lines 865-890):}
+\textbf{Figure~2 Anomaly (LOC Scatter Outliers, lines 865-890):}
 
 \textit{Observation:} Three LOC projects far from 45° line (high underprediction):
 \begin{itemize}
-    \item Project A: 120 KLOC, Actual 850 PM, Predicted 320 PM (error +166\%)
-    \item Project B: 95 KLOC, Actual 720 PM, Predicted 285 PM (error +153\%)
-    \item Project C: 78 KLOC, Actual 640 PM, Predicted 270 PM (error +137\%)
+    \item Project A: 120 KLOC, Actual 850~PM, Predicted 320~PM (error +166\%)
+    \item Project B: 95 KLOC, Actual 720~PM, Predicted 285~PM (error +153\%)
+    \item Project C: 78 KLOC, Actual 640~PM, Predicted 270~PM (error +137\%)
 \end{itemize}
 
 \textit{Investigation:}
 \begin{enumerate}
     \item \textbf{Source Check}: All three from \textit{Telecom} dataset (embedded systems, real-time constraints)
-    \item \textbf{Domain Analysis}: Telecom projects exhibit 2.3× higher effort/KLOC ratio (mean 7.1 PM/KLOC) vs corpus average (3.1 PM/KLOC)
+    \item \textbf{Domain Analysis}: Telecom projects exhibit 2.3× higher effort/KLOC ratio (mean 7.1~PM/KLOC) vs corpus average (3.1~PM/KLOC)
     \item \textbf{Feature Gap}: Missing context features---real-time constraints, safety certification (DO-178B), hardware-software co-design---drive effort beyond size-based prediction
 \end{enumerate}
 
@@ -2529,7 +2530,7 @@ Size-only models (LOC/FP/UCP) \textbf{underestimate such projects}---would requi
 
 \textit{Implication:} For Telecom/Aerospace contexts, practitioners should \textit{add domain multipliers} (e.g., $\times 2.3$ for real-time) to ML predictions.
 
-\textbf{Figure 5 Anomaly (FP Actual-vs-Predicted Deviation, lines 891-920):}
+\textbf{Figure~5 Anomaly (FP Actual-vs-Predicted Deviation, lines 891-920):}
 
 \textit{Observation:} FP schema shows wider scatter (R²=0.68) than LOC (R²=0.85) and UCP (R²=0.78).
 
@@ -2548,7 +2549,7 @@ Size-only models (LOC/FP/UCP) \textbf{underestimate such projects}---would requi
 
 \textit{Explanation:} FP's functional abstraction (user-facing features) decouples from \textit{implementation complexity} (code structure, algorithms). Two projects with identical 150 FP can differ 2× in effort if one uses complex algorithms (machine learning, optimization) vs simple CRUD operations.
 
-\textit{Implication:} FP-based estimates require \textit{wider confidence bands}---bootstrap CI spans 5.6 PM (vs 2.1 PM for LOC).
+\textit{Implication:} FP-based estimates require \textit{wider confidence bands}---bootstrap CI spans 5.6~PM (vs 2.1~PM for LOC).
 
 \textbf{Conclusion:}
 
@@ -2562,9 +2563,9 @@ No single schema captures all effort drivers---\textbf{multi-schema evaluation} 
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 5.3} (lines 865-920): New ``Anomaly Analysis'' subsection with Figure 2 (LOC outliers, Telecom projects) and Figure 5 (FP scatter, functional heterogeneity).
+$\bullet$ \textbf{Section~5.3} (lines 865-920): New ``Anomaly Analysis'' subsection with Figure~2 (LOC outliers, Telecom projects) and Figure~5 (FP scatter, functional heterogeneity).
 
-$\bullet$ \textbf{Section 8} (lines 1203-1210): Acknowledged size-only limitation (missing domain/implementation features). \\
+$\bullet$ \textbf{Section~8} (lines 1203-1210): Acknowledged size-only limitation (missing domain/implementation features). \\
 
 \bottomrule
 \end{longtable}
@@ -2573,7 +2574,7 @@ $\bullet$ \textbf{Section 8} (lines 1203-1210): Acknowledged size-only limitatio
 
 \section*{Detailed Response to Reviewer 8}
 
-\begin{longtable}{p{0.27\linewidth}|p{0.41\linewidth}|p{0.24\linewidth}}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.26\linewidth}|>{\raggedright\arraybackslash}p{0.44\linewidth}|>{\raggedright\arraybackslash}p{0.22\linewidth}}
 \toprule
 \textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
 \midrule
@@ -2615,7 +2616,7 @@ $$m_{\text{macro}} = \frac{1}{3}\sum_{s} m^{(s)}$$
 
 This prevents LOC dominance (n=2,765, 90.5\%) from masking FP (n=158, 5.2\%) and UCP (n=131, 4.3\%) weaknesses.
 
-\textit{Impact:} Revealed that pooling would artificially inflate performance by +44\% (Table 5, ablation experiment).
+\textit{Impact:} Revealed that pooling would artificially inflate performance by +44\% (Table~5, ablation experiment).
 
 \textbf{(2) Training-Data-Fitted Parametric Baseline:}
 
@@ -2629,7 +2630,7 @@ This prevents LOC dominance (n=2,765, 90.5\%) from masking FP (n=158, 5.2\%) and
 
 \textit{Problem:} Many papers cite datasets without DOI/URL, making replication impossible. We found 12/42 recent papers (2015-2023) lack dataset references.
 
-\textit{Our Solution:} Table 1 provides: Source name, Raw n, Final n, Deduplication\%, DOI, URL, Date range for all 18 sources.
+\textit{Our Solution:} Table~1 provides: Source name, Raw n, Final n, Deduplication\%, DOI, URL, Date range for all 18~sources.
 
 \textit{Impact:} GitHub repository with rebuild scripts enables independent verification.
 
@@ -2639,13 +2640,13 @@ This prevents LOC dominance (n=2,765, 90.5\%) from masking FP (n=158, 5.2\%) and
 
 $\bullet$ \textbf{Abstract} (lines 70-84): Added ``macro-averaged cross-schema evaluation protocol'' phrase.
 
-$\bullet$ \textbf{Section 1} (lines 105-128): Repositioned contribution as methodological (protocols) vs empirical-only (dataset size).
+$\bullet$ \textbf{Section~1} (lines 105-128): Repositioned contribution as methodological (protocols) vs empirical-only (dataset size).
 
-$\bullet$ \textbf{Section 4.3} (lines 229-236): Formalized macro-averaging mathematically.
+$\bullet$ \textbf{Section~4.3} (lines 229-236): Formalized macro-averaging mathematically.
 
-$\bullet$ \textbf{Section 4.4} (lines 133-143): Detailed baseline calibration procedure.
+$\bullet$ \textbf{Section~4.4} (lines 133-143): Detailed baseline calibration procedure.
 
-$\bullet$ \textbf{Table 1} (lines 248-275): Complete provenance with DOI/URL for 18 sources. \\
+$\bullet$ \textbf{Table~1} (lines 248-275): Complete provenance with DOI/URL for 18~sources. \\
 
 \midrule
 
@@ -2656,8 +2657,8 @@ $\bullet$ \textbf{Table 1} (lines 248-275): Complete provenance with DOI/URL for
 \textit{Experiment Design:}
 
 \begin{itemize}
-    \item \textbf{Train:} LOC-only corpus (n=2,765 projects)
-    \item \textbf{Test:} FP corpus (n=158 projects)
+    \item \textbf{Train:} LOC-only corpus (n=2,765~projects)
+    \item \textbf{Test:} FP corpus (n=158~projects)
     \item \textbf{Features:} Size only (normalized to [0,1])
     \item \textbf{Model:} Random Forest (same hyperparameters as main experiments)
 \end{itemize}
@@ -2692,11 +2693,11 @@ Training on KLOC teaches the model ``Size $\rightarrow$ LOC-based effort''. FP m
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 5.4} (lines 921-965): New ``Cross-Schema Transfer Experiment'' subsection with full results.
+$\bullet$ \textbf{Section~5.4} (lines 921-965): New ``Cross-Schema Transfer Experiment'' subsection with full results.
 
-$\bullet$ \textbf{Table 6} (lines 945-960): Transfer learning failure matrix (LOC$\rightarrow$FP: +462\%, FP$\rightarrow$LOC: +215\%, UCP$\rightarrow$LOC: +183\%).
+$\bullet$ \textbf{Table~6} (lines 945-960): Transfer learning failure matrix (LOC$\rightarrow$FP: +462\%, FP$\rightarrow$LOC: +215\%, UCP$\rightarrow$LOC: +183\%).
 
-$\bullet$ \textbf{Section 8} (lines 1195-1202): Acknowledged as limitation (cross-schema transfer infeasible). \\
+$\bullet$ \textbf{Section~8} (lines 1195-1202): Acknowledged as limitation (cross-schema transfer infeasible). \\
 
 \midrule
 
@@ -2717,9 +2718,9 @@ Schema distribution:
 
 SMOTE is designed for \textbf{classification} tasks with class imbalance (e.g., fraud detection: 99\% non-fraud, 1\% fraud). It synthesizes new minority-class samples by interpolating between nearest neighbors.
 
-\textit{Problem for Regression:} Effort estimation is \textbf{continuous regression}. SMOTE's interpolation would create artificial effort values with no real-world grounding. Example: If Project A (Size=100 FP, Effort=500 PM) and Project B (Size=120 FP, Effort=800 PM), SMOTE might create synthetic Project C (Size=110 FP, Effort=650 PM)---but we have no evidence this is realistic. Software effort is non-linear and context-dependent.
+\textit{Problem for Regression:} Effort estimation is \textbf{continuous regression}. SMOTE's interpolation would create artificial effort values with no real-world grounding. Example: If Project A (Size=100 FP, Effort=500~PM) and Project B (Size=120 FP, Effort=800~PM), SMOTE might create synthetic Project C (Size=110 FP, Effort=650~PM)---but we have no evidence this is realistic. Software effort is non-linear and context-dependent.
 
-\textit{Alternative We Used:} Bootstrap confidence intervals for FP schema (Section 4.5, lines 285-293) quantifying uncertainty: 95\% CI = [10.2, 15.8] PM. This is statistically rigorous without data fabrication.
+\textit{Alternative We Used:} Bootstrap confidence intervals for FP schema (Section~4.5, lines 285-293) quantifying uncertainty: 95\% CI = [10.2, 15.8] PM. This is statistically rigorous without data fabrication.
 
 \textbf{Focal Loss---HIGH PRIORITY Future Work:}
 
@@ -2733,15 +2734,15 @@ This forces the model to prioritize FP/UCP accuracy during training.
 
 \textit{Why Not Implemented Yet:} We discovered Zhang et al.'s focal regression preprint \textit{after} main experiments concluded. Requires re-training all models (6 algorithms $\times$ 5-fold CV $\times$ 3 schemas = 90 models), estimated 2 weeks compute time.
 
-\textit{Commitment:} Added to Section 9 (lines 1268-1273) as \textbf{top-priority} future work for journal revision cycle. &
+\textit{Commitment:} Added to Section~9 (lines 1268-1273) as \textbf{top-priority} future work for journal revision cycle. &
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 4.5} (lines 285-293): Bootstrap CI for FP addressing statistical uncertainty (not SMOTE).
+$\bullet$ \textbf{Section~4.5} (lines 285-293): Bootstrap CI for FP addressing statistical uncertainty (not SMOTE).
 
-$\bullet$ \textbf{Section 8} (lines 1182-1194): Acknowledged imbalance limitation explicitly (LOC: 90.5\%, FP: 5.2\%, UCP: 4.3\%).
+$\bullet$ \textbf{Section~8} (lines 1182-1194): Acknowledged imbalance limitation explicitly (LOC: 90.5\%, FP: 5.2\%, UCP: 4.3\%).
 
-$\bullet$ \textbf{Section 9} (lines 1268-1273): Focal loss as top-priority future work with Zhang et al. 2025 citation.
+$\bullet$ \textbf{Section~9} (lines 1268-1273): Focal loss as top-priority future work with Zhang et al. 2025 citation.
 
 $\bullet$ \textbf{References}: Added DOI 10.21203/rs.3.rs-7556543/v1 (focal regression preprint). \\
 
@@ -2754,8 +2755,8 @@ $\bullet$ \textbf{References}: Added DOI 10.21203/rs.3.rs-7556543/v1 (focal regr
 \textit{Performance Comparison:}
 
 \begin{itemize}
-    \item Random Forest: MAE = 12.66 PM, MMRE = 0.652, PRED(25\%) = 62\%, R$^2$ = 0.85
-    \item XGBoost: MAE = 13.24 PM, MMRE = 0.683, PRED(25\%) = 59\%, R$^2$ = 0.82
+    \item Random Forest: MAE = 12.66~PM, MMRE = 0.652, PRED(25\%) = 62\%, R$^2$ = 0.85
+    \item XGBoost: MAE = 13.24~PM, MMRE = 0.683, PRED(25\%) = 59\%, R$^2$ = 0.82
 \end{itemize}
 
 Difference: +4.6\% MAE favoring RF (within 5\% margin, both competitive).
@@ -2768,7 +2769,7 @@ Difference: +4.6\% MAE favoring RF (within 5\% margin, both competitive).
 
 \textit{Our Case:} With 1-5 features, there's minimal complexity for XGBoost to exploit. Random Forest's bagging (parallel trees) works just as well without needing regularization.
 
-\textit{Evidence:} Feature importance analysis (Section 5.2, lines 823-864) shows Size dominates 82\% Gini importance---single-feature dominance limits boosting's sequential refinement benefit.
+\textit{Evidence:} Feature importance analysis (Section~5.2, lines 823-864) shows Size dominates 82\% Gini importance---single-feature dominance limits boosting's sequential refinement benefit.
 
 \textbf{Hypothesis 2: Bagging Independence vs Sequential Boosting}
 
@@ -2793,7 +2794,7 @@ Difference: +4.6\% MAE favoring RF (within 5\% margin, both competitive).
 
 \textit{Macro-Averaging Effect:} FP and UCP schemas (small n) favor RF's simpler ensemble. When macro-averaging (equal schema weight), their RF advantage pulls overall metric toward RF.
 
-\textit{Counter-Evidence Check:} If we micro-average (weight by sample size, LOC-dominated), XGBoost gap narrows to +2.1\% (Table 5, line 1073). This supports the dataset-size hypothesis.
+\textit{Counter-Evidence Check:} If we micro-average (weight by sample size, LOC-dominated), XGBoost gap narrows to +2.1\% (Table~5, line 1073). This supports the dataset-size hypothesis.
 
 \textbf{Interpretation:} RF vs XGBoost is \textbf{context-dependent}:
 \begin{itemize}
@@ -2805,13 +2806,13 @@ Our study falls into the latter category. Both models are SOTA-quality (4.6\% di
 
 \textbf{Where Revised:}
 
-$\bullet$ \textbf{Section 5.1} (lines 679-722): Added RF vs XGBoost comparative analysis with 3 hypotheses.
+$\bullet$ \textbf{Section~5.1} (lines 679-722): Added RF vs XGBoost comparative analysis with 3 hypotheses.
 
-$\bullet$ \textbf{Table 2} (lines 630-655): XGBoost row included with all 7 metrics for direct comparison.
+$\bullet$ \textbf{Table~2} (lines 630-655): XGBoost row included with all 7~metrics for direct comparison.
 
-$\bullet$ \textbf{Section 6.2} (lines 1035-1062): Discussion of when RF beats XGBoost (low-dim, moderate n, noisy labels).
+$\bullet$ \textbf{Section~6.2} (lines 1035-1062): Discussion of when RF beats XGBoost (low-dim, moderate n, noisy labels).
 
-$\bullet$ \textbf{Figure 3} (lines 745-760): Boxplot showing RF vs XGBoost error distributions. \\
+$\bullet$ \textbf{Figure~3} (lines 745-760): Boxplot showing RF vs XGBoost error distributions. \\
 
 \bottomrule
 \end{longtable}
