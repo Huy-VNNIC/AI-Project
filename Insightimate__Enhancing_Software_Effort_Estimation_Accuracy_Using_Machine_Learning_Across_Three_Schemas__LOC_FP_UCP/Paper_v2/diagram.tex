@@ -1,0 +1,47 @@
+\documentclass[tikz, border=2mm]{standalone}
+\usetikzlibrary{arrows.meta, positioning, matrix, fit}
+
+\begin{document}
+
+\begin{tikzpicture}[
+  node distance=5mm and 8mm,
+  >={Stealth[length=2mm]},
+  box/.style={
+    draw, rounded corners, align=center,
+    minimum height=7mm, text width=.44\linewidth, inner sep=3pt
+  },
+  title/.style={align=left, font=\bfseries, text width=.44\linewidth}
+]
+
+\matrix[matrix of nodes, column sep=6mm, row sep=4mm, nodes={anchor=center}] (m) {
+  \node[title]{(a) COCOMO~II Pipeline}; &
+  \node[title]{(b) Multi-Schema ML Framework}; \\
+  
+  \node[box] (size) {Size (KLOC / FP / UCP)}; &
+  \node[box] (inputs) {Inputs per schema $s \in \{\mathrm{LOC, FP, UCP}\}$\\\footnotesize Size + optional Time, Developers}; \\
+  
+  \node[box] (emis) {Effort Multipliers $EM_i$ (team exp, tools, complexity, ...)}; &
+  \node[box] (prep) {Preprocessing\\\footnotesize unit harmonization, IQR capping, $\log1p$}; \\
+  
+  \node[box] (effort) {Effort $E = A \cdot \text{Size}^{B} \cdot \prod_i EM_i$}; &
+  \node[box] (models) {Models\\\footnotesize Linear Reg., Decision Tree, Random Forest, Gradient Boosting}; \\
+  
+  \node[box] (time) {Schedule $\text{Time} = C \cdot E^{D}$}; &
+  \node[box] (pred) {Predicted Effort $\hat{E}^{(s)} = f^{(s)}(x^{(s)})$}; \\
+  
+  \node[box, draw=none, opacity=0] {}; &
+  \node[box] (eval) {Evaluation \& Comparison\\\footnotesize MMRE, PRED(25), MAE, RMSE, $R^2$}; \\
+};
+
+\draw[->, thick] (size) -- (emis);
+\draw[->, thick] (emis) -- (effort);
+\draw[->, thick] (effort) -- (time);
+
+\draw[->, thick] (inputs) -- (prep);
+\draw[->, thick] (prep) -- (models);
+\draw[->, thick] (models) -- (pred);
+\draw[->, thick] (pred) -- (eval);
+
+\end{tikzpicture}
+
+\end{document}

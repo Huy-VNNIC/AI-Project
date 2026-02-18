@@ -1,0 +1,43 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{times}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+\title{\textbf{Response to Reviewers}\\[0.5em]
+\large Manuscript: Insightimate: Enhancing Software Effort Estimation Accuracy\\
+Using Machine Learning Across Three Schemas (LOC/FP/UCP)}
+\author{Nguyen Nhat Huy et al.}
+\date{February 19, 2026}
+
+\begin{document}
+
+\mailtitle
+
+\noindent Dear Editor and Distinguished Reviewers,
+
+We sincerely thank the Editor and all Reviewers for their exceptionally thorough and constructive evaluation of our manuscript entitled \textit{``Insightimate: Enhancing Software Effort Estimation Accuracy Using Machine Learning Across Three Schemas (LOC/FP/UCP)''}. The reviewers' insightful feedback has been invaluable in strengthening the scientific rigor, reproducibility, and practical impact of this work. We have carefully addressed all concerns through substantial manuscript revisions.
+
+\section*{Executive Summary of Major Revisions}
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Dataset Expansion (+192\%):} n=1,042 $\rightarrow$ n=3,054 projects across 18 sources (1979-2023); FP schema: n=24 $\rightarrow$ n=158 (+558\%)
+\item \textbf{State-of-the-Art Models:} Added XGBoost (MAE 13.24 PM vs RF 12.66 PM, <5\% difference)
+\item \textbf{Enhanced Metrics:} Added MdMRE and MAPE for robust statistics
+\item \textbf{Cross-Source Validation:} LOSO validation on 11 LOC sources (21\% MAE degradation--acceptable)
+\item \textbf{Calibrated Baseline:} Training-data-fitted power-law baseline ($E = A \times \text{Size}^B$)
+\item \textbf{Methodological Transparency:} Macro-averaging protocol, dataset provenance, deduplication rules, bootstrap CI
+\item \textbf{Expanded Literature:} 7 new papers cited (3 IEEE journals, 2 preprints)
+\item \textbf{Improved Presentation:} 300 DPI figures, proper numbering, line numbers, linguistic revision
+\end{enumerate}
+
+\noindent Below, we provide detailed responses to each Reviewer in three-column format:\\ (1) Reviewer Comment (verbatim), (2) Response (detailed with evidence), (3) Where Revised.
+
+\vspace{0.5em}
+\noindent Sincerely, \textbf{Nguyen Nhat Huy} (Corresponding Author) \\ International School, Duy Tan University \\ Email: huy.nguyen@duytan.edu.vn
+
+\newpage
+

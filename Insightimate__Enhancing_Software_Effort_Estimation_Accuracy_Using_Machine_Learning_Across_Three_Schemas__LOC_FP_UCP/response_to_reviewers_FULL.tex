@@ -1,0 +1,382 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{times}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{hyperref}
+
+\title{\textbf{Response to Reviewers}}
+\author{Nguyen Nhat Huy}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\noindent We sincerely thank the Editor and Reviewers for their thorough evaluation of our manuscript entitled \textbf{``Insightimate: Enhancing Software Effort Estimation Accuracy Using Machine Learning Across Three Schemas (LOC/FP/UCP)''}. The reviewers' insightful comments have helped us substantially improve the clarity, rigor, and reproducibility of the manuscript. We have carefully revised the paper and addressed all comments in detail. Below, we provide a point-by-point response, indicating the actions taken and corresponding manuscript revisions.
+
+\vspace{0.5cm}
+\noindent Best regards,\\
+\textit{Nguyen Nhat Huy}
+
+\vspace{1cm}
+
+\section*{Reviewer 1}
+
+\begin{longtable}{p{0.35\textwidth}p{0.60\textwidth}}
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Novelty is unclear beyond a unified evaluation pipeline. &
+\textbf{Response:} We strengthened the positioning to clarify that our primary contribution is a reusable benchmarking artifact (auditable dataset manifest + fair calibrated baseline + explicit aggregation + schema-appropriate protocols), rather than proposing a new learning model. We now state five concrete contributions and explicitly separate ``methodological novelty'' from ``model novelty''. \\
+& \textbf{Where revised:} Abstract; Introduction (Research gap / Contributions); Related Work comparison table; Conclusion (Strengths/Weaknesses). \\
+\midrule
+
+Add experiments with recalibrated COCOMO II for a fairer comparison. &
+\textbf{Response:} Most public FP/UCP datasets do not contain COCOMO II cost drivers. To avoid an unfair straw-man baseline, we replaced the uncalibrated COCOMO II setting with a calibrated size-only power-law baseline (COCOMO-like), fitted on training data per schema and per seed. We explicitly label it as NOT full COCOMO II and treat it as a fair parametric lower bound using the same available signals as ML models. \\
+& \textbf{Where revised:} Section 2.1 (Baseline definition + training-only calibration); Results table notes. \\
+\midrule
+
+Include modern datasets (GitHub, Jira-based effort logs, DevOps metrics) to improve relevance. &
+\textbf{Response:} We added an explicit limitation and discussion of modern DevOps underrepresentation in public effort datasets, explaining why project-level ground-truth effort labels are scarce in GitHub/Jira. We also add this as a concrete future direction (telemetry-enriched datasets). \\
+& \textbf{Where revised:} Limitations / Threats to Validity; Conclusion (Future work). \\
+\midrule
+
+Report additional error metrics such as MAPE, MdMRE, or RAE. &
+\textbf{Response:} We expanded the metric suite: we now report MAPE and robust median-based metrics (MdMRE, MdAE) in addition to MAE/RMSE/MMRE/PRED(25). We clarify that absolute-error metrics (MAE/MdAE) are primary due to known issues with MRE-based metrics. \\
+& \textbf{Where revised:} Evaluation Metrics section; Overall + per-schema results tables. \\
+\midrule
+
+Provide confidence intervals for all reported metrics. &
+\textbf{Response:} We added bootstrap 95\% confidence intervals (1,000 resamples of test predictions). For readability, the main tables keep mean±std across 10 seeds; CIs are provided in Supplementary Tables S1–S2. \\
+& \textbf{Where revised:} Uncertainty section (bootstrap methodology); Supplementary Tables S1–S2. \\
+\midrule
+
+Reduce length by moving methodological details to appendices or supplementary material. &
+\textbf{Response:} We moved extended details (full manifest, extra plots, per-seed logs) to Supplementary Materials while keeping essential definitions/results in the main paper. \\
+& \textbf{Where revised:} Supplementary Materials references; streamlined sections. \\
+\midrule
+
+Release harmonized dataset and scripts for reproducibility (if possible). &
+\textbf{Response:} We expanded the reproducibility statement: dataset manifest + rebuild scripts (re-download from original sources) + MD5 hashes for cleaned tables. Where redistribution is restricted, we provide reconstruction steps instead of raw files. \\
+& \textbf{Where revised:} Data Availability; Dataset provenance/manifest; Supplementary Table S1. \\
+\end{longtable}
+
+\section*{Reviewer 2}
+
+\begin{longtable}{p{0.35\textwidth}p{0.60\textwidth}}
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Clarify what ``overall performance across all schemas'' means (pooling vs averaging; micro vs macro). &
+\textbf{Response:} We define aggregation explicitly. ``Overall'' refers to macro-averaging: compute metrics separately on LOC/FP/UCP, then average with equal weight per schema. Micro-averaging (sample-size weighted) is reported in the supplement. \\
+& \textbf{Where revised:} Aggregation subsection with equations; overall table note; supplement micro-average table. \\
+\midrule
+
+Make the COCOMO II baseline reproducible and fair (variant, parameters, cost drivers, calibration). &
+\textbf{Response:} Because cost drivers are missing in most public datasets, we do not claim a full COCOMO II instantiation. Instead, we implement a calibrated size-only power-law baseline: $\log(E)=\alpha+\beta \log(\text{Size})$, fitted on training data only per schema and seed. This avoids default-parameter straw-man comparisons and is fully reproducible. \\
+& \textbf{Where revised:} Section 2.1 (NOT full COCOMO II; calibration procedure); baseline notes in results tables. \\
+\midrule
+
+Dataset provenance, leakage control, and release plan are underspecified. &
+\textbf{Response:} We added an auditable dataset manifest listing each source (year, DOI/URL, license), raw/final counts, and cleaning impact. We clarify deduplication (exact + audited near-duplicates) and leakage controls (no overlap train/test; stratified splits; fixed seeds). Rebuild scripts + MD5 hashes enable verification. \\
+& \textbf{Where revised:} Dataset section + manifest table; leakage control subsection; Data Availability; Supplementary Table S1. \\
+\midrule
+
+FP schema is low-power; revise protocol and uncertainty reporting. &
+\textbf{Response:} FP is evaluated with LOOCV due to limited sample size, with a restricted hyperparameter grid to reduce selection variance. We report bootstrap CIs and explicitly label FP findings as exploratory. \\
+& \textbf{Where revised:} FP-specific protocol; Results (FP notes); Limitations (FP low power). \\
+\midrule
+
+Metric choices: MMRE/PRED; add robust median metrics and strengthen justification. &
+\textbf{Response:} We added MdAE and MdMRE and emphasize MAE/MdAE as primary metrics, keeping MMRE/PRED(25) only for comparability and discussing their limitations. \\
+& \textbf{Where revised:} Evaluation Metrics; Results table notes; Threats/Validity discussion. \\
+\end{longtable}
+
+\section*{Reviewer 3}
+
+\begin{longtable}{p{0.35\textwidth}p{0.60\textwidth}}
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Introduction should better explain what is known/missing and novelty; reflect this in Abstract and Conclusion. &
+\textbf{Response:} We rewrote the Introduction to include: what is known, what is missing, the research gap, our approach, and scope/limitations upfront. We also added concise novelty statements to the Abstract and Conclusion. \\
+& \textbf{Where revised:} Abstract; Introduction; Conclusion. \\
+\midrule
+
+Related Work needs comparison and motivation; cite suggested recent papers. &
+\textbf{Response:} We expanded Related Work with a comparison table and incorporated the suggested references, positioning our work as methodological benchmarking (provenance + fair baselines + aggregation) rather than model novelty. \\
+& \textbf{Where revised:} Related Work + comparison table; References updated. \\
+\midrule
+
+Highlight all assumptions and limitations. &
+\textbf{Response:} We added an explicit Assumptions \& Limitations section covering schema-specific training, FP low power, size-only baseline, unit conversion assumptions, public-data bias, and deduplication residual risks. \\
+& \textbf{Where revised:} Assumptions \& Limitations; Threats to Validity. \\
+\midrule
+
+Describe Fig. 1 clearly in the text. &
+\textbf{Response:} We added a concise walkthrough of Fig. 1 (provenance/deduplication pipeline) and ensured proper numbering and captioning. \\
+& \textbf{Where revised:} Pipeline description + Fig. 1 caption/text. \\
+\midrule
+
+Conclusion should include strengths/weaknesses/implications/recommendations. &
+\textbf{Response:} We revised the Conclusion to include strengths, weaknesses, practical implications, and recommendations/future directions. \\
+& \textbf{Where revised:} Conclusion. \\
+\end{longtable}
+
+\section*{Reviewer 4}
+
+\begin{longtable}{p{0.35\textwidth}p{0.60\textwidth}}
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Introduction is too short; include limitations and clearer framing. &
+\textbf{Response:} We expanded the Introduction with motivation, gap, contributions, and key limitations stated upfront. \\
+& \textbf{Where revised:} Introduction. \\
+\midrule
+
+Discuss pros/cons of related methods; add suggested newer citations. &
+\textbf{Response:} We strengthened Related Work by comparing parametric, ensemble, deep learning, and transfer learning approaches, and included the suggested citations where relevant. \\
+& \textbf{Where revised:} Related Work; References. \\
+\midrule
+
+Experiments should include newer models. &
+\textbf{Response:} We added XGBoost to the experimental set and discuss LightGBM/CatBoost as related boosting variants (scope constraints noted). \\
+& \textbf{Where revised:} Modeling Details; Results tables; Related Work. \\
+\midrule
+
+Post hoc statistical tests needed. &
+\textbf{Response:} We report paired Wilcoxon tests with Holm–Bonferroni correction and Cliff's delta effect sizes. \\
+& \textbf{Where revised:} Statistical testing subsection; test-results table. \\
+\midrule
+
+Linguistic quality needs improvement. &
+\textbf{Response:} We proofread and edited phrasing to improve readability and academic tone; we also improved captions and cross-references. \\
+& \textbf{Where revised:} Throughout. \\
+\end{longtable}
+
+\section*{Reviewer 5}
+
+\begin{longtable}{p{0.35\textwidth}p{0.60\textwidth}}
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Add more datasets / test across methodologies. &
+\textbf{Response:} We expanded the compilation to 18 public sources and added LOSO validation (LOC) to test generalization to unseen sources. We discuss scarcity of modern methodology-labelled datasets as a limitation and future work. \\
+& \textbf{Where revised:} Dataset manifest; LOSO subsection; Limitations/Future work. \\
+\midrule
+
+Include paper structure at end of introduction. &
+\textbf{Response:} Added a paper organization paragraph. \\
+& \textbf{Where revised:} End of Introduction. \\
+\midrule
+
+Improve figure quality. &
+\textbf{Response:} We regenerated figures at higher resolution and improved labels/captions; vector versions are provided in the supplement when appropriate. \\
+& \textbf{Where revised:} Figures/captions; Supplementary figures. \\
+\midrule
+
+Add ablation study. &
+\textbf{Response:} Added systematic ablation removing preprocessing components (harmonization, IQR capping, log scaling) and reported MAE impact. \\
+& \textbf{Where revised:} Ablation section + table/figure. \\
+\midrule
+
+Discuss limitations in more detail. &
+\textbf{Response:} Expanded limitations/threats (FP low power, no cross-schema transfer, public-data bias, residual dedup risk). \\
+& \textbf{Where revised:} Limitations / Threats to Validity. \\
+\midrule
+
+Number figures; fix disorder in sections/subsections. &
+\textbf{Response:} Ensured all figures/tables have numbers and captions; consolidated short subsections. \\
+& \textbf{Where revised:} Throughout formatting/structure. \\
+\midrule
+
+Why keep Linear Regression? &
+\textbf{Response:} We clarify LR is included as a simple lower-bound baseline to demonstrate the need for non-linear models; we discuss its failure modes and do not recommend it for heterogeneous deployment. \\
+& \textbf{Where revised:} Modeling Details (LR rationale); Results discussion. \\
+\end{longtable}
+
+\section*{Reviewer 6}
+
+\begin{longtable}{p{0.35\textwidth}p{0.60\textwidth}}
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Abstract metrics (MMRE/PRED) unclear whether overall or schema-specific. &
+\textbf{Response:} We clarified that the headline metrics are macro-averaged across LOC/FP/UCP (equal weight per schema). \\
+& \textbf{Where revised:} Abstract. \\
+\midrule
+
+Equations referenced but not labelled; ensure consistent numbering. &
+\textbf{Response:} We corrected equation labels and cross-references (effort equation, baseline equation, aggregation equation). \\
+& \textbf{Where revised:} Methods (equations) + references. \\
+\midrule
+
+FP small sample size; discuss impact. &
+\textbf{Response:} We expanded the FP limitation and explicitly label FP results as exploratory despite LOOCV and bootstrap CIs. \\
+& \textbf{Where revised:} FP protocol; Limitations/Threats. \\
+\midrule
+
+R² shown as ``--'' in overall table; explain or remove. &
+\textbf{Response:} We removed R² from the macro-averaged overall table and report R² only per schema, since aggregating R² across heterogeneous schemas can mislead. \\
+& \textbf{Where revised:} Overall table note; per-schema table. \\
+\midrule
+
+Duplicate Time equation; remove. &
+\textbf{Response:} We removed the duplicate schedule equation and kept one for context. \\
+& \textbf{Where revised:} Section 2.1. \\
+\midrule
+
+``Enhanced COCOMO II'' undefined. &
+\textbf{Response:} We removed this term and consistently use ``calibrated size-only power-law baseline (COCOMO-like)''. \\
+& \textbf{Where revised:} Terminology throughout. \\
+\midrule
+
+Figure/table references formatting issues. &
+\textbf{Response:} We standardized numbering/captions and removed rendering artifacts. \\
+& \textbf{Where revised:} Throughout formatting. \\
+\end{longtable}
+
+\section*{Reviewer 7}
+
+\begin{longtable}{p{0.35\textwidth}p{0.60\textwidth}}
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Captions missing; low-res figures; formatting issues. &
+\textbf{Response:} We added captions for every figure/table, regenerated figures at high resolution, and ensured consistent numbering. Line numbers are enabled in the submission build if permitted by the venue template. \\
+& \textbf{Where revised:} All figures/tables; LaTeX build options. \\
+\midrule
+
+Writing style unnatural/templated. &
+\textbf{Response:} We edited the manuscript to improve academic tone and reduce templated phrasing. \\
+& \textbf{Where revised:} Throughout. \\
+\midrule
+
+COCOMO II baseline validity (straw-man risk). &
+\textbf{Response:} We replaced the uncalibrated baseline with a calibrated size-only power-law baseline fitted on training data only per schema/seed and explicitly state it is not full COCOMO II due to missing cost drivers. \\
+& \textbf{Where revised:} Section 2.1; Results notes. \\
+\midrule
+
+Model selection outdated; include modern methods and discuss DL/LLMs. &
+\textbf{Response:} We added XGBoost. We discuss LightGBM/CatBoost and deep learning/transfer learning directions in Related Work/Future Work, clarifying scope. \\
+& \textbf{Where revised:} Modeling Details; Results; Related Work/Future Work. \\
+\midrule
+
+Interpretability claim needs evidence. &
+\textbf{Response:} We added permutation feature importance and frame it as post-hoc explainability, with plots provided in the supplement when space is limited. \\
+& \textbf{Where revised:} Interpretability subsection; Supplementary figure. \\
+\midrule
+
+Need ablation study. &
+\textbf{Response:} Added ablation study quantifying contribution of each preprocessing step. \\
+& \textbf{Where revised:} Ablation section. \\
+\midrule
+
+Data quality/sample size vague; list sizes and protocols. &
+\textbf{Response:} We report per-schema counts and protocols: stratified 80/20 (LOC/UCP, 10 seeds) and LOOCV (FP). \\
+& \textbf{Where revised:} Dataset summary + Experimental setup. \\
+\midrule
+
+Generalization to unseen datasets. &
+\textbf{Response:} We added LOSO validation for LOC; we discuss why FP/UCP have too few sources for meaningful LOSO. \\
+& \textbf{Where revised:} LOSO subsection; Limitations. \\
+\midrule
+
+Figure anomalies (smooth curves). &
+\textbf{Response:} We replaced smoothed plots with scatter-based visualizations from actual predictions and clarified plotting procedure. \\
+& \textbf{Where revised:} Figures/captions in Discussion. \\
+\end{longtable}
+
+\section*{Reviewer 8}
+
+\begin{longtable}{p{0.35\textwidth}p{0.60\textwidth}}
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response and Revision} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+Novelty is limited; reposition core contribution. &
+\textbf{Response:} We reframed the contribution as a benchmarking methodology and artifact (manifest + fair baseline + aggregation + protocols) rather than model novelty, and made this explicit in Abstract/Intro/Conclusion. \\
+& \textbf{Where revised:} Abstract; Introduction; Conclusion; Related Work comparison table. \\
+\midrule
+
+No cross-schema learning; justify and set as future work. &
+\textbf{Response:} We clarified why we train models per schema (feature semantics mismatch) and state cross-schema transfer learning as future work requiring feature alignment and dedicated protocols. \\
+& \textbf{Where revised:} Limitations; Future work. \\
+\midrule
+
+Imbalance insufficiently treated; add mitigation. &
+\textbf{Response:} We added stratified tail evaluation (top 10\%) and an optional quantile-based reweighting scheme for RF/GB/XGB to improve tail robustness; we also cite focal-loss style regression as future work. \\
+& \textbf{Where revised:} Imbalance-aware training subsection; Tail evaluation table/figure; Future work. \\
+\end{longtable}
+
+\vspace{1cm}
+\noindent We believe these revisions have substantially strengthened the manuscript in terms of clarity, methodological rigor, reproducibility, and contribution positioning. We are grateful for the reviewers' constructive feedback.
+
+\vspace{0.5cm}
+\noindent Sincerely,\\
+\textit{Nguyen Nhat Huy and co-authors}
+
+\end{document}

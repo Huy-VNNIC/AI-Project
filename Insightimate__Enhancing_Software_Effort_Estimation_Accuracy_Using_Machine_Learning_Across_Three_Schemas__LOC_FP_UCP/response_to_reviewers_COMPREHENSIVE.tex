@@ -1,0 +1,105 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{times}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{amsmath}
+\usepackage{enumitem}
+
+\title{\textbf{Response to Reviewers}\\[0.5em]
+\large Manuscript: Insightimate: Enhancing Software Effort Estimation Accuracy\\
+Using Machine Learning Across Three Schemas (LOC/FP/UCP)}
+\author{Nguyen Nhat Huy et al.}
+\date{February 19, 2026}
+
+\begin{document}
+
+\maketitle
+
+\noindent Dear Editor and Distinguished Reviewers,
+
+We sincerely thank the Editor and all Reviewers for their thorough evaluation of our manuscript entitled \textit{"Insightimate: Enhancing Software Effort Estimation Accuracy Using Machine Learning Across Three Schemas (LOC/FP/UCP)"}. The reviewers' insightful comments have helped us substantially improve the clarity, rigor, and reproducibility of the manuscript. We have carefully revised the paper and addressed all comments in detail.
+
+\section*{Executive Summary of Major Revisions}
+
+The revised manuscript incorporates the following major improvements addressing concerns from multiple reviewers:
+
+\begin{enumerate}[leftmargin=*,label=\textbf{\arabic*.}]
+    \item \textbf{Dataset Expansion (+192\%):} Increased from n=1,042 to \textbf{n=3,054 projects} across \textbf{18 independent sources} (1979-2023). FP schema expanded from n=24 to \textbf{n=158 projects} (+558\%), addressing statistical power concerns raised by Reviewers 2, 5, 6, 7.
+    
+    \item \textbf{State-of-the-Art Models:} Integrated \textbf{XGBoost} (modern gradient boosting) achieving MAE 13.24 PM vs Random Forest 12.66 PM ($<$5\% difference), demonstrating contemporary SOTA model convergence (Reviewers 4, 7).
+    
+    \item \textbf{Enhanced Evaluation Metrics:} Added \textbf{MdMRE (Median Magnitude of Relative Error)} and \textbf{MAPE (Mean Absolute Percentage Error)} providing robust central-tendency statistics and business-friendly percentage reporting formats (Reviewers 1, 2).
+    
+    \item \textbf{Cross-Source Validation (LOSO):} Implemented \textbf{Leave-One-Source-Out validation} on 11 independent LOC sources, demonstrating acceptable cross-organizational generalization with 21\% MAE degradation vs within-source splits, confirming external validity (Reviewers 2, 7, 8).
+    
+    \item \textbf{Calibrated Parametric Baseline:} Replaced uncalibrated COCOMO II defaults with \textbf{training-data-fitted power-law baseline} ($E = A \times \text{Size}^B$) ensuring fair comparison when cost drivers unavailable, eliminating straw-man criticism (Reviewers 1, 2, 7).
+    
+    \item \textbf{Methodological Transparency:} Clarified (i) macro-averaging protocol for cross-schema aggregation, (ii) complete dataset provenance with DOI/URL references, (iii) explicit deduplication and leakage-prevention rules, (iv) schema-specific validation protocols (LOOCV for FP, stratified 80/20 for LOC/UCP), (v) bootstrap confidence intervals for small-sample FP (Reviewers 2, 3, 6).
+    
+    \item \textbf{Expanded Literature Review:} Cited \textbf{7 new papers} recommended by reviewers, including 3 IEEE journal articles on ensemble methods (TSMC, TFUZZ, TETCI DOIs) and 2 recent preprints (Discover Applied Sciences, Research Square) on stacking/ensemble approaches, with advantage/drawback comparative analysis (Reviewers 3, 4, 5).
+\end{enumerate}
+
+\vspace{0.5em}
+\noindent Below, we provide detailed point-by-point responses to each Reviewer, indicating specific actions taken and corresponding manuscript revisions. All line and page references refer to the revised manuscript (25 pages, 1,286 lines LaTeX source).
+
+\vspace{0.5em}
+\noindent Best regards,
+
+\noindent \textbf{Nguyen Nhat Huy} (Corresponding Author)\\
+International School, Duy Tan University\\
+Email: huy.nguyen@duytan.edu.vn\\
+On behalf of all co-authors
+
+\newpage
+
+\section*{Response to Reviewer 1}
+
+\begin{longtable}{p{0.30\linewidth}|p{0.38\linewidth}|p{0.27\linewidth}}
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
+\midrule
+\endfirsthead
+
+\multicolumn{3}{c}{\textit{(Continued from previous page)}} \\
+\toprule
+\textbf{Reviewer Comment} & \textbf{Response (and text added/updated)} & \textbf{Where revised in manuscript} \\
+\midrule
+\endhead
+
+\midrule
+\multicolumn{3}{r}{\textit{(Continued on next page)}} \\
+\endfoot
+
+\bottomrule
+\endlastfoot
+
+\textbf{R1.1: Provide a clearer positioning of what is novel beyond "a unified evaluation pipeline."} &
+
+\textbf{Thank you for this critical concern—we have substantially repositioned the contribution.}
+
+We agree that procedural pipeline engineering alone is insufficient novelty. We repositioned the core contribution from ``harmonized pipeline'' to three \textbf{methodological innovations addressing reproducibility gaps} in prior SEE research:
+
+\textbf{1) Macro-averaged cross-schema evaluation protocol:} We formalize metric aggregation across LOC/FP/UCP using equal weighting: $m_{\text{macro}} = \frac{1}{3}\sum_{s} m^{(s)}$. This prevents LOC corpus dominance (n=2,765, 90.5\% of data) from masking FP (n=158) and UCP (n=131) performance. Prior studies either pool data (semantically invalid due to KLOC$\neq$FP$\neq$UCP incomparability) or report micro-averaged metrics without disclosure.
+
+\textbf{2) Calibrated parametric baseline methodology:} We replace uncalibrated COCOMO II defaults with training-data-fitted size-only power-law baseline $E = A \times \text{Size}^B$. Coefficients $(A, B)$ are optimized via least-squares regression strictly on training folds using \texttt{scipy.optimize.curve\_fit}, ensuring the parametric baseline benefits from identical data access as ML models. This addresses fairness criticism pervasive in ML-vs-parametric literature.
+
+\textbf{3) Auditable dataset manifest:} We provide complete provenance (18 sources, DOI/URL references, raw vs final counts, deduplication percentages, rebuild scripts) enabling independent verification. Our GitHub repository includes \texttt{deduplication\_log.csv} with exact matching rules.
+
+\textbf{Empirical validation:} Section 4.5 demonstrates schema-specific modeling outperforms naive pooling due to distinct feature semantics: LOC correlates with algorithmic complexity, FP with functional breadth, UCP with actor-interaction patterns. Even with calibration, parametric baseline underperforms ensemble methods (MMRE 2.790 vs RF 0.647), confirming fixed functional forms struggle with heterogeneous project characteristics. &
+
+\textbf{Abstract} (lines 70-84): Added ``macro-averaging prevents LOC dominance'' and ``calibrated size-only baseline.''
+
+\textbf{Introduction} (lines 105-115): Expanded from 3 generic to 5 specific methodological innovations with quantitative details (n=3,054 projects, 18 sources, 192\% expansion).
+
+\textbf{Section 2.1.1} (lines 133-143): New ``Baseline Fairness and Calibration'' subsection with scipy implementation.
+
+\textbf{Section 4.3} (lines 229-236): New ``Cross-Schema Aggregation Protocol'' paragraph with formal definition.
+
+\textbf{Section 4.5} (lines 668-694): Per-schema analysis validating stratified modeling rationale.
+
+\textbf{Table 1} (lines 248-275): Complete provenance table with deduplication percentages. \\
+
+\midrule
+
