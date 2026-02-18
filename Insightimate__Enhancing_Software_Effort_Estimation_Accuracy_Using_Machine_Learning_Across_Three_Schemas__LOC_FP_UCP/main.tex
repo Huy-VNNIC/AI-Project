@@ -169,6 +169,9 @@ where $E$ is effort in person-months and Size is KLOC/FP/UCP depending on schema
 \paragraph{Rationale.}
 Uncalibrated parametric models with default parameters (e.g., $B=1.01$ for COCOMO organic mode) can yield arbitrarily poor performance on heterogeneous datasets, as evidenced by MMRE $>2.5$ in preliminary experiments. Our calibrated size-only baseline provides a \textit{principled parametric lower bound} for comparison: any ML model must outperform a simple log-log fit to justify added complexity. \textbf{This is intentionally a ``lower bound'' baseline}—it does not include COCOMO~II's full cost drivers (team experience, platform constraints, tool maturity), so it may underperform full COCOMO~II in industrial settings where driver data is available. However, for public datasets lacking such metadata, this size-only approach ensures fair, reproducible comparisons.
 
+\paragraph{Implementation Details.}
+We implement the calibration using \texttt{scipy.optimize.curve\_fit}~\cite{virtanen2020scipy}, which performs non-linear least squares optimization to find optimal $(\alpha, \beta)$ parameters for Eq.~\ref{eq:baseline-calibrated}. For each schema ($s \in \{\text{LOC, FP, UCP}\}$) and random seed ($k=1,\ldots,10$), we fit the power-law model exclusively on the training split, then apply the learned parameters to predict test-set efforts. This ensures the parametric baseline receives identical data access as ML models, providing a fair lower bound for comparison. The optimization minimizes squared residuals in log-space: $\sum_i (\log E_i - (\alpha + \beta \log \text{Size}_i))^2$, converging via the Levenberg-Marquardt algorithm~\cite{more1978levenberg}.
+
 While COCOMO~II's original formulation includes schedule estimation via
 \begin{equation}
 \text{Time} = C \times E^{D},
