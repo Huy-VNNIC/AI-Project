@@ -1,0 +1,302 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{times}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage[hidelinks]{hyperref}
+
+% Define highlight color
+\sethlcolor{yellow}
+
+\title{\textbf{Hướng Dẫn Bôi Vàng Paper v2/main.tex}\\
+\large Danh Sách Chi Tiết Các Thay Đổi Theo Yêu Cầu Reviewers}
+
+\author{AI Copilot Assistant}
+\date{February 19, 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Tóm Tắt Tổng Quan}
+
+\begin{itemize}
+    \item \textbf{Tổng số dòng cần bôi vàng:} $\sim$600+ dòng (trong 1,285 dòng = \textbf{47\% paper})
+    \item \textbf{Phần viết lại hoàn toàn:} Introduction (85-128), Limitations (1140-1210), Conclusion (1212-1280)
+    \item \textbf{Tables thêm mới:} 6 tables (Table 1, 2, 4, 5, 6 + mở rộng Table 3)
+    \item \textbf{Sections thêm mới:} 12 subsections
+    \item \textbf{Equations thêm mới:} 3 equations (Baseline, Macro-avg, MdMRE)
+\end{itemize}
+
+\vspace{1em}
+\noindent\colorbox{yellow!30}{\parbox{\dimexpr\textwidth-2\fboxsep}{\textbf{Chú ý:} Tất cả số dòng dưới đây tham chiếu đến file \texttt{Paper\_v2/main.tex}}}
+
+\section{Danh Sách Chi Tiết Các Vùng Cần Bôi Vàng}
+
+\subsection*{PHẦN 1: ABSTRACT (Lines 70-84)}
+
+\begin{longtable}{p{0.2\textwidth}p{0.75\textwidth}}
+\toprule
+\textbf{Dòng} & \textbf{Nội dung thêm/sửa} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Dòng} & \textbf{Nội dung thêm/sửa} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{2}{r}{\textit{(Tiếp trang sau)}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+70-84 & \hl{TOÀN BỘ ABSTRACT} \\
+& \textbf{Các cụm quan trọng cần bôi:} \\
+& $\bullet$ ``macro-averaging (equal weight per schema)'' \\
+& $\bullet$ ``Leave-One-Source-Out validation'' \\
+& $\bullet$ ``statistically significant improvement'' \\
+& $\bullet$ ``MdMRE $\approx$ 0.48, MAE $\approx$ 12.66 PM'' \\
+& $\bullet$ Đề cập limitations cuối abstract \\
+\end{longtable}
+
+\subsection*{PHẦN 2: INTRODUCTION (Lines 85-128) --- *** BÔI TOÀN BỘ ***}
+
+\begin{longtable}{p{0.15\textwidth}p{0.3\textwidth}p{0.5\textwidth}}
+\toprule
+\textbf{Dòng} & \textbf{Phần} & \textbf{Nội dung} \\
+\midrule
+85-95 & Part 1: Problem & Định nghĩa vấn đề software effort estimation \\
+96-104 & Part 2: Gap & \textbf{3 methodological gaps:} (i) unclear dataset provenance, (ii) COCOMO baseline unfairness, (iii) aggregation protocol \\
+105-115 & Part 3: Contributions & \textbf{3 đóng góp:} multi-schema framework, calibrated baseline, comprehensive metrics \\
+116-128 & Part 4: Structure & Cấu trúc 9 sections của paper \\
+\bottomrule
+\end{longtable}
+
+\subsection*{PHẦN 3: RELATED WORK (Section 2)}
+
+\begin{longtable}{p{0.15\textwidth}p{0.3\textwidth}p{0.5\textwidth}}
+\toprule
+\textbf{Dòng} & \textbf{Thành phần} & \textbf{Nội dung} \\
+\midrule
+133-143 & Section 2.1.1 & \textbf{THÊM MỚI:} ``Baseline Calibration Methodology'' với công thức $E = A \times \text{Size}^B$ fitted per schema \\
+145-178 & Table 2 & \textbf{THÊM MỚI:} Comparative table 12 studies với Advantage/Disadvantage columns \\
+179-220 & Section 2.2 & \textbf{THÊM MỚI:} Four-paragraph synthesis (DL, LightGBM, cost-sensitive, transfer learning) \\
+195-205 & Preprints & \textbf{THÊM:} 2 preprints về focal loss và transfer learning \\
+\bottomrule
+\end{longtable}
+
+\subsection*{PHẦN 4: DATASET \& METHODOLOGY (Sections 3-4)}
+
+\begin{longtable}{p{0.15\textwidth}p{0.3\textwidth}p{0.5\textwidth}}
+\toprule
+\textbf{Dòng} & \textbf{Thành phần} & \textbf{Nội dung} \\
+\midrule
+\multicolumn{3}{l}{\textbf{>>> Section 3: Dataset <<<}} \\
+\midrule
+248-275 & Table 1 & \textbf{THÊM MỚI HOÀN TOÀN:} 8-column dataset manifest (Source, Schema, Raw, Final, Dedup\%, Dates, DOI/URL, Domain) --- 18 sources \\
+329-368 & Section 3.1 & Dataset description với provenance details (chia theo era: 1970s-2020s) \\
+382-401 & Section 3.2 & \textbf{THÊM MỚI:} Deduplication methodology với explicit rules \\
+410-414 & Section 3.3 & Log-transform justification (numerical stability, heteroscedasticity) \\
+420-435 & Section 3.3 & \textbf{THÊM MỚI:} ``Feature Selection Rationale'' (Why exclude Time feature) \\
+\midrule
+\multicolumn{3}{l}{\textbf{>>> Section 4: Methodology <<<}} \\
+\midrule
+218-224 & Section 4.2 & Cross-validation protocol (baseline fitted per fold) \\
+226-228 & Section 4.3 & Bootstrap resampling protocol \\
+229-236 & Section 4.3 & \textbf{THÊM MỚI:} ``Cross-Schema Aggregation Protocol'' với công thức macro-averaging \\
+237-246 & Section 4.3 & \textbf{THÊM MỚI:} ``Back-Transformation Protocol'' (inverse log-transform) \\
+247-265 & Section 4.3 & \textbf{THÊM MỚI:} ``Why We Exclude R²'' subsection (3 rationale points) \\
+387-405 & Section 4.4 & Feature list (Size, Source, Domain) + XGBoost hyperparameters \\
+442-458 & Figure 1 caption & \textbf{MỞ RỘNG:} Từ 1 dòng $\rightarrow$ 8 dòng với (A)-(G) component descriptions \\
+763-828 & Section 4.7 & \textbf{THÊM MỚI:} Leave-One-Source-Out cross-validation (11 LOC sources) \\
+805-828 & & \textbf{THÊM MỚI:} ``LOSO Feasibility by Schema'' (explain why FP/UCP can't use LOSO) \\
+850-875 & Section 4.8 & \textbf{THÊM MỚI:} ``Statistical Significance Testing'' (Wilcoxon signed-rank test protocol) \\
+\bottomrule
+\end{longtable}
+
+\subsection*{PHẦN 5: RESULTS (Section 5, Lines 630-965)}
+
+\begin{longtable}{p{0.15\textwidth}p{0.3\textwidth}p{0.5\textwidth}}
+\toprule
+\textbf{Dòng} & \textbf{Thành phần} & \textbf{Nội dung} \\
+\midrule
+630-655 & Table 2 & \textbf{SỬA NHIỀU:} (1) Loại bỏ R² column, (2) Thêm MdMRE \& MAPE, (3) Thêm XGBoost row, (4) Footnote về back-transform \\
+675-689 & Table 3 & \textbf{THÊM:} Per-schema breakdown với 95\% bootstrap CIs cho FP schema \\
+785-799 & Section 5.1 & Discussion về macro vs micro averaging implications \\
+805-815 & & R² removal justification; LR results (emphasizing non-linearity evidence) \\
+812-828 & & XGBoost results analysis (parity with RF: MAE 13.24 vs 12.66) \\
+820-841 & & \textbf{THÊM:} Statistical significance discussion (bootstrap CIs confirm FP not artifacts) \\
+838-849 & & Results summary emphasizing RF vs XGBoost parity \\
+865-920 & Section 5.3 & \textbf{THÊM MỚI HOÀN TOÀN:} ``Anomaly Analysis'' subsection \\
+& & $\bullet$ Figure 2: LOC scatter outliers (Telecom projects) \\
+& & $\bullet$ Figure 5: FP actual-vs-predicted deviation \\
+880-910 & Table 4 & \textbf{THÊM MỚI:} Pairwise Wilcoxon comparison matrix (6$\times$6) with $p$-values \& effect sizes \\
+921-965 & Section 5.4 & \textbf{THÊM MỚI:} ``Cross-Schema Transfer Experiment'' \\
+945-960 & Table 6 & \textbf{THÊM MỚI:} Transfer learning failure matrix (LOC$\rightarrow$FP: +462\%, FP$\rightarrow$LOC: +215\%) \\
+\bottomrule
+\end{longtable}
+
+\subsection*{PHẦN 6: DISCUSSION (Section 6, Lines 937-1138)}
+
+\begin{longtable}{p{0.15\textwidth}p{0.3\textwidth}p{0.5\textwidth}}
+\toprule
+\textbf{Dòng} & \textbf{Thành phần} & \textbf{Nội dung} \\
+\midrule
+937-951 & Section 6.1 & Calibration fairness and ML value-add discussion \\
+952-975 & & SOTA model convergence; LightGBM/CatBoost parity discussion \\
+980-1005 & Section 6.1 & \textbf{THÊM MỚI:} ``Ablation Study---Excluding FP'' \\
+1005-1065 & Section 6.2 & \textbf{THÊM MỚI HOÀN TOÀN:} Three-component ablation study \\
+& & $\bullet$ Ablation 1: Macro vs Micro averaging \\
+& & $\bullet$ Ablation 2: Log-transform removal \\
+& & $\bullet$ Ablation 3: Outlier filtering disabled \\
+1048-1065 & & \textbf{THÊM:} ``Pooled vs Schema-Stratified'' experiment \\
+1068-1085 & Table 5 & \textbf{THÊM MỚI:} Ablation results matrix (4 configurations) \\
+1090-1110 & Section 6.3 & \textbf{THÊM MỚI:} ``Linear Regression as Simple Baseline'' justification \\
+1115-1138 & Section 6.4 & \textbf{MỞ RỘNG:} Feature importance interpretation (từ 3 câu $\rightarrow$ 25 dòng) \\
+& & $\bullet$ Practitioner implications \\
+& & $\bullet$ Size dominance 82\% Gini importance \\
+& & $\bullet$ Cross-org generalization evidence \\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\subsection*{PHẦN 7: LIMITATIONS (Section 8, Lines 1140-1210) --- BÔI TOÀN BỘ}
+
+\begin{longtable}{p{0.15\textwidth}p{0.3\textwidth}p{0.5\textwidth}}
+\toprule
+\textbf{Dòng} & \textbf{Category} & \textbf{Nội dung} \\
+\midrule
+1140-1160 & Category 1 & \textbf{Data Limitations:} ISBSG license restrictions, schema imbalance (LOC 90.5\%, FP 5.2\%, UCP 4.3\%), missing cost drivers \\
+1161-1180 & Category 2 & \textbf{Methodological Limitations:} Back-transform bias, moderate FP/UCP sample sizes (n=158, n=131) \\
+1181-1195 & Category 3 & \textbf{Validation Limitations:} LOSO infeasible for FP/UCP (only 3-4 sources), no temporal validation \\
+1196-1210 & Category 4 & \textbf{Generalizability Limitations:} Cross-schema transfer failure (Table 6), size-only features \\
+\bottomrule
+\end{longtable}
+
+\subsection*{PHẦN 8: CONCLUSION (Section 9, Lines 1212-1280) --- *** BÔI TOÀN BỘ ***}
+
+\begin{longtable}{p{0.15\textwidth}p{0.3\textwidth}p{0.5\textwidth}}
+\toprule
+\textbf{Dòng} & \textbf{Part} & \textbf{Nội dung} \\
+\midrule
+1212-1225 & Part 1: Summary & Tóm tắt key findings (RF best: MMRE 0.647, MdMRE 0.48, MAE 12.66 PM) \\
+1226-1242 & Part 2: Implications & \textbf{Practical implications:} Measurement investment, cross-org transfer, schema-specific modeling \\
+1243-1255 & Part 3: Limitations & Reiterate 4 categories (data, methodology, validation, generalizability) \\
+1256-1280 & Part 4: Future Work & \textbf{5 directions:} (1) Expand FP/UCP to n>500, (2) Deep learning, (3) Focal loss, (4) Transfer learning, (5) Real-world deployment \\
+\bottomrule
+\end{longtable}
+
+\section{Bảng Tổng Hợp Các Thành Phần Thêm Mới Hoàn Toàn}
+
+\begin{longtable}{cp{0.3\textwidth}cp{0.45\textwidth}}
+\toprule
+\textbf{STT} & \textbf{Thành phần} & \textbf{Dòng} & \textbf{Mục đích (Reviewer Request)} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{STT} & \textbf{Thành phần} & \textbf{Dòng} & \textbf{Mục đích (Reviewer Request)} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\textit{(Tiếp trang sau)}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+1 & Macro-averaging formula (Eq. 2) & 233-235 & ``Clarify aggregation protocol'' \\
+2 & Calibrated baseline formula (Eq. 1) & 138-140 & ``Unfair COCOMO comparison'' \\
+3 & Table 1 (Dataset manifest) & 248-275 & ``Unclear dataset provenance'' \\
+4 & Table 2 (Comparative studies) & 145-178 & ``Missing related work comparison'' \\
+5 & Table 4 (Wilcoxon tests) & 880-910 & ``Need statistical significance testing'' \\
+6 & Table 5 (Ablation study) & 1068-1085 & ``Justify preprocessing design choices'' \\
+7 & Table 6 (Transfer learning) & 945-960 & ``Test cross-schema generalization'' \\
+8 & MdMRE \& MAPE metrics & 630-655 & ``MMRE criticized in SEE literature'' \\
+9 & XGBoost model & 160-167, 395-405, 812-828 & ``Missing state-of-the-art models'' \\
+10 & Bootstrap CIs for FP & 675-689 & ``Small FP sample size concerns'' \\
+11 & LOSO cross-validation & 763-828 & ``Test cross-organizational robustness'' \\
+12 & Three-component ablation & 1005-1065 & ``Justify macro-avg, log-transform, outlier filter choices'' \\
+13 & Anomaly analysis & 865-920 & ``Explain scatter plot outliers (Figure 2, 5)'' \\
+14 & Feature importance discussion & 1115-1138 & ``Practical implications for practitioners'' \\
+15 & Four-category limitations & 1140-1210 & ``Acknowledge weaknesses explicitly'' \\
+\end{longtable}
+
+\section{Hướng Dẫn Thực Hiện Bôi Vàng}
+
+\subsection{Phương án 1: Bôi vàng trực tiếp trong LaTeX}
+
+Thêm vào preamble của \texttt{Paper\_v2/main.tex}:
+
+\begin{verbatim}
+\usepackage{soul}
+\usepackage{xcolor}
+\sethlcolor{yellow}
+\end{verbatim}
+
+Sau đó bôi vàng từng đoạn:
+
+\begin{verbatim}
+\hl{This entire paragraph will be highlighted in yellow 
+and can span multiple lines automatically.}
+\end{verbatim}
+
+\subsection{Phương án 2: Dùng PDF Annotation (Khuyến nghị)}
+
+\begin{enumerate}
+    \item Compile \texttt{Paper\_v2/main.tex} thành PDF bình thường (không sửa gì)
+    \item Mở PDF bằng Adobe Acrobat Reader / Foxit Reader / Xournal++
+    \item Dùng công cụ ``Highlight Text'' để bôi vàng theo bảng trên
+    \item Thêm comment annotation: ``Added per Reviewer X, Comment Y''
+    \item Export thành PDF có annotations
+\end{enumerate}
+
+\subsection{Phương án 3: Tạo bản diff màu sắc}
+
+Dùng package \texttt{latexdiff} để tạo PDF so sánh:
+
+\begin{verbatim}
+latexdiff old_version.tex Paper_v2/main.tex > diff.tex
+pdflatex diff.tex
+\end{verbatim}
+
+Phần thêm mới sẽ tự động được đánh dấu xanh (addition) hoặc đỏ (deletion).
+
+\section{Thống Kê Tổng Quan}
+
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Hạng mục} & \textbf{Số lượng} & \textbf{Tỷ lệ} \\
+\midrule
+Tổng số dòng paper & 1,285 & 100\% \\
+Dòng cần bôi vàng & $\sim$600+ & \textbf{47\%} \\
+\midrule
+Sections viết lại hoàn toàn & 3 & (Intro, Limitations, Conclusion) \\
+Subsections thêm mới & 12 & \\
+Tables thêm mới/sửa đổi & 6 & (Table 1, 2, 3, 4, 5, 6) \\
+Figures mở rộng caption & 5 & \\
+Equations thêm mới & 3 & \\
+\midrule
+Reviewers addressed & 8 & \\
+Major comments addressed & 52+ & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{2em}
+
+\noindent\fbox{\parbox{\dimexpr\textwidth-2\fboxsep}{%
+\textbf{Lưu ý quan trọng:}
+\begin{itemize}
+    \item Ba phần \textbf{BÔI TOÀN BỘ} bắt buộc: Introduction (85-128), Limitations (1140-1210), Conclusion (1212-1280)
+    \item Các tables mới (Table 1, 2, 4, 5, 6) cần bôi toàn bộ
+    \item Với các sections khác, bôi theo từng subsection/paragraph được liệt kê
+    \item Nếu muốn tiết kiệm thời gian, ưu tiên bôi 15 thành phần trong ``Bảng Tổng Hợp'' ở Section 2
+\end{itemize}
+}}
+
+\end{document}

@@ -1,0 +1,323 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage[hidelinks]{hyperref}
+
+\sethlcolor{yellow}
+\definecolor{highlightbox}{RGB}{255,255,200}
+
+\title{\textbf{NỘI DUNG TEXT CẦN BÔI VÀNG}\\[0.5em]
+\large Chi Tiết Từng Đoạn Văn Bản Trong Paper v2/main.tex}
+
+\author{AI Copilot Assistant}
+\date{February 19, 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Hướng Dẫn Sử Dụng File Này}
+
+File này liệt kê \textbf{CHÍNH XÁC} nội dung text cần bôi vàng trong Paper\_v2/main.tex. 
+Mỗi phần được đánh dấu với:
+\begin{itemize}
+    \item \hl{Màu vàng} = Phần cần bôi vàng
+    \item Số dòng tham chiếu trong $[$ngoặc vuông$]$
+    \item Mô tả ngắn gọn về nội dung
+\end{itemize}
+
+\vspace{1em}
+\begin{center}
+\fcolorbox{red}{highlightbox}{\parbox{0.95\textwidth}{%
+\textbf{QUAN TRỌNG:} Ba phần sau đây phải BÔI TOÀN BỘ (không bỏ sót):
+\begin{enumerate}
+    \item Introduction (Lines 85--128): 44 dòng
+    \item Section 8 Discussion - Phần cuối (Lines 1140--1210): 70 dòng  
+    \item Data Availability \& Declarations (Lines 1212--1286): 74 dòng
+\end{enumerate}
+}}
+\end{center}
+
+\newpage
+\section{PHẦN 1: ABSTRACT [$\sim$Lines 73--82]}
+
+\subsection*{Text cần bôi vàng:}
+
+\noindent\fcolorbox{black}{yellow!15}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+\small
+\hl{``This paper proposes a unified machine-learning--based framework designed to improve estimation accuracy across three widely used sizing schemas: Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP).''} \\[0.5em]
+
+\hl{``Using publicly available datasets aggregating $n=3{,}054$ projects from 18 sources (1993--2022), we conduct comprehensive evaluation based on established effort-estimation metrics (MMRE, MdMRE, MAPE, PRED(25), MAE, RMSE, and $R^2$).''} \\[0.5em]
+
+\hl{``We compare against a calibrated size-only baseline (fitted on training data per schema) rather than uncalibrated COCOMO~II defaults, ensuring fair parametric comparison when cost drivers are unavailable.''} \\[0.5em]
+
+\hl{``Overall metrics use macro-averaging (equal weight per schema) to prevent LOC dominance; schema-specific results report independent per-schema models.''} \\[0.5em]
+
+\hl{``Leave-One-Source-Out validation (11 LOC sources) confirms acceptable cross-source robustness (21\% MAE degradation vs. within-source splits).''} \\[0.5em]
+
+\hl{``The findings demonstrate that data-driven approaches generalize effectively across diverse project contexts, offering actionable insights for practitioners seeking reliable and scalable software effort estimation.''}
+\end{minipage}}
+
+\textbf{Lý do bôi:} Thêm mô tả về macro-averaging, LOSO validation, calibrated baseline - yêu cầu của Reviewer về methodology transparency.
+
+\newpage
+\section{PHẦN 2: INTRODUCTION [Lines 85--128] --- \fcolorbox{red}{highlightbox}{BÔI TOÀN BỘ 44 DÒNG}}
+
+\subsection*{Text cần bôi vàng (TOÀN BỘ SECTION):}
+
+\noindent\fcolorbox{black}{yellow!15}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+\small
+\textbf{$\S$1 Introduction}\\[0.5em]
+
+\hl{Accurately estimating software development effort is a critical factor in determining the success of software projects. Reliable estimates support effective planning, budgeting, resource allocation, and risk management. Conversely, inaccurate estimates often result in cost overruns, schedule delays, and even project failure, as widely acknowledged in the empirical software engineering literature~\cite{boehm2000cocomo}. As modern software projects continue to grow in diversity—varying in size, methodology, domain, and team structure—the challenge of producing consistent and trustworthy effort estimates becomes increasingly pronounced.}\\[0.5em]
+
+\hl{A wide range of factors affect estimation accuracy, including project size, functional complexity, development methodology, team capability, and organizational context. Traditional parametric models such as COCOMO~II provide interpretability and have historically been adopted in industrial settings, yet their fixed functional forms struggle to generalize across heterogeneous contemporary datasets. This motivates the exploration of more flexible, data-driven approaches capable of capturing non-linear patterns and adapting to diverse project characteristics.}\\[0.5em]
+
+\hl{In this work, we address these challenges by designing a unified machine-learning framework for software effort estimation. Specifically, this study pursues three objectives: (i) to develop an integrated estimation framework that supports three major sizing schemas—Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP); (ii) to empirically compare the performance of multiple machine-learning regressors against the widely used COCOMO~II model using standard evaluation metrics such as MMRE, PRED(25), MAE, RMSE, and $R^2$; and (iii) to analyze the behavior of each model within individual sizing schemas in order to provide practical insights for software project managers.}\\[0.5em]
+
+\hl{\textbf{However, three methodological gaps limit reproducibility in prior SEE research:} (i) unclear dataset provenance and deduplication rules hinder independent replication; (ii) COCOMO~II baselines often use arbitrary default parameters when cost drivers are unavailable, creating unfair comparisons; (iii) cross-schema aggregation protocols (macro vs. micro) are rarely specified, potentially masking true behavior on small-sample schemas like FP. This work addresses these gaps through transparent methodology rather than proposing novel models.}\\[0.5em]
+
+\hl{\textbf{The contributions of this paper are summarized as follows:}}
+
+\hl{\textbf{$\bullet$ We propose a unified multi-schema machine-learning framework} that harmonizes preprocessing, feature construction, model training, and evaluation across LOC, FP, and UCP, aggregating $n=3{,}054$ projects from 18 sources (1993--2022) with explicit provenance and deduplication rules.}\\[0.3em]
+
+\hl{\textbf{$\bullet$ We adopt a calibrated size-only baseline} (not full COCOMO~II due to missing cost drivers in public datasets) fitted per schema on training data, ensuring fair parametric comparison.}\\[0.3em]
+
+\hl{\textbf{$\bullet$ We conduct a comprehensive empirical comparison} involving five representative ML models (Linear Regression, Decision Tree, Random Forest, Gradient Boosting, XGBoost), reporting MdMRE and MAPE in addition to standard metrics (MMRE, MAE, RMSE, PRED(25)).}\\[0.3em]
+
+\hl{\textbf{$\bullet$ We provide schema-specific analyses} to examine how input representation (KLOC, FP, UCP) influences predictive accuracy, using macro-averaging for overall results to prevent LOC dominance.}\\[0.3em]
+
+\hl{\textbf{$\bullet$ We demonstrate cross-source generalization} via Leave-One-Source-Out (LOSO) validation on LOC schema (11 sources), showing acceptable robustness (21\% MAE degradation vs. within-source splits).}\\[0.3em]
+
+\hl{\textbf{$\bullet$ We offer practical implications} for applying machine-learning-based effort estimation in real-world software engineering environments.}\\[0.5em]
+
+\hl{\textbf{Paper Organization.} Section~2 describes methods and evaluation metrics; Section~3 details dataset sources and preprocessing; Section~4 presents experimental protocols and results; Section~5 discusses practical implications; Sections~6--7 address validity threats and related work; Section~8 concludes with future directions.}
+\end{minipage}}
+
+\textbf{Lý do bôi TOÀN BỘ:} Introduction được viết lại hoàn toàn với 4 parts theo yêu cầu Reviewer: (1) Problem, (2) Gap - 3 methodological gaps, (3) Contributions - 6 bullets, (4) Structure.
+
+\newpage
+\section{PHẦN 3: BASELINE CALIBRATION [Lines 138--143]}
+
+\subsection*{Text cần bôi vàng:}
+
+\noindent\fcolorbox{black}{yellow!15}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+\small
+\textbf{$\S$2.1.1 Baseline Fairness and Calibration}\\[0.5em]
+
+\hl{To ensure fair comparison, we do not use full COCOMO~II with default parameters (most public datasets lack the required cost drivers and scale factors). Instead, we employ a \textit{calibrated size-only power-law baseline} of the form $E = A \times (\text{Size})^B$, where $A$ and $B$ are fitted via least-squares regression on $\log(E)$ vs.~$\log(\text{Size})$ using training data only. This preserves COCOMO~II's multiplicative scaling philosophy while avoiding straw-man comparisons from uncalibrated defaults. For each schema (LOC/FP/UCP) and each random seed, the baseline is re-calibrated independently, providing a principled parametric lower bound.}
+\end{minipage}}
+
+\textbf{Lý do bôi:} THÊM MỚI subsection - Giải thích tại sao không dùng COCOMO II defaults, fitted baseline per schema per fold.
+
+\newpage
+\section{PHẦN 4: CROSS-SCHEMA AGGREGATION PROTOCOL [Lines 229--246]}
+
+\subsection*{Text cần bôi vàng:}
+
+\noindent\fcolorbox{black}{yellow!15}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+\small
+\textbf{$\S$3.X Cross-Schema Aggregation Protocol.}\\[0.5em]
+
+\hl{Results marked ``overall'' use \textit{macro-averaging}: we compute metrics separately per schema (LOC/FP/UCP), then average them with equal weight. Formally, for any metric $m$ (e.g., MMRE, PRED(25), MAE, RMSE, $R^2$), the overall score is computed as:}
+
+\hl{$$m_{\text{macro}} = \frac{1}{3} \sum_{s \in \{\text{LOC}, \text{FP}, \text{UCP}\}} m^{(s)},$$}
+
+\hl{where $m^{(s)}$ is the metric value for schema $s$. This treats each schema equally regardless of sample size, consistent with multi-domain benchmarking best practices. Schema-specific results report per-schema test predictions from models trained exclusively on that schema, preventing LOC ($n{=}2{,}765$, 90.5\% of projects) from dominating FP ($n{=}158$, 5.2\%) and UCP ($n{=}131$, 4.3\%) in the aggregated evaluation.}\\[0.5em]
+
+\textbf{$\S$3.X Dataset Imbalance Justification.}\\[0.5em]
+
+\hl{The imbalance across schemas—LOC comprises 2,765 projects (90.5\%), while FP contains 158 (5.2\%) and UCP 131 (4.3\%)—reflects historical data availability rather than methodological bias. LOC-based measurement has been the dominant practice in software engineering for decades, resulting in extensive public datasets across 11 independent sources (NASA93, COCOMO81, Telecom1, Maxwell, Miyazaki, Chinese, Finnish, Kitchenham, Derek Jones curated, Freeman, DASE-2023). Function Point analysis, while theoretically attractive, requires specialized expertise and is less frequently documented in research repositories; our expanded FP corpus aggregates 4 historical sources (Albrecht 1983, Desharnais 1989, Kemerer 1987, Maxwell 1993) totaling 158 projects after deduplication. Use Case Points emerged more recently with 3 available sources. This distribution mirrors real-world adoption patterns~\cite{boehm2000cocomo,albrecht1983software}. To ensure fair evaluation despite this imbalance, we employ: (1) \textit{schema-stratified modeling} (separate models per schema, not pooled), (2) \textit{macro-averaged metrics} giving equal schema weight, and (3) for FP specifically, Leave-One-Out Cross-Validation (LOOCV) with bootstrap confidence intervals to maximize statistical power. This approach ensures that our conclusions about model superiority hold consistently across schemas, not merely where data is abundant.}
+\end{minipage}}
+
+\textbf{Lý do bôi:} THÊM MỚI - Macro-averaging formula + justification, giải thích schema imbalance.
+
+\newpage
+\section{PHẦN 5: TABLE 1 - DATASET PROVENANCE [Lines 248--275]}
+
+\subsection*{Text cần bôi vàng:}
+
+\noindent\fcolorbox{black}{yellow!15}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+\small
+\textbf{Table 1 (TOÀN BỘ TABLE):}\\[0.5em]
+
+\hl{\textbf{Table 1.} Dataset provenance and sample sizes after deduplication and expansion across multiple sources.}\\[0.3em]
+
+\hl{\textbf{Schema | Sources | Period | Raw $n$ | Final $n$ | Dedup.\%}}\\
+\hl{LOC | 11 datasets\textsuperscript{a} | 1981--2023 | 2,984 | 2,765 | $-$7.3\%}\\
+\hl{FP  | 4 datasets\textsuperscript{b}  | 1979--2005 | 167   | 158   | $-$5.4\%}\\
+\hl{UCP | 3 datasets\textsuperscript{c}  | 1993--2023 | 139   | 131   | $-$5.8\%}\\
+\hl{\textbf{Total} | \textbf{18} | \textbf{1979--2023} | \textbf{3,290} | \textbf{3,054} | \textbf{$-$7.2\%}}\\[0.5em]
+
+\hl{\footnotesize\textsuperscript{a}LOC datasets: NASA93, COCOMO81, Telecom1, Maxwell, Miyazaki, Chinese, Finnish, Kitchenham, Derek Jones curated, Freeman, DASE-2023.}\\
+\hl{\footnotesize\textsuperscript{b}FP datasets: Albrecht (1983), Desharnais (1989), Kemerer (1987 re-coded), Maxwell (1993).}\\
+\hl{\footnotesize\textsuperscript{c}UCP datasets: Silhavy et al. (2015, 2017), Ochodek et al. (2011).}
+\end{minipage}}
+
+\textbf{Lý do bôi:} THÊM MỚI HOÀN TOÀN - Dataset manifest 8 columns với DOI/URL, deduplication percentage, period.
+
+\newpage
+\section{PHẦN 6: RESULTS TABLE [Lines 630--655]}
+
+\subsection*{Text cần bôi vàng trong Table:}
+
+\noindent\fcolorbox{black}{yellow!15}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+\small
+\textbf{Table X. Overall test performance (THÊM/SỬA):}\\[0.5em]
+
+\hl{\textbf{NEW COLUMNS:} MdMRE $\downarrow$, MAPE $\downarrow$ (thay vì R²)}\\[0.3em]
+
+\hl{\textbf{NEW ROW:} XGBoost | 0.680 | 0.52 | 45.3 | 0.382 | 13.24 | 20.45}\\[0.5em]
+
+\hl{\textbf{NEW FOOTNOTE:} ``Overall metrics computed via macro-averaging (equal weight per schema: LOC/FP/UCP) to prevent LOC dominance. MdMRE (median relative error) provides robustness to outliers; MAPE expresses error as percentage for business comparability. Statistical significance confirmed via Wilcoxon tests (Section~4.4).''}
+\end{minipage}}
+
+\textbf{Lý do bôi:} Loại R², thêm MdMRE \& MAPE, thêm XGBoost, footnote về macro-averaging.
+
+\newpage
+\section{PHẦN 7: ABLATION STUDY [Lines 865--920]}
+
+\subsection*{Text cần bôi vàng:}
+
+\noindent\fcolorbox{black}{yellow!15}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+\small
+\textbf{$\S$5.X Ablation Analysis}\\[0.5em]
+
+\hl{To quantify the contribution of individual preprocessing steps, we conducted ablation experiments on the LOC schema using Random Forest (our best-performing model). Table~\ref{tab:ablation} shows performance with progressively disabled components. Removing log-transformation increases MMRE by 15\%, confirming that power-law relationships are better captured in log-space. Disabling outlier capping increases RMSE by 12\%, as extreme values distort model learning. The full pipeline achieves the best balance across all metrics, validating our preprocessing design.}\\[0.5em]
+
+\hl{\textbf{Table X. Ablation study on Random Forest (LOC schema, mean over 10 seeds).}}\\
+\hl{Configuration | MMRE $\downarrow$ | MAE $\downarrow$ | RMSE $\downarrow$}\\
+\hl{No log-transform | 0.74 | 14.5 | 22.8}\\
+\hl{No outlier capping | 0.69 | 13.9 | 22.4}\\
+\hl{Full pipeline | 0.65 | 12.7 | 20.0}\\[0.5em]
+
+\textbf{$\S$5.X Model Interpretability}\\[0.5em]
+
+\hl{While ensemble methods are often criticized as black boxes, Random Forest provides built-in feature importance via Gini impurity reduction. Table~\ref{tab:feature-importance} quantifies the contribution of each feature across the three schemas. Size consistently dominates prediction (60--75\% importance), followed by Time (15--25\%) and Developers (10--15\%) when available. This aligns with domain knowledge that project scope is the primary effort driver, while team size and duration modulate the baseline estimate.}
+\end{minipage}}
+
+\textbf{Lý do bôi:} THÊM MỚI - Ablation analysis quantifying preprocessing + Feature importance discussion.
+
+\newpage
+\section{PHẦN 8: DISCUSSION - CUỐI [Lines 1140--1210] --- \fcolorbox{red}{highlightbox}{BÔI TOÀN BỘ}}
+
+\subsection*{Text cần bôi vàng (TOÀN BỘ PHẦN):}
+
+\noindent\fcolorbox{black}{yellow!15}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+\small
+\textbf{$\S$8 Discussion (phần cuối)}\\[0.5em]
+
+\hl{\textbf{Strengths.} This work provides:}
+
+\hl{$\bullet$ Auditable dataset manifest with explicit deduplication and rebuild scripts (Table~\ref{tab:dataset-summary}, GitHub repository).}\\
+\hl{$\bullet$ Fair calibrated parametric baseline avoiding straw-man comparisons—size-only power-law fitted per schema on training data.}\\
+\hl{$\bullet$ Schema-appropriate evaluation protocols: LOOCV for FP ($n=158$), stratified 80/20 for LOC/UCP, bootstrap CI for robustness.}\\
+\hl{$\bullet$ Explicit macro/micro aggregation preventing LOC dominance in overall metrics.}\\
+\hl{$\bullet$ Ablation analysis quantifying preprocessing contributions (Table~\ref{tab:ablation}).}\\
+\hl{$\bullet$ Feature importance analysis with Gini-based rankings (Table~\ref{tab:feature-importance}, Figure~\ref{fig:feature-importance-schemas}).}\\[0.5em]
+
+\hl{\textbf{Weaknesses.}}
+
+\hl{$\bullet$ FP schema smaller ($n=158$, 4 sources) than LOC though LOOCV/bootstrap provide reasonable power; broader industrial corpus (ISBSG) would strengthen claims.}\\
+\hl{$\bullet$ No cross-schema transfer learning attempted (intentional design choice to avoid semantic mismatch).}\\
+\hl{$\bullet$ Baseline excludes COCOMO~II cost drivers due to data unavailability (represents parametric lower bound).}\\
+\hl{$\bullet$ Public legacy datasets (1993--2022) may not fully reflect modern DevOps/Agile practices.}\\[0.5em]
+
+\hl{\textbf{Implications.} Future SEE papers can adopt our manifest + baseline + aggregation template for defensible reproducible claims. Practically, ensembles (RF/GB) provide robust default estimators when only size signals are available, achieving substantial improvements over calibrated parametric baselines.}\\[0.5em]
+
+\hl{\textbf{Closing Remarks.} The unified framework proposed in this study provides a reproducible, transparent, and extensible foundation for cross-schema benchmarking in software effort estimation. By integrating methodological rigor, schema harmonization, and comprehensive evaluation, this work moves toward a \textit{living estimation system}—one that evolves with new telemetry and real-world project dynamics. We hope this framework will support practitioners, researchers, and tool builders in creating more adaptive, evidence-based estimation solutions.}
+\end{minipage}}
+
+\textbf{Lý do bôi TOÀN BỘ:} Phần này được VIẾT LẠI HOÀN TOÀN với Strengths/Weaknesses/Implications/Closing theo yêu cầu Reviewer về transparency.
+
+\newpage
+\section{PHẦN 9: DATA AVAILABILITY \& DECLARATIONS [Lines 1212--1286] --- \fcolorbox{red}{highlightbox}{BÔI TOÀN BỘ}}
+
+\subsection*{Text cần bôi vàng (TOÀN BỘ PHẦN):}
+
+\noindent\fcolorbox{black}{yellow!15}{\begin{minipage}{\dimexpr\textwidth-2\fboxsep-2\fboxrule}
+\small
+\textbf{$\S$9 Data Availability}\\[0.5em]
+
+\hl{All datasets used in this study are publicly available and were collected from open-access software engineering repositories. No proprietary or private data were used. The final harmonized dataset was constructed by integrating three schema-specific sources: LOC-based datasets, Function Point datasets, and Use Case Point datasets.}\\[0.5em]
+
+\hl{\textbf{Public sources include:}}
+
+\hl{$\bullet$ \textbf{DASE – Data Analysis in Software Engineering} \url{https://github.com/danrodgar/DASE}}\\
+\hl{$\bullet$ \textbf{Software Estimation Datasets (Derek Jones)} \url{https://github.com/Derek-Jones/Software-estimation-datasets}}\\
+\hl{$\bullet$ \textbf{Software Project Development Estimator (Freeman et al.)} \url{https://github.com/Freeman-md/software-project-development-estimator}}\\
+\hl{$\bullet$ \textbf{ISBSG-derived FP dataset / Pre-trained Model (Huynh et al.)} \url{https://github.com/huynhhoc/effort-estimation-by-using-pre-trained-model}}\\[0.5em]
+
+\hl{Each repository provides schema-specific project records (LOC, FP, or UCP) with effort values in hours or person-months. The author merged these records into a unified schema by standardizing effort units, normalizing size metrics, and removing duplicates. Illustrative examples of the integrated dataset include FP-based samples (Desharnais), LOC samples (e.g., project\_id/loc/kloc/effort\_pm), and UCP samples (Silhavy et al.).}\\[0.5em]
+
+\hl{The harmonized dataset and preprocessing scripts can be obtained from the corresponding author upon reasonable request. All data used in this work are anonymized and contain no personal or sensitive information.}\\[1em]
+
+\textbf{$\S$ Declarations}\\[0.5em]
+
+\hl{\textbf{Funding:} This research received no specific grant from any funding agency in the public, commercial, or not-for-profit sectors.}\\[0.3em]
+
+\hl{\textbf{Competing Interests:} The authors declare that they have no competing interests.}\\[0.3em]
+
+\hl{\textbf{Ethics Approval and Consent to Participate:} This study uses only publicly available, fully anonymized datasets. No human participants or personal data were involved; therefore, ethics approval and formal consent were not required.}\\[0.3em]
+
+\hl{\textbf{Consent for Publication:} Not applicable.}\\[0.5em]
+
+\hl{\textbf{Authors' Contributions:}}\\
+\hl{\textbf{Nguyen Nhat Huy}: Conceptualization, Dataset Preparation, Methodology, Software Development, Experiments, Formal Analysis, Visualization, Writing – Original Draft.}\\
+\hl{\textbf{Duc Man Nguyen}: Supervision, Technical Guidance, Methodology Refinement, Writing – Review \& Editing.}\\
+\hl{\textbf{Dang Nhat Minh}: Data Curation, Feature Engineering Support, Implementation Assistance, Writing – Editing.}\\
+\hl{\textbf{Nguyen Thuy Giang}: Resources, Validation, Consistency Checking, Documentation Support.}\\
+\hl{\textbf{P.~W.~C.~Prasad}: Senior Supervision, Project Administration, Strategic Direction, Final Approval of the Manuscript.}\\
+\hl{\textbf{Md Shohel Sayeed (Corresponding Author)}: Validation, Technical Review, Writing – Review \& Editing, Final Manuscript Coordination.}\\[0.3em]
+
+\hl{All authors read and approved the final manuscript.}
+\end{minipage}}
+
+\textbf{Lý do bôi TOÀN BỘ:} Thêm Data Availability section + Declarations (Funding, Competing Interests, Ethics, Authors' Contributions) - yêu cầu của Springer Nature journal format.
+
+\newpage
+\section{TÓM TẮT NHANH - CHECKLIST}
+
+\subsection*{BA PHẦN BÔI TOÀN BỘ (366 dòng tổng cộng):}
+\begin{enumerate}
+    \item \hl{Introduction (Lines 85--128): 44 dòng}
+    \item \hl{Discussion - Strengths/Weaknesses (Lines 1140--1210): 70 dòng}
+    \item \hl{Data Availability \& Declarations (Lines 1212--1286): 74 dòng}
+\end{enumerate}
+
+\subsection*{CÁC PHẦN QUAN TRỌNG KHÁC:}
+\begin{itemize}
+    \item Abstract - 6 câu về macro-averaging, LOSO, calibrated baseline (Lines 73--82)
+    \item Section 2.1.1 - Baseline Calibration (Lines 138--143)
+    \item Section 3.X - Cross-Schema Aggregation Protocol + formula (Lines 229--246)
+    \item Table 1 - Dataset Provenance (Lines 248--275)
+    \item Table X Results - MdMRE, MAPE columns + XGBoost row + footnote (Lines 630--655)
+    \item Ablation Study + Feature Importance (Lines 865--920)
+\end{itemize}
+
+\subsection*{TỔNG CỘNG:}
+\begin{itemize}
+    \item \textbf{Số dòng cần bôi:} $\sim$600+ dòng (47\% paper)
+    \item \textbf{Số thành phần THÊM MỚI:} 15 components (tables, subsections, equations)
+    \item \textbf{Số sections VIẾT LẠI HOÀN TOÀN:} 3 sections
+\end{itemize}
+
+\vspace{2em}
+\begin{center}
+\fcolorbox{black}{highlightbox}{\parbox{0.9\textwidth}{%
+\textbf{Gợi ý triển khai:}
+\begin{enumerate}
+    \item Mở Paper\_v2/main.tex và file này song song
+    \item Bắt đầu với BA PHẦN BÔI TOÀN BỘ (quan trọng nhất)
+    \item Sau đó bôi các Tables (dễ identify)
+    \item Cuối cùng bôi các subsections nhỏ lẻ
+    \item Dùng Ctrl+F để tìm text trong file này trong main.tex
+\end{enumerate}
+}}
+\end{center}
+
+\end{document}

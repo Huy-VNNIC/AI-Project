@@ -313,6 +313,202 @@ def estimate_from_tasks(tasks: TaskList):
         logger.error(f"Error estimating from tasks: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
+# Task Generation API Endpoints
+@app.get("/api/task-generation/status")
+async def task_generation_status():
+    """
+    Health check endpoint for task generation service
+    """
+    return {"status": "healthy", "service": "task-generation"}
+
+@app.post("/api/task-generation/generate")
+async def generate_tasks_from_text(requirement: RequirementText):
+    """
+    Generate tasks from requirement text
+    """
+    try:
+        analyzer = RequirementAnalyzer()
+        extracted_reqs = analyzer.extract_requirements(requirement.text)
+        
+        # Convert to tasks format
+        tasks = []
+        for req in extracted_reqs:
+            # Map complexity level to story points estimate
+            complexity_map = {
+                'high': 13,
+                'medium': 8,
+                'low': 3,
+                'very_high': 20,
+                'very_low': 1
+            }
+            # Clean complexity level - extract base word (e.g., "medium_complexity" → "medium")
+            raw_complexity = req.get("technical_complexity", "medium").lower()
+            complexity_level = raw_complexity.split('_')[0]  # Get first part
+            if complexity_level not in complexity_map:
+                complexity_level = "medium"  # Reset to default if not found
+            estimated_effort = complexity_map.get(complexity_level, 5)
+            
+            # Extract domain from requirement text or use default
+            req_text = req.get("text", "")
+            text_lower = req_text.lower()
+            domain = "General"
+            
+            # Healthcare domain detection
+            if any(kw in text_lower for kw in ["bệnh viện", "bệnh nhân", "bác sĩ", "y tế", "medical", "hospital", "patient", "physician", "doctor", "diagnosis"]):
+                domain = "Healthcare/Hospital"
+            elif any(kw in text_lower for kw in ["xét nghiệm", "lab", "laboratory", "test", "analyzer", "sample"]):
+                domain = "Laboratory/Testing"
+            elif any(kw in text_lower for kw in ["phẫu thuật", "mổ", "surgery", "surgical", "operating"]):
+                domain = "Surgery"
+            elif any(kw in text_lower for kw in ["thuốc", "nhà thuốc", "pharmacy", "medication", "drug"]):
+                domain = "Pharmacy"
+            elif any(kw in text_lower for kw in ["viện phí", "thanh toán", "payment", "billing", "invoice"]):
+                domain = "Billing/Payment"
+            elif any(kw in text_lower for kw in ["khách sạn", "hotel", "booking"]):
+                domain = "Hotel Management"
+            elif any(kw in text_lower for kw in ["đặt phòng", "reservation"]):
+                domain = "Reservation System"
+            
+            # Generate acceptance criteria from requirement text
+            acceptance_criteria = []
+            if "must" in req_text.lower() or "shall" in req_text.lower() or "phải" in req_text.lower():
+                acceptance_criteria.append(f"The requirement is implemented according to specifications")
+                acceptance_criteria.append(f"All validation rules are enforced")
+                acceptance_criteria.append(f"Error handling is in place")
+            
+            # Extract user role from text or use generic
+            role = "User"
+            if any(kw in req_text.lower() for kw in ["admin", "quản trị", "administrator"]):
+                role = "Administrator"
+            elif any(kw in req_text.lower() for kw in ["customer", "khách", "bệnh nhân"]):
+                role = "Patient/Customer"
+            elif any(kw in req_text.lower() for kw in ["staff", "nhân viên", "điều dưỡng", "nurse", "technician"]):
+                role = "Healthcare Staff"
+            elif any(kw in req_text.lower() for kw in ["guest", "khách", "thuê"]):
+                role = "Guest"
+            elif any(kw in req_text.lower() for kw in ["doctor", "bác sĩ", "physician"]):
+                role = "Physician"
+            
+            tasks.append({
+                "id": req.get("id", ""),
+                "title": req_text[:100],  # First 100 chars
+                "description": req_text,  # Full text as description
+                "priority": req.get("priority", "medium"),
+                "type": req.get("type", "general"),
+                "complexity": complexity_level,
+                "domain": domain,
+                "story_points": estimated_effort,
+                "role": role,
+                "acceptance_criteria": acceptance_criteria,
+                "estimated_effort": estimated_effort,
+                "score": round(req.get("score", 0), 2)
+            })
+        
+        return {
+            "status": "success",
+            "tasks": tasks,
+            "total_tasks": len(tasks)
+        }
+    except Exception as e:
+        logger.error(f"Error generating tasks: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/task-generation/generate-from-file")
+async def generate_tasks_from_file(file: UploadFile = File(...)):
+    """
+    Generate tasks from uploaded file
+    """
+    try:
+        content = await file.read()
+        text_content = content.decode("utf-8")
+        
+        analyzer = RequirementAnalyzer()
+        extracted_reqs = analyzer.extract_requirements(text_content)
+        
+        # Convert to tasks format
+        tasks = []
+        for req in extracted_reqs:
+            # Map complexity level to story points estimate
+            complexity_map = {
+                'high': 13,
+                'medium': 8,
+                'low': 3,
+                'very_high': 20,
+                'very_low': 1
+            }
+            # Clean complexity level - extract base word (e.g., "medium_complexity" → "medium")
+            raw_complexity = req.get("technical_complexity", "medium").lower()
+            complexity_level = raw_complexity.split('_')[0]  # Get first part
+            if complexity_level not in complexity_map:
+                complexity_level = "medium"  # Reset to default if not found
+            estimated_effort = complexity_map.get(complexity_level, 5)
+            
+            # Extract domain from requirement text or use default
+            req_text = req.get("text", "")
+            text_lower = req_text.lower()
+            domain = "General"
+            
+            # Healthcare domain detection
+            if any(kw in text_lower for kw in ["bệnh viện", "bệnh nhân", "bác sĩ", "y tế", "medical", "hospital", "patient", "physician", "doctor", "diagnosis"]):
+                domain = "Healthcare/Hospital"
+            elif any(kw in text_lower for kw in ["xét nghiệm", "lab", "laboratory", "test", "analyzer", "sample"]):
+                domain = "Laboratory/Testing"
+            elif any(kw in text_lower for kw in ["phẫu thuật", "mổ", "surgery", "surgical", "operating"]):
+                domain = "Surgery"
+            elif any(kw in text_lower for kw in ["thuốc", "nhà thuốc", "pharmacy", "medication", "drug"]):
+                domain = "Pharmacy"
+            elif any(kw in text_lower for kw in ["viện phí", "thanh toán", "payment", "billing", "invoice"]):
+                domain = "Billing/Payment"
+            elif any(kw in text_lower for kw in ["khách sạn", "hotel", "booking"]):
+                domain = "Hotel Management"
+            elif any(kw in text_lower for kw in ["đặt phòng", "reservation"]):
+                domain = "Reservation System"
+            
+            # Generate acceptance criteria from requirement text
+            acceptance_criteria = []
+            if "must" in req_text.lower() or "shall" in req_text.lower() or "phải" in req_text.lower():
+                acceptance_criteria.append(f"The requirement is implemented according to specifications")
+                acceptance_criteria.append(f"All validation rules are enforced")
+                acceptance_criteria.append(f"Error handling is in place")
+            
+            # Extract user role from text or use generic
+            role = "User"
+            if any(kw in req_text.lower() for kw in ["admin", "quản trị", "administrator"]):
+                role = "Administrator"
+            elif any(kw in req_text.lower() for kw in ["customer", "khách", "bệnh nhân"]):
+                role = "Patient/Customer"
+            elif any(kw in req_text.lower() for kw in ["staff", "nhân viên", "điều dưỡng", "nurse", "technician"]):
+                role = "Healthcare Staff"
+            elif any(kw in req_text.lower() for kw in ["guest", "khách", "thuê"]):
+                role = "Guest"
+            elif any(kw in req_text.lower() for kw in ["doctor", "bác sĩ", "physician"]):
+                role = "Physician"
+            
+            tasks.append({
+                "id": req.get("id", ""),
+                "title": req_text[:100],  # First 100 chars
+                "description": req_text,  # Full text as description
+                "priority": req.get("priority", "medium"),
+                "type": req.get("type", "general"),
+                "complexity": complexity_level,
+                "domain": domain,
+                "story_points": estimated_effort,
+                "role": role,
+                "acceptance_criteria": acceptance_criteria,
+                "estimated_effort": estimated_effort,
+                "score": round(req.get("score", 0), 2)
+            })
+        
+        return {
+            "status": "success",
+            "tasks": tasks,
+            "total_tasks": len(tasks),
+            "filename": file.filename
+        }
+    except Exception as e:
+        logger.error(f"Error generating tasks from file: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/trello-import")
 def import_from_trello(data: Dict[str, Any] = Body(...)):
     """
@@ -694,6 +890,13 @@ async def cocomo_form_page(request: Request):
     Trang form COCOMO II parameter-based estimation
     """
     return templates.TemplateResponse("cocomo_form.html", {"request": request})
+
+@app.get("/task-generation", response_class=HTMLResponse)
+async def task_generation_page(request: Request):
+    """
+    Trang task generation và automated effort estimation
+    """
+    return templates.TemplateResponse("task_generation.html", {"request": request})
 
 @app.get("/debug", response_class=HTMLResponse)
 async def debug_page(request: Request):

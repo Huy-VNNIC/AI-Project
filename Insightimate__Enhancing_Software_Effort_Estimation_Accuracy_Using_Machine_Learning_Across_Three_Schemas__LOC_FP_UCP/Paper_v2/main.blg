@@ -3,23 +3,22 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
 The style file: unsrtnat.bst
 Database file #1: refs.bib
-Warning--there's a number but no volume in albrecht1983software
 You've used 22 entries,
             2481 wiz_defined-function locations,
             684 strings with 7870 characters,
-and the built_in function-call counts, 8910 in all, are:
+and the built_in function-call counts, 8908 in all, are:
 = -- 804
 > -- 372
 < -- 16
 + -- 151
 - -- 106
-* -- 681
+* -- 680
 := -- 1372
 add.period$ -- 68
 call.type$ -- 22
 change.case$ -- 43
 chr.to.int$ -- 21
-cite$ -- 23
+cite$ -- 22
 duplicate$ -- 449
 empty$ -- 852
 format.name$ -- 141
@@ -29,11 +28,11 @@ int.to.str$ -- 23
 missing$ -- 23
 newline$ -- 118
 num.names$ -- 66
-pop$ -- 172
+pop$ -- 171
 preamble$ -- 1
 purify$ -- 22
 quote$ -- 0
-skip$ -- 266
+skip$ -- 268
 stack$ -- 0
 substring$ -- 576
 swap$ -- 73
@@ -41,8 +40,7 @@ text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 151
-warning$ -- 1
+warning$ -- 0
 while$ -- 86
 width$ -- 0
 write$ -- 294
-(There was 1 warning)

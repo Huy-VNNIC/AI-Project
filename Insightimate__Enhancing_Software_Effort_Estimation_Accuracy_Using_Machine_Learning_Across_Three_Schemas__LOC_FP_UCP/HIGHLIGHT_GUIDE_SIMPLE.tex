@@ -1,0 +1,255 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{times}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+
+\title{\textbf{Hướng Dẫn Bôi Vàng Paper v2/main.tex}\\[0.5em]
+\large Danh Sách Chi Tiết Các Thay Đổi Theo Yêu Cầu Reviewers}
+
+\author{AI Copilot Assistant}
+\date{February 19, 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Tóm Tắt Tổng Quan}
+
+\begin{itemize}
+    \item \textbf{Tổng số dòng cần bôi vàng:} $\sim$600+ dòng (trong 1,285 dòng = \textbf{47\% paper})
+    \item \textbf{Phần viết lại hoàn toàn:} Introduction (85-128), Limitations (1140-1210), Conclusion (1212-1280)
+    \item \textbf{Tables thêm mới:} 6 tables (Table 1, 2, 4, 5, 6 + mở rộng Table 3)
+    \item \textbf{Sections thêm mới:} 12 subsections
+    \item \textbf{Equations thêm mới:} 3 equations (Baseline, Macro-avg, MdMRE)
+\end{itemize}
+
+\vspace{1em}
+\noindent\fcolorbox{black}{yellow!20}{\parbox{\dimexpr\textwidth-2\fboxsep-2\fboxrule}{\textbf{Chú ý:} Tất cả số dòng dưới đây tham chiếu đến file \texttt{Paper\_v2/main.tex}}}
+
+\section{BA PHẦN BÔI TOÀN BỘ --- QUAN TRỌNG NHẤT}
+
+\subsection{1. INTRODUCTION (Dòng 85-128) --- 44 dòng}
+\textbf{BÔI VÀNG TOÀN BỘ PHẦN NÀY}
+
+\begin{itemize}
+    \item Dòng 85-95: Part 1 - Problem Statement
+    \item Dòng 96-104: Part 2 - Research Gap (3 methodological gaps)
+    \item Dòng 105-115: Part 3 - Contributions (3 đóng góp chính)
+    \item Dòng 116-128: Part 4 - Manuscript Structure
+\end{itemize}
+
+\subsection{2. LIMITATIONS (Dòng 1140-1210) --- 70 dòng}
+\textbf{BÔI VÀNG TOÀN BỘ PHẦN NÀY}
+
+\begin{itemize}
+    \item Dòng 1140-1160: Category 1 - Data Limitations
+    \item Dòng 1161-1180: Category 2 - Methodological Limitations
+    \item Dòng 1181-1195: Category 3 - Validation Limitations
+    \item Dòng 1196-1210: Category 4 - Generalizability Limitations
+\end{itemize}
+
+\subsection{3. CONCLUSION (Dòng 1212-1280) --- 68 dòng}
+\textbf{BÔI VÀNG TOÀN BỘ PHẦN NÀY}
+
+\begin{itemize}
+    \item Dòng 1212-1225: Part 1 - Summary
+    \item Dòng 1226-1242: Part 2 - Practical Implications
+    \item Dòng 1243-1255: Part 3 - Limitations Reiteration
+    \item Dòng 1256-1280: Part 4 - Future Work (5 directions)
+\end{itemize}
+
+\section{CÁC TABLES THÊM MỚI --- BÔI TOÀN BỘ}
+
+\begin{center}
+\begin{tabular}{|p{0.2\textwidth}|p{0.15\textwidth}|p{0.55\textwidth}|}
+\hline
+\textbf{Table} & \textbf{Dòng} & \textbf{Nội dung} \\
+\hline
+Table 1 & 248-275 & Dataset manifest (8 columns: Source, Schema, Raw, Final, Dedup\%, Dates, DOI/URL, Domain) - 18 sources \\
+\hline
+Table 2 (Related Work) & 145-178 & Comparative table 12 nghiên cứu với Advantage/Disadvantage columns \\
+\hline
+Table 2 (Results) & 630-655 & Model performance - Loại R$^2$, thêm MdMRE \& MAPE, thêm XGBoost row \\
+\hline
+Table 3 & 675-689 & Per-schema breakdown với 95\% bootstrap CIs cho FP \\
+\hline
+Table 4 & 880-910 & Pairwise Wilcoxon comparison matrix (6$\times$6) với p-values \\
+\hline
+Table 5 & 1068-1085 & Ablation study results (4 configurations) \\
+\hline
+Table 6 & 945-960 & Transfer learning failure matrix (LOC$\rightarrow$FP: +462\%) \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{15 THÀNH PHẦN THÊM MỚI QUAN TRỌNG}
+
+\begin{center}
+\begin{tabular}{|c|p{0.35\textwidth}|c|p{0.35\textwidth}|}
+\hline
+\textbf{STT} & \textbf{Thành phần} & \textbf{Dòng} & \textbf{Reviewer Request} \\
+\hline
+1 & Macro-averaging formula (Eq. 2) & 233-235 & Clarify aggregation \\
+\hline
+2 & Calibrated baseline formula (Eq. 1) & 138-140 & Fair COCOMO baseline \\
+\hline
+3 & Table 1 (Dataset manifest) & 248-275 & Dataset provenance \\
+\hline
+4 & Table 2 (Comparative studies) & 145-178 & Related work comparison \\
+\hline
+5 & Table 4 (Wilcoxon tests) & 880-910 & Statistical testing \\
+\hline
+6 & Table 5 (Ablation study) & 1068-1085 & Justify design choices \\
+\hline
+7 & Table 6 (Transfer learning) & 945-960 & Cross-schema transfer \\
+\hline
+8 & MdMRE \& MAPE metrics & 630-655 & MMRE alternative \\
+\hline
+9 & XGBoost model & 160-167, 812-828 & SOTA models \\
+\hline
+10 & Bootstrap CIs for FP & 675-689 & Small sample concerns \\
+\hline
+11 & LOSO cross-validation & 763-828 & Cross-org robustness \\
+\hline
+12 & Three-component ablation & 1005-1065 & Justify preprocessing \\
+\hline
+13 & Anomaly analysis & 865-920 & Explain outliers \\
+\hline
+14 & Feature importance & 1115-1138 & Practical implications \\
+\hline
+15 & Four-category limitations & 1140-1210 & Acknowledge weaknesses \\
+\hline
+\end{tabular}
+\end{center}
+
+\newpage
+
+\section{DANH SÁCH CHI TIẾT THEO PHẦN}
+
+\subsection{PHẦN 1: Abstract (Dòng 70-84)}
+\begin{itemize}
+    \item Thêm: ``macro-averaging (equal weight per schema)''
+    \item Thêm: ``Leave-One-Source-Out validation''
+    \item Thêm: ``MdMRE $\approx$ 0.48, MAE $\approx$ 12.66 PM''
+    \item Thêm: Đề cập limitations (schema imbalance)
+\end{itemize}
+
+\subsection{PHẦN 2: Related Work (Section 2)}
+\begin{itemize}
+    \item \textbf{Dòng 133-143:} Section 2.1.1 - ``Baseline Calibration Methodology'' (THÊM MỚI)
+    \item \textbf{Dòng 145-178:} Table 2 - Comparative table 12 studies (THÊM MỚI)
+    \item \textbf{Dòng 179-220:} Section 2.2 - Four-paragraph synthesis (DL, LightGBM, transfer) (THÊM MỚI)
+    \item \textbf{Dòng 195-205:} Preprint citations về focal loss và transfer learning
+\end{itemize}
+
+\subsection{PHẦN 3: Dataset (Section 3)}
+\begin{itemize}
+    \item \textbf{Dòng 248-275:} Table 1 - Dataset manifest 8 columns (THÊM MỚI HOÀN TOÀN)
+    \item \textbf{Dòng 329-368:} Section 3.1 - Dataset description với provenance
+    \item \textbf{Dòng 382-401:} Section 3.2 - Deduplication methodology (THÊM MỚI)
+    \item \textbf{Dòng 410-414:} Section 3.3 - Log-transform justification
+    \item \textbf{Dòng 420-435:} Section 3.3 - Feature Selection Rationale (THÊM MỚI)
+\end{itemize}
+
+\subsection{PHẦN 4: Methodology (Section 4)}
+\begin{itemize}
+    \item \textbf{Dòng 218-224:} Section 4.2 - Cross-validation protocol
+    \item \textbf{Dòng 226-228:} Section 4.3 - Bootstrap resampling
+    \item \textbf{Dòng 229-236:} Section 4.3 - Cross-Schema Aggregation Protocol (THÊM MỚI)
+    \item \textbf{Dòng 237-246:} Section 4.3 - Back-Transformation Protocol (THÊM MỚI)
+    \item \textbf{Dòng 247-265:} Section 4.3 - Why We Exclude R$^2$ (THÊM MỚI)
+    \item \textbf{Dòng 387-405:} Section 4.4 - XGBoost hyperparameters
+    \item \textbf{Dòng 442-458:} Figure 1 caption - Mở rộng từ 1 dòng thành 8 dòng
+    \item \textbf{Dòng 763-828:} Section 4.7 - LOSO cross-validation (THÊM MỚI)
+    \item \textbf{Dòng 805-828:} LOSO Feasibility by Schema (THÊM MỚI)
+    \item \textbf{Dòng 850-875:} Section 4.8 - Statistical Significance Testing (THÊM MỚI)
+\end{itemize}
+
+\subsection{PHẦN 5: Results (Section 5)}
+\begin{itemize}
+    \item \textbf{Dòng 630-655:} Table 2 - Loại R$^2$, thêm MdMRE \& MAPE, XGBoost row
+    \item \textbf{Dòng 675-689:} Table 3 - Per-schema với bootstrap CIs
+    \item \textbf{Dòng 785-799:} Macro vs micro discussion
+    \item \textbf{Dòng 805-815:} R$^2$ removal, LR results
+    \item \textbf{Dòng 812-828:} XGBoost results analysis
+    \item \textbf{Dòng 820-841:} Statistical significance discussion
+    \item \textbf{Dòng 865-920:} Section 5.3 - Anomaly Analysis (THÊM MỚI HOÀN TOÀN)
+    \item \textbf{Dòng 880-910:} Table 4 - Wilcoxon matrix (THÊM MỚI)
+    \item \textbf{Dòng 921-965:} Section 5.4 - Cross-Schema Transfer (THÊM MỚI)
+    \item \textbf{Dòng 945-960:} Table 6 - Transfer failure (THÊM MỚI)
+\end{itemize}
+
+\subsection{PHẦN 6: Discussion (Section 6)}
+\begin{itemize}
+    \item \textbf{Dòng 937-951:} Calibration fairness discussion
+    \item \textbf{Dòng 952-975:} SOTA model convergence, LightGBM/CatBoost
+    \item \textbf{Dòng 980-1005:} Ablation Study - Excluding FP (THÊM MỚI)
+    \item \textbf{Dòng 1005-1065:} Section 6.2 - Three-component ablation (THÊM MỚI)
+    \item \textbf{Dòng 1068-1085:} Table 5 - Ablation results (THÊM MỚI)
+    \item \textbf{Dòng 1090-1110:} Section 6.3 - LR justification (THÊM MỚI)
+    \item \textbf{Dòng 1115-1138:} Section 6.4 - Feature importance (MỞ RỘNG từ 3 câu thành 25 dòng)
+\end{itemize}
+
+\section{HƯỚNG DẪN THỰC HIỆN}
+
+\subsection{Phương án 1: Highlight trong LaTeX source}
+Thêm vào preamble:
+\begin{verbatim}
+\usepackage{soul}
+\usepackage{xcolor}
+\sethlcolor{yellow}
+\end{verbatim}
+
+Sau đó bôi:
+\begin{verbatim}
+\hl{Text cần bôi vàng}
+\end{verbatim}
+
+\subsection{Phương án 2: PDF Annotation (Khuyến nghị)}
+\begin{enumerate}
+    \item Compile Paper\_v2/main.tex thành PDF bình thường
+    \item Mở bằng Adobe Acrobat Reader / Xournal++
+    \item Dùng công cụ ``Highlight Text''
+    \item Thêm comment: ``Added per Reviewer X''
+\end{enumerate}
+
+\subsection{Phương án 3: latexdiff}
+\begin{verbatim}
+latexdiff old_version.tex Paper_v2/main.tex > diff.tex
+pdflatex diff.tex
+\end{verbatim}
+
+\section{THỐNG KÊ}
+
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Hạng mục} & \textbf{Số lượng} & \textbf{Tỷ lệ} \\
+\midrule
+Tổng số dòng paper & 1,285 & 100\% \\
+Dòng cần bôi vàng & $\sim$600+ & \textbf{47\%} \\
+\midrule
+Sections viết lại hoàn toàn & 3 & \\
+Subsections thêm mới & 12 & \\
+Tables thêm mới/sửa & 6 & \\
+Equations thêm mới & 3 & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{1em}
+\noindent\fbox{\parbox{\dimexpr\textwidth-2\fboxsep}{%
+\textbf{Ưu tiên cao nhất:}
+\begin{enumerate}
+    \item Ba phần BÔI TOÀN BỘ: Introduction (85-128), Limitations (1140-1210), Conclusion (1212-1280)
+    \item 6 tables thêm mới hoàn toàn
+    \item 15 thành phần trong bảng Section 3
+\end{enumerate}
+}}
+
+\end{document}

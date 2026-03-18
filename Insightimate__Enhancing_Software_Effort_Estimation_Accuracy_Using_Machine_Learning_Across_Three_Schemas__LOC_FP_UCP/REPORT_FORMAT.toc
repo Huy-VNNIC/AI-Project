@@ -1,0 +1,58 @@
+\contentsline {section}{\numberline {1}INTRODUCTION}{8}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Problem Statement}{8}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}What is Known}{8}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}What is Missing}{8}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Our Approach}{9}{subsection.1.4}%
+\contentsline {subsection}{\numberline {1.5}Objectives}{9}{subsection.1.5}%
+\contentsline {subsection}{\numberline {1.6}Research Scope}{10}{subsection.1.6}%
+\contentsline {subsection}{\numberline {1.7}Report Structure}{10}{subsection.1.7}%
+\contentsline {section}{\numberline {2}CHAPTER 1: BACKGROUND}{11}{section.2}%
+\contentsline {subsection}{\numberline {2.1}1.1 Software Effort Estimation: Historical Context}{11}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}1.2 Why Machine Learning for Effort Estimation?}{11}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}1.3 Key Concepts}{12}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}Sizing Schemas}{12}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}Evaluation Metrics}{12}{subsubsection.2.3.2}%
+\contentsline {section}{\numberline {3}CHAPTER 2: PROPOSED SOLUTION}{13}{section.3}%
+\contentsline {subsection}{\numberline {3.1}2.1 Framework Architecture}{13}{subsection.3.1}%
+\contentsline {subsubsection}{\numberline {3.1.1}Stage 1: Data Ingestion and Schema Partitioning}{13}{subsubsection.3.1.1}%
+\contentsline {subsubsection}{\numberline {3.1.2}Stage 2: Preprocessing and Feature Engineering}{13}{subsubsection.3.1.2}%
+\contentsline {subsubsection}{\numberline {3.1.3}Stage 3: Model Training and Calibration}{13}{subsubsection.3.1.3}%
+\contentsline {subsubsection}{\numberline {3.1.4}Stage 4: Evaluation and Reporting}{14}{subsubsection.3.1.4}%
+\contentsline {subsection}{\numberline {3.2}2.2 Calibrated Baseline Design}{14}{subsection.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.1}Benefits of Calibration}{14}{subsubsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.3}2.3 Dataset Manifest}{15}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}2.4 System Architecture Diagrams}{15}{subsection.3.4}%
+\contentsline {subsubsection}{\numberline {3.4.1}Overall Framework Pipeline}{15}{subsubsection.3.4.1}%
+\contentsline {subsubsection}{\numberline {3.4.2}Multi-Schema Model Architecture}{15}{subsubsection.3.4.2}%
+\contentsline {subsubsection}{\numberline {3.4.3}Preprocessing Pipeline Details}{15}{subsubsection.3.4.3}%
+\contentsline {subsubsection}{\numberline {3.4.4}Cross-Validation Strategy}{15}{subsubsection.3.4.4}%
+\contentsline {section}{\numberline {4}CHAPTER 3: EXPERIMENT AND RESULTS}{16}{section.4}%
+\contentsline {subsection}{\numberline {4.1}3.1 Implementation Strategy}{16}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}Data Aggregation and Schema Harmonization}{16}{subsubsection.4.1.1}%
+\contentsline {subsubsection}{\numberline {4.1.2}Data Preprocessing and Feature Engineering}{17}{subsubsection.4.1.2}%
+\contentsline {subsubsection}{\numberline {4.1.3}Model Training with Nested Cross-Validation}{17}{subsubsection.4.1.3}%
+\contentsline {subsubsection}{\numberline {4.1.4}Multi-Metric Evaluation and Statistical Testing}{18}{subsubsection.4.1.4}%
+\contentsline {subsection}{\numberline {4.2}3.2 Overall Results}{19}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Performance Comparison (Macro-Averaged)}{19}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Performance Visualization}{19}{subsubsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.3}3.3 Per-Schema Results}{19}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}LOC Schema (n=2,765)}{19}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}FP Schema (n=158)}{20}{subsubsection.4.3.2}%
+\contentsline {subsubsection}{\numberline {4.3.3}UCP Schema (n=131)}{20}{subsubsection.4.3.3}%
+\contentsline {subsubsection}{\numberline {4.3.4}Per-Schema Performance Visualization}{20}{subsubsection.4.3.4}%
+\contentsline {subsection}{\numberline {4.4}3.4 Cross-Source Generalization (LOSO)}{20}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}LOSO Validation Results}{20}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}Analysis}{20}{subsubsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.5}3.5 Ablation Study}{21}{subsection.4.5}%
+\contentsline {subsubsection}{\numberline {4.5.1}Configuration Comparison}{21}{subsubsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.6}3.6 Feature Importance}{21}{subsection.4.6}%
+\contentsline {subsubsection}{\numberline {4.6.1}Detailed Importance Ranking}{21}{subsubsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.7}3.7 Statistical Significance and Confidence Intervals}{23}{subsection.4.7}%
+\contentsline {subsubsection}{\numberline {4.7.1}Wilcoxon Signed-Rank Test Results}{23}{subsubsection.4.7.1}%
+\contentsline {subsubsection}{\numberline {4.7.2}Interpretation}{23}{subsubsection.4.7.2}%
+\contentsline {section}{\numberline {5}CONCLUSION}{24}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Summary of Findings}{24}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Practical Implications}{24}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Limitations}{25}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Future Research Directions}{25}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.5}Recommendations}{26}{subsection.5.5}%

@@ -318,19 +318,61 @@ class RequirementAnalyzer:
     
     def extract_requirements(self, text):
         """
-        Trích xuất các yêu cầu từ văn bản
+        Trích xuất các yêu cầu từ văn bản, với hỗ trợ tốt cho tài liệu Markdown
         """
-        # Phân đoạn văn bản thành các câu
-        sentences = sent_tokenize(text)
+        import re
+        
+        # Bước 1: Làm sạch text - loại bỏ markdown headers, lists, links
+        cleaned_text = self._clean_markdown_text(text)
+        
+        # Bước 2: Split by Vietnamese numbered list patterns (N. text)
+        # This splits on patterns like "1. ", "2. ", "123. " at start of line or after newline
+        sentences = re.split(r'\n\s*\d+\.\s+', cleaned_text)
+        
+        # Also split by NLTK sentence tokenizer for lines without numbers
+        final_sentences = []
+        for sent in sentences:
+            if sent.strip():
+                # Further split by NLTK to handle complex sentences
+                sub_sents = sent_tokenize(sent)
+                final_sentences.extend(sub_sents)
         
         requirements = []
-        for i, sentence in enumerate(sentences):
-            # Kiểm tra xem câu có chứa các từ khóa yêu cầu không
-            if any(keyword in sentence.lower() for keyword in 
-                   ['shall', 'must', 'will', 'should', 'needs to', 'required to', 'has to',
-                   'feature', 'function', 'ability', 'capability', 'can', 'allow', 'enable',
-                   'provide', 'support', 'implement', 'develop', 'create', 'build', 'design']):
+        req_id = 1
+        
+        for sentence in final_sentences:
+            # Bỏ qua câu quá ngắn hoặc chỉ là header
+            sentence = sentence.strip()
+            if len(sentence) < 5 or len(sentence.split()) < 2:
+                continue
+            
+            # Bỏ qua nếu là section header (chứa quá nhiều dấu chấm hoặc là cấu trúc header)
+            if sentence.count('.') > 3 or sentence.startswith('Yêu cầu') or sentence.startswith('Module'):
+                continue
+            
+            # Bỏ qua nếu chỉ là "Backend:", "Frontend:", v.v
+            if sentence.endswith(':') or len(sentence) < 10:
+                continue
                 
+            # Kiểm tra xem câu có chứa các từ khóa yêu cầu (Tiếng Anh hoặc Tiếng Việt)
+            requirement_keywords = {
+                'english': ['shall', 'must', 'will', 'should', 'needs to', 'required to', 'has to',
+                           'feature', 'function', 'ability', 'capability', 'can', 'allow', 'enable',
+                           'provide', 'support', 'implement', 'develop', 'create', 'build', 'design',
+                           'integrate', 'manage', 'track', 'monitor', 'generate', 'process'],
+                'vietnamese': ['phải', 'cần', 'nên', 'quản lý', 'theo dõi', 'kiểm tra',
+                              'cảnh báo', 'tính toán', 'lưu trữ', 'hỗ trợ', 'cho phép', 'tích hợp',
+                              'xuất', 'nhập', 'xử lý', 'ghi nhận', 'hiển thị', 'hỗ trợ', 'tích hợp',
+                              'báo cáo', 'thống kê']
+            }
+            
+            all_keywords = requirement_keywords['english'] + requirement_keywords['vietnamese']
+            sentence_lower = sentence.lower()
+            
+            has_requirement_keyword = any(keyword in sentence_lower for keyword in all_keywords)
+            has_verb_noun = self._contains_verb_noun_pair(sentence)
+            
+            if has_requirement_keyword or (has_verb_noun and len(sentence.split()) > 5):
                 # Phân tích đầy đủ requirement
                 priority = self._analyze_priority(sentence)
                 business_impact = self._analyze_business_impact(sentence)
@@ -338,7 +380,7 @@ class RequirementAnalyzer:
                 score = self._calculate_requirement_score(priority, business_impact, technical_complexity)
                 
                 requirements.append({
-                    'id': f'REQ-{i+1}',
+                    'id': f'REQ-{req_id}',
                     'text': sentence,
                     'type': self._classify_requirement(sentence),
                     'priority': priority,
@@ -346,67 +388,7 @@ class RequirementAnalyzer:
                     'technical_complexity': technical_complexity,
                     'score': score
                 })
-            elif len(sentence.split()) > 5 and self._contains_verb_noun_pair(sentence):
-                # Phát hiện câu có cấu trúc động từ-danh từ có thể là yêu cầu
-                priority = self._analyze_priority(sentence)
-                business_impact = self._analyze_business_impact(sentence)
-                technical_complexity = self._analyze_technical_complexity(sentence)
-                score = self._calculate_requirement_score(priority, business_impact, technical_complexity)
-                
-                requirements.append({
-                    'id': f'REQ-{i+1}',
-                    'text': sentence,
-                    'type': self._classify_requirement(sentence),
-                    'priority': priority,
-                    'business_impact': business_impact,
-                    'technical_complexity': technical_complexity,
-                    'score': score
-                })
-        
-        # Nếu không tìm thấy yêu cầu nào, thử phương pháp khác
-        if not requirements and len(sentences) > 0:
-            # Xử lý văn bản không theo cấu trúc truyền thống
-            for i, sentence in enumerate(sentences):
-                if len(sentence.split()) > 8:  # Câu đủ dài
-                    doc = safe_nlp_process(sentence)
-                    # Kiểm tra xem câu có chứa động từ hành động
-                    verbs = [token.lemma_ for token in doc if token.pos_ == "VERB"]
-                    if any(v in ['develop', 'create', 'build', 'implement', 'design', 'add', 'make', 
-                               'provide', 'enable', 'support', 'allow'] for v in verbs):
-                        
-                        priority = self._analyze_priority(sentence)
-                        business_impact = self._analyze_business_impact(sentence)
-                        technical_complexity = self._analyze_technical_complexity(sentence)
-                        score = self._calculate_requirement_score(priority, business_impact, technical_complexity)
-                        
-                        requirements.append({
-                            'id': f'REQ-{i+1}',
-                            'text': sentence,
-                            'type': self._classify_requirement(sentence),
-                            'priority': priority,
-                            'business_impact': business_impact,
-                            'technical_complexity': technical_complexity,
-                            'score': score
-                        })
-        
-        # Nếu vẫn không tìm thấy, coi mỗi câu là một yêu cầu
-        if not requirements and len(sentences) > 0:
-            for i, sentence in enumerate(sentences):
-                if len(sentence.split()) > 5:  # Chỉ lấy câu có ý nghĩa
-                    priority = self._analyze_priority(sentence)
-                    business_impact = self._analyze_business_impact(sentence)
-                    technical_complexity = self._analyze_technical_complexity(sentence)
-                    score = self._calculate_requirement_score(priority, business_impact, technical_complexity)
-                    
-                    requirements.append({
-                        'id': f'REQ-{i+1}',
-                        'text': sentence,
-                        'type': 'general',
-                        'priority': priority,
-                        'business_impact': business_impact,
-                        'technical_complexity': technical_complexity,
-                        'score': score
-                    })
+                req_id += 1
         
         # Sắp xếp requirements theo độ ưu tiên và điểm số
         requirements.sort(key=lambda x: (
@@ -415,6 +397,44 @@ class RequirementAnalyzer:
         ), reverse=True)
         
         return requirements
+    
+    def _clean_markdown_text(self, text):
+        """
+        Làm sạch markdown text bằng cách loại bỏ headers, links, formatting
+        nhưng giữ lại cấu trúc numbered list để có thể split sau này
+        """
+        import re
+        
+        # Loại bỏ markdown headers (# ## ### etc) - thay bằng newline để tách
+        text = re.sub(r'#{1,6}\s+([^\n]*)\n', r'\n\1\n', text)
+        
+        # Loại bỏ markdown links [text](url) - giữ lại text
+        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+        
+        # Loại bỏ bullet points nhưng giữ nội dung
+        text = re.sub(r'^\s*[-*]\s+', '', text, flags=re.MULTILINE)
+        
+        # Inline code formatting - loại bỏ backticks
+        text = re.sub(r'`([^`]+)`', r'\1', text)
+        
+        # Bold/italic formatting
+        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+        text = re.sub(r'__([^_]+)__', r'\1', text)
+        text = re.sub(r'\*([^*]+)\*', r'\1', text)
+        text = re.sub(r'_([^_]+)_', r'\1', text)
+        
+        # HTML tags
+        text = re.sub(r'<[^>]+>', '', text)
+        
+        # Loại bỏ thẻ ### ở cuối dòng
+        text = re.sub(r'\s+###\s*$', '', text, flags=re.MULTILINE)
+        text = re.sub(r'\s+###\s+', '\n', text)
+        
+        # Làm sạch khoảng trắng dư
+        text = re.sub(r'\n\s*\n\s*', '\n', text)
+        text = re.sub(r'  +', ' ', text)
+        
+        return text.strip()
     
     def _contains_verb_noun_pair(self, sentence):
         """Kiểm tra xem câu có chứa cặp động từ-danh từ không"""

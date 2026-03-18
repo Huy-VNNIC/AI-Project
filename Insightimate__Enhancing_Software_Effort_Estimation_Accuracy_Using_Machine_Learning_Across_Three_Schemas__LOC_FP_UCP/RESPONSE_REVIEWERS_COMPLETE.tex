@@ -9,8 +9,7 @@
 \usepackage{enumitem}
 
 \title{\textbf{Response to Reviewers}\\[0.5em]
-\large Manuscript: Insightimate: Enhancing Software Effort Estimation Accuracy\\
-Using Machine Learning Across Three Schemas (LOC/FP/UCP)}
+\large Manuscript: A Unified Ensemble Learning Framework for Software Effort Estimation Across Multiple Schemas}
 \author{Nguyen Nhat Huy, Duc Man Nguyen, Dang Nhat Minh, Nguyen Thuy Giang,\\
 P.W.C. Prasad, Md Shohel Sayeed}
 \date{February 19, 2026}
@@ -23,7 +22,7 @@ P.W.C. Prasad, Md Shohel Sayeed}
 
 \noindent Dear Editor and Distinguished Reviewers,
 
-We sincerely thank the Editor and all Reviewers for their exceptionally thorough and constructive evaluation of our manuscript entitled \textit{``Insightimate: Enhancing Software Effort Estimation Accuracy Using Machine Learning Across Three Schemas (LOC/FP/UCP)''}. The reviewers' insightful comments have helped us substantially improve the clarity, rigor, and reproducibility of the manuscript. We have carefully revised the paper and addressed all comments in detail. Below, we provide a point-by-point response, indicating the actions taken and corresponding manuscript revisions.
+We sincerely thank the Editor and all Reviewers for their exceptionally thorough and constructive evaluation of our manuscript entitled \textit{``A Unified Ensemble Learning Framework for Software Effort Estimation Across Multiple Schemas''}. The reviewers' insightful comments have helped us substantially improve the clarity, rigor, and reproducibility of the manuscript. We have carefully revised the paper and addressed all comments in detail. Below, we provide a point-by-point response, indicating the actions taken and corresponding manuscript revisions.
 
 \section*{Executive Summary of Major Revisions}
 
@@ -58,7 +57,7 @@ The revised manuscript incorporates the following major improvements addressing 
 
 \noindent \textbf{Nguyen Nhat Huy} (Corresponding Author)\\
 International School, Duy Tan University, Da Nang, Vietnam\\
-Email: huy.nguyen@duytan.edu.vn\\
+Email: nguyennhathuybdi06@gmail.com\\
 On behalf of all co-authors
 
 
@@ -500,8 +499,8 @@ For each cross-validation fold $k=1,\ldots,K$:
 \begin{enumerate}
     \item \textbf{Extract training data}: $(S_i^{\text{train}}, E_i^{\text{train}})$ pairs (Size, Effort)
     \item \textbf{Fit power-law via non-linear least-squares}:
-    $$(A_k, B_k) = \arg\min_{A,B} \sum_{i \in \text{train}_k} \left(E_i - A \times S_i^B\right)^2$$
-    Using \texttt{scipy.optimize.curve\_fit} with Levenberg-Marquardt algorithm
+$$ (A_k, B_k) = \arg\min_{A,B} \sum_{i \in \text{train}_k} (E_i - A \times S_i^B)^2 $$
+    Using \texttt{scipy.optimize.\allowbreak curve\_fit} with Levenberg-\allowbreak Marquardt algorithm
     \item \textbf{Predict test fold}: $\hat{E}_j = A_k \times S_j^{B_k}$ for $j \in \text{test}_k$
     \item \textbf{Aggregate metrics}: Average MAE/MMRE across $K$ folds
 \end{enumerate}
@@ -552,11 +551,11 @@ $\bullet$ \textbf{Table~2} (lines 630-655): ``Calibrated Baseline'' row with MMR
 
 $\bullet$ \textbf{Section~6} (lines 937-951): Discussed calibration fairness and ML value-add.
 
-$\bullet$ \textbf{GitHub}: \texttt{baseline\_calibration.py} with \texttt{curve\_fit} implementation. \\
+$\bullet$ \textbf{GitHub}: \texttt{baseline\_calibration.py}. \\
 
 \midrule
 
-``Table~1 lacks dataset provenance (DOI/URL, dates, deduplication rules). Without this, reproducibility is compromised.'' &
+``Table~1 lacks dataset provenance (DOI/URL, dates, deduplication rules). Reproducibility is compromised.'' &
 
 \textbf{Outstanding point---we completely restructured Table~1 as a comprehensive dataset manifest.}
 
@@ -602,9 +601,9 @@ $\bullet$ \textbf{GitHub}: \texttt{baseline\_calibration.py} with \texttt{curve\
 \textit{Rule:} Remove project $j$ if $\exists$ prior project $i$ with:
 $$(\text{Size}_i = \text{Size}_j) \land (\text{Effort}_i = \text{Effort}_j) \land (\text{Source}_i = \text{Source}_j)$$
 
-\textit{Rationale:} Identical (Size, Effort, Source) tuples likely represent duplicate entries or versioned records within multi-release datasets (e.g., ISBSG releases 2020, 2021, 2023).
+\textit{Rationale:} Identical (Size, Effort, Source) tuples likely represent duplicates or versioned records within multi-release datasets (e.g., ISBSG).
 
-\textit{No Cross-Source Deduplication:} We retain seemingly identical projects from \textit{different} sources (e.g., Maxwell has project with Size=50 KLOC, Effort=120~PM; Desharnais also has Size=50, Effort=120). These could be legitimately distinct projects---removing risks data loss.
+\textit{No Cross-Source Deduplication:} We retain seemingly identical projects from \textit{different} sources (e.g., Maxwell has project with Size=50 KLOC, Effort=120~PM; Desharnais also has Size=50, Effort=120). These could be distinct projects---removing risks data loss.
 
 \textbf{Leakage Prevention:}
 
@@ -628,7 +627,7 @@ $\bullet$ \textbf{Section~3.1} (lines 329-368): Dataset description with source 
 
 $\bullet$ \textbf{Section~3.2} (lines 382-401): Deduplication methodology with explicit rule.
 
-$\bullet$ \textbf{GitHub}: \texttt{dataset\_sources.csv} and \texttt{deduplication\_log.csv}. \\
+$\bullet$ \textbf{GitHub}: \texttt{dataset\_sources.csv}, \texttt{dedup.csv}. \\
 
 \midrule
 
@@ -1550,7 +1549,7 @@ $\bullet$ \textbf{Figures 1-5}: Regenerated at 300 DPI with 14-16 pt fonts, colo
 
 $\bullet$ \textbf{Figure captions} (lines 442-458, 545-562, 712-728, 785-799, 826-841): Expanded with interpretation guidance.
 
-$\bullet$ \textbf{GitHub}: \texttt{plots/} folder with Matplotlib scripts (\texttt{generate\_figures.py}) and 300 DPI PNG exports. \\
+$\bullet$ \textbf{GitHub}: \texttt{plots/generate\_figures.py} (300 DPI). \\
 
 \midrule
 
@@ -1956,7 +1955,7 @@ $\bullet$ \textbf{Section~4.3} (lines 247-265): New subsection ``Why We Exclude 
 
 $\bullet$ \textbf{Section~5} (lines 805-815): Mentioned R² removal with justification.
 
-$\bullet$ \textbf{GitHub}: \texttt{supplementary\_metrics.csv} with R² for transparency. \\
+$\bullet$ \textbf{GitHub}: \texttt{supplementary\_metrics.csv}. \\
 
 \midrule
 
@@ -2130,32 +2129,30 @@ $\bullet$ \textbf{Entire manuscript}: Fixed 23 cross-reference inconsistencies. 
 
 \textbf{(1) fancyhdr (Page Headers/Footers):}
 
-\texttt{Preamble (lines 5-12):}
+\texttt{Preamble:}
 \begin{verbatim}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhead[L]{Response to Reviewers}
 \fancyhead[R]{Nguyen et al. 2026}
 \fancyfoot[C]{\thepage}
-\renewcommand{\headrulewidth}{0.4pt}
 \end{verbatim}
 
-\textit{Effect:} Every page displays ``Response to Reviewers'' (left header), ``Nguyen et al. 2026'' (right header), centered page number (footer).
+\textit{Effect:} Every page displays ``Response to Reviewers'' (left), ``Nguyen et al. 2026'' (right), page number (footer).
 
 \textbf{(2) lineno (Line Numbering):}
 
-\texttt{Preamble (lines 13-16):}
+\texttt{Preamble:}
 \begin{verbatim}
 \usepackage{lineno}
 \linenumbers
-\modulolinenumbers[5]  % Number every 5th line
 \end{verbatim}
 
-\textit{Effect:} Line numbers in left margin (every 5~lines: 5, 10, 15, ...) facilitate reviewer reference to specific locations.
+\textit{Effect:} Line numbers in left margin every 5 lines (5, 10, 15,...) for reviewer reference.
 
-\textbf{(3) booktabs (Professional Tables):}
+\textbf{(3) booktabs (Tables):}
 
-\texttt{Already used in longtable environments:}
+\texttt{Used in longtable:}
 \begin{verbatim}
 \usepackage{booktabs}
 \toprule, \midrule, \bottomrule
@@ -2639,13 +2636,13 @@ $\bullet$ \textbf{Table~1} (lines 248-275): Complete provenance with DOI/URL for
 
 \textit{Catastrophic Results:}
 
-$$\text{MAE}_{\text{transfer}} = 71.3 \text{ PM} \quad (+462\% \text{ vs schema-specific } 12.7 \text{ PM})$$
+$$\text{MAE}_{\text{transfer}} = 71.3 \text{ PM} \quad (+462\% \text{ vs schema-specific})$$
 
 Transfer learning \textbf{utterly fails} for effort estimation across schemas.
 
 \textit{Root Cause---Semantic Incompatibility:}
 
-\textbf{(1) Unit Mismatch:} 1 Function Point $\approx$ 80-350 LOC depending on language/domain. No universal conversion exists.
+\textbf{(1) Unit Mismatch:} 1~FP $\approx$ 80-350~LOC depending on language/\allowbreak domain. No universal conversion.
 
 \textbf{(2) Feature Space Mismatch:}
 \begin{itemize}
@@ -2702,11 +2699,11 @@ Focal loss (Lin et al. 2017, adapted for regression by Zhang et al. 2025) is \te
 
 \textit{Concept:} Focal loss down-weights easy examples (well-predicted) and up-weights hard examples (large errors). For schema imbalance, we could weight samples inversely by schema size:
 
-$$w_{\text{LOC}} = 1.0, \quad w_{\text{FP}} = \frac{2765}{158} = 17.5, \quad w_{\text{UCP}} = 21.1$$
+$$w_{\text{LOC}} = 1.0, \quad w_{\text{FP}} = 17.5, \quad w_{\text{UCP}} = 21.1$$
 
 This forces the model to prioritize FP/UCP accuracy during training.
 
-\textit{Why Not Implemented Yet:} We discovered Zhang et al.'s focal regression preprint \textit{after} main experiments concluded. Requires re-training all models (6 algorithms $\times$ 5-fold CV $\times$ 3 schemas = 90 models), estimated 2 weeks compute time.
+\textit{Why Not Implemented Yet:} We discovered Zhang et al.'s focal regression preprint \textit{after} main experiments. Requires re-training all models (6 algorithms $\times$ 5-fold CV $\times$ 3 schemas = 90 models), estimated 2~weeks compute.
 
 \textit{Commitment:} Added to Section~9 (lines 1268-1273) as \textbf{top-priority} future work for journal revision cycle. &
 

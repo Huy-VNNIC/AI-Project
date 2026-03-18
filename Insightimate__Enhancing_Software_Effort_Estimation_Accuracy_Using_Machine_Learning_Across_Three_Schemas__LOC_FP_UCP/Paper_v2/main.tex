@@ -45,7 +45,7 @@
 \makeatother
 
 
-\title{\textbf{Insightimate: Enhancing Software Effort Estimation Accuracy Using Machine Learning Across Three Schemas (LOC/FP/UCP)}}
+\title{\textbf{A Unified Ensemble Learning Framework for Software Effort Estimation Across Multiple Schemas}}
 
 \author{
 Nguyen Nhat Huy\textsuperscript{1},
@@ -71,7 +71,7 @@ Md Shohel Sayeed\textsuperscript{2,*}
 September 2025
 \end{center}
 \begin{abstract}
-Accurate estimation of software development effort remains a longstanding challenge in project management, particularly as contemporary projects exhibit greater heterogeneity in scale, methodology, and complexity. While traditional parametric models such as COCOMO~II offer interpretability, their fixed functional forms often underfit diverse modern datasets. This paper proposes a unified machine-learning--based framework designed to improve estimation accuracy across three widely used sizing schemas: Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP). The framework integrates standardized preprocessing, schema-specific feature engineering, and a set of representative regression models, including Linear Regression, Decision Tree, Random Forest, Gradient Boosting, and XGBoost. Using publicly available datasets aggregating $n=3{,}054$ projects from 18 sources (1993--2022), we conduct comprehensive evaluation based on established effort-estimation metrics (MMRE, MdMRE, MAPE, PRED(25), MAE, RMSE, and $R^2$). Experimental results show that Random Forest achieves the best overall performance (MMRE $\approx 0.647$, MdMRE $\approx 0.48$, MAE $\approx 12.66$ PM). We compare against a calibrated size-only baseline (fitted on training data per schema) rather than uncalibrated COCOMO~II defaults, ensuring fair parametric comparison when cost drivers are unavailable. Overall metrics use macro-averaging (equal weight per schema) to prevent LOC dominance; schema-specific results report independent per-schema models. Leave-One-Source-Out validation (11 LOC sources) confirms acceptable cross-source robustness (21\% MAE degradation vs. within-source splits). The findings demonstrate that data-driven approaches generalize effectively across diverse project contexts, offering actionable insights for practitioners seeking reliable and scalable software effort estimation.
+Accurate estimation of software development effort remains a difficult task in project management, particularly as modern projects are increasingly diverse in scale, methodology, and complexity. While traditional parametric models such as COCOMO~II offer interpretability, their fixed functional forms often underfit diverse modern datasets. This paper proposes a unified machine-learning--based framework designed to improve estimation accuracy across three widely used sizing schemas: Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP). The framework integrates standardized preprocessing, schema-specific feature engineering, and a set of representative regression models, including Linear Regression, Decision Tree, Random Forest, Gradient Boosting, and XGBoost. Using publicly available datasets aggregating $n=3{,}054$ projects from 18 sources (1993--2022), we conduct a complete evaluation based on established effort-estimation metrics (MMRE, MdMRE, MAPE, PRED(25), MAE, RMSE, and $R^2$). Experimental results show that Random Forest achieves the best overall performance (MMRE $\approx 0.647$, MdMRE $\approx 0.48$, MAE $\approx 12.66$ PM). We compare against a calibrated size-only baseline (fitted on training data per schema) rather than uncalibrated COCOMO~II defaults, ensuring fair parametric comparison when cost drivers are unavailable. Overall metrics use macro-averaging (equal weight per schema) to prevent LOC dominance; schema-specific results report independent per-schema models. Leave-One-Source-Out validation (11 LOC sources) confirms acceptable cross-source robustness (21\% MAE degradation vs. within-source splits). The findings show that data-driven approaches generalize effectively across diverse project contexts, providing practical guidance for practitioners seeking reliable and scalable software effort estimation.
 \end{abstract}
 
 
@@ -85,15 +85,15 @@ A wide range of factors affect estimation accuracy, including project size, func
 
 In this work, we address these challenges by designing a unified machine-learning framework for software effort estimation. Specifically, this study pursues three objectives: (i) to develop an integrated estimation framework that supports three major sizing schemas—Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP); (ii) to empirically compare the performance of multiple machine-learning regressors against the widely used COCOMO~II model using standard evaluation metrics such as MMRE, PRED(25), MAE, RMSE, and $R^2$; and (iii) to analyze the behavior of each model within individual sizing schemas in order to provide practical insights for software project managers.
 
-However, three methodological gaps limit reproducibility in prior SEE research: (i) unclear dataset provenance and deduplication rules hinder independent replication; (ii) COCOMO~II baselines often use arbitrary default parameters when cost drivers are unavailable, creating unfair comparisons; (iii) cross-schema aggregation protocols (macro vs. micro) are rarely specified, potentially masking true behavior on small-sample schemas like FP. This work addresses these gaps through transparent methodology rather than proposing novel models.
+However, three methodological gaps limit reproducibility in prior SEE research: (i) unclear dataset provenance and deduplication rules hinder independent replication; (ii) COCOMO~II baselines often use arbitrary default parameters when cost drivers are unavailable, creating unfair comparisons; (iii) cross-schema aggregation protocols (macro vs. micro) are rarely specified, potentially masking true behavior on small-sample schemas like FP. This work addresses these gaps through transparent methodology rather than proposing new models.
 
 The contributions of this paper are summarized as follows:
 \begin{itemize}
     \item We propose a unified multi-schema machine-learning framework that harmonizes preprocessing, feature construction, model training, and evaluation across LOC, FP, and UCP, aggregating $n=3{,}054$ projects from 18 sources (1993--2022) with explicit provenance and deduplication rules.
     \item We adopt a calibrated size-only baseline (not full COCOMO~II due to missing cost drivers in public datasets) fitted per schema on training data, ensuring fair parametric comparison.
-    \item We conduct a comprehensive empirical comparison involving five representative ML models (Linear Regression, Decision Tree, Random Forest, Gradient Boosting, XGBoost), reporting MdMRE and MAPE in addition to standard metrics (MMRE, MAE, RMSE, PRED(25)).
+    \item We conduct a complete empirical comparison involving five representative ML models (Linear Regression, Decision Tree, Random Forest, Gradient Boosting, XGBoost), reporting MdMRE and MAPE in addition to standard metrics (MMRE, MAE, RMSE, PRED(25)).
     \item We provide schema-specific analyses to examine how input representation (KLOC, FP, UCP) influences predictive accuracy, using macro-averaging for overall results to prevent LOC dominance.
-    \item We demonstrate cross-source generalization via Leave-One-Source-Out (LOSO) validation on LOC schema (11 sources), showing acceptable robustness (21\% MAE degradation vs. within-source splits).
+    \item We show cross-source generalization via Leave-One-Source-Out (LOSO) validation on LOC schema (11 sources), showing acceptable robustness (21\% MAE degradation vs. within-source splits).
     \item We offer practical implications for applying machine-learning-based effort estimation in real-world software engineering environments.
 \end{itemize}
 
@@ -153,7 +153,7 @@ We evaluate four representative machine-learning models:
 \begin{itemize}[leftmargin=1.3em]
     \item \textbf{Linear Regression}, including a log--log variant to capture multiplicative relationships.
     \item \textbf{Decision Tree Regressor}, representing interpretable non-linear modeling.
-    \item \textbf{Random Forest Regressor}, leveraging ensemble averaging for robustness.
+    \item \textbf{Random Forest Regressor}, using ensemble averaging for reliability.
     \item \textbf{Gradient Boosting Regressor}, known for strong performance on structured data.
 \end{itemize}
 
@@ -344,7 +344,7 @@ allowing consistent interpretation of productivity, scalability, and efficiency.
 \begin{figure}[h]
     \centering
     \includegraphics[width=1\linewidth]{figures/table1_conversion.png}
-    \caption{Comprehensive reference of unit conversions used in the harmonization process. 
+    \caption{Complete reference of unit conversions used in the harmonization process. 
     The table summarizes the standardized mappings between source units 
     (LOC, FP, UCP, hours, days, staff-months, and weeks) and their unified target units 
     (KLOC and Person-Months). 
@@ -692,7 +692,7 @@ while \textbf{Gradient Boosting} exhibited slightly higher RMSE,
 suggesting mild overfitting in deeper configurations.  
 \textbf{Decision Tree} performed comparably for medium projects ($100\!\le\!\mathrm{UCP}\!\le\!300$) 
 but degraded for larger ones, and \textbf{Linear Regression} again struggled with non-linear dependencies.  
-Overall, RF demonstrated superior adaptability, capturing complex interactions between 
+Overall, RF showed superior adaptability, capturing complex interactions between 
 environmental and technical adjustment factors.
 
 \paragraph{Cross-Schema Discussion.}
@@ -743,7 +743,7 @@ confirming that non-linear ensembles better model FP-based scaling.
 The bottom-right panel quantifies the benefit of normalization.  
 Raw effort–size correlations ($r=0.83$) improve slightly after $\log(1+x)$ scaling ($r=0.84$) 
 and stabilize post IQR-capping ($r=0.81$).  
-This demonstrates that harmonization and outlier control reduce distortion 
+This shows that harmonization and outlier control reduce distortion 
 without sacrificing intrinsic relationships—essential for fair, stable cross-schema comparisons.
 
 
@@ -791,7 +791,7 @@ This protocol tests whether models generalize to \textbf{unseen project sources}
 
 \begin{table}[h]
 \centering
-\caption{Leave-One-Source-Out validation for LOC schema (Random Forest). Each row shows performance when the listed source is held out as test set and remaining 10 sources used for training. Demonstrates cross-source robustness.}
+\caption{Leave-One-Source-Out validation for LOC schema (Random Forest). Each row shows performance when the listed source is held out as test set and remaining 10 sources used for training. Shows cross-source robustness.}
 \label{tab:loso-results}
 \small
 \begin{tabular}{l c c c c}
@@ -835,7 +835,7 @@ By averaging bootstrapped decision trees, RF effectively captures
 \textit{non-linear scaling effects} such as power-law relationships 
 and threshold behaviors influenced by project complexity or team productivity.  
 Unlike single-tree models, which often overfit local patterns, 
-RF mitigates noise sensitivity and stabilizes erratic effort spikes, 
+RF is less sensitive to outliers and reduces extreme prediction errors, 
 providing both statistical robustness and interpretability.  
 
 \paragraph{Alternative Model Preferences.}
@@ -856,12 +856,12 @@ for early communication and feasibility;
 as project telemetry becomes available;  
 (iii) \textit{Maturity} — employ RF for production-grade estimation 
 integrated into PM dashboards for adaptive, data-driven forecasting.  
-This phased process aligns interpretability with increasing data maturity.  
+This approach balances interpretability with the amount of available data.  
 
 \paragraph{Practical Insights and Validity.}
 Ensemble learning significantly reduces uncertainty in early project budgeting 
 and enables continuous recalibration from evolving metrics, 
-forming a \textit{living estimation system} rather than static forecasting.  
+enabling a \textit{continuous estimation process} rather than static forecasting.  
 Preprocessing steps (unit harmonization, log transformation, outlier control) 
 remain equally vital to model architecture in ensuring reproducibility.  
 Although residual noise and data inconsistencies may persist, 
@@ -992,7 +992,7 @@ Our calibrated power-law baseline uses only size metrics (KLOC/FP/UCP) without f
 We evaluate four representative methods (LR, DT, RF, GB) spanning simple linear baselines to modern ensemble learners. Other gradient boosting variants (XGBoost, LightGBM, CatBoost) share similar algorithmic foundations and typically achieve comparable performance. Our focus is establishing a benchmarking methodology rather than exhaustive model comparison; future work can apply this framework to additional learners.
 
 \paragraph{Cross-Schema Transfer Not Attempted.}
-Models are trained independently per schema (LOC/FP/UCP) without cross-schema transfer learning. This is intentional: LOC, FP, and UCP represent fundamentally different sizing philosophies with distinct feature semantics (KLOC = code volume, FP = functional complexity, UCP = use-case interactions). Pooling heterogeneous schemas for joint training risks semantic feature mismatch. Schema-specific training ensures: (i) feature space compatibility within each schema; (ii) no information leakage from cross-schema correlations; (iii) interpretability for direct paradigm comparison.
+Models are trained independently per schema (LOC/FP/UCP) without cross-schema transfer learning. This is intentional: LOC, FP, and UCP represent fundamentally different sizing philosophies with distinct feature semantics (KLOC = code volume, FP = functional complexity, UCP = use-case interactions). Pooling heterogeneous schemas for joint training risks semantic feature mismatch. Schema-specific training ensures: (i) feature space compatibility within each schema; (ii) no information leakage from cross-schema correlations; (iii) interpretability for direct approach comparison.
 
 \paragraph{Modern DevOps Under representation.}
 Public datasets (1993--2022) are biased toward legacy waterfall/iterative projects. Agile/DevOps environments may exhibit different scaling behaviors. Despite data limitations, our preprocessing pipeline, calibrated baseline methodology, and statistical protocols are dataset-agnostic and directly applicable to future industrial and DevOps corpora.
@@ -1172,7 +1172,7 @@ transparent, and extensible foundation for cross-schema benchmarking
 in software effort estimation.
 By integrating methodological rigor, schema harmonization,
 and comprehensive evaluation,
-this work moves toward a \textit{living estimation system}—one that evolves
+this work moves toward a \textit{continuous estimation process}—one that evolves
 with new telemetry and real-world project dynamics.
 We hope this framework will support practitioners, researchers,
 and tool builders in creating more adaptive,
@@ -1235,22 +1235,24 @@ personal or sensitive information.
 % 10. Declarations (Required by Springer Nature)
 % =====================================================
 
-\section*{Funding}
+\section*{Declarations}
+
+\subsection*{Funding}
 This research received no specific grant from any funding agency in the public, 
 commercial, or not-for-profit sectors.
 
-\section*{Competing Interests}
+\subsection*{Competing Interests}
 The authors declare that they have no competing interests.
 
-\section*{Ethics Approval and Consent to Participate}
+\subsection*{Ethics Approval and Consent to Participate}
 This study uses only publicly available, fully anonymized datasets. 
 No human participants or personal data were involved; therefore, 
 ethics approval and formal consent were not required.
 
-\section*{Consent for Publication}
+\subsection*{Consent for Publication}
 Not applicable.
 
-\section*{Authors' Contributions}
+\subsection*{Authors' Contributions}
 
 \textbf{Nguyen Nhat Huy}: Conceptualization, Dataset Preparation, Methodology, Software Development, 
 Experiments, Formal Analysis, Visualization, Writing – Original Draft.
