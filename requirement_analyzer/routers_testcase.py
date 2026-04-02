@@ -378,13 +378,13 @@ async def testcase_upload_page():
             </div>
 
             <div class="panel">
-                <h2>Choose File</h2>
+                <h2>📥 Upload Requirements File</h2>
                 <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
                     <p style="font-size: 32px;">📁</p>
                     <p><strong>Click to upload</strong> or drag & drop</p>
-                    <p style="font-size: 12px;">Supported: TXT, CSV (requirements in column 1)</p>
+                    <p style="font-size: 12px;">Supported: <strong>TXT, CSV, MD, DOCX</strong></p>
                 </div>
-                <input type="file" id="fileInput" accept=".txt,.csv" onchange="handleFileUpload(event)">
+                <input type="file" id="fileInput" accept=".txt,.csv,.md,.markdown,.docx" onchange="handleFileUpload(event)">
                 
                 <div style="margin-top: 15px;">
                     <label>Max Test Cases per Requirement:</label>
@@ -677,19 +677,32 @@ async def analyze_file_detailed(file: UploadFile = File(...), max_tests: int = 1
         from requirement_analyzer.task_gen.test_case_generator_v2 import AITestCaseGeneratorV2
         import json
         
-        content = await file.read()
+        file_content = await file.read()
         file_type = file.filename.split('.')[-1].lower()
         
-        if file_type not in ['txt', 'csv']:
-            raise ValueError(f"Unsupported file type: {file_type}")
+        # Support: txt, csv, md, markdown, docx
+        supported_types = ['txt', 'csv', 'md', 'markdown', 'docx']
+        if file_type not in supported_types:
+            raise ValueError(f"Unsupported file type: .{file_type}. Supported: TXT, CSV, MD, DOCX")
         
         # Parse file
         parser = RequirementFileParser()
-        requirements = parser.parse_file(content.decode('utf-8'), file_type)
+        try:
+            if file_type == 'docx':
+                # DOCX files need binary content
+                requirements = parser.parse_file(None, file_type, binary_content=file_content)
+            else:
+                # TXT, CSV, MD files can use string content
+                requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        except ValueError as e:
+            return JSONResponse(
+                {"status": "error", "message": str(e)},
+                status_code=400
+            )
         
         if not requirements:
             return JSONResponse(
-                {"status": "error", "message": "No requirements found"},
+                {"status": "error", "message": "No requirements found in file"},
                 status_code=400
             )
         
@@ -740,6 +753,7 @@ async def analyze_file_detailed(file: UploadFile = File(...), max_tests: int = 1
         return {
             "status": "success",
             "filename": file.filename,
+            "file_type": file_type.upper(),
             "total_requirements": len(detailed_analysis),
             "detailed": detailed_analysis
         }

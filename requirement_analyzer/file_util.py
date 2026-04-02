@@ -40,11 +40,58 @@ class RequirementFileParser:
         return requirements
     
     @staticmethod
-    def parse_docx(file_path: str) -> List[str]:
+    def parse_markdown(content: str) -> List[str]:
+        """Parse Markdown file - extract requirements from headers and lists"""
+        requirements = []
+        in_code_block = False
+        in_frontmatter = False
+        lines = content.split('\n')
+        
+        for line in lines:
+            # Skip YAML frontmatter
+            if line.strip().startswith('---'):
+                in_frontmatter = not in_frontmatter
+                continue
+            if in_frontmatter:
+                continue
+            
+            # Skip code blocks
+            if line.strip().startswith('```'):
+                in_code_block = not in_code_block
+                continue
+            if in_code_block:
+                continue
+            
+            # Extract headers (## Requirement Name)
+            if line.strip().startswith('##') or line.strip().startswith('###'):
+                req = line.lstrip('#').strip()
+                if req:
+                    requirements.append(req)
+            
+            # Extract bullet points (- Requirement)
+            elif line.strip().startswith('-') or line.strip().startswith('*'):
+                req = line.lstrip('-*').strip()
+                if req and not req.startswith('http') and not req.startswith('['):
+                    # Skip links and other markdown syntax
+                    if not req.startswith('!'):
+                        requirements.append(req)
+            
+            # Extract numbered items (1. Requirement)
+            elif line.strip() and line[0].isdigit() and '.' in line[:3]:
+                req = line.split('.', 1)[1].strip() if '.' in line else line.strip()
+                if req:
+                    requirements.append(req)
+        
+        return requirements
+    
+    @staticmethod
+    def parse_docx(content_bytes: bytes) -> List[str]:
         """Parse DOCX file - extract paragraphs"""
         try:
             from docx import Document
-            doc = Document(file_path)
+            from io import BytesIO
+            
+            doc = Document(BytesIO(content_bytes))
             requirements = [
                 para.text.strip() 
                 for para in doc.paragraphs 
@@ -52,7 +99,9 @@ class RequirementFileParser:
             ]
             return requirements
         except ImportError:
-            raise ValueError("python-docx not installed. Use TXT or CSV instead.")
+            raise ValueError("python-docx not installed. Please install it: pip install python-docx")
+        except Exception as e:
+            raise ValueError(f"Error parsing DOCX file: {str(e)}")
     
     @staticmethod
     def parse_pdf(file_path: str) -> List[str]:
@@ -72,15 +121,16 @@ class RequirementFileParser:
                     requirements.extend(lines)
             return requirements
         except ImportError:
-            raise ValueError("PyPDF2 not installed. Use TXT or CSV instead.")
+            raise ValueError("PyPDF2 not installed. Please install it: pip install PyPDF2")
     
     @classmethod
-    def parse_file(cls, file_content: str, file_type: str) -> List[str]:
+    def parse_file(cls, file_content: str, file_type: str, binary_content: bytes = None) -> List[str]:
         """
         Parse file based on type
         Args:
-            file_content: File content as string (for TXT/CSV)
-            file_type: File extension (txt, csv, docx, pdf)
+            file_content: File content as string (for TXT/CSV/MD)
+            file_type: File extension (txt, csv, md, markdown, docx)
+            binary_content: Binary content for docx files
         """
         file_type = file_type.lower()
         
@@ -88,8 +138,12 @@ class RequirementFileParser:
             return cls.parse_txt(file_content)
         elif file_type == 'csv':
             return cls.parse_csv(file_content)
+        elif file_type in ['md', 'markdown']:
+            return cls.parse_markdown(file_content)
+        elif file_type == 'docx' and binary_content:
+            return cls.parse_docx(binary_content)
         else:
-            raise ValueError(f"Unsupported file type: {file_type}")
+            raise ValueError(f"Unsupported file type: {file_type}. Supported: TXT, CSV, MD, DOCX")
     
     @staticmethod
     def group_requirements(requirements: List[str], group_by_feature: bool = True) -> dict:
