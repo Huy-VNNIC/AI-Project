@@ -29,6 +29,7 @@ requests>=2.29.0
 python-dotenv>=1.0.0
 matplotlib>=3.7.1
 seaborn>=0.12.2
+reportlab>=3.6.0
 
 # Reducing dependencies for HuggingFace deployment
 # Excluding heavy deep learning frameworks
