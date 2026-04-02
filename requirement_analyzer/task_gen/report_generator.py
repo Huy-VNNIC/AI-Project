@@ -500,19 +500,22 @@ class ReportGenerator:
         
         for req in self.detailed:
             req_id = req.get('requirement_id', 'UNKNOWN')
-            req_text = req.get('requirement', '')[:100]
-            test_count = req.get('test_cases_count', 0)
-            confidence = req.get('nlp_confidence', 0)
+            req_text = req.get('requirement_text', '')[:100]
+            test_cases = req.get('test_cases', [])
+            
+            # Calculate weighted confidence using scientific formula
+            confidence = self._calculate_requirement_confidence(test_cases)
             
             confidenceclass = 'confidence-high' if confidence >= 0.85 else ('confidence-medium' if confidence >= 0.75 else 'confidence-low')
             
             # Count test types for this requirement
             test_types_html = ""
-            if req.get('test_cases'):
+            if test_cases:
                 type_map = {}
-                for tc in req['test_cases']:
+                for tc in test_cases:
                     tc_type = tc.get('type', 'other')
-                    type_map[tc_type] = type_map.get(tc_type, 0) + 1
+                    if tc_type != 'requirement_quality_check':  # Skip quality checks
+                        type_map[tc_type] = type_map.get(tc_type, 0) + 1
                 
                 badge_map = {
                     'happy_path': 'badge-happy',
@@ -696,14 +699,8 @@ class ReportGenerator:
                 req_text = req.get('requirement_text', '')[:150]
                 test_cases = req.get('test_cases', [])
                 
-                # Filter actual test cases (exclude quality checks)
-                actual_test_cases = [tc for tc in test_cases if tc.get('type') != 'requirement_quality_check']
-                
-                # Calculate average confidence for this requirement (only from actual test cases)
-                if actual_test_cases:
-                    confidence = sum(float(tc.get('confidence', 0.85)) for tc in actual_test_cases) / len(actual_test_cases)
-                else:
-                    confidence = 0
+                # Calculate weighted confidence for this requirement using scientific formula
+                confidence = self._calculate_requirement_confidence(test_cases)
                 
                 # Requirement header
                 req_style = ParagraphStyle(
@@ -861,7 +858,73 @@ class ReportGenerator:
         
         return chart_files
     
-    def export_statistics_json(self) -> str:
+    def _calculate_requirement_confidence(self, test_cases: List[Dict]) -> float:
+        """
+        Calculate weighted confidence for a requirement
+        
+        Formula: Confidence = (sum of weighted test scores) / (count of tests * max_weight)
+        
+        Weight factors:
+        - Type Factor: happy_path=1.0, boundary=0.9, state=0.85, negative=0.8, equivalence=0.7
+        - Priority Factor: CRITICAL=1.0, HIGH=0.9, MEDIUM=0.8, LOW=0.6
+        - Confidence Score (from test case itself)
+        
+        Example:
+            happy_path + CRITICAL + 95% confidence = 0.95 * 1.0 * 1.0 = 0.95
+            equivalence + MEDIUM + 88% confidence = 0.88 * 0.7 * 0.8 = 0.493
+        """
+        if not test_cases:
+            return 0.0
+        
+        # Filter actual test cases only
+        actual_tests = [tc for tc in test_cases if tc.get('type') != 'requirement_quality_check']
+        if not actual_tests:
+            return 0.0
+        
+        # Type weight mapping
+        type_weights = {
+            'happy_path': 1.0,
+            'boundary_value': 0.9,
+            'state_transition': 0.85,
+            'negative': 0.8,
+            'equivalence_partition': 0.7,
+        }
+        
+        # Priority weight mapping
+        priority_weights = {
+            'CRITICAL': 1.0,
+            'HIGH': 0.9,
+            'MEDIUM': 0.8,
+            'LOW': 0.6,
+        }
+        
+        total_weighted_score = 0.0
+        max_possible_weight = 1.0 * 1.0  # max type weight * max priority weight
+        
+        for tc in actual_tests:
+            # Get base confidence (0.0 - 1.0)
+            base_conf = float(tc.get('confidence', 0.85))
+            
+            # Get type weight
+            tc_type = tc.get('type', 'equivalence_partition')
+            type_weight = type_weights.get(tc_type, 0.7)
+            
+            # Get priority weight
+            priority = tc.get('priority', 'MEDIUM')
+            priority_weight = priority_weights.get(priority, 0.8)
+            
+            # Calculate weighted score
+            weighted_score = base_conf * type_weight * priority_weight
+            total_weighted_score += weighted_score
+        
+        # Average weighted score
+        weighted_confidence = total_weighted_score / len(actual_tests)
+        
+        # Apply coverage bonus: more tests = higher confidence (max 5% bonus)
+        coverage_bonus = min(0.05, len(actual_tests) * 0.01)
+        final_confidence = min(0.99, weighted_confidence + coverage_bonus)
+        
+        return final_confidence
         """Export statistics as JSON for dashboard/analytics"""
         stats = {
             "timestamp": self.timestamp,
