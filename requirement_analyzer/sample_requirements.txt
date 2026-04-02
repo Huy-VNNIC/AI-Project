@@ -1,0 +1,19 @@
+System: Hotel Booking Platform
+
+1. User Registration
+   - User should be able to register with email and password
+   - Email validation required (format: user@domain.com)
+   - Password minimum 8 characters with uppercase and numbers
+   - Constraint: Maximum 10 registration attempts per hour
+
+2. Search Hotels
+   - User can search hotels by city, check-in date, check-out date
+   - Must filter by price range (min: 0, max: 10000)
+   - Display results sorted by rating (high to low)
+   - Should load within 3 seconds
+
+3. Booking Confirmation
+   - System must send confirmation email within 5 minutes
+   - Booking reference should be generated automatically
+   - Payment status: PENDING → CONFIRMED → COMPLETED
+   - State machine: Can only cancel within 24 hours of booking

@@ -25,7 +25,7 @@ async def testcase_page():
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #0f766e 0%, #06b6d4 50%, #0369a1 100%);
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                 min-height: 100vh;
                 padding: 20px;
@@ -42,7 +42,7 @@ async def testcase_page():
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             }
             .header h1 {
-                color: #667eea;
+                color: #0369a1;
                 margin-bottom: 10px;
                 font-size: 32px;
             }
@@ -63,7 +63,7 @@ async def testcase_page():
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             }
             .panel h2 {
-                color: #667eea;
+                color: #0369a1;
                 margin-bottom: 20px;
                 font-size: 22px;
             }
@@ -87,7 +87,7 @@ async def testcase_page():
             }
             textarea:focus, input:focus, select:focus {
                 outline: none;
-                border-color: #667eea;
+                border-color: #0369a1;
             }
             textarea {
                 min-height: 150px;
@@ -101,7 +101,7 @@ async def testcase_page():
             button {
                 flex: 1;
                 padding: 12px 20px;
-                background: #667eea;
+                background: #0369a1;
                 color: white;
                 border: none;
                 border-radius: 8px;
@@ -111,7 +111,7 @@ async def testcase_page():
                 transition: all 0.3s;
             }
             button:hover {
-                background: #5568d3;
+                background: #0d7377;
                 transform: translateY(-2px);
                 box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
             }
@@ -121,13 +121,13 @@ async def testcase_page():
                 padding: 20px;
                 background: #f9f9f9;
                 border-radius: 8px;
-                border-left: 4px solid #667eea;
+                border-left: 4px solid #0369a1;
             }
             .results.show {
                 display: block;
             }
             .results h3 {
-                color: #667eea;
+                color: #0369a1;
                 margin-bottom: 15px;
             }
             .test-case {
@@ -135,7 +135,7 @@ async def testcase_page():
                 padding: 15px;
                 margin-bottom: 15px;
                 border-radius: 6px;
-                border-left: 4px solid #667eea;
+                border-left: 4px solid #0369a1;
             }
             .test-case h4 {
                 color: #333;
@@ -150,7 +150,7 @@ async def testcase_page():
                 display: inline-block;
                 padding: 4px 8px;
                 background: #e3f2fd;
-                color: #667eea;
+                color: #0369a1;
                 border-radius: 4px;
                 font-size: 11px;
                 font-weight: 600;
@@ -290,7 +290,7 @@ async def testcase_upload_page():
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #0f766e 0%, #06b6d4 50%, #0369a1 100%);
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
                 min-height: 100vh;
                 padding: 20px;
@@ -303,7 +303,7 @@ async def testcase_upload_page():
                 margin-bottom: 30px;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             }
-            .header h1 { color: #667eea; font-size: 32px; margin-bottom: 10px; }
+            .header h1 { color: #0369a1; font-size: 32px; margin-bottom: 10px; }
             .panel {
                 background: white;
                 border-radius: 12px;
@@ -312,7 +312,7 @@ async def testcase_upload_page():
                 margin-bottom: 20px;
             }
             .upload-zone {
-                border: 3px dashed #667eea;
+                border: 3px dashed #0369a1;
                 border-radius: 12px;
                 padding: 40px;
                 text-align: center;
@@ -322,13 +322,13 @@ async def testcase_upload_page():
             }
             .upload-zone:hover {
                 background: #e3f2fd;
-                border-color: #5568d3;
+                border-color: #0d7377;
             }
             .upload-zone p { color: #666; margin: 10px 0; }
             input[type="file"] { display: none; }
             button {
                 padding: 12px 24px;
-                background: #667eea;
+                background: #0369a1;
                 color: white;
                 border: none;
                 border-radius: 8px;
@@ -337,7 +337,7 @@ async def testcase_upload_page():
                 margin-top: 20px;
                 transition: all 0.3s;
             }
-            button:hover { background: #5568d3; }
+            button:hover { background: #0d7377; }
             .results {
                 display: none;
                 margin-top: 20px;
@@ -346,13 +346,13 @@ async def testcase_upload_page():
                 border-radius: 8px;
             }
             .results.show { display: block; }
-            .loading { text-align: center; color: #667eea; }
+            .loading { text-align: center; color: #0369a1; }
             .requirement-item {
                 background: white;
                 padding: 15px;
                 margin-bottom: 10px;
                 border-radius: 6px;
-                border-left: 4px solid #667eea;
+                border-left: 4px solid #0369a1;
             }
             .requirement-item h4 { color: #333; margin-bottom: 8px; }
             .test-case-list {
@@ -366,7 +366,7 @@ async def testcase_upload_page():
             .test-case { font-size: 12px; color: #666; padding: 5px; border-bottom: 1px solid #ddd; }
             .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px; }
             .stat { background: #e3f2fd; padding: 15px; border-radius: 6px; }
-            .stat h3 { color: #667eea; font-size: 24px; }
+            .stat h3 { color: #0369a1; font-size: 24px; }
             .stat p { color: #666; font-size: 12px; }
         </style>
     </head>
@@ -500,28 +500,28 @@ async def testcase_upload_page():
                             
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin: 10px 0; font-size: 12px;">
                                 <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
-                                    <strong style="color: #667eea;">Words:</strong> ${item.word_count}
+                                    <strong style="color: #0369a1;">Words:</strong> ${item.word_count}
                                 </div>
                                 <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
-                                    <strong style="color: #667eea;">Chars:</strong> ${item.character_count}
+                                    <strong style="color: #0369a1;">Chars:</strong> ${item.character_count}
                                 </div>
                                 <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
-                                    <strong style="color: #667eea;">Confidence:</strong> ${(item.nlp_confidence * 100).toFixed(1)}%
+                                    <strong style="color: #0369a1;">Confidence:</strong> ${(item.nlp_confidence * 100).toFixed(1)}%
                                 </div>
                                 <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
-                                    <strong style="color: #667eea;">Test Cases:</strong> ${item.test_cases_count}
+                                    <strong style="color: #0369a1;">Test Cases:</strong> ${item.test_cases_count}
                                 </div>
                             </div>
 
                             <div class="test-case-list">
                                 <strong>Generated Test Cases (${item.test_cases.length}):</strong>
                                 ${item.test_cases.map((tc, i) => `
-                                    <div class="test-case" data-tc-id="${tc.id}" style="padding: 12px; margin: 8px 0; background: white; border-radius: 4px; border-left: 4px solid #667eea; cursor: pointer; transition: all 0.3s;" 
+                                    <div class="test-case" data-tc-id="${tc.id}" style="padding: 12px; margin: 8px 0; background: white; border-radius: 4px; border-left: 4px solid #0369a1; cursor: pointer; transition: all 0.3s;" 
                                          onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" 
                                          onmouseout="this.style.boxShadow='none'"
                                          onclick="showTestCaseDetailsV2('${tc.id}')">
                                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px; font-size: 11px;">
-                                            <div><strong>ID:</strong> <span style="color: #667eea; font-weight: bold;">${tc.id}</span></div>
+                                            <div><strong>ID:</strong> <span style="color: #0369a1; font-weight: bold;">${tc.id}</span></div>
                                             <div><strong>Type:</strong> ${tc.type || tc.scenario_type}</div>
                                             <div><strong>Priority:</strong> <span style="color: ${tc.priority === 'CRITICAL' ? '#d32f2f' : tc.priority === 'HIGH' ? '#f57c00' : '#1976d2'};">${tc.priority}</span></div>
                                             <div><strong>Steps:</strong> ${tc.steps_count || tc.steps?.length || 0}</div>
@@ -531,7 +531,7 @@ async def testcase_upload_page():
                                         <div style="margin-top: 4px; color: #999; font-size: 11px;">
                                             Effort: ${tc.estimated_effort_hours?.toFixed(1) || '1.0'}h | Confidence: ${(tc.confidence * 100).toFixed(0)}%
                                         </div>
-                                        <div style="margin-top: 6px; font-size: 11px; color: #667eea; text-decoration: underline;">
+                                        <div style="margin-top: 6px; font-size: 11px; color: #0369a1; text-decoration: underline;">
                                             Click to view full details
                                         </div>
                                     </div>
@@ -623,7 +623,7 @@ async def testcase_upload_page():
                 // Build HTML
                 let html = `
                     <div class="modal-content">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #667eea; padding-bottom: 12px; margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0369a1; padding-bottom: 12px; margin-bottom: 16px;">
                             <div style="flex: 1;">
                                 <h2 style="margin: 0; color: #333;">${testCase.title || 'Test Case'}</h2>
                                 <p style="margin: 4px 0; color: #666; font-size: 13px;">ID: <strong>${testCaseId}</strong></p>
@@ -634,7 +634,7 @@ async def testcase_upload_page():
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
                             <div style="background: #e3f2fd; padding: 12px; border-radius: 4px;">
-                                <strong style="color: #667eea;">Type:</strong><br>
+                                <strong style="color: #0369a1;">Type:</strong><br>
                                 <span style="font-size: 14px; font-weight: bold;">${testCase.type || 'unknown'}</span>
                             </div>
                             <div style="background: #fff3e0; padding: 12px; border-radius: 4px;">
@@ -668,8 +668,8 @@ async def testcase_upload_page():
                             ${Object.keys(testData).length > 0 ? `
                                 <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
                                     <tr style="background: #e3f2fd; border-bottom: 1px solid #ddd;">
-                                        <th style="padding: 8px; text-align: left; font-weight: bold; color: #667eea;">Key</th>
-                                        <th style="padding: 8px; text-align: left; font-weight: bold; color: #667eea;">Value</th>
+                                        <th style="padding: 8px; text-align: left; font-weight: bold; color: #0369a1;">Key</th>
+                                        <th style="padding: 8px; text-align: left; font-weight: bold; color: #0369a1;">Value</th>
                                     </tr>
                                     ${Object.entries(testData).map(([key, value]) => `
                                         <tr style="border-bottom: 1px solid #eee;">
@@ -962,12 +962,12 @@ async def test_analyzer():
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { background: #f5f5f5; font-family: monospace; padding: 20px; }
             .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-            h1 { color: #667eea; margin-bottom: 20px; }
+            h1 { color: #0369a1; margin-bottom: 20px; }
             .form-group { margin-bottom: 20px; }
             label { display: block; margin-bottom: 8px; font-weight: 600; }
             textarea, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; }
-            button { background: #667eea; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
-            button:hover { background: #5568d3; }
+            button { background: #0369a1; color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+            button:hover { background: #0d7377; }
             pre { background: #f9f9f9; padding: 15px; border-radius: 6px; overflow-x: auto; margin-top: 20px; }
         </style>
     </head>
@@ -1090,7 +1090,7 @@ async def test_hub():
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #0369a1 0%, #764ba2 100%);
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace;
                 min-height: 100vh;
                 padding: 20px;
@@ -1123,19 +1123,19 @@ async def test_hub():
                 transform: translateY(-5px);
                 box-shadow: 0 15px 40px rgba(0,0,0,0.3);
             }
-            .card h2 { color: #667eea; margin-bottom: 10px; }
+            .card h2 { color: #0369a1; margin-bottom: 10px; }
             .card p { color: #666; font-size: 14px; margin-bottom: 20px; }
             .card button {
                 display: inline-block;
                 padding: 10px 20px;
-                background: #667eea;
+                background: #0369a1;
                 color: white;
                 border: none;
                 border-radius: 6px;
                 cursor: pointer;
                 font-weight: 600;
             }
-            .card button:hover { background: #5568d3; }
+            .card button:hover { background: #0d7377; }
         </style>
     </head>
     <body>
@@ -1183,7 +1183,7 @@ async def testcase_dashboard():
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { background: #f5f5f5; font-family: monospace; padding: 20px; }
             .container { max-width: 1200px; margin: 0 auto; }
-            h1 { color: #667eea; margin-bottom: 30px; }
+            h1 { color: #0369a1; margin-bottom: 30px; }
             .stats-grid {
                 display: grid;
                 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -1197,7 +1197,7 @@ async def testcase_dashboard():
                 box-shadow: 0 5px 15px rgba(0,0,0,0.1);
                 text-align: center;
             }
-            .stat-number { font-size: 32px; font-weight: 700; color: #667eea; margin-bottom: 10px; }
+            .stat-number { font-size: 32px; font-weight: 700; color: #0369a1; margin-bottom: 10px; }
             .stat-label { color: #999; font-size: 12px; }
         </style>
     </head>
