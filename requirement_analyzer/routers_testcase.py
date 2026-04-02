@@ -709,14 +709,31 @@ async def analyze_file_detailed(file: UploadFile = File(...), max_tests: int = 1
         # Detailed analysis
         generator = AITestCaseGeneratorV2()
         detailed_analysis = []
+        skipped_analysis = []
         
         for idx, req in enumerate(requirements, 1):
-            if not req.strip():
+            if not req.strip() or len(req.split()) < 3:
+                skipped_analysis.append({
+                    'index': idx,
+                    'requirement': req,
+                    'reason': 'Too short (less than 3 words)'
+                })
                 continue
             
             try:
                 result = generator.generate([req], max_test_cases=max_tests, confidence_threshold=0.4)
                 test_cases = result.get('test_cases', [])
+                nlp_confidence = result.get('summary', {}).get('avg_confidence', 0)
+                
+                # Skip requirements with 0% confidence (couldn't generate meaningful test cases)
+                if not test_cases or nlp_confidence == 0:
+                    skipped_analysis.append({
+                        'index': idx,
+                        'requirement': req,
+                        'reason': 'Low NLP confidence - unable to generate meaningful test cases',
+                        'nlp_confidence': nlp_confidence
+                    })
+                    continue
                 
                 # Extract NLP parsing details
                 req_words = req.split()
@@ -726,7 +743,7 @@ async def analyze_file_detailed(file: UploadFile = File(...), max_tests: int = 1
                     'requirement': req,
                     'word_count': len(req_words),
                     'character_count': len(req),
-                    'nlp_confidence': result.get('summary', {}).get('avg_confidence', 0),
+                    'nlp_confidence': nlp_confidence,
                     'test_cases_count': len(test_cases),
                     'avg_effort': result.get('summary', {}).get('avg_effort_hours', 0),
                     'test_cases': [
@@ -743,10 +760,10 @@ async def analyze_file_detailed(file: UploadFile = File(...), max_tests: int = 1
                     ]
                 })
             except Exception as e:
-                detailed_analysis.append({
+                skipped_analysis.append({
                     'index': idx,
                     'requirement': req,
-                    'error': str(e)
+                    'reason': f'Error during processing: {str(e)}'
                 })
                 continue
         
@@ -754,8 +771,13 @@ async def analyze_file_detailed(file: UploadFile = File(...), max_tests: int = 1
             "status": "success",
             "filename": file.filename,
             "file_type": file_type.upper(),
-            "total_requirements": len(detailed_analysis),
-            "detailed": detailed_analysis
+            "total_requirements_in_file": len(requirements),
+            "total_requirements_analyzed": len(detailed_analysis),
+            "total_requirements_skipped": len(skipped_analysis),
+            "total_test_cases_generated": sum(r['test_cases_count'] for r in detailed_analysis),
+            "avg_nlp_confidence": sum(r['nlp_confidence'] for r in detailed_analysis) / len(detailed_analysis) if detailed_analysis else 0,
+            "detailed": detailed_analysis,
+            "skipped_requirements": skipped_analysis if skipped_analysis else None
         }
     
     except Exception as e:

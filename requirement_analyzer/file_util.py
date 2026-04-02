@@ -41,45 +41,119 @@ class RequirementFileParser:
     
     @staticmethod
     def parse_markdown(content: str) -> List[str]:
-        """Parse Markdown file - extract requirements from headers and lists"""
+        """Parse Markdown file - extract requirements from headers and lists
+        
+        Smart extraction that identifies actual requirements vs section headers
+        """
         requirements = []
         in_code_block = False
         in_frontmatter = False
         lines = content.split('\n')
         
+        # Keywords that indicate requirement lines (in Vietnamese and English)
+        requirement_keywords = [
+            'hệ thống phải',
+            'phải',
+            'must',
+            'should',
+            'API',
+            'tích hợp',
+            'hỗ trợ',
+            'cho phép',
+            'quản lý',
+            'theo dõi',
+            'cảnh báo',
+            'kiểm tra',
+            'xuất',
+            'lưu',
+            'hiển thị',
+            'xử lý',
+            'đánh giá',
+            'encrypt',
+            'implement',
+            'handle',
+            'allow',
+            'maintain',
+            'send',
+            'response time',
+            'backup',
+        ]
+        
+        # Section headers to skip (common table of contents patterns)
+        section_headers = [
+            'introduction',
+            'functional requirements',
+            'non-functional requirements',
+            'technical requirements',
+            'constraints',
+            'assumptions',
+            'glossary',
+            'appendix',
+            'references',
+            'modules',
+            'module',
+            'requirements',
+        ]
+        
         for line in lines:
+            stripped = line.strip()
+            
             # Skip YAML frontmatter
-            if line.strip().startswith('---'):
+            if stripped.startswith('---'):
                 in_frontmatter = not in_frontmatter
                 continue
             if in_frontmatter:
                 continue
             
             # Skip code blocks
-            if line.strip().startswith('```'):
+            if stripped.startswith('```'):
                 in_code_block = not in_code_block
                 continue
-            if in_code_block:
+            if in_code_block or not stripped:
                 continue
             
-            # Extract headers (## Requirement Name)
-            if line.strip().startswith('##') or line.strip().startswith('###'):
-                req = line.lstrip('#').strip()
-                if req:
-                    requirements.append(req)
+            req = None
             
-            # Extract bullet points (- Requirement)
-            elif line.strip().startswith('-') or line.strip().startswith('*'):
-                req = line.lstrip('-*').strip()
-                if req and not req.startswith('http') and not req.startswith('['):
-                    # Skip links and other markdown syntax
-                    if not req.startswith('!'):
-                        requirements.append(req)
+            # Extract bullet points / list items (highest priority)
+            if stripped.startswith('-') or stripped.startswith('*'):
+                req = stripped.lstrip('-*').strip()
+                if req and not req.startswith('http') and not req.startswith('[') and not req.startswith('!'):
+                    pass  # req is already extracted
+                else:
+                    req = None
             
-            # Extract numbered items (1. Requirement)
-            elif line.strip() and line[0].isdigit() and '.' in line[:3]:
-                req = line.split('.', 1)[1].strip() if '.' in line else line.strip()
-                if req:
+            # Extract numbered items BUT check if it's too short (likely section header)
+            elif stripped and stripped[0].isdigit() and '.' in stripped[:4]:
+                req = stripped.split('.', 1)[1].strip() if '.' in stripped else stripped.strip()
+                
+                # Filter out pure section headers (generic naming)
+                is_section = any(header in req.lower() for header in section_headers)
+                if is_section:
+                    req = None
+                # Also filter if too short (less than 4 words) and no requirement keywords
+                elif req and len(req.split()) < 4 and not any(kw in req.lower() for kw in requirement_keywords):
+                    req = None
+            
+            # Extract headers (##, ###, #) but ONLY if they look like actual requirements
+            elif stripped.startswith('#'):
+                req = stripped.lstrip('#').strip()
+                # Filter: Skip section headers, keep only detailed requirements
+                is_section = any(header in req.lower() for header in section_headers) or len(req.split()) <= 3
+                if is_section or not any(kw in req.lower() for kw in requirement_keywords):
+                    req = None
+            
+            # Plain text lines with requirement keywords
+            elif any(kw in stripped.lower() for kw in requirement_keywords):
+                req = stripped
+            
+            # Add requirement if it passes all filters
+            if req and len(req.split()) >= 3:  # Minimum 3 words
+                # Clean up markdown syntax
+                req = req.replace('[', '').replace(']', '').replace('(', '')
+                req = req.replace(')', '').replace('*', '').strip()
+                
+                # Skip if result is empty
+                if req and len(req.split()) >= 3:
                     requirements.append(req)
         
         return requirements
