@@ -3,9 +3,11 @@ Test Case Generation Routes
 Tích hợp vào requirement_analyzer.api
 """
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import HTMLResponse
-from typing import Optional
+from fastapi import APIRouter, HTTPException, File, UploadFile
+from fastapi.responses import HTMLResponse, JSONResponse
+from typing import Optional, List
+import json
+from requirement_analyzer.file_util import RequirementFileParser
 
 router = APIRouter(prefix="", tags=["testcase"])
 
@@ -273,6 +275,480 @@ Feature: User Login
     </body>
     </html>
     """
+
+
+@router.get("/testcase/upload", response_class=HTMLResponse)
+async def testcase_upload_page():
+    """File upload page for requirements"""
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Upload Requirements</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+                min-height: 100vh;
+                padding: 20px;
+            }
+            .container { max-width: 1000px; margin: 0 auto; }
+            .header {
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                margin-bottom: 30px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            }
+            .header h1 { color: #667eea; font-size: 32px; margin-bottom: 10px; }
+            .panel {
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                margin-bottom: 20px;
+            }
+            .upload-zone {
+                border: 3px dashed #667eea;
+                border-radius: 12px;
+                padding: 40px;
+                text-align: center;
+                background: #f9f9f9;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+            .upload-zone:hover {
+                background: #e3f2fd;
+                border-color: #5568d3;
+            }
+            .upload-zone p { color: #666; margin: 10px 0; }
+            input[type="file"] { display: none; }
+            button {
+                padding: 12px 24px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 600;
+                margin-top: 20px;
+                transition: all 0.3s;
+            }
+            button:hover { background: #5568d3; }
+            .results {
+                display: none;
+                margin-top: 20px;
+                padding: 20px;
+                background: #f9f9f9;
+                border-radius: 8px;
+            }
+            .results.show { display: block; }
+            .loading { text-align: center; color: #667eea; }
+            .requirement-item {
+                background: white;
+                padding: 15px;
+                margin-bottom: 10px;
+                border-radius: 6px;
+                border-left: 4px solid #667eea;
+            }
+            .requirement-item h4 { color: #333; margin-bottom: 8px; }
+            .test-case-list {
+                margin-top: 15px;
+                max-height: 300px;
+                overflow-y: auto;
+                background: #f3f3f3;
+                padding: 10px;
+                border-radius: 6px;
+            }
+            .test-case { font-size: 12px; color: #666; padding: 5px; border-bottom: 1px solid #ddd; }
+            .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px; }
+            .stat { background: #e3f2fd; padding: 15px; border-radius: 6px; }
+            .stat h3 { color: #667eea; font-size: 24px; }
+            .stat p { color: #666; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📄 Upload Requirements File</h1>
+                <p>Upload requirements file and generate detailed test cases from each requirement</p>
+            </div>
+
+            <div class="panel">
+                <h2>Choose File</h2>
+                <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+                    <p style="font-size: 32px;">📁</p>
+                    <p><strong>Click to upload</strong> or drag & drop</p>
+                    <p style="font-size: 12px;">Supported: TXT, CSV (requirements in column 1)</p>
+                </div>
+                <input type="file" id="fileInput" accept=".txt,.csv" onchange="handleFileUpload(event)">
+                
+                <div style="margin-top: 15px;">
+                    <label>Max Test Cases per Requirement:</label>
+                    <input type="number" id="maxTests" value="10" min="1" max="50" style="width: 100px; padding: 8px;">
+                </div>
+
+                <button onclick="analyzeFile()">Analyze & Generate Test Cases</button>
+            </div>
+
+            <div id="results" class="results">
+                <h2>Analysis Results</h2>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+
+        <script>
+            let uploadedFile = null;
+
+            function handleFileUpload(event) {
+                uploadedFile = event.target.files[0];
+                console.log('File selected:', uploadedFile.name);
+            }
+
+            async function analyzeFile() {
+                if (!uploadedFile) {
+                    alert('Please select a file');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', uploadedFile);
+                formData.append('max_tests', document.getElementById('maxTests').value);
+
+                document.getElementById('results').classList.add('show');
+                document.getElementById('resultsContent').innerHTML = '<div class="loading"><p>🔄 Analyzing requirements...</p></div>';
+
+                try {
+                    const response = await fetch('/api/v2/test-generation/analyze-file-detailed', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.detail || 'Failed to analyze file');
+                    }
+
+                    displayDetailedResults(data);
+                } catch (error) {
+                    console.error('Error:', error);
+                    document.getElementById('resultsContent').innerHTML = 
+                        '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+                }
+            }
+
+            function displayDetailedResults(data) {
+                let totalTestCases = 0;
+                let avgConfidence = 0;
+                let confCount = 0;
+
+                data.detailed.forEach(item => {
+                    if (item.test_cases_count) {
+                        totalTestCases += item.test_cases_count;
+                    }
+                    if (item.nlp_confidence) {
+                        avgConfidence += item.nlp_confidence;
+                        confCount++;
+                    }
+                });
+
+                // Calculate statistics
+                if (confCount > 0) {
+                    avgConfidence = avgConfidence / confCount;
+                }
+
+                let html = `
+                    <div class="stat-row" style="margin-bottom: 30px;">
+                        <div class="stat">
+                            <h3>${data.detailed.length}</h3>
+                            <p>Requirements Analyzed</p>
+                        </div>
+                        <div class="stat">
+                            <h3>${totalTestCases}</h3>
+                            <p>Test Cases Generated</p>
+                        </div>
+                        <div class="stat">
+                            <h3>${(avgConfidence * 100).toFixed(1)}%</h3>
+                            <p>Avg NLP Confidence</p>
+                        </div>
+                    </div>
+                `;
+
+                // Display each requirement with detailed analysis
+                data.detailed.forEach((item, idx) => {
+                    if (item.error) {
+                        html += `
+                            <div class="requirement-item" style="border-color: #f44336;">
+                                <h4>⚠️ Requirement ${item.index}</h4>
+                                <p style="color: #666;">${item.requirement}</p>
+                                <p style="color: #f44336; font-size: 12px;">Error: ${item.error}</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    html += `
+                        <div class="requirement-item">
+                            <h4>📋 Requirement ${item.index}</h4>
+                            <p style="color: #333; font-weight: 500; margin-bottom: 8px;">
+                                "${item.requirement}"
+                            </p>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin: 10px 0; font-size: 12px;">
+                                <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
+                                    <strong style="color: #667eea;">Words:</strong> ${item.word_count}
+                                </div>
+                                <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
+                                    <strong style="color: #667eea;">Chars:</strong> ${item.character_count}
+                                </div>
+                                <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
+                                    <strong style="color: #667eea;">Confidence:</strong> ${(item.nlp_confidence * 100).toFixed(1)}%
+                                </div>
+                                <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
+                                    <strong style="color: #667eea;">Test Cases:</strong> ${item.test_cases_count}
+                                </div>
+                            </div>
+
+                            <div class="test-case-list">
+                                <strong>📊 Generated Test Cases (${item.test_cases.length}):</strong>
+                                ${item.test_cases.map((tc, i) => `
+                                    <div class="test-case" style="padding: 8px; margin: 4px 0; background: white; border-radius: 3px;">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; font-size: 11px;">
+                                            <div><strong>ID:</strong> ${tc.id}</div>
+                                            <div><strong>Type:</strong> ${tc.scenario_type}</div>
+                                            <div><strong>Priority:</strong> ${tc.priority}</div>
+                                            <div><strong>Steps:</strong> ${tc.steps_count}</div>
+                                        </div>
+                                        <div style="margin-top: 4px; color: #666;" title="${tc.title}">${tc.title.substring(0, 80)}...</div>
+                                        <div style="margin-top: 4px; color: #999; font-size: 10px;">
+                                            Effort: ${tc.estimated_effort_hours.toFixed(1)}h | Confidence: ${(tc.confidence * 100).toFixed(0)}%
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    <div style="margin-top: 30px; display: flex; gap: 10px;">
+                        <button onclick="downloadDetailedJSON()" style="background: #4CAF50; flex: 1;">📥 Download Detailed JSON</button>
+                        <button onclick="downloadDetailedCSV()" style="background: #2196F3; flex: 1;">📥 Download as CSV</button>
+                    </div>
+                `;
+
+                document.getElementById('resultsContent').innerHTML = html;
+                window.detailedData = data;
+            }
+
+            function downloadDetailedJSON() {
+                const json = JSON.stringify(window.detailedData, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'requirements_analysis_detailed.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+
+            function downloadDetailedCSV() {
+                let csv = 'Req Index,Requirement,Word Count,Char Count,NLP Confidence,Test Cases Count,Avg Effort Hours\\n';
+                
+                window.detailedData.detailed.forEach(item => {
+                    if (!item.error) {
+                        csv += `"${item.index}","${item.requirement.replace(/"/g, '\\"')}","${item.word_count}","${item.character_count}","${(item.nlp_confidence*100).toFixed(1)}%","${item.test_cases_count}","${item.avg_effort.toFixed(2)}"\\n`;
+                    }
+                });
+
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'requirements_analysis.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        </script>
+    </body>
+    </html>
+    """
+
+
+@router.post("/api/v2/test-generation/analyze-file")
+async def analyze_requirement_file(file: UploadFile = File(...), max_tests: int = 10):
+    """Analyze uploaded requirement file and generate test cases"""
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v2 import AITestCaseGeneratorV2
+        
+        content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        if file_type not in ['txt', 'csv']:
+            raise ValueError(f"Unsupported file type: {file_type}")
+        
+        # Parse file
+        parser = RequirementFileParser()
+        requirements = parser.parse_file(content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {
+                    "status": "error",
+                    "message": "No requirements found in file"
+                },
+                status_code=400
+            )
+        
+        # Analyze each requirement
+        generator = AITestCaseGeneratorV2()
+        analysis = []
+        total_tests = 0
+        confidences = []
+        
+        for req in requirements:
+            if not req.strip():
+                continue
+            
+            try:
+                # Generate test cases for this requirement
+                result = generator.generate([req], max_test_cases=max_tests, confidence_threshold=0.4)
+                
+                test_cases = result.get('test_cases', [])
+                avg_conf = result.get('summary', {}).get('avg_confidence', 0)
+                
+                analysis.append({
+                    'requirement': req[:150],
+                    'nlp_confidence': avg_conf,
+                    'test_cases': [
+                        {
+                            'id': tc.get('id'),
+                            'title': tc.get('title'),
+                            'scenario_type': tc.get('scenario_type'),
+                            'priority': tc.get('priority'),
+                            'confidence': tc.get('confidence', {}).get('overall_score', 0)
+                        }
+                        for tc in test_cases
+                    ]
+                })
+                total_tests += len(test_cases)
+                confidences.append(avg_conf)
+            except Exception as e:
+                print(f"Error analyzing requirement: {e}")
+                continue
+        
+        if not analysis:
+            return JSONResponse(
+                {
+                    "status": "error",
+                    "message": "Could not analyze any requirements"
+                },
+                status_code=400
+            )
+        
+        return {
+            "status": "success",
+            "total_requirements": len(analysis),
+            "total_test_cases": total_tests,
+            "avg_confidence": sum(confidences) / len(confidences) if confidences else 0,
+            "analysis": analysis
+        }
+    
+    except Exception as e:
+        return JSONResponse(
+            {
+                "status": "error",
+                "message": str(e)
+            },
+            status_code=500
+        )
+
+
+@router.post("/api/v2/test-generation/analyze-file-detailed")
+async def analyze_file_detailed(file: UploadFile = File(...), max_tests: int = 10):
+    """Analyze file with detailed breakdown per requirement"""
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v2 import AITestCaseGeneratorV2
+        import json
+        
+        content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        if file_type not in ['txt', 'csv']:
+            raise ValueError(f"Unsupported file type: {file_type}")
+        
+        # Parse file
+        parser = RequirementFileParser()
+        requirements = parser.parse_file(content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found"},
+                status_code=400
+            )
+        
+        # Detailed analysis
+        generator = AITestCaseGeneratorV2()
+        detailed_analysis = []
+        
+        for idx, req in enumerate(requirements, 1):
+            if not req.strip():
+                continue
+            
+            try:
+                result = generator.generate([req], max_test_cases=max_tests, confidence_threshold=0.4)
+                test_cases = result.get('test_cases', [])
+                
+                # Extract NLP parsing details
+                req_words = req.split()
+                
+                detailed_analysis.append({
+                    'index': idx,
+                    'requirement': req,
+                    'word_count': len(req_words),
+                    'character_count': len(req),
+                    'nlp_confidence': result.get('summary', {}).get('avg_confidence', 0),
+                    'test_cases_count': len(test_cases),
+                    'avg_effort': result.get('summary', {}).get('avg_effort_hours', 0),
+                    'test_cases': [
+                        {
+                            'id': tc.get('id'),
+                            'title': tc.get('title'),
+                            'scenario_type': tc.get('scenario_type'),
+                            'priority': tc.get('priority'),
+                            'estimated_effort_hours': tc.get('estimated_effort_hours', 0),
+                            'confidence': tc.get('confidence', {}).get('overall_score', 0),
+                            'steps_count': len(tc.get('steps', []))
+                        }
+                        for tc in test_cases
+                    ]
+                })
+            except Exception as e:
+                detailed_analysis.append({
+                    'index': idx,
+                    'requirement': req,
+                    'error': str(e)
+                })
+                continue
+        
+        return {
+            "status": "success",
+            "filename": file.filename,
+            "total_requirements": len(detailed_analysis),
+            "detailed": detailed_analysis
+        }
+    
+    except Exception as e:
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
+            status_code=500
+        )
 
 
 @router.get("/test/analyzer", response_class=HTMLResponse)
