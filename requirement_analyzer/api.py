@@ -30,10 +30,16 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.append(str(PROJECT_ROOT))
 
 # Import các module cần thiết
-from requirement_analyzer.analyzer import RequirementAnalyzer
+try:
+    from requirement_analyzer.analyzer import RequirementAnalyzer
+except ImportError as e:
+    logger.warning(f"Could not import RequirementAnalyzer (spacy compatibility): {e}")
+    RequirementAnalyzer = None
+
 from requirement_analyzer.estimator import EffortEstimator
 from requirement_analyzer.task_integration import get_integration
 from requirement_analyzer.utils import preprocess_text_for_estimation, improve_confidence_level
+from requirement_analyzer.api_v2_handler import V2TaskGenerator
 
 # Model cho request API
 class RequirementText(BaseModel):
@@ -111,6 +117,15 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Khởi tạo các thành phần
 analyzer = RequirementAnalyzer()
 estimator = EffortEstimator()
@@ -118,9 +133,61 @@ estimator = EffortEstimator()
 # Jinja2 templates
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
+# Import and register V2 test case generation router
+try:
+    from requirement_analyzer.api_v2_test_generation import router as test_gen_router
+    app.include_router(test_gen_router, tags=["Test Case Generation"])
+    logger.info("✓ V2 Test Case Generation router registered")
+except Exception as e:
+    logger.warning(f"Could not register test case generation router: {e}")
+
+# Import and register Pure ML test generation router
+try:
+    from requirement_analyzer.api_v2_test_generation import pure_ml_router
+    app.include_router(pure_ml_router, tags=["Pure ML Test Generation"])
+    logger.info("✓ Pure ML Test Generation router registered")
+except Exception as e:
+    logger.warning(f"Could not register Pure ML router: {e}")
+
+# Import and register Test Case UI router
+try:
+    from requirement_analyzer.routers_testcase import router as testcase_ui_router
+    app.include_router(testcase_ui_router, tags=["Test Case UI"])
+    logger.info("✓ Test Case UI router registered")
+except Exception as e:
+    logger.warning(f"Could not register Test Case UI router: {e}")
+
+# Import and register Test Routes (multiple test pages)
+try:
+    from app.routers import test_routes
+    app.include_router(test_routes.router, tags=["testing"])
+    logger.info("✓ Test Routes router registered (/test/...)")
+except Exception as e:
+    logger.warning(f"Could not register Test Routes router: {e}")
+
+# Import and register Test Case Router (advanced test case generation)
+try:
+    from app.routers import testcase
+    app.include_router(testcase.router, tags=["testcase"])
+    logger.info("✓ Test Case Router registered (/testcase/...)")
+except Exception as e:
+    logger.warning(f"Could not register Test Case Router: {e}")
+
 @app.get("/", response_class=HTMLResponse)
 async def main_page(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/testcase-generation")
+async def testcase_generation():
+    """Serve AI Test Case Generation UI"""
+    testcase_file = Path(__file__).parent.parent / "templates" / "testcase_generation_neumorphism.html"
+    if testcase_file.exists():
+        return FileResponse(testcase_file, media_type="text/html")
+    # Fallback to old version if new one doesn't exist
+    testcase_file_old = Path(__file__).parent / "templates" / "testcase_generation.html"
+    if testcase_file_old.exists():
+        return FileResponse(testcase_file_old, media_type="text/html")
+    raise HTTPException(status_code=404, detail="Test Case Generator not found")
 
 @app.get("/favicon.ico")
 async def favicon():
@@ -324,187 +391,62 @@ async def task_generation_status():
 @app.post("/api/task-generation/generate")
 async def generate_tasks_from_text(requirement: RequirementText):
     """
-    Generate tasks from requirement text
+    Generate tasks from requirement text using V2 Pipeline
+    
+    Features:
+    - Proper Agile User Story format (As a... I want... So that...)
+    - Task decomposition into multiple subtasks
+    - Specific Given/When/Then acceptance criteria
+    - Functional vs Non-functional requirement distinction
+    - INVEST scoring for story quality
     """
     try:
-        analyzer = RequirementAnalyzer()
-        extracted_reqs = analyzer.extract_requirements(requirement.text)
+        # Initialize V2 generator
+        generator = V2TaskGenerator()
         
-        # Convert to tasks format
-        tasks = []
-        for req in extracted_reqs:
-            # Map complexity level to story points estimate
-            complexity_map = {
-                'high': 13,
-                'medium': 8,
-                'low': 3,
-                'very_high': 20,
-                'very_low': 1
-            }
-            # Clean complexity level - extract base word (e.g., "medium_complexity" → "medium")
-            raw_complexity = req.get("technical_complexity", "medium").lower()
-            complexity_level = raw_complexity.split('_')[0]  # Get first part
-            if complexity_level not in complexity_map:
-                complexity_level = "medium"  # Reset to default if not found
-            estimated_effort = complexity_map.get(complexity_level, 5)
-            
-            # Extract domain from requirement text or use default
-            req_text = req.get("text", "")
-            text_lower = req_text.lower()
-            domain = "General"
-            
-            # Healthcare domain detection
-            if any(kw in text_lower for kw in ["bệnh viện", "bệnh nhân", "bác sĩ", "y tế", "medical", "hospital", "patient", "physician", "doctor", "diagnosis"]):
-                domain = "Healthcare/Hospital"
-            elif any(kw in text_lower for kw in ["xét nghiệm", "lab", "laboratory", "test", "analyzer", "sample"]):
-                domain = "Laboratory/Testing"
-            elif any(kw in text_lower for kw in ["phẫu thuật", "mổ", "surgery", "surgical", "operating"]):
-                domain = "Surgery"
-            elif any(kw in text_lower for kw in ["thuốc", "nhà thuốc", "pharmacy", "medication", "drug"]):
-                domain = "Pharmacy"
-            elif any(kw in text_lower for kw in ["viện phí", "thanh toán", "payment", "billing", "invoice"]):
-                domain = "Billing/Payment"
-            elif any(kw in text_lower for kw in ["khách sạn", "hotel", "booking"]):
-                domain = "Hotel Management"
-            elif any(kw in text_lower for kw in ["đặt phòng", "reservation"]):
-                domain = "Reservation System"
-            
-            # Generate acceptance criteria from requirement text
-            acceptance_criteria = []
-            if "must" in req_text.lower() or "shall" in req_text.lower() or "phải" in req_text.lower():
-                acceptance_criteria.append(f"The requirement is implemented according to specifications")
-                acceptance_criteria.append(f"All validation rules are enforced")
-                acceptance_criteria.append(f"Error handling is in place")
-            
-            # Extract user role from text or use generic
-            role = "User"
-            if any(kw in req_text.lower() for kw in ["admin", "quản trị", "administrator"]):
-                role = "Administrator"
-            elif any(kw in req_text.lower() for kw in ["customer", "khách", "bệnh nhân"]):
-                role = "Patient/Customer"
-            elif any(kw in req_text.lower() for kw in ["staff", "nhân viên", "điều dưỡng", "nurse", "technician"]):
-                role = "Healthcare Staff"
-            elif any(kw in req_text.lower() for kw in ["guest", "khách", "thuê"]):
-                role = "Guest"
-            elif any(kw in req_text.lower() for kw in ["doctor", "bác sĩ", "physician"]):
-                role = "Physician"
-            
-            tasks.append({
-                "id": req.get("id", ""),
-                "title": req_text[:100],  # First 100 chars
-                "description": req_text,  # Full text as description
-                "priority": req.get("priority", "medium"),
-                "type": req.get("type", "general"),
-                "complexity": complexity_level,
-                "domain": domain,
-                "story_points": estimated_effort,
-                "role": role,
-                "acceptance_criteria": acceptance_criteria,
-                "estimated_effort": estimated_effort,
-                "score": round(req.get("score", 0), 2)
-            })
+        # Process through V2 pipeline
+        result = generator.generate_from_text(
+            text=requirement.text,
+            language="vi"  # Default to Vietnamese
+        )
         
-        return {
-            "status": "success",
-            "tasks": tasks,
-            "total_tasks": len(tasks)
-        }
+        return result
     except Exception as e:
-        logger.error(f"Error generating tasks: {str(e)}", exc_info=True)
+        logger.error(f"Error generating tasks with V2 pipeline: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/task-generation/generate-from-file")
 async def generate_tasks_from_file(file: UploadFile = File(...)):
     """
-    Generate tasks from uploaded file
+    Generate tasks from uploaded requirement file using V2 Pipeline
+    
+    Supports: .txt, .md, .pdf (text content)
+    
+    Features:
+    - Proper Agile User Story format
+    - Task decomposition into multiple subtasks
+    - Specific Given/When/Then acceptance criteria
+    - Functional vs Non-functional requirement distinction
+    - Noise filtering (removes intro/description text)
     """
     try:
+        # Read file content
         content = await file.read()
         text_content = content.decode("utf-8")
         
-        analyzer = RequirementAnalyzer()
-        extracted_reqs = analyzer.extract_requirements(text_content)
+        # Initialize V2 generator
+        generator = V2TaskGenerator()
         
-        # Convert to tasks format
-        tasks = []
-        for req in extracted_reqs:
-            # Map complexity level to story points estimate
-            complexity_map = {
-                'high': 13,
-                'medium': 8,
-                'low': 3,
-                'very_high': 20,
-                'very_low': 1
-            }
-            # Clean complexity level - extract base word (e.g., "medium_complexity" → "medium")
-            raw_complexity = req.get("technical_complexity", "medium").lower()
-            complexity_level = raw_complexity.split('_')[0]  # Get first part
-            if complexity_level not in complexity_map:
-                complexity_level = "medium"  # Reset to default if not found
-            estimated_effort = complexity_map.get(complexity_level, 5)
-            
-            # Extract domain from requirement text or use default
-            req_text = req.get("text", "")
-            text_lower = req_text.lower()
-            domain = "General"
-            
-            # Healthcare domain detection
-            if any(kw in text_lower for kw in ["bệnh viện", "bệnh nhân", "bác sĩ", "y tế", "medical", "hospital", "patient", "physician", "doctor", "diagnosis"]):
-                domain = "Healthcare/Hospital"
-            elif any(kw in text_lower for kw in ["xét nghiệm", "lab", "laboratory", "test", "analyzer", "sample"]):
-                domain = "Laboratory/Testing"
-            elif any(kw in text_lower for kw in ["phẫu thuật", "mổ", "surgery", "surgical", "operating"]):
-                domain = "Surgery"
-            elif any(kw in text_lower for kw in ["thuốc", "nhà thuốc", "pharmacy", "medication", "drug"]):
-                domain = "Pharmacy"
-            elif any(kw in text_lower for kw in ["viện phí", "thanh toán", "payment", "billing", "invoice"]):
-                domain = "Billing/Payment"
-            elif any(kw in text_lower for kw in ["khách sạn", "hotel", "booking"]):
-                domain = "Hotel Management"
-            elif any(kw in text_lower for kw in ["đặt phòng", "reservation"]):
-                domain = "Reservation System"
-            
-            # Generate acceptance criteria from requirement text
-            acceptance_criteria = []
-            if "must" in req_text.lower() or "shall" in req_text.lower() or "phải" in req_text.lower():
-                acceptance_criteria.append(f"The requirement is implemented according to specifications")
-                acceptance_criteria.append(f"All validation rules are enforced")
-                acceptance_criteria.append(f"Error handling is in place")
-            
-            # Extract user role from text or use generic
-            role = "User"
-            if any(kw in req_text.lower() for kw in ["admin", "quản trị", "administrator"]):
-                role = "Administrator"
-            elif any(kw in req_text.lower() for kw in ["customer", "khách", "bệnh nhân"]):
-                role = "Patient/Customer"
-            elif any(kw in req_text.lower() for kw in ["staff", "nhân viên", "điều dưỡng", "nurse", "technician"]):
-                role = "Healthcare Staff"
-            elif any(kw in req_text.lower() for kw in ["guest", "khách", "thuê"]):
-                role = "Guest"
-            elif any(kw in req_text.lower() for kw in ["doctor", "bác sĩ", "physician"]):
-                role = "Physician"
-            
-            tasks.append({
-                "id": req.get("id", ""),
-                "title": req_text[:100],  # First 100 chars
-                "description": req_text,  # Full text as description
-                "priority": req.get("priority", "medium"),
-                "type": req.get("type", "general"),
-                "complexity": complexity_level,
-                "domain": domain,
-                "story_points": estimated_effort,
-                "role": role,
-                "acceptance_criteria": acceptance_criteria,
-                "estimated_effort": estimated_effort,
-                "score": round(req.get("score", 0), 2)
-            })
+        # Process through V2 pipeline
+        result = generator.generate_from_text(
+            text=text_content,
+            language="vi"  # Default to Vietnamese
+        )
         
-        return {
-            "status": "success",
-            "tasks": tasks,
-            "total_tasks": len(tasks),
-            "filename": file.filename
-        }
+        # Add file info to result
+        result["filename"] = file.filename
+        
+        return result
     except Exception as e:
         logger.error(f"Error generating tasks from file: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
@@ -897,6 +839,17 @@ async def task_generation_page(request: Request):
     Trang task generation và automated effort estimation
     """
     return templates.TemplateResponse("task_generation.html", {"request": request})
+
+@app.get("/test-generator-simple", response_class=HTMLResponse)
+async def test_generator_simple():
+    """
+    Trang đơn giản để generate test cases (không phụ thuộc vào template phức tạp)
+    """
+    template_path = Path(__file__).parent / "templates" / "test_generator_simple.html"
+    if template_path.exists():
+        with open(template_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    return HTMLResponse(content="<h1>Template not found</h1>", status_code=404)
 
 @app.get("/debug", response_class=HTMLResponse)
 async def debug_page(request: Request):

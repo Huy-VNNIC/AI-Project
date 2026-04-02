@@ -1,0 +1,133 @@
+# Hotel Management System - Requirements Document
+
+## 1. User Authentication
+
+### 1.1 Login Functionality
+- User must be able to login with email and password
+- System should validate the email format
+- Password field must support special characters (!@#$%^&*)
+- If login fails, the system must display an error message
+
+### 1.2 Password Requirements
+- Password must be at least 8 characters long
+- Password must contain at least one uppercase letter
+- When user forgets password, system must send reset link to email
+
+### 1.3 Session Management
+- When user logs in, system must create a session token
+- Session should expire after 30 minutes of inactivity
+- User can manually logout to destroy session
+
+## 2. Booking Management
+
+### 2.1 Create New Booking
+- User can create a new room booking with the following information:
+  * Room type (Single, Double, Suite)
+  * Check-in date
+  * Check-out date
+  * Number of guests
+  * Special requests (optional)
+- System must verify room availability for selected dates
+- If rooms are available, display available room options
+- If no rooms available, inform user and suggest alternative dates
+
+### 2.2 Cancel Booking
+- User can cancel existing booking from "My Bookings"
+- When user cancels, system must initiate refund process
+- If cancellation is within 48 hours of check-in, deduct 50% fee
+- Send confirmation email with cancellation details
+
+### 2.3 Modify Booking
+- User can modify check-in and check-out dates
+- System must recheck room availability with new dates
+- If no rooms available, prevent modification and show error
+- Recalculate total price after modification
+
+## 3. Room Management
+
+### 3.1 Room Availability
+- System must check real-time room availability
+- Room cannot be booked if already reserved for that date
+- Display number of available rooms by type
+- Prevent double-booking
+
+### 3.2 Room Details
+- Each room must have:
+  * Room number
+  * Room type
+  * Capacity
+  * Price per night
+  * Amenities list
+- Display room images and description
+
+## 4. Payment Processing
+
+### 4.1 Payment Methods
+- System must accept credit card payment
+- Alternatively, accept bank transfer
+- When payment fails, display clear error message
+- Encrypt payment information
+
+### 4.2 Payment Validation
+- If payment amount is incorrect, reject transaction
+- If card is expired, reject payment
+- If payment fails 3 times, lock account for 30 minutes
+
+## 5. Security Requirements
+
+### 5.1 Authentication
+- System must validate user credentials before every action
+- If user not logged in, redirect to login page
+- Prevent unauthorized access to other user's bookings
+
+### 5.2 Data Protection
+- User passwords must be hashed using bcrypt
+- SQL injection attempts must be prevented
+- XSS attacks must be blocked
+
+### 5.3 API Security
+- All API requests must require authentication token
+- Rate limiting: max 100 requests per minute per user
+- Log all login attempts
+
+## 6. Notification System
+
+### 6.1 Email Notifications
+- Send booking confirmation email after successful booking
+- Send cancellation confirmation after cancellation
+- Send check-in reminder 24 hours before arrival
+- Send receipt after checkout
+
+### 6.2 In-App Notifications
+- Display notification for new bookings
+- Show alerts for upcoming check-ins
+- Notify user if modification requires approval
+
+## 7. Admin Panel
+
+### 7.1 User Management
+- Admin can view all registered users
+- Admin can deactivate user accounts
+- Admin can view user booking history
+
+### 7.2 Room Management
+- Admin can add new rooms
+- Admin can update room availability
+- Admin can set room pricing
+
+### 7.3 Booking Management
+- Admin can view all bookings
+- Admin can manually create bookings for customers
+- Admin can cancel bookings (with proper authorization)
+
+## 8. Reporting
+
+### 8.1 Booking Reports
+- Generate daily booking report
+- Show occupancy rate
+- Display revenue statistics
+
+### 8.2 User Reports
+- Show most frequent users
+- List user with most cancellations
+- Generate user activity report

@@ -1,6 +1,7 @@
 """
 Task generation router - Production endpoints
 /generate, /feedback, /stats
+Using LLM-Free AI Pipeline (Smart NER + Domain-Specific Generators)
 """
 import os
 import sys
@@ -17,27 +18,23 @@ from pydantic import BaseModel, Field
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.append(str(PROJECT_ROOT))
 
-from requirement_analyzer.task_gen.pipeline import TaskGenerationPipeline
+# ✅ Use new LLM-Free adapter (no external APIs)
+from requirement_analyzer.task_gen.api_adapter_llmfree import get_llmfree_adapter
 
 router = APIRouter()
 
-# Global pipeline instance (loaded once)
-_pipeline = None
+# Global adapter instance (loaded once)
+_adapter = None
 
 
-def get_pipeline() -> TaskGenerationPipeline:
-    """Get or create pipeline instance"""
-    global _pipeline
-    if _pipeline is None:
-        model_dir = os.getenv('MODEL_DIR', 'requirement_analyzer/models/task_gen/models')
-        mode = os.getenv('DEFAULT_MODE', 'model')
-        
-        _pipeline = TaskGenerationPipeline(
-            model_dir=model_dir,
-            generator_mode=mode
-        )
-    
-    return _pipeline
+def get_adapter():
+    """Get or create LLM-Free adapter instance"""
+    global _adapter
+    if _adapter is None:
+        # Initialize with mock extractor (can be replaced with custom AI model later)
+        _adapter = get_llmfree_adapter()
+        print("✅ LLM-Free Adapter Loaded")
+    return _adapter
 
 
 # Request/Response models
@@ -124,92 +121,65 @@ def get_feedback_db():
     return conn
 
 
-@router.post("/generate", response_model=GenerateResponse)
+@router.post("/generate")
 async def generate_tasks(request: GenerateRequest):
     """
-    Generate tasks from requirement document
+    ✅ Generate tests from requirement document using LLM-Free AI Pipeline
+    
+    No external APIs - uses domain-specific generators + optional custom AI model
+    
+    **Features:**
+    - Vietnamese language support (proper tokenization)
+    - Domain-specific test generation (Hotel, Banking, Healthcare, E-commerce)
+    - Intelligent deduplication (0.85 semantic similarity)
+    - Security test auto-generation
+    - Real confidence scores (0.5-0.95) per test
     
     **Example:**
     ```json
     {
-      "document_text": "The system must authenticate users...",
-      "mode": "model",
-      "max_tasks": 50
+      "document_text": "Hệ thống phải cho phép đặt phòng mới...",
+      "max_tasks": 50,
+      "quality_threshold": 0.6
     }
     ```
     """
     start_time = time.time()
     
     try:
-        # Get pipeline
-        pipeline = get_pipeline()
+        # Get adapter
+        adapter = get_adapter()
         
-        # Override mode if requested
-        if request.mode and request.mode != pipeline.generator_mode:
-            pipeline.generator_mode = request.mode
-        
-        # Generate tasks
-        result = pipeline.generate_tasks(
-            text=request.document_text,
-            max_tasks=request.max_tasks,
-            requirement_threshold=request.requirement_threshold
+        # Generate tests using LLM-Free pipeline
+        result = adapter.generate_tests(
+            requirements_text=request.document_text,
+            max_tests=request.max_tasks,
+            quality_threshold=request.requirement_threshold,
+            auto_deduplicate=request.dedupe,
+            verbose=False
         )
         
-        # Calculate metadata
-        latency_ms = int((time.time() - start_time) * 1000)
-        
-        tasks = result.get('tasks', [])
-        
-        # Calculate confidence
-        confidences = [t.get('confidence', 0.5) for t in tasks if 'confidence' in t]
-        avg_confidence = sum(confidences) / len(confidences) if confidences else 0.5
-        
-        # Quality gates (tracked in postprocessor)
-        quality_gates = {
-            'title_repairs': 0,  # TODO: track in pipeline
-            'ac_dedupes': 0,
-            'priority_boosts': 0
-        }
-        
-        metadata = TaskMetadata(
-            mode=request.mode or "model",
-            num_sentences=len(result.get('sentences', [])),
-            num_requirements=len(result.get('requirements', [])),
-            num_tasks=len(tasks),
-            latency_ms=latency_ms,
-            avg_confidence=avg_confidence,
-            quality_gates=quality_gates
-        )
-        
-        # Log to database
-        try:
-            conn = get_feedback_db()
-            conn.execute('''
-                INSERT INTO generation_logs 
-                (timestamp, mode, num_sentences, num_requirements, num_tasks, latency_ms, avg_confidence, quality_gates)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                datetime.now().isoformat(),
-                metadata.mode,
-                metadata.num_sentences,
-                metadata.num_requirements,
-                metadata.num_tasks,
-                metadata.latency_ms,
-                metadata.avg_confidence,
-                json.dumps(metadata.quality_gates)
-            ))
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            print(f"Warning: Could not log to database: {e}")
-        
-        return GenerateResponse(
-            tasks=tasks,
-            metadata=metadata
-        )
+        # Return full result
+        return result
     
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Generation failed: {str(e)}")
+        import traceback
+        print(f"❌ Error in /generate: {str(e)}")
+        traceback.print_exc()
+        
+        return {
+            'status': 'error',
+            'message': f"Generation failed: {str(e)}",
+            'test_cases': [],
+            'summary': {
+                'requirements_processed': 0,
+                'test_cases_generated': 0,
+                'unique_tests_final': 0,
+                'latency_ms': int((time.time() - start_time) * 1000),
+                'quality_score': 0.0
+            }
+        }
+
 
 
 @router.post("/feedback")

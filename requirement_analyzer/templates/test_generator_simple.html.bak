@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Test Case Generator - Advanced Version</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+            --dark: #1f2937;
+            --light: #f9fafb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-content h1 {
+            color: var(--primary);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-content p {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .header-tools {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .header-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Tabs Navigation */
+        .tabs-section {
+            background: white;
+            border-radius: 12px;
+            padding: 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .tabs-nav {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .tabs-nav li {
+            flex: 1;
+        }
+
+        .tabs-nav button {
+            width: 100%;
+            padding: 16px 20px;
+            border: none;
+            background: none;
+            color: #6b7280;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tabs-nav button:hover {
+            color: var(--primary);
+        }
+
+        .tabs-nav button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .tabs-content {
+            display: none;
+            padding: 30px;
+        }
+
+        .tabs-content.active {
+            display: block;
+        }
+
+        /* Card Sections */
+        .card-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-section h2 {
+            color: var(--primary);
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 15px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group textarea,
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group textarea:focus,
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-outline {
+            border: 2px solid var(--primary);
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Layout */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Test Case Cards */
+        .test-case-card {
+            background: #f9fafb;
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .test-case-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateX(4px);
+            background: white;
+        }
+
+        .test-case-card.selected {
+            background: rgba(102, 126, 234, 0.05);
+            border-left-color: var(--success);
+        }
+
+        .test-case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .test-case-id {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 6px;
+        }
+
+        .badge-primary {
+            background: rgba(102, 126, 234, 0.2);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .test-description {
+            color: #374151;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .test-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #6b7280;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Search Bar */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            border-bottom: 2px solid #e5e7eb;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        /* Preview Section */
+        .preview-container {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .preview-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e5e7eb;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Messages */
+        .message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-section {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+
+            .header-content h1 {
+                font-size: 24px;
+            }
+
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+</head>
+<body>
+    <div class="main-container">
+        
+        <!-- Header Section -->
+        <div class="header-section">
+            <div class="header-content">
+                <h1><i class="bi bi-cpu"></i> AI Test Case Generator</h1>
+                <p>Generate comprehensive test cases with AI • Preview • Batch Import/Export • Analytics</p>
+            </div>
+            <div class="header-tools">
+                <button class="header-btn" onclick="openBatchImport()"><i class="bi bi-upload"></i> Import</button>
+                <button class="header-btn" onclick="exportTestCases()"><i class="bi bi-download"></i> Export</button>
+                <button class="header-btn" onclick="showAnalytics()"><i class="bi bi-graph-up"></i> Analytics</button>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs-section">
+            <ul class="tabs-nav">
+                <li><button class="active" onclick="switchTab(this, 'generate')"><i class="bi bi-lightning-fill"></i> Generate</button></li>
+                <li><button onclick="switchTab(this, 'manage')"><i class="bi bi-folder"></i> Manage</button></li>
+                <li><button onclick="switchTab(this, 'analytics')"><i class="bi bi-bar-chart"></i> Analytics</button></li>
+                <li><button onclick="switchTab(this, 'settings')"><i class="bi bi-gear"></i> Settings</button></li>
+            </ul>
+
+            <!-- TAB: Generate -->
+            <div class="tabs-content active" id="tab-generate">
+                <div class="layout-grid">
+                    <!-- Left Panel - Input -->
+                    <div class="card-section">
+                        <h2><i class="bi bi-pencil-square"></i> Requirements Input</h2>
+                        
+                        <!-- File Upload or Text -->
+                        <div class="form-group">
+                            <label>Upload or Paste Requirements</label>
+                            <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                                <button class="btn btn-secondary btn-sm" style="width: 50%" onclick="document.getElementById('fileInput').click()">
+                                    <i class="bi bi-file-upload"></i> Choose File
+                                </button>
+                                <button class="btn btn-secondary btn-sm" style="width: 50%" onclick="switchInputMode('text')">
+                                    <i class="bi bi-keyboard"></i> Paste Text
+                                </button>
+                            </div>
+                            <input type="file" id="fileInput" style="display: none" accept=".txt,.md,.csv" onchange="handleFileUpload(event)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Requirements (one per line)</label>
+                            <textarea id="requirements" placeholder="Example:&#10;The system must allow user login with email&#10;Passwords must be encrypted&#10;System should prevent SQL injection"></textarea>
+                        </div>
+
+                        <!-- Advanced Options -->
+                        <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                            <h4 style="color: var(--dark); margin-bottom: 12px; font-size: 13px;"><i class="bi bi-sliders"></i> Advanced Options</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Max Test Cases</label>
+                                    <input type="number" id="maxTests" value="20" min="1" max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label>Quality Threshold</label>
+                                    <input type="number" id="threshold" value="0.6" min="0" max="1" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Include Test Types</label>
+                                    <select id="testTypes" multiple style="min-height: 40px;">
+                                        <option value="functional" selected>Functional</option>
+                                        <option value="security" selected>Security</option>
+                                        <option value="performance" selected>Performance</option>
+                                        <option value="integration">Integration</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="generateTestCases()">
+                            <i class="bi bi-lightning-fill"></i> Generate Test Cases
+                        </button>
+
+                        <!-- Messages -->
+                        <div id="messages"></div>
+                    </div>
+
+                    <!-- Right Panel - Preview & Output -->
+                    <div class="card-section">
+                        <h2><i class="bi bi-eye"></i> Live Preview & Results</h2>
+                        
+                        <!-- Stats -->
+                        <div id="statsContainer" style="display: none;">
+                            <div class="stats-grid">
+                                <div class="stat-box">
+                                    <div class="stat-value" id="statTotal">0</div>
+                                    <div class="stat-label">Test Cases</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value" id="statQuality">0%</div>
+                                    <div class="stat-label">Avg Quality</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value" id="statEffort">0h</div>
+                                    <div class="stat-label">Total Effort</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value" id="statTime">0ms</div>
+                                    <div class="stat-label">Generation Time</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div id="filterContainer" style="display: none; margin-bottom: 20px;">
+                            <div class="filter-section">
+                                <button class="filter-btn active" onclick="filterResults('all')">All</button>
+                                <button class="filter-btn" onclick="filterResults('functional')">Functional</button>
+                                <button class="filter-btn" onclick="filterResults('security')">Security</button>
+                                <button class="filter-btn" onclick="filterResults('performance')">Performance</button>
+                                <button class="filter-btn" onclick="filterResults('integration')">Integration</button>
+                            </div>
+
+                            <!-- Search -->
+                            <div class="search-box">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" id="searchInput" placeholder="Search test cases..." onkeyup="filterResults()">
+                            </div>
+                        </div>
+
+                        <!-- Results Container -->
+                        <div id="resultsContainer">
+                            <div class="empty-state">
+                                <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
+                                <p>Enter requirements and click "Generate Test Cases"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Manage -->
+            <div class="tabs-content" id="tab-manage">
+                <div class="card-section">
+                    <h2><i class="bi bi-folder"></i> Manage Test Cases</h2>
+                    <p style="color: #6b7280; margin-bottom: 20px;">View, edit, and organize your generated test cases</p>
+                    
+                    <div class="search-box">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" placeholder="Search in test cases...">
+                    </div>
+
+                    <div id="managementContainer">
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
+                            <p>No test cases available</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Analytics -->
+            <div class="tabs-content" id="tab-analytics">
+                <div class="layout-grid">
+                    <div class="card-section">
+                        <h2><i class="bi bi-bar-chart"></i> Test Coverage Analytics</h2>
+                        <div id="analyticsContainer">
+                            <p style="color: #6b7280;">Generate test cases to see analytics data</p>
+                        </div>
+                    </div>
+                    <div class="card-section">
+                        <h2><i class="bi bi-pie-chart"></i> Distribution Analysis</h2>
+                        <div id="distributionContainer">
+                            <p style="color: #6b7280;">Test case distribution will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Settings -->
+            <div class="tabs-content" id="tab-settings">
+                <div class="card-section">
+                    <h2><i class="bi bi-gear"></i> Configuration Settings</h2>
+                    
+                    <div class="form-group">
+                        <label>Default Max Test Cases</label>
+                        <input type="number" value="20" min="1" max="100">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Default Quality Threshold</label>
+                        <input type="number" value="0.6" min="0" max="1" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" checked>
+                            Auto-preview results
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" checked>
+                            Enable real-time collaboration
+                        </label>
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 200px;"><i class="bi bi-check-circle"></i> Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Batch Import -->
+    <div style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;" id="batchImportModal">
+        <div style="background: white; border-radius: 12px; margin: 50px auto; width: 90%; max-width: 500px; padding: 30px; box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: var(--primary); margin: 0;"><i class="bi bi-upload"></i> Batch Import</h3>
+                <button style="background: none; border: none; cursor: pointer; font-size: 24px; color: #9ca3af;" onclick="document.getElementById('batchImportModal').style.display='none'">×</button>
+            </div>
+
+            <div class="form-group">
+                <label>Select CSV File (Format: id, title, description, type)</label>
+                <input type="file" accept=".csv" id="batchImportFile">
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" style="width: 50%;" onclick="processBatchImport()"><i class="bi bi-check"></i> Import</button>
+                <button class="btn btn-secondary" style="width: 50%;" onclick="document.getElementById('batchImportModal').style.display='none'">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allTestCases = [];
+        let currentFilter = 'all';
+        const API_BASE = '/api/v3/test-generation';
+
+        // Tab Switching
+        function switchTab(element, tabName) {
+            // Update active tab button
+            document.querySelectorAll('.tabs-nav button').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+
+            // Update active tab content
+            document.querySelectorAll('.tabs-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // File Upload Handler
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                document.getElementById('requirements').value = lines.join('\n');
+                showMessage('✅ File loaded: ' + lines.length + ' requirements', 'success');
+            };
+            reader.readAsText(file);
+        }
+
+        // Generate Test Cases
+        async function generateTestCases() {
+            const requirements = document.getElementById('requirements').value.trim();
+            
+            if (!requirements) {
+                showMessage('Please enter at least one requirement', 'error');
+                return;
+            }
+
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div><p>🤖 AI generating test cases...</p></div>';
+
+            try {
+                const response = await fetch(API_BASE + '/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        requirements: requirements,
+                        max_tests: parseInt(document.getElementById('maxTests').value),
+                        quality_threshold: parseFloat(document.getElementById('threshold').value)
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.text();
+                    throw new Error(`API error: ${response.status} - ${error}`);
+                }
+
+                const data = await response.json();
+                
+                // API returns test_cases in response
+                allTestCases = data.test_cases || [];
+                const summary = data.summary || {};
+
+                displayTestCases(allTestCases);
+                displayAnalytics(data);
+
+                // Show stats
+                document.getElementById('statsContainer').style.display = 'block';
+                document.getElementById('filterContainer').style.display = 'block';
+                document.getElementById('statTotal').textContent = allTestCases.length;
+                document.getElementById('statQuality').textContent = Math.round((summary.avg_quality_score || 0.5) * 100) + '%';
+                document.getElementById('statEffort').textContent = (summary.total_effort_hours || 0).toFixed(1) + 'h';
+                document.getElementById('statTime').textContent = (data.generation_time_ms || 0) + 'ms';
+
+                showMessage('✅ Generated ' + allTestCases.length + ' test cases with AI', 'success');
+
+            } catch (error) {
+                container.innerHTML = '<div class="message message-error"><i class="bi bi-exclamation-circle"></i> ' + error.message + '</div>';
+                showMessage('❌ ' + error.message, 'error');
+            }
+        }
+
+        // Display Test Cases
+        function displayTestCases(testCases) {
+            const container = document.getElementById('resultsContainer');
+            
+            if (testCases.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="bi bi-inbox display-1 text-muted"></i><p>No test cases</p></div>';
+                return;
+            }
+
+            let html = '';
+            testCases.forEach(tc => {
+                const quality = Math.round((tc.confidence?.overall_score || tc.quality_score || 0) * 100);
+                html += `
+                    <div class="test-case-card">
+                        <div class="test-case-header">
+                            <div>
+                                <span class="test-id">${tc.id || tc.test_id || 'TC-' + Math.random().toString(36).substr(2, 5).toUpperCase()}</span>
+                                <span class="badge badge-primary">${tc.scenario_type || tc.type || 'Functional'}</span>
+                            </div>
+                            <span style="color: var(--primary); font-weight: 700;">${quality}%</span>
+                        </div>
+                        <div class="test-description">${tc.title || tc.description}</div>
+                        <div class="test-meta">
+                            <span><i class="bi bi-lightning"></i> ${tc.estimated_effort_hours || tc.effort?.hours || 0}h</span>
+                            <span><i class="bi bi-shield-check"></i> ${tc.priority || 'Medium'}</span>
+                            <button class="btn btn-outline btn-sm" onclick="previewTestCase('${tc.id}')">View Details</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Filter Results
+        function filterResults(filter) {
+            if (filter) currentFilter = filter;
+            
+            const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            
+            const filtered = allTestCases.filter(tc => {
+                const type = (tc.scenario_type || tc.type || 'functional').toLowerCase();
+                const description = (tc.title || tc.description || '').toLowerCase();
+                
+                const typeMatch = currentFilter === 'all' || type.includes(currentFilter.toLowerCase());
+                const searchMatch = !searchTerm || description.includes(searchTerm);
+                
+                return typeMatch && searchMatch;
+            });
+
+            displayTestCases(filtered);
+
+            // Update filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="filterResults('${currentFilter}')"]`)?.classList.add('active');
+        }
+
+        // Display Analytics
+        function displayAnalytics(data) {
+            const container = document.getElementById('analyticsContainer');
+            const summary = data.summary || {};
+
+            const totalEffort = (summary.avg_effort_hours || 0) * allTestCases.length;
+            
+            let html = `
+                <div style="background: #f9fafb; padding: 16px; border-radius: 8px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid var(--primary);">
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Total Requirements</div>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--primary);">${summary.total_requirements || 0}</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid var(--success);">
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Generated Tests</div>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--success);">${allTestCases.length}</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid var(--warning);">
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Avg Confidence</div>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--warning);">${Math.round((summary.avg_confidence || 0) * 100)}%</div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid #06b6d4;">
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase;">Total Effort</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #06b6d4;">${Math.round(totalEffort)}h</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Show Message
+        function showMessage(text, type = 'info') {
+            const container = document.getElementById('messages');
+            const icon = type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle';
+            const messageClass = type === 'error' ? 'message-error' : type === 'success' ? 'message-success' : 'message-info';
+            
+            const msg = document.createElement('div');
+            msg.className = `message ${messageClass}`;
+            msg.innerHTML = `<i class="bi bi-${icon}"></i> ${text}`;
+            container.appendChild(msg);
+
+            setTimeout(() => msg.remove(), 3000);
+        }
+
+        // Export Test Cases
+        function exportTestCases() {
+            if (allTestCases.length === 0) {
+                showMessage('No test cases to export', 'error');
+                return;
+            }
+
+            const csv = 'ID,Title,Type,Priority,Effort,Quality\n' + 
+                allTestCases.map(tc => {
+                    const quality = Math.round((tc.confidence?.overall_score || tc.quality_score || 0) * 100);
+                    return `"${tc.id || 'TC-XXX'}","${(tc.title || tc.description || '').replace(/"/g, '""')}","${tc.type || 'Functional'}","${tc.priority || 'Medium'}","${tc.estimated_effort_hours || 0}","${quality}%"`;
+                }).join('\n');
+
+            downloadFile(csv, 'test-cases.csv', 'text/csv');
+            showMessage('✅ Test cases exported', 'success');
+        }
+
+        // Download Helper
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // Placeholder functions
+        function openBatchImport() { document.getElementById('batchImportModal').style.display = 'block'; }
+        function processBatchImport() { showMessage('Batch import feature coming soon', 'info'); document.getElementById('batchImportModal').style.display = 'none'; }
+        function showAnalytics() { switchTab(document.querySelectorAll('.tabs-nav button')[2], 'analytics'); }
+        function switchInputMode(mode) { showMessage(mode + ' mode selected', 'success'); }
+        function previewTestCase(id) { showMessage('Preview: Test Case ' + id, 'info'); }
+    </script>
+</body>
+</html>

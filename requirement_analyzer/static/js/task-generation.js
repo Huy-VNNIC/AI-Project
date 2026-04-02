@@ -176,7 +176,27 @@ async function handleFileUpload() {
 function displayResults(tasks, processingTime, metadata) {
     showLoading(false);
 
-    if (tasks.length === 0) {
+    // Flatten the nested structure: extract user_stories from each task
+    let flatTasks = [];
+    if (Array.isArray(tasks) && tasks.length > 0) {
+        // Check if this is the V2 response format with nested user_stories
+        if (tasks[0].user_stories && Array.isArray(tasks[0].user_stories)) {
+            // V2 format: tasks contain user_stories
+            tasks.forEach(task => {
+                if (task.user_stories && Array.isArray(task.user_stories)) {
+                    flatTasks = flatTasks.concat(task.user_stories.map(us => ({
+                        ...us,
+                        parent_requirement_id: task.requirement_id
+                    })));
+                }
+            });
+        } else {
+            // V1 format or already flat: use tasks as-is
+            flatTasks = tasks;
+        }
+    }
+
+    if (flatTasks.length === 0) {
         document.getElementById('emptyState').style.display = 'block';
         document.getElementById('resultsContainer').style.display = 'none';
         return;
@@ -187,34 +207,34 @@ function displayResults(tasks, processingTime, metadata) {
     document.getElementById('resultsContainer').style.display = 'block';
 
     // Update summary
-    document.getElementById('taskCount').textContent = tasks.length;
+    document.getElementById('taskCount').textContent = flatTasks.length;
     document.getElementById('processingTime').textContent = processingTime;
 
     // Update stats card
     const statsCard = document.getElementById('statsCard');
     if (statsCard) {
         statsCard.style.display = 'block';
-        // Use total_tasks from new response format, fallback to tasks.length
-        document.getElementById('statTotal').textContent = metadata.total_tasks || tasks.length;
-        document.getElementById('statGenerated').textContent = tasks.length;
+        // Use total_tasks from new response format, fallback to flatTasks.length
+        document.getElementById('statTotal').textContent = metadata.total_tasks || flatTasks.length;
+        document.getElementById('statGenerated').textContent = flatTasks.length;
         // Calculate filtered: if we have stats with type distribution, sum it up
         const typeCount = metadata.stats && metadata.stats.type_distribution ? 
             Object.values(metadata.stats.type_distribution).reduce((a, b) => a + b, 0) : 0;
-        document.getElementById('statFiltered').textContent = typeCount > 0 ? (typeCount - tasks.length) : 0;
+        document.getElementById('statFiltered').textContent = typeCount > 0 ? (typeCount - flatTasks.length) : 0;
     }
 
     // Render tasks
-    renderTasks(tasks);
+    renderTasks(flatTasks);
 }
 
 function renderTasks(tasks) {
     const container = document.getElementById('tasksList');
     container.innerHTML = '';
 
-    // Apply filter
+    // Apply filter (with safe default for missing type field)
     const filteredTasks = currentFilter === 'all' 
         ? tasks 
-        : tasks.filter(task => task.type === currentFilter);
+        : tasks.filter(task => (task.type || 'Feature') === currentFilter);
 
     if (filteredTasks.length === 0) {
         container.innerHTML = `
@@ -246,25 +266,34 @@ function createTaskCard(task, index) {
     card.className = 'task-card';
     card.setAttribute('data-task-index', index);
 
-    const priorityClass = `badge-priority-${task.priority.toLowerCase()}`;
+    // Safe field access with defaults
+    const priority = task.priority || 'Medium';
+    const type = task.type || 'Feature';
+    const domain = task.domain || 'General';
+    const storyPoints = task.story_points || 5;
+    const title = task.title || 'Untitled Task';
+    const role = task.role || 'User';
+    const description = task.description || 'No description provided';
+    
+    const priorityClass = `badge-priority-${priority.toLowerCase()}`;
     
     card.innerHTML = `
         <div class="task-card-header" onclick="toggleTaskCard(${index})">
             <div class="d-flex justify-content-between align-items-start">
                 <div class="flex-grow-1">
-                    <h6 class="task-title">${escapeHtml(task.title)}</h6>
+                    <h6 class="task-title">${escapeHtml(title)}</h6>
                     <div class="task-meta">
                         <span class="task-badge badge-type">
-                            <i class="bi bi-tag"></i> ${task.type}
+                            <i class="bi bi-tag"></i> ${type}
                         </span>
                         <span class="task-badge ${priorityClass}">
-                            <i class="bi bi-exclamation-circle"></i> ${task.priority}
+                            <i class="bi bi-exclamation-circle"></i> ${priority}
                         </span>
                         <span class="task-badge badge-domain">
-                            <i class="bi bi-building"></i> ${task.domain}
+                            <i class="bi bi-building"></i> ${domain}
                         </span>
                         <span class="task-badge badge-points">
-                            <i class="bi bi-graph-up"></i> ${task.story_points} SP
+                            <i class="bi bi-graph-up"></i> ${storyPoints} SP
                         </span>
                     </div>
                 </div>
@@ -273,25 +302,38 @@ function createTaskCard(task, index) {
         </div>
         <div class="task-card-body">
             <div class="user-story">
-                <strong>As a</strong> ${escapeHtml(task.role)}, 
-                <strong>I want to</strong> ${escapeHtml(task.title.toLowerCase())}, 
-                <strong>so that</strong> I can ${generateSoThat(task.description)}
+                <strong>As a</strong> ${escapeHtml(role)}, 
+                <strong>I want to</strong> ${escapeHtml(title.toLowerCase())}, 
+                <strong>so that</strong> I can ${generateSoThat(description)}
             </div>
             
             <div class="task-description">
-                ${escapeHtml(task.description)}
+                ${escapeHtml(description)}
             </div>
 
             ${task.acceptance_criteria && task.acceptance_criteria.length > 0 ? `
                 <div class="acceptance-criteria">
                     <h6><i class="bi bi-check2-square"></i> Acceptance Criteria</h6>
                     <ul class="ac-list">
-                        ${task.acceptance_criteria.map(ac => `
-                            <li class="ac-item">
-                                <i class="bi bi-check-circle-fill"></i>
-                                <span class="ac-item-text">${escapeHtml(ac)}</span>
-                            </li>
-                        `).join('')}
+                        ${task.acceptance_criteria.map(ac => {
+                            // Handle both string and object formats
+                            let acText = '';
+                            if (typeof ac === 'string') {
+                                acText = ac;
+                            } else if (typeof ac === 'object' && ac.given && ac.when && ac.then) {
+                                acText = `Given ${escapeHtml(ac.given)}, When ${escapeHtml(ac.when)}, Then ${escapeHtml(ac.then)}`;
+                            } else if (typeof ac === 'object' && ac.description) {
+                                acText = ac.description;
+                            } else {
+                                acText = JSON.stringify(ac);
+                            }
+                            return `
+                                <li class="ac-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span class="ac-item-text">${acText}</span>
+                                </li>
+                            `;
+                        }).join('')}
                     </ul>
                 </div>
             ` : ''}
@@ -355,7 +397,19 @@ function viewTaskDetail(index) {
             <div>
                 <strong>Acceptance Criteria:</strong>
                 <ol>
-                    ${task.acceptance_criteria.map(ac => `<li>${escapeHtml(ac)}</li>`).join('')}
+                    ${task.acceptance_criteria.map(ac => {
+                        let acText = '';
+                        if (typeof ac === 'string') {
+                            acText = ac;
+                        } else if (typeof ac === 'object' && ac.given && ac.when && ac.then) {
+                            acText = `Given ${ac.given}, When ${ac.when}, Then ${ac.then}`;
+                        } else if (typeof ac === 'object' && ac.description) {
+                            acText = ac.description;
+                        } else {
+                            acText = JSON.stringify(ac);
+                        }
+                        return `<li>${escapeHtml(acText)}</li>`;
+                    }).join('')}
                 </ol>
             </div>
         ` : ''}
@@ -398,7 +452,17 @@ function formatTaskAsText(task) {
     if (task.acceptance_criteria && task.acceptance_criteria.length > 0) {
         text += `Acceptance Criteria:\n`;
         task.acceptance_criteria.forEach((ac, i) => {
-            text += `${i + 1}. ${ac}\n`;
+            let acText = '';
+            if (typeof ac === 'string') {
+                acText = ac;
+            } else if (typeof ac === 'object' && ac.given && ac.when && ac.then) {
+                acText = `Given ${ac.given}, When ${ac.when}, Then ${ac.then}`;
+            } else if (typeof ac === 'object' && ac.description) {
+                acText = ac.description;
+            } else {
+                acText = JSON.stringify(ac);
+            }
+            text += `${i + 1}. ${acText}\n`;
         });
     }
     
@@ -433,16 +497,34 @@ function exportSingleTask(index) {
 
 function convertToCSV(tasks) {
     const headers = ['Title', 'Type', 'Priority', 'Domain', 'Story Points', 'Role', 'Description', 'Acceptance Criteria'];
-    const rows = tasks.map(task => [
-        task.title,
-        task.type,
-        task.priority,
-        task.domain,
-        task.story_points,
-        task.role,
-        task.description,
-        (task.acceptance_criteria || []).join(' | ')
-    ]);
+    const rows = tasks.map(task => {
+        // Format acceptance criteria
+        let acText = '';
+        if (task.acceptance_criteria && task.acceptance_criteria.length > 0) {
+            acText = task.acceptance_criteria.map(ac => {
+                if (typeof ac === 'string') {
+                    return ac;
+                } else if (typeof ac === 'object' && ac.given && ac.when && ac.then) {
+                    return `Given ${ac.given}, When ${ac.when}, Then ${ac.then}`;
+                } else if (typeof ac === 'object' && ac.description) {
+                    return ac.description;
+                } else {
+                    return JSON.stringify(ac);
+                }
+            }).join(' | ');
+        }
+        
+        return [
+            task.title,
+            task.type,
+            task.priority,
+            task.domain,
+            task.story_points,
+            task.role,
+            task.description,
+            acText
+        ];
+    });
 
     const csvContent = [
         headers.join(','),

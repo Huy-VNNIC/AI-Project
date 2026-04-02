@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pure ML Test Generation - Feedback System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            font-size: 1.5em;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Rating Styles */
+        .rating-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+        }
+
+        .star {
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #ffc107;
+            text-shadow: 0 0 5px rgba(255, 193, 7, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .badge-success {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .badge-warning {
+            background: #fff9c4;
+            color: #f9a825;
+        }
+
+        .badge-danger {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        /* Feedback List */
+        .feedback-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feedback-item h4 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .feedback-meta {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .feedback-text {
+            color: #555;
+            line-height: 1.5;
+        }
+
+        /* System Health */
+        .health-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        /* Loading State */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Messages */
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message-success {
+            background: #c8e6c9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .message-error {
+            background: #ffcdd2;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        /* Radio/Checkbox */
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-label,
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #999;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🧠 Pure ML Test Generation</h1>
+            <p>AI-Powered Test Case Generation with Learning Feedback</p>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Left Column: Generate Test Cases -->
+            <div>
+                <div class="card">
+                    <h2><span class="card-icon">📝</span> Generate Test Cases</h2>
+                    
+                    <div id="successMessage" class="message message-success">
+                        <strong>✓ Test cases generated successfully!</strong>
+                    </div>
+                    <div id="errorMessage" class="message message-error">
+                        <strong>✗ Error:</strong> <span id="errorText"></span>
+                    </div>
+
+                    <form id="generateForm">
+                        <div class="form-group">
+                            <label for="requirements">Requirements (Paste your requirement text):</label>
+                            <textarea 
+                                id="requirements" 
+                                placeholder="E.g., Patients can book appointments up to 30 days in advance. System must validate patient identity..."
+                                required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="maxTests">Max Test Cases:</label>
+                            <input type="number" id="maxTests" value="7" min="1" max="20">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="threshold">Quality Threshold (0.0 - 1.0):</label>
+                            <input type="number" id="threshold" value="0.5" min="0" max="1" step="0.1">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="generateBtn">
+                            Generate Test Cases
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results -->
+                <div id="resultsCard" class="card" style="display: none;">
+                    <h2><span class="card-icon">📊</span> Generated Test Cases</h2>
+                    <div id="resultsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Right Column: Feedback & Stats -->
+            <div>
+                <!-- System Stats -->
+                <div class="card">
+                    <h2><span class="card-icon">📈</span> System Health</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value" id="totalFeedback">0</div>
+                            <div class="stat-label">Total Feedback</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="systemHealth">--</div>
+                            <div class="stat-label">Health Status</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="successRate">0%</div>
+                            <div class="stat-label">Success Rate</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value" id="generationCount">0</div>
+                            <div class="stat-label">Generations</div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-secondary" onclick="refreshStats()" style="width: 100%;">
+                        🔄 Refresh Stats
+                    </button>
+                </div>
+
+                <!-- Learning Insights -->
+                <div class="card">
+                    <h2><span class="card-icon">💡</span> AI Learning Insights</h2>
+                    
+                    <div id="insightsContainer">
+                        <p style="color: #999;">Submit feedback to enable AI learning...</p>
+                    </div>
+
+                    <button class="btn btn-secondary" onclick="refreshInsights()" style="width: 100%; margin-top: 15px;">
+                        🧠 Refresh Insights
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Width: Feedback Section -->
+        <div class="card">
+            <h2><span class="card-icon">💬</span> Test Case Feedback</h2>
+            <p style="margin-bottom: 20px; color: #666;">
+                Provide feedback on test cases to help the AI system learn and improve its accuracy
+            </p>
+
+            <form id="feedbackForm">
+                <div class="form-group">
+                    <label for="testCaseId">Test Case ID:</label>
+                    <input 
+                        type="text" 
+                        id="testCaseId" 
+                        placeholder="e.g., TC-HC-001"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="requirementId">Requirement ID:</label>
+                    <input 
+                        type="text" 
+                        id="requirementId" 
+                        placeholder="e.g., REQ-HC-001">
+                </div>
+
+                <div class="form-group">
+                    <label for="scenarioType">Scenario Type:</label>
+                    <select id="scenarioType" required>
+                        <option value="">-- Select Scenario Type --</option>
+                        <option value="happy_path">Happy Path</option>
+                        <option value="boundary_value">Boundary Value</option>
+                        <option value="equivalence_partition">Equivalence Partition</option>
+                        <option value="negative">Negative</option>
+                        <option value="security">Security</option>
+                        <option value="performance">Performance</option>
+                        <option value="integration">Integration</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>User Feedback:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="userFeedback" value="good" required>
+                            ✅ Good - Test is accurate and valuable
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="userFeedback" value="needs_improvement">
+                            ⚠️ Needs Improvement - Has issues to fix
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="userFeedback" value="bad">
+                            ❌ Bad - Not useful
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="testResult">Test Execution Result:</label>
+                    <select id="testResult" required>
+                        <option value="">-- Select Result --</option>
+                        <option value="pass">✅ PASS</option>
+                        <option value="fail">❌ FAIL</option>
+                        <option value="not_executed">⏸️ Not Yet Executed</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Coverage Rating (1-5 stars):</label>
+                    <div class="rating-stars" id="coverageRating">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="coverageValue" value="3">
+                </div>
+
+                <div class="form-group">
+                    <label>Clarity Rating (1-5 stars):</label>
+                    <div class="rating-stars" id="clarityRating">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="clarityValue" value="3">
+                </div>
+
+                <div class="form-group">
+                    <label>Effort Accuracy Rating (1-5 stars):</label>
+                    <div class="rating-stars" id="effortRating">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="effortValue" value="3">
+                </div>
+
+                <div class="form-group">
+                    <label for="defectsFound">Defects Found:</label>
+                    <input type="number" id="defectsFound" value="0" min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="feedbackComments">Additional Comments:</label>
+                    <textarea 
+                        id="feedbackComments" 
+                        placeholder="Any additional feedback for the AI to learn from..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitFeedbackBtn">
+                    Submit Feedback (AI Learns From This)
+                </button>
+            </form>
+
+            <div id="feedbackSuccessMessage" class="message message-success" style="margin-top: 20px;">
+                <strong>✓ Feedback submitted successfully!</strong> The AI system will use this to improve.
+            </div>
+            <div id="feedbackErrorMessage" class="message message-error" style="margin-top: 20px;">
+                <strong>✗ Error submitting feedback:</strong> <span id="feedbackErrorText"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v3/test-generation';
+
+        // Setup rating stars
+        function setupRatingStars(containerId, inputId) {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            const stars = container.querySelectorAll('.star');
+
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const value = star.getAttribute('data-value');
+                    input.value = value;
+                    
+                    stars.forEach(s => s.classList.remove('active'));
+                    for (let i = 0; i < value; i++) {
+                        stars[i].classList.add('active');
+                    }
+                });
+
+                star.addEventListener('mouseover', () => {
+                    const value = star.getAttribute('data-value');
+                    stars.forEach((s, idx) => {
+                        if (idx < value) {
+                            s.style.color = '#ffc107';
+                        } else {
+                            s.style.color = '#ddd';
+                        }
+                    });
+                });
+            });
+
+            container.addEventListener('mouseleave', () => {
+                const value = input.value;
+                stars.forEach((s, idx) => {
+                    if (idx < value) {
+                        s.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        setupRatingStars('coverageRating', 'coverageValue');
+        setupRatingStars('clarityRating', 'clarityValue');
+        setupRatingStars('effortRating', 'effortValue');
+
+        // Generate Test Cases
+        document.getElementById('generateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="spinner"></span> Generating...';
+
+            try {
+                const response = await fetch(`${API_BASE}/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        requirements: document.getElementById('requirements').value,
+                        max_tests: parseInt(document.getElementById('maxTests').value),
+                        confidence_threshold: parseFloat(document.getElementById('threshold').value)
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to generate test cases');
+                
+                const data = await response.json();
+                displayTestCases(data);
+                showMessage('successMessage');
+                
+            } catch (error) {
+                document.getElementById('errorText').textContent = error.message;
+                showMessage('errorMessage');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = 'Generate Test Cases';
+            }
+        });
+
+        // Display Test Cases
+        function displayTestCases(data) {
+            const container = document.getElementById('resultsContainer');
+            const card = document.getElementById('resultsCard');
+
+            if (!data.test_cases || data.test_cases.length === 0) {
+                container.innerHTML = '<p>No test cases generated.</p>';
+                card.style.display = 'block';
+                return;
+            }
+
+            let html = '<div style="margin-bottom: 20px;">';
+            html += `<p style="color: #666; margin-bottom: 15px;">💡 Click a test case ID to auto-fill the feedback form</p>`;
+
+            data.test_cases.forEach((tc, idx) => {
+                const quality = (tc.quality_score * 100).toFixed(0);
+                html += `
+                    <div class="feedback-item" style="cursor: pointer;" onclick="fillFeedbackForm('${tc.id}', '${tc.scenario_type}')">
+                        <h4>${tc.id} - ${tc.scenario_type}</h4>
+                        <div class="feedback-meta">
+                            <span class="badge badge-success">Quality: ${quality}%</span>
+                            ${tc.effort_estimate ? `<span class="badge badge-warning">Effort: ${tc.effort_estimate.hours}h</span>` : ''}
+                        </div>
+                        <div class="feedback-text">${tc.description}</div>
+                        ${tc.steps && tc.steps.length > 0 ? `
+                            <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
+                                <strong>Steps:</strong>
+                                <ol style="margin-left: 20px; margin-top: 8px;">
+                                    ${tc.steps.map(s => `<li>${s.action} → ${s.expected}</li>`).join('')}
+                                </ol>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+            card.style.display = 'block';
+        }
+
+        // Fill Feedback Form
+        function fillFeedbackForm(testCaseId, scenarioType) {
+            document.getElementById('testCaseId').value = testCaseId;
+            document.getElementById('scenarioType').value = scenarioType;
+            document.querySelector('.feedback-item')?.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('testCaseId').focus();
+        }
+
+        // Submit Feedback
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitFeedbackBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+            try {
+                const response = await fetch(`${API_BASE}/feedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        test_case_id: document.getElementById('testCaseId').value,
+                        requirement_id: document.getElementById('requirementId').value,
+                        scenario_type: document.getElementById('scenarioType').value,
+                        user_feedback: document.querySelector('input[name="userFeedback"]:checked').value,
+                        test_execution_result: document.getElementById('testResult').value,
+                        coverage_rating: parseInt(document.getElementById('coverageValue').value),
+                        clarity_rating: parseInt(document.getElementById('clarityValue').value),
+                        effort_accuracy: parseInt(document.getElementById('effortValue').value),
+                        defects_found: parseInt(document.getElementById('defectsFound').value),
+                        comments: document.getElementById('feedbackComments').value
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to submit feedback');
+
+                showMessage('feedbackSuccessMessage');
+                document.getElementById('feedbackForm').reset();
+                await refreshStats();
+                await refreshInsights();
+
+            } catch (error) {
+                document.getElementById('feedbackErrorText').textContent = error.message;
+                showMessage('feedbackErrorMessage');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit Feedback (AI Learns From This)';
+            }
+        });
+
+        // Show/Hide Messages
+        function showMessage(elementId) {
+            const element = document.getElementById(elementId);
+            element.classList.add('show');
+            setTimeout(() => element.classList.remove('show'), 5000);
+        }
+
+        // Refresh Stats
+        async function refreshStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                if (!response.ok) throw new Error('Failed to get stats');
+                const data = await response.json();
+
+                document.getElementById('totalFeedback').textContent = data.total_feedback || 0;
+                document.getElementById('systemHealth').textContent = data.system_health || '--';
+                document.getElementById('successRate').textContent = ((data.average_quality || 0) * 100).toFixed(0) + '%';
+                document.getElementById('generationCount').textContent = data.generations || 0;
+            } catch (error) {
+                console.error('Stats error:', error);
+            }
+        }
+
+        // Refresh Insights
+        async function refreshInsights() {
+            try {
+                const response = await fetch(`${API_BASE}/insights`);
+                if (!response.ok) throw new Error('Failed to get insights');
+                const data = await response.json();
+
+                let html = '';
+                
+                if (data.total_feedback && data.total_feedback > 0) {
+                    html += `<p style="margin-bottom: 15px;"><strong>Total Feedback Collected:</strong> ${data.total_feedback}</p>`;
+
+                    if (data.success_rates_by_type) {
+                        html += '<strong>Success Rates by Scenario Type:</strong><ul style="margin-left: 20px; margin-top: 10px;">';
+                        Object.entries(data.success_rates_by_type).forEach(([type, rate]) => {
+                            html += `<li>${type}: ${(rate * 100).toFixed(1)}%</li>`;
+                        });
+                        html += '</ul>';
+                    }
+
+                    if (data.strengths && data.strengths.length > 0) {
+                        html += '<strong style="margin-top: 15px; display: block;">💪 Strengths:</strong><ul style="margin-left: 20px;margin-top:8px;">';
+                        data.strengths.forEach(s => html += `<li>${s}</li>`);
+                        html += '</ul>';
+                    }
+
+                    if (data.recommendations && data.recommendations.length > 0) {
+                        html += '<strong style="margin-top: 15px; display: block;">🎯 Recommendations:</strong><ul style="margin-left: 20px; margin-top: 8px;">';
+                        data.recommendations.forEach(r => html += `<li>${r}</li>`);
+                        html += '</ul>';
+                    }
+                } else {
+                    html = '<p style="color: #999;">No learning data yet. Submit feedback to enable AI learning...</p>';
+                }
+
+                document.getElementById('insightsContainer').innerHTML = html;
+            } catch (error) {
+                console.error('Insights error:', error);
+            }
+        }
+
+        // Initial load
+        refreshStats();
+        refreshInsights();
+
+        // Refresh every 30 seconds
+        setInterval(() => {
+            refreshStats();
+            refreshInsights();
+        }, 30000);
+    </script>
+</body>
+</html>

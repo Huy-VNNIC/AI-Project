@@ -1,0 +1,218 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║            🧠 PURE ML TEST GENERATION - QUICK REFERENCE CARD                   ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+┌─ STEP 1: START SERVER ─────────────────────────────────────────────────────────┐
+│ cd /home/dtu/AI-Project/AI-Project                                             │
+│ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000                      │
+│                                                                                 │
+│ Expected output:                                                               │
+│   ✓ AI Test Generation enabled                                                │
+│   ✓ Pure ML Test Generation (V3) enabled    ← This is what you want          │
+│   Uvicorn running on http://0.0.0.0:8000                                      │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ STEP 2: OPEN WEB UI (RECOMMENDED) ────────────────────────────────────────────┐
+│                                                                                 │
+│ Open browser: http://localhost:8000/test-generation/feedback-ui                │
+│                                                                                 │
+│ Features:                                                                      │
+│   ✓ Generate test cases (paste requirements)                                  │
+│   ✓ View generated tests with quality scores                                  │
+│   ✓ Submit feedback (1-5 stars, comments)                                     │
+│   ✓ See system health (EXCELLENT/GOOD/FAIR)                                   │
+│   ✓ View AI learning insights in real-time                                    │
+│   ✓ Auto-refresh every 30 seconds                                             │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ API ENDPOINTS ─────────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│ 1️⃣ GENERATE TEST CASES                                                         │
+│    POST http://localhost:8000/api/v3/test-generation/generate                  │
+│    {                                                                            │
+│      "requirements": "Patient can book appointments...",                       │
+│      "max_tests": 10,                                                          │
+│      "confidence_threshold": 0.5                                               │
+│    }                                                                            │
+│                                                                                 │
+│ 2️⃣ SUBMIT FEEDBACK (AI LEARNS FROM THIS!)                                     │
+│    POST http://localhost:8000/api/v3/test-generation/feedback                  │
+│    {                                                                            │
+│      "test_case_id": "TC-HC-001",                                              │
+│      "scenario_type": "happy_path",                                            │
+│      "user_feedback": "good",     ← or "bad" or "needs_improvement"           │
+│      "coverage_rating": 5,        ← 1-5 stars                                  │
+│      "clarity_rating": 5,         ← 1-5 stars                                  │
+│      "effort_accuracy": 4,        ← 1-5 stars                                  │
+│      "comments": "Excellent test" ← Optional                                   │
+│    }                                                                            │
+│                                                                                 │
+│ 3️⃣ CHECK SYSTEM HEALTH                                                         │
+│    GET http://localhost:8000/api/v3/test-generation/stats                      │
+│    Returns: generations, total_feedback, system_health, avg_quality           │
+│                                                                                 │
+│ 4️⃣ GET LEARNING INSIGHTS                                                       │
+│    GET http://localhost:8000/api/v3/test-generation/insights                   │
+│    Returns: success_rates by scenario type, strengths, recommendations        │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ TESTING WITH CURL ────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│ # Generate                                                                     │
+│ curl -X POST http://localhost:8000/api/v3/test-generation/generate \          │
+│   -H "Content-Type: application/json" \                                        │
+│   -d '{"requirements": "Patient can book appointments", "max_tests": 5}'       │
+│                                                                                 │
+│ # Feedback                                                                     │
+│ curl -X POST http://localhost:8000/api/v3/test-generation/feedback \          │
+│   -H "Content-Type: application/json" \                                        │
+│   -d '{                                                                        │
+│     "test_case_id": "TC-HC-001",                                               │
+│     "user_feedback": "good",                                                   │
+│     "coverage_rating": 5,                                                      │
+│     "clarity_rating": 5,                                                       │
+│     "effort_accuracy": 4                                                       │
+│   }'                                                                            │
+│                                                                                 │
+│ # Stats                                                                        │
+│ curl http://localhost:8000/api/v3/test-generation/stats                        │
+│                                                                                 │
+│ # Insights                                                                     │
+│ curl http://localhost:8000/api/v3/test-generation/insights                     │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SCENARIO TYPES (USE IN feedback endpoint) ────────────────────────────────────┐
+│                                                                                 │
+│  • happy_path                - Normal flow working correctly                   │
+│  • boundary_value            - Edge case (30 days max, empty field, etc)       │
+│  • equivalence_partition     - Equivalent data grouped                         │
+│  • negative                  - Error scenarios (invalid input, etc)            │
+│  • security                  - Security testing (unauthorized access, etc)     │
+│  • performance               - Load/stress testing                             │
+│  • integration               - Component interaction testing                   │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ EXAMPLE: HEALTHCARE REQUIREMENT ──────────────────────────────────────────────┐
+│                                                                                 │
+│ INPUT:                                                                         │
+│   Patients can book appointments up to 30 days in advance.                    │
+│   System must validate patient identity before showing medical records.        │
+│   Prevent unauthorized access to sensitive health information.                 │
+│   Support appointment cancellation up to 24 hours before scheduled time.       │
+│                                                                                 │
+│ SYSTEM GENERATES:                                                              │
+│   1. Happy path test - Normal booking                                          │
+│   2. Boundary value test - Book exactly 30 days (and 31)                       │
+│   3. Equivalence partition - Date partitions                                   │
+│   4. Negative test - Invalid dates                                             │
+│   5. Security test - Unauthorized access attempt                               │
+│   6. Performance test - 1000 concurrent bookings                               │
+│   7. Integration test - Booking + Cancellation flow                            │
+│                                                                                 │
+│ USER PROVIDES FEEDBACK:                                                        │
+│   ✅ Test 1 (happy path): Good (5/5/5)                                         │
+│   ⚠️ Test 5 (security): Needs Improvement (3/2/3) ← clarity issue             │
+│   ✅ Test 6 (performance): Good (5/5/4)                                        │
+│                                                                                 │
+│ AI LEARNS:                                                                     │
+│   • Happy path tests: 100% success                                             │
+│   • Security tests: Need better clarity                                        │
+│   • Performance tests: Working well                                            │
+│   Next generation → Boost happy_path & performance, improve security clarity  │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ USER FEEDBACK RATINGS EXPLAINED ──────────────────────────────────────────────┐
+│                                                                                 │
+│ Coverage Rating (1-5):              Clarity Rating (1-5):                     │
+│  1 = Missing major scenarios        1 = Very confusing steps                  │
+│  2 = Incomplete coverage            2 = Some unclear steps                    │
+│  3 = Good coverage                  3 = Mostly clear                          │
+│  4 = Comprehensive                  4 = Very clear steps                      │
+│  5 = Complete coverage              5 = Crystal clear                         │
+│                                                                                 │
+│ Effort Accuracy Rating (1-5):                                                  │
+│  1 = Wildly inaccurate (1h vs 10h actual)                                      │
+│  2 = Moderately off (1h vs 5h actual)                                          │
+│  3 = Roughly correct (estimate 2h, actual 2.5h)                               │
+│  4 = Pretty accurate (estimate 2h, actual 2.1h)                               │
+│  5 = Spot on (estimated and actual match)                                     │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SYSTEM HEALTH LEVELS ─────────────────────────────────────────────────────────┐
+│                                                                                 │
+│ 🟢 EXCELLENT  (>85% good feedback)                                             │
+│    System is performing very well. Tests are accurate and valuable.           │
+│                                                                                 │
+│ 🟢 GOOD       (70-85% good feedback)                                           │
+│    System is working well with minor improvements possible.                   │
+│                                                                                 │
+│ 🟡 FAIR       (50-70% good feedback)                                           │
+│    System has room for improvement. Focus on weak areas.                      │
+│                                                                                 │
+│ 🔴 NEEDS_IMPROVEMENT  (<50% good feedback)                                    │
+│    System needs significant work. More feedback needed.                       │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DOCUMENTATION LINKS ──────────────────────────────────────────────────────────┐
+│                                                                                 │
+│ Full Guides:                           File Name:                              │
+│ • Complete System Guide          →     PURE_ML_SYSTEM_README.md               │
+│ • Integration Details            →     PURE_ML_API_INTEGRATION.md             │
+│ • Phase 6 Summary               →     PHASE_6_COMPLETION_REPORT.md            │
+│ • Final Report                  →     PHASE_6_7_FINAL_COMPLETION.md           │
+│                                                                                 │
+│ API Auto-Docs (when server running):                                           │
+│ • Swagger UI                    →     http://localhost:8000/docs              │
+│ • ReDoc                         →     http://localhost:8000/redoc             │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ TROUBLESHOOTING ──────────────────────────────────────────────────────────────┐
+│                                                                                 │
+│ Q: "Port 8000 already in use"                                                 │
+│ A: Kill process: lsof -ti:8000 | xargs kill -9                               │
+│    Or use: uvicorn app.main:app --port 8001                                  │
+│                                                                                 │
+│ Q: "spaCy model not found"                                                    │
+│ A: Auto-downloads on first run (~30 seconds) or:                              │
+│    python3 -m spacy download en_core_web_sm                                   │
+│                                                                                 │
+│ Q: "Feedback not saving"                                                      │
+│ A: Create directory: mkdir -p data/feedback                                   │
+│    Check permissions: ls -la data/feedback/                                   │
+│                                                                                 │
+│ Q: "API returns 404"                                                          │
+│ A: Verify server: curl http://localhost:8000/health                           │
+│    Check endpoint URL, make sure Content-Type: application/json               │
+│                                                                                 │
+│ Q: "UI not loading"                                                           │
+│ A: Ensure templates/ directory exists with pure_ml_feedback.html              │
+│    Server running: check terminal for ✓ Pure ML enabled message               │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+┌─ KEY FILES & LOCATIONS ────────────────────────────────────────────────────────┐
+│                                                                                 │
+│ Server Start:        app/main.py                                              │
+│ API Routes:          requirement_analyzer/api_v2_test_generation.py           │
+│ Web UI:              templates/pure_ml_feedback.html                          │
+│ ML System:           requirement_analyzer/task_gen/*.py (4 files)             │
+│ AI Learning Data:    data/feedback/feedback_log.jsonl                         │
+│                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────┘
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                    🚀 READY TO USE - NO MORE SETUP NEEDED!                    ║
+║                                                                                ║
+║  Just run: uvicorn app.main:app --reload                                      ║
+║  Then open: http://localhost:8000/test-generation/feedback-ui                 ║
+║                                                                                ║
+║                         ✨ System is production-ready ✨                       ║
+╚════════════════════════════════════════════════════════════════════════════════╝

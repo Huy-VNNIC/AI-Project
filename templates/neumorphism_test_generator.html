@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Test Case Generator - Neumorphism Design</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* ========================================
+           NEUMORPHISM DESIGN SYSTEM
+           One material, shaped by light
+           ======================================== */
+
+        :root {
+            /* Color Tokens */
+            --surface: #E7E5E4;
+            --primary: #006666;
+            --secondary: #F1F2F5;
+            --success: #00A63D;
+            --warning: #FE9900;
+            --danger: #FF2157;
+            --text-primary: #1E2938;
+            --text-secondary: #6B7280;
+            
+            /* Shadow Tokens (Extruded/Inset effects) */
+            --shadow-light: rgba(255, 255, 255, 0.8);
+            --shadow-dark: rgba(0, 0, 0, 0.15);
+            
+            /* Typography */
+            --font-primary: 'Space Mono', monospace;
+            --font-code: 'JetBrains Mono', monospace;
+            
+            /* Spacing (compact density) */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 24px;
+            --space-2xl: 32px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--surface);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: var(--space-2xl);
+        }
+
+        /* ========================================
+           CONTAINER & LAYOUT
+           ======================================== */
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: var(--space-2xl);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-lg);
+        }
+
+        /* ========================================
+           NEUMORPHIC CARD (Extruded)
+           ======================================== */
+
+        .neumorphic-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: var(--space-xl);
+            box-shadow: 8px 8px 16px var(--shadow-dark),
+                        -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .neumorphic-card:hover {
+            box-shadow: 12px 12px 24px var(--shadow-dark),
+                        -12px -12px 24px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .neumorphic-card.inset {
+            box-shadow: inset 6px 6px 12px var(--shadow-dark),
+                        inset -6px -6px 12px var(--shadow-light);
+        }
+
+        /* ========================================
+           TABS (Raised/Pressed States)
+           ======================================== */
+
+        .tabs-container {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+            border-radius: 12px;
+            background: var(--surface);
+            padding: var(--space-md);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                        inset -4px -4px 8px var(--shadow-light);
+        }
+
+        .tab {
+            flex: 1;
+            padding: var(--space-md) var(--space-lg);
+            border: none;
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-family: var(--font-primary);
+            font-size: 13px;
+            font-weight: 400;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 4px 4px 8px var(--shadow-dark),
+                        -4px -4px 8px var(--shadow-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab:active,
+        .tab.active {
+            color: var(--primary);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                        inset -4px -4px 8px var(--shadow-light);
+            background: linear-gradient(135deg, rgba(0, 102, 102, 0.05) 0%, rgba(0, 102, 102, 0.02) 100%);
+        }
+
+        .tab:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        /* ========================================
+           FORM ELEMENTS (Inset style)
+           ======================================== */
+
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-md);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: var(--space-md) var(--space-lg);
+            border: none;
+            background: var(--surface);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 13px;
+            border-radius: 8px;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                        inset -4px -4px 8px var(--shadow-light);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                        inset -4px -4px 8px var(--shadow-light),
+                        0 0 0 2px var(--primary);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* ========================================
+           BUTTONS (Extruded → Inset on press)
+           ======================================== */
+
+        .btn {
+            padding: var(--space-md) var(--space-xl);
+            border: none;
+            background: var(--surface);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 13px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 4px 4px 8px var(--shadow-dark),
+                        -4px -4px 8px var(--shadow-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            min-height: 40px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px var(--shadow-dark),
+                        -6px -6px 12px var(--shadow-light);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                        inset -4px -4px 8px var(--shadow-light);
+        }
+
+        .btn:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .btn-primary {
+            color: white;
+            background: linear-gradient(135deg, var(--primary) 0%, #004d4d 100%);
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-primary:active {
+            color: var(--primary);
+            background: var(--surface);
+        }
+
+        .btn-success {
+            color: white;
+            background: linear-gradient(135deg, var(--success) 0%, #007a2a 100%);
+        }
+
+        .btn-danger {
+            color: white;
+            background: linear-gradient(135deg, var(--danger) 0%, #d4184a 100%);
+        }
+
+        .btn-sm {
+            padding: var(--space-sm) var(--space-md);
+            font-size: 12px;
+            min-height: 36px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* ========================================
+           SLIDER (Range input - Inset track)
+           ======================================== */
+
+        .slider-container {
+            margin: var(--space-lg) 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--surface);
+            outline: none;
+            -webkit-appearance: none;
+            box-shadow: inset 2px 2px 4px var(--shadow-dark),
+                        inset -2px -2px 4px var(--shadow-light);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, #004d4d 100%);
+            cursor: pointer;
+            box-shadow: 4px 4px 8px var(--shadow-dark),
+                        -4px -4px 8px var(--shadow-light);
+            transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:active {
+            box-shadow: inset 2px 2px 4px var(--shadow-dark),
+                        inset -2px -2px 4px var(--shadow-light);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, #004d4d 100%);
+            cursor: pointer;
+            border: none;
+            box-shadow: 4px 4px 8px var(--shadow-dark),
+                        -4px -4px 8px var(--shadow-light);
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: var(--space-md);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-code);
+        }
+
+        /* ========================================
+           STAT CARDS (Extruded)
+           ======================================== */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: var(--space-lg);
+            text-align: center;
+            box-shadow: 4px 4px 8px var(--shadow-dark),
+                        -4px -4px 8px var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px var(--shadow-dark),
+                        -6px -6px 12px var(--shadow-light);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-code);
+            margin-bottom: var(--space-sm);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        /* ========================================
+           LAYOUT GRID
+           ======================================== */
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        @media (max-width: 1200px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .section-title::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        /* ========================================
+           TEST CASE CARD (Extruded)
+           ======================================== */
+
+        .test-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: var(--space-lg);
+            margin-bottom: var(--space-lg);
+            box-shadow: 4px 4px 8px var(--shadow-dark),
+                        -4px -4px 8px var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .test-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 12px var(--shadow-dark),
+                        -6px -6px 12px var(--shadow-light);
+        }
+
+        .test-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-md);
+        }
+
+        .test-id {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: var(--font-code);
+        }
+
+        .test-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: var(--space-md) 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: var(--space-xs) var(--space-md);
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--surface);
+            box-shadow: 2px 2px 4px var(--shadow-dark),
+                        -2px -2px 4px var(--shadow-light);
+        }
+
+        .badge-primary {
+            color: var(--primary);
+            background: rgba(0, 102, 102, 0.1);
+        }
+
+        .badge-success {
+            color: var(--success);
+            background: rgba(0, 166, 61, 0.1);
+        }
+
+        .badge-warning {
+            color: var(--warning);
+            background: rgba(254, 153, 0, 0.1);
+        }
+
+        .test-meta {
+            display: flex;
+            gap: var(--space-lg);
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: var(--space-md) 0;
+            flex-wrap: wrap;
+        }
+
+        /* ========================================
+           FEEDBACK BUTTONS (1-Click)
+           ========================================  */
+
+        .feedback-buttons {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+
+        .feedback-btn {
+            flex: 1;
+            padding: var(--space-md);
+            border: none;
+            background: var(--surface);
+            color: var(--text-secondary);
+            font-family: var(--font-primary);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 3px 3px 6px var(--shadow-dark),
+                        -3px -3px 6px var(--shadow-light);
+        }
+
+        .feedback-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 4px 4px 8px var(--shadow-dark),
+                        -4px -4px 8px var(--shadow-light);
+        }
+
+        .feedback-btn:active {
+            box-shadow: inset 3px 3px 6px var(--shadow-dark),
+                        inset -3px -3px 6px var(--shadow-light);
+            transform: translateY(0);
+        }
+
+        .feedback-btn.selected {
+            color: white;
+            box-shadow: inset 3px 3px 6px var(--shadow-dark),
+                        inset -3px -3px 6px var(--shadow-light);
+        }
+
+        .feedback-btn.good.selected {
+            background: linear-gradient(135deg, var(--success) 0%, #007a2a 100%);
+        }
+
+        .feedback-btn.bad.selected {
+            background: linear-gradient(135deg, var(--danger) 0%, #d4184a 100%);
+        }
+
+        /* ========================================
+           HELPER TEXT & INFO
+           ======================================== */
+
+        .helper-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: var(--space-sm);
+        }
+
+        .info-box {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: var(--space-lg);
+            margin-top: var(--space-lg);
+            border-left: 4px solid var(--primary);
+            box-shadow: inset 2px 2px 4px var(--shadow-dark),
+                        inset -2px -2px 4px var(--shadow-light);
+        }
+
+        .info-box-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: var(--space-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           UTILITIES
+           ======================================== */
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-lg {
+            margin-top: var(--space-lg);
+        }
+
+        .mb-lg {
+            margin-bottom: var(--space-lg);
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gap-md {
+            gap: var(--space-md);
+        }
+
+        /* ========================================
+           RESPONSIVE
+           ======================================== */
+
+        @media (max-width: 768px) {
+            body {
+                padding: var(--space-lg);
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .layout-grid {
+                gap: var(--space-lg);
+            }
+
+            .tabs-container {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Test Generation</h1>
+            <p>AI-powered test case generation with neumorphic design</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab active" data-tab="generate">Generate</button>
+            <button class="tab" data-tab="results">Results</button>
+            <button class="tab" data-tab="analytics">Analytics</button>
+            <button class="tab" data-tab="feedback">Learning</button>
+        </div>
+
+        <!-- TAB 1: Generate -->
+        <div class="tab-content active" id="generate">
+            <div class="layout-grid">
+                <!-- Left: Input -->
+                <div>
+                    <div class="neumorphic-card">
+                        <h3 class="section-title">Requirements</h3>
+
+                        <div class="form-group">
+                            <label for="requirements">Enter Requirements</label>
+                            <textarea id="requirements" placeholder="Patients can book appointments up to 30 days in advance..."></textarea>
+                            <p class="helper-text">📌 The more detailed, the better the AI generation</p>
+                        </div>
+
+                        <hr style="border: none; background: var(--shadow-light); height: 1px; margin: var(--space-lg) 0;">
+
+                        <h3 class="section-title">Options</h3>
+
+                        <div class="form-group">
+                            <label for="maxTests">Max Test Cases</label>
+                            <input type="number" id="maxTests" min="1" max="50" value="10">
+                            <p class="helper-text">Generate up to 50 test cases</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="quality">Quality Threshold</label>
+                            <div class="slider-container">
+                                <input type="range" id="quality" min="0" max="100" value="60" class="slider">
+                                <div class="slider-value"><span id="qualityValue">60</span>%</div>
+                            </div>
+                            <p class="helper-text">Higher = stricter quality (fewer but better cases)</p>
+                        </div>
+
+                        <button class="btn btn-primary btn-full mt-lg" onclick="generateTests()">
+                            ⚡ Generate Test Cases
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right: Stats & Info -->
+                <div>
+                    <div class="neumorphic-card">
+                        <h3 class="section-title">Statistics</h3>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value" id="statTests">0</div>
+                                <div class="stat-label">Test Cases</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="statQuality">--</div>
+                                <div class="stat-label">Avg Quality</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="statEffort">--</div>
+                                <div class="stat-label">Total Effort</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value" id="statTime">--</div>
+                                <div class="stat-label">Generation</div>
+                            </div>
+                        </div>
+
+                        <hr style="border: none; background: var(--shadow-light); height: 1px; margin: var(--space-lg) 0;">
+
+                        <h3 class="section-title">System Status</h3>
+
+                        <div class="info-box">
+                            <div class="info-box-title">🟢 System Learning</div>
+                            <div class="info-box-text">Analyzed 12 patterns from user feedback. Quality improving...</div>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-top: var(--space-lg);">
+                            <button class="btn btn-sm" onclick="exportCSV()">📥 Export</button>
+                            <button class="btn btn-sm" onclick="copyTests()">📋 Copy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Results -->
+        <div class="tab-content" id="results">
+            <div class="neumorphic-card">
+                <h3 class="section-title">Generated Test Cases</h3>
+
+                <div id="testsList">
+                    <p style="text-align: center; color: var(--text-secondary); padding: var(--space-xl) 0;">
+                        📭 No test cases yet. Generate some from the Generate tab!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Analytics -->
+        <div class="tab-content" id="analytics">
+            <div class="neumorphic-card">
+                <h3 class="section-title">Coverage Analysis</h3>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">80%</div>
+                        <div class="stat-label">Functional</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">45%</div>
+                        <div class="stat-label">Edge Cases</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0%</div>
+                        <div class="stat-label">Security</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0%</div>
+                        <div class="stat-label">Performance</div>
+                    </div>
+                </div>
+
+                <div class="info-box" style="border-left-color: var(--warning); margin-top: var(--space-lg);">
+                    <div class="info-box-title">💡 Recommendation</div>
+                    <div class="info-box-text">
+                        Your test suite is missing Security coverage. Consider adding security-focused tests:
+                        <ul style="margin-left: var(--space-lg); margin-top: var(--space-md); color: var(--text-secondary);">
+                            <li>SQL injection prevention</li>
+                            <li>XSS attack mitigation</li>
+                            <li>Authentication bypass</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Learning Feedback -->
+        <div class="tab-content" id="feedback">
+            <div class="layout-grid">
+                <div class="neumorphic-card">
+                    <h3 class="section-title">Feedback Form</h3>
+
+                    <div style="background: rgba(0, 102, 102, 0.05); padding: var(--space-lg); border-radius: 8px; margin-bottom: var(--space-lg);">
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--space-md);">
+                            <strong>Test Case Example:</strong><br>
+                            Book appointment boundary validation
+                        </p>
+                    </div>
+
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: var(--space-lg);">
+                        <strong>Is this test case helpful?</strong>
+                    </p>
+
+                    <div class="feedback-buttons">
+                        <button class="feedback-btn good" onclick="this.classList.toggle('selected')">👍 Good</button>
+                        <button class="feedback-btn bad" onclick="this.classList.toggle('selected')">👎 Bad</button>
+                    </div>
+
+                    <div class="form-group" style="margin-top: var(--space-lg);">
+                        <label for="comment">Add Comment (Optional)</label>
+                        <textarea id="comment" placeholder="What could be better?" style="min-height: 80px;"></textarea>
+                    </div>
+
+                    <button class="btn btn-success btn-full" onclick="submitFeedback()">✓ Submit Feedback</button>
+                </div>
+
+                <div class="neumorphic-card">
+                    <h3 class="section-title">Learning Impact</h3>
+
+                    <div class="info-box">
+                        <div class="info-box-title">📚 Your feedback helps us:</div>
+                        <div class="info-box-text" style="margin: var(--space-md) 0 0 0;">
+                            <ul style="margin-left: var(--space-lg); color: var(--text-secondary);">
+                                <li style="margin-bottom: var(--space-sm);">Improve AI quality score</li>
+                                <li style="margin-bottom: var(--space-sm);">Identify better patterns</li>
+                                <li style="margin-bottom: var(--space-sm);">Reduce weak test cases</li>
+                                <li>Personalize generation</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: var(--space-lg);">
+                        <h4 class="section-title">Insights</h4>
+                        <div class="stat-card">
+                            <div class="stat-value">45</div>
+                            <div class="stat-label">Feedback Processed</div>
+                        </div>
+                        <div class="stat-card" style="margin-top: var(--space-lg);">
+                            <div class="stat-value">72%</div>
+                            <div class="stat-label">Positive Ratio</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Slider value update
+        document.getElementById('quality').addEventListener('input', (e) => {
+            document.getElementById('qualityValue').textContent = e.target.value;
+        });
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+            });
+        });
+
+        // Generate tests
+        function generateTests() {
+            const requirements = document.getElementById('requirements').value;
+            if (!requirements) {
+                alert('Please enter requirements');
+                return;
+            }
+
+            // Mock data
+            const testCases = [
+                { id: 'TC-001', title: 'Book appointment within 30-day window', type: 'happy_path', quality: 0.87, effort: 0.5 },
+                { id: 'TC-002', title: 'Boundary: Book on day exactly 30', type: 'edge_case', quality: 0.92, effort: 0.4 },
+                { id: 'TC-003', title: 'Error: Book beyond 30 days', type: 'edge_case', quality: 0.85, effort: 0.3 },
+                { id: 'TC-004', title: 'Validation: Invalid patient ID', type: 'error_case', quality: 0.78, effort: 0.4 },
+                { id: 'TC-005', title: 'Happy path: Complete booking flow', type: 'happy_path', quality: 0.91, effort: 0.6 },
+            ];
+
+            document.getElementById('statTests').textContent = testCases.length;
+            document.getElementById('statQuality').textContent = '0.87';
+            document.getElementById('statEffort').textContent = '2.2 hrs';
+            document.getElementById('statTime').textContent = '245 ms';
+
+            // Display tests
+            let html = '';
+            testCases.forEach(tc => {
+                html += `
+                    <div class="test-card">
+                        <div class="test-card-header">
+                            <div class="test-id">${tc.id}</div>
+                            <span class="badge badge-success">${(tc.quality * 100).toFixed(0)}%</span>
+                        </div>
+                        <div class="test-title">${tc.title}</div>
+                        <div class="test-meta">
+                            <span>📌 ${tc.type}</span>
+                            <span>⏱ ${tc.effort} hrs</span>
+                        </div>
+                        <div class="feedback-buttons">
+                            <button class="feedback-btn good" onclick="this.classList.toggle('selected')">👍</button>
+                            <button class="feedback-btn bad" onclick="this.classList.toggle('selected')">👎</button>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('testsList').innerHTML = html;
+
+            // Switch to results tab
+            document.querySelector('[data-tab="results"]').click();
+        }
+
+        function submitFeedback() {
+            alert('✓ Feedback submitted! System is learning...');
+            document.getElementById('comment').value = '';
+        }
+
+        function exportCSV() {
+            alert('📥 Exporting to CSV...');
+        }
+
+        function copyTests() {
+            alert('📋 Copied to clipboard');
+        }
+    </script>
+</body>
+</html>

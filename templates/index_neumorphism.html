@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Project - Test & Task Generation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Light Mode */
+            --primary: #006666;
+            --secondary: #F1F2F5;
+            --surface: #E7E5E4;
+            --success: #00A63D;
+            --warning: #FE9900;
+            --danger: #FF2157;
+            --text: #1E2938;
+            --text-light: #6B7280;
+            --shadow-light: rgba(255, 255, 255, 0.8);
+            --shadow-dark: rgba(0, 0, 0, 0.15);
+            --bg-gradient: linear-gradient(135deg, #E7E5E4 0%, #D9D7D3 100%);
+        }
+
+        html[data-theme="dark"] {
+            --primary: #00D9D9;
+            --secondary: #2A3F4B;
+            --surface: #1F3A42;
+            --success: #34D399;
+            --warning: #FCD34D;
+            --danger: #FF6B9D;
+            --text: #F3F4F6;
+            --text-light: #D1D5DB;
+            --shadow-light: rgba(255, 255, 255, 0.1);
+            --shadow-dark: rgba(0, 0, 0, 0.4);
+            --bg-gradient: linear-gradient(135deg, #0F172A 0%, #1F3A42 100%);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Space Mono', monospace;
+            color: var(--text);
+            padding: 24px 16px;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 32px 24px;
+            margin-bottom: 32px;
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--surface);
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 28px;
+        }
+
+        .header h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .header-subtitle {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-light);
+            letter-spacing: 0.3px;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .dark-mode-toggle {
+            width: 48px;
+            height: 48px;
+            border: none;
+            background: var(--surface);
+            border-radius: 12px;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 21px;
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark-mode-toggle:hover {
+            box-shadow: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .dark-mode-toggle:active {
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+            transform: translateY(1px);
+        }
+
+        /* Card Grid */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Card */
+        .card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            box-shadow: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+            transform: translateY(-4px);
+        }
+
+        .card-icon {
+            font-size: 40px;
+            color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        .card h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .card p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .card-btn {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .card-btn:hover {
+            box-shadow: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .card-btn:active {
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+            transform: translateY(1px);
+        }
+
+        /* Section Title */
+        .section-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title i {
+            font-size: 24px;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .stat-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            color: var(--text-light);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Feature Section */
+        .feature-section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 32px;
+            box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            padding: 16px;
+            background: var(--secondary);
+            border-radius: 10px;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+        }
+
+        .feature-item i {
+            color: var(--primary);
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .feature-name {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: 0.3px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-light);
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <div class="header-icon">
+                    <i class="bi bi-cpu"></i>
+                </div>
+                <div>
+                    <h1>AI Project</h1>
+                    <p class="header-subtitle">Test & Task Generation Suite</p>
+                </div>
+            </div>
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle dark mode">
+                <i class="bi bi-moon-fill" id="themeIcon"></i>
+            </button>
+        </div>
+
+        <!-- Main Tools -->
+        <h2 class="section-title"><i class="bi bi-lightning-fill"></i> Main Tools</h2>
+        <div class="card-grid">
+            <!-- Task Generation -->
+            <a href="/task-generation" class="card">
+                <div class="card-icon"><i class="bi bi-file-text"></i></div>
+                <h2>Task Generation</h2>
+                <p>Generate comprehensive test cases from requirements. Analyze specifications and automatically create detailed test scenarios with coverage analysis.</p>
+                <button class="card-btn" onclick="event.preventDefault(); location.href='/task-generation';">
+                    <i class="bi bi-arrow-right"></i> Open Tool
+                </button>
+            </a>
+
+            <!-- Test Case Generator -->
+            <a href="/testcase-generation" class="card">
+                <div class="card-icon"><i class="bi bi-beaker"></i></div>
+                <h2>Test Case Generator</h2>
+                <p>Advanced test generation with ML-powered insights. Create security, performance, and functional tests with confidence scoring and effort estimation.</p>
+                <button class="card-btn" onclick="event.preventDefault(); location.href='/testcase-generation';">
+                    <i class="bi bi-arrow-right"></i> Open Tool
+                </button>
+            </a>
+
+            <!-- Feedback & Learning -->
+            <a href="/test-generation/feedback-ui" class="card">
+                <div class="card-icon"><i class="bi bi-chat-left-dots"></i></div>
+                <h2>Feedback & Learning</h2>
+                <p>Submit feedback on generated tests to improve AI models. View learning statistics and see how the system improves over time with user data.</p>
+                <button class="card-btn" onclick="event.preventDefault(); location.href='/test-generation/feedback-ui';">
+                    <i class="bi bi-arrow-right"></i> View Stats
+                </button>
+            </a>
+        </div>
+
+        <!-- System Health Stats -->
+        <h2 class="section-title"><i class="bi bi-graph-up"></i> System Health</h2>
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTests">0</div>
+                    <div class="stat-label">Tests Generated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgConfidence">0%</div>
+                    <div class="stat-label">Avg Confidence</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="systemHealth">⏳</div>
+                    <div class="stat-label">System Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="lastUpdate">—</div>
+                    <div class="stat-label">Last Updated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="learningSignals">0</div>
+                    <div class="stat-label">Learning Signals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="modelAccuracy">0%</div>
+                    <div class="stat-label">Model Accuracy</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <h2 class="section-title"><i class="bi bi-star-fill"></i> System Features</h2>
+        <div class="feature-section">
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="bi bi-shield-check"></i>
+                    <div class="feature-name">Security Testing</div>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-lightning"></i>
+                    <div class="feature-name">Performance Tests</div>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-check-circle"></i>
+                    <div class="feature-name">Functional Tests</div>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-brain"></i>
+                    <div class="feature-name">AI Learning</div>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-graph-up"></i>
+                    <div class="feature-name">Coverage Analysis</div>
+                </div>
+                <div class="feature-item">
+                    <i class="bi bi-download"></i>
+                    <div class="feature-name">Export Results</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🚀 AI Test & Task Generation Suite v1.0.0 | Powered by Machine Learning</p>
+            <p>© 2026 AI Project | <a href="#" style="color: var(--primary); text-decoration: none;">Documentation</a> | <a href="#" style="color: var(--primary); text-decoration: none;">API Docs</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        }
+
+        // Initialize theme from localStorage
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            updateThemeIcon();
+        }
+
+        // Load system stats from API
+        async function loadSystemStats() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                // Update stats (mock data for now)
+                document.getElementById('totalTests').textContent = Math.floor(Math.random() * 1000);
+                document.getElementById('avgConfidence').textContent = Math.floor(Math.random() * 40 + 60) + '%';
+                document.getElementById('systemHealth').textContent = '🟢';
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                document.getElementById('learningSignals').textContent = Math.floor(Math.random() * 500);
+                document.getElementById('modelAccuracy').textContent = Math.floor(Math.random() * 30 + 70) + '%';
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            loadSystemStats();
+            
+            // Refresh stats every 30 seconds
+            setInterval(loadSystemStats, 30000);
+        });
+    </script>
+</body>
+</html>

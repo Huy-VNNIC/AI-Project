@@ -1,0 +1,44 @@
+🚀 HOW TO SEE THE NEW NEUMORPHISM UI
+
+✅ DONE: index.html replaced with Neumorphism version!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Now follow these steps:
+
+1️⃣ HARD REFRESH in Browser:
+   • Press: Ctrl+Shift+R (Windows/Linux)
+   • OR:    Cmd+Shift+R (Mac)
+   • This clears browser cache
+
+2️⃣ OR Close & Reopen Browser:
+   • Close the browser tab completely
+   • Open new tab: http://localhost:8000/
+
+3️⃣ IF STILL OLD, Clear Cache Manually:
+   • Chrome: Settings > Privacy > Clear browsing data
+   • Firefox: Settings > Privacy > Clear Recent History
+   • Select "All time" and check "Cached images/files"
+
+4️⃣ If Server Running, Restart It:
+   • Press Ctrl+C in terminal
+   • Run again: python -m uvicorn app.main:app --reload
+   • Or use: ./start_neumorphism_ui.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Then open:
+   🏠 http://localhost:8000/         ← Now shows Neumorphism!
+   📋 http://localhost:8000/task-generation
+   🧪 http://localhost:8000/testcase-generation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+What Changed:
+✨ Modern Neumorphism Design with soft shadows
+🌙 Dark Mode toggle button
+📱 Fully responsive
+🎨 Professional color scheme
+⚡ Smooth animations
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

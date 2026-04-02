@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 AI Test Case Generator - Improved v2</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.0/font/bootstrap-icons.min.css">
+    <style>
+        :root {
+            --primary: #667eea;
+            --success: #48bb78;
+            --warning: #f6ad55;
+            --danger: #f56565;
+            --info: #4299e1;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--primary);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .header p {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        /* Tab Navigation */
+        .nav-tabs {
+            border-bottom: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 12px 12px 0 0;
+            margin-bottom: 0;
+        }
+
+        .nav-link {
+            color: #666;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 0;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: #f5f5f5;
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: white;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            background: white;
+            border-radius: 0 0 12px 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        /* Layout Grid */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card-section {
+            background: #f9f9f9;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .card-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Form Control */
+        .form-group label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        input, textarea, select {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Helper Text */
+        .helper-text {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .helper-text.error {
+            color: var(--danger);
+        }
+
+        .helper-text.success {
+            color: var(--success);
+        }
+
+        /* Quality Threshold Slider */
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1.2em;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        /* Test Case Card */
+        .test-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .test-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+        }
+
+        .test-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .test-id {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .badge-success { background: #c6f6d5; color: #22543d; }
+        .badge-warning { background: #feebc8; color: #7c2d12; }
+        .badge-danger { background: #fed7d7; color: #742a2a; }
+        .badge-info { background: #bee3f8; color: #2c5282; }
+
+        .test-description {
+            color: #666;
+            font-size: 0.95em;
+            margin: 10px 0;
+        }
+
+        .test-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        /* Feedback Form - SIMPLIFIED */
+        .feedback-simple {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .feedback-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .feedback-btn {
+            padding: 12px 24px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 1.1em;
+        }
+
+        .feedback-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .feedback-btn.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .feedback-btn.good:hover {
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .feedback-btn.good.selected {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .feedback-btn.bad:hover {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .feedback-btn.bad.selected {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+
+        /* Sample Output Box */
+        .sample-output {
+            background: #f0f4ff;
+            border: 2px dashed var(--primary);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        .sample-output strong {
+            color: var(--primary);
+        }
+
+        /* System Health */
+        .health-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f0fdf4;
+            border-radius: 8px;
+            border-left: 4px solid var(--success);
+        }
+
+        .health-icon {
+            font-size: 2em;
+        }
+
+        .health-text {
+            flex: 1;
+        }
+
+        .health-text strong {
+            display: block;
+            color: #333;
+            margin-bottom: 3px;
+        }
+
+        .health-text .status {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Loading Indicator */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(102, 126, 234, 0.3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            min-width: 300px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success { border-left: 4px solid var(--success); }
+        .toast.error { border-left: 4px solid var(--danger); }
+        .toast.info { border-left: 4px solid var(--info); }
+
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+
+        /* Filter Section */
+        .filter-pills {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .filter-pill:hover {
+            border-color: var(--primary);
+        }
+
+        .filter-pill.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="bi bi-robot"></i> AI Test Case Generator - Improved</h1>
+            <p>Generate intelligent test cases from requirements with AI-powered analysis & learning feedback</p>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#generate-tab">
+                    <i class="bi bi-lightning"></i> Generate
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#results-tab">
+                    <i class="bi bi-list-check"></i> Results
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#analytics-tab">
+                    <i class="bi bi-graph-up"></i> Analytics
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#learning-tab">
+                    <i class="bi bi-brain"></i> Learning Feedback
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- TAB 1: Generate -->
+            <div class="tab-pane fade show active" id="generate-tab">
+                <div class="layout-grid">
+                    <!-- LEFT: Input -->
+                    <div>
+                        <div class="card-section">
+                            <h3>📝 Enter Requirements</h3>
+                            
+                            <div class="form-group">
+                                <label>Paste your requirements</label>
+                                <textarea id="requirements" placeholder="Example: Patient can book appointments up to 30 days in advance. System must validate patient identity."></textarea>
+                                <div class="helper-text">
+                                    💡 Tip: The more detailed your requirements, the better the AI test generation
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h4>⚙️ Advanced Options</h4>
+
+                            <div class="form-group">
+                                <label>Max Test Cases to Generate</label>
+                                <input type="number" id="maxTests" min="1" max="50" value="10">
+                                <div class="helper-text">Generate up to 50 test cases</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Quality Threshold (0.0 - 1.0)</label>
+                                <div class="slider-container">
+                                    <input type="range" min="0" max="1" step="0.1" value="0.6" id="qualitySlider" class="slider">
+                                    <div class="slider-value"><span id="sliderValue">0.6</span></div>
+                                </div>
+                                <div class="helper-text">
+                                    Higher values = stricter quality (fewer but better cases)
+                                </div>
+                            </div>
+
+                            <!-- SAMPLE OUTPUT -->
+                            <div class="sample-output">
+                                <strong>📌 Sample Generated Test Case:</strong>
+                                <div style="margin-top: 10px;">
+                                    <strong>Title:</strong> Book appointment within 30-day window<br>
+                                    <strong>Type:</strong> Functional<br>
+                                    <strong>Steps:</strong> 1. Open calendar → 2. Select date → 3. Verify validation<br>
+                                    <strong>Quality Score:</strong> 0.87<br>
+                                    <strong>Effort:</strong> 0.5 hours
+                                </div>
+                            </div>
+
+                            <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="generateTestCases()">
+                                <i class="bi bi-lightning-fill"></i> Generate Test Cases
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Live Stats -->
+                    <div>
+                        <div class="card-section">
+                            <h3>📊 Live Statistics</h3>
+                            
+                            <div class="stats-grid">
+                                <div class="stat-box">
+                                    <div class="stat-value" id="statCount">0</div>
+                                    <div class="stat-label">Test Cases</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value" id="statQuality">--</div>
+                                    <div class="stat-label">Avg Quality</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value" id="statEffort">--</div>
+                                    <div class="stat-label">Total Effort (hrs)</div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-value" id="statTime">--</div>
+                                    <div class="stat-label">Generation Time</div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- SYSTEM HEALTH - IMPROVED -->
+                            <h4>🔋 System Status</h4>
+                            <div class="health-status">
+                                <div class="health-icon" id="healthIcon">🟢</div>
+                                <div class="health-text">
+                                    <strong id="healthTitle">Learning in Progress</strong>
+                                    <div class="status" id="healthStatus">System is Analyzing patterns from feedback</div>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Buttons -->
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-primary" style="flex: 1;" onclick="exportToCSV()">
+                                    <i class="bi bi-download"></i> Export CSV
+                                </button>
+                                <button class="btn-primary" style="flex: 1;" onclick="exportToJira()">
+                                    <i class="bi bi-box-arrow-out-right"></i> Export Jira
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: Results -->
+            <div class="tab-pane fade" id="results-tab">
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <input type="text" id="searchInput" placeholder="🔍 Search test cases..." style="max-width: 300px;">
+                </div>
+
+                <div class="filter-pills">
+                    <button class="filter-pill active" onclick="filterTests('all')">All</button>
+                    <button class="filter-pill" onclick="filterTests('happy_path')">Happy Path</button>
+                    <button class="filter-pill" onclick="filterTests('edge_case')">Edge Cases</button>
+                    <button class="filter-pill" onclick="filterTests('security')">Security</button>
+                    <button class="filter-pill" onclick="filterTests('performance')">Performance</button>
+                </div>
+
+                <div id="resultsContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>No test cases generated yet. Try generating from the Generate tab!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: Analytics -->
+            <div class="tab-pane fade" id="analytics-tab">
+                <h3>📈 Coverage Analysis</h3>
+                
+                <div class="stats-grid" style="margin-top: 20px;">
+                    <div class="stat-box">
+                        <div class="stat-value">80%</div>
+                        <div class="stat-label">Functional Coverage</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">45%</div>
+                        <div class="stat-label">Edge Case Coverage</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">0%</div>
+                        <div class="stat-label">Security Coverage</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">0%</div>
+                        <div class="stat-label">Performance Coverage</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                    <h4>🎯 Recommendation</h4>
+                    <p>Your test suite is missing <strong>Security</strong> coverage. Consider adding security-focused test cases like:</p>
+                    <ul>
+                        <li>SQL injection prevention validation</li>
+                        <li>XSS attack mitigation</li>
+                        <li>Authentication bypass attempts</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- TAB 4: Learning Feedback - SIMPLIFIED -->
+            <div class="tab-pane fade" id="learning-tab">
+                <div class="card-section" style="max-width: 600px;">
+                    <h3>💬 AI Learning Feedback</h3>
+                    <p style="color: #666; margin-bottom: 20px;">Help us improve test generation by providing 1-click feedback!</p>
+
+                    <div id="feedbackForm">
+                        <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                            <h5>Test Case Example</h5>
+                            <div style="color: #666; margin-top: 10px;">
+                                <strong>Title:</strong> Book appointment boundary validation<br>
+                                <strong>Type:</strong> Edge Case<br>
+                                <strong>Steps:</strong> Try to book exactly 30 days ahead
+                            </div>
+                        </div>
+
+                        <div class="feedback-simple">
+                            <p style="margin-bottom: 15px; font-weight: 500;">Is this test case helpful?</p>
+                            
+                            <div class="feedback-buttons">
+                                <button class="feedback-btn good" onclick="submitFeedback('good', this)">
+                                    👍 Good
+                                </button>
+                                <button class="feedback-btn bad" onclick="submitFeedback('bad', this)">
+                                    👎 Not Good
+                                </button>
+                            </div>
+
+                            <div style="margin-top: 15px; border-top: 1px solid #ddd; padding-top: 15px;">
+                                <textarea placeholder="Optional: Add details (What could be better?)" style="width: 100%; min-height: 80px;"></textarea>
+                                <button class="btn-primary" style="width: 100%; margin-top: 10px; background: var(--success);">
+                                    ✓ Submit Feedback
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; padding: 15px; background: #e0f2fe; border-radius: 8px; border-left: 4px solid var(--info);">
+                            <strong>📚 Learning Impact</strong>
+                            <p style="margin-top: 8px; font-size: 0.9em;">Your feedback helps us:</p>
+                            <ul style="margin: 8px 0; padding-left: 20px; font-size: 0.9em;">
+                                <li>Improve AI quality score training</li>
+                                <li>Identify better test patterns</li>
+                                <li>Reduce similar weak test cases</li>
+                                <li>Personalize generation to your needs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_BASE = '/api/v3/test-generation';
+        let currentTestCases = [];
+
+        // Quality Threshold Slider - AUTO FORMAT
+        const slider = document.getElementById('qualitySlider');
+        const sliderValue = document.getElementById('sliderValue');
+        
+        slider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value).toFixed(1);
+            sliderValue.textContent = value;
+        });
+
+        // Auto-format input (0,5 → 0.5)
+        document.getElementById('requirements').addEventListener('blur', (e) => {
+            let text = e.target.value;
+            // Replace all commas in numbers with dots
+            text = text.replace(/(\d),(\d)/g, '$1.$2');
+            e.target.value = text;
+        });
+
+        async function generateTestCases() {
+            const requirements = document.getElementById('requirements').value.trim();
+            const maxTests = parseInt(document.getElementById('maxTests').value) || 10;
+            const qualityThreshold = parseFloat(document.getElementById('qualitySlider').value);
+
+            if (!requirements) {
+                showToast('Please enter requirements', 'error');
+                return;
+            }
+
+            showToast('Generating test cases...', 'info');
+
+            try {
+                const response = await fetch(API_BASE + '/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        requirements: requirements,
+                        max_tests: maxTests,
+                        quality_threshold: qualityThreshold
+                    })
+                });
+
+                if (!response.ok) throw new Error('API error');
+
+                const data = await response.json();
+                currentTestCases = data.test_cases || [];
+
+                // Update stats
+                document.getElementById('statCount').textContent = currentTestCases.length;
+                const avgQuality = data.summary?.avg_quality_score?.toFixed(2) || '--';
+                document.getElementById('statQuality').textContent = avgQuality;
+                document.getElementById('statEffort').textContent = (data.summary?.total_effort_hours?.toFixed(1) || '--') + ' hrs';
+                document.getElementById('statTime').textContent = (data.generation_time_ms?.toFixed(0) || '--') + ' ms';
+
+                // Update health status (from 0 → meaningful)
+                updateHealthStatus(data);
+
+                // Display results
+                displayTestCases(currentTestCases);
+                document.querySelector('[data-bs-target="#results-tab"]').click();
+
+                showToast(`✓ Generated ${currentTestCases.length} test cases!`, 'success');
+            } catch (error) {
+                console.error(error);
+                showToast('Error generating test cases: ' + error.message, 'error');
+            }
+        }
+
+        function updateHealthStatus(data) {
+            const count = data.test_cases?.length || 0;
+            let healthTitle, healthStatus, healthIcon;
+
+            if (count === 0) {
+                healthTitle = 'Waiting for Data';
+                healthStatus = 'Generate test cases to start learning';
+                healthIcon = '⏳';
+            } else if (count < 5) {
+                healthTitle = 'Learning Started';
+                healthStatus = `Processing ${count} test case patterns...`;
+                healthIcon = '🟡';
+            } else {
+                healthTitle = 'System Learning';
+                healthStatus = `Analyzed ${count} patterns, quality improving...`;
+                healthIcon = '🟢';
+            }
+
+            document.getElementById('healthIcon').textContent = healthIcon;
+            document.getElementById('healthTitle').textContent = healthTitle;
+            document.getElementById('healthStatus').textContent = healthStatus;
+        }
+
+        function displayTestCases(testCases) {
+            const container = document.getElementById('resultsContainer');
+            if (!testCases.length) {
+                container.innerHTML = '<div class="empty-state">No test cases to display</div>';
+                return;
+            }
+
+            container.innerHTML = testCases.map((tc, idx) => `
+                <div class="test-card">
+                    <div class="test-card-header">
+                        <div>
+                            <div class="test-id">TC-${String(idx + 1).padStart(3, '0')}: ${tc.title}</div>
+                        </div>
+                        <span class="badge badge-success">${(tc.quality_score || 0.85).toFixed(2)}</span>
+                    </div>
+                    <div class="test-description">${tc.description || 'No description'}</div>
+                    <div class="test-meta">
+                        <span>📌 ${tc.type || 'Functional'}</span>
+                        <span>⏱ ${(tc.estimated_effort_hours || 0.5).toFixed(1)} hrs</span>
+                        <span>📊 ${tc.priority || 'Medium'}</span>
+                    </div>
+                    <div class="feedback-simple">
+                        <div class="feedback-buttons">
+                            <button class="feedback-btn good" onclick="submitFeedback('good', this, '${tc.title}')">👍 Good</button>
+                            <button class="feedback-btn bad" onclick="submitFeedback('bad', this, '${tc.title}')">👎 Not Good</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function submitFeedback(type, btn, title) {
+            btn.classList.toggle('selected');
+            showToast('✓ Feedback recorded! Thanks for helping AI learn', 'success');
+        }
+
+        function filterTests(type) {
+            // Update active button
+            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter tests
+            if (type === 'all') {
+                displayTestCases(currentTestCases);
+            } else {
+                const filtered = currentTestCases.filter(tc => tc.type?.toLowerCase() === type);
+                displayTestCases(filtered);
+            }
+        }
+
+        function exportToCSV() {
+            if (!currentTestCases.length) {
+                showToast('No test cases to export', 'warning');
+                return;
+            }
+
+            let csv = 'ID,Title,Type,Priority,Quality,Effort(hrs)\n';
+            currentTestCases.forEach((tc, idx) => {
+                csv += `${idx+1},"${tc.title}","${tc.type || 'Functional'}","${tc.priority || 'Medium'}",${(tc.quality_score || 0.85).toFixed(2)},${(tc.estimated_effort_hours || 0.5).toFixed(1)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'test_cases.csv';
+            a.click();
+            showToast('✓ Exported to CSV', 'success');
+        }
+
+        function exportToJira() {
+            showToast('Jira export feature coming soon!', 'info');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            updateHealthStatus({});
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+fastapi==0.104.1
+uvicorn==0.24.0
+spacy==3.7.2
+pdfplumber==0.10.3
+python-docx==0.8.11
+openpyxl==3.10.10
+pydantic==2.5.0
+python-multipart==0.0.6
+nltk==3.8.1

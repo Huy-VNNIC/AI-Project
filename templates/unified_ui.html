@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Test & Task Generation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #006666;
+            --secondary: #F1F2F5;
+            --surface: #E7E5E4;
+            --success: #00A63D;
+            --warning: #FE9900;
+            --danger: #FF2157;
+            --text: #1E2938;
+            --text-light: #6B7280;
+        }
+
+        html[data-theme="dark"] {
+            --primary: #00D9D9;
+            --secondary: #2A3F4B;
+            --surface: #1F3A42;
+            --success: #34D399;
+            --warning: #FCD34D;
+            --danger: #FF6B9D;
+            --text: #F3F4F6;
+            --text-light: #D1D5DB;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--surface) 0%, #D9D7D3 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+            color: var(--text);
+            padding: 20px;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        html[data-theme="dark"] body {
+            background: linear-gradient(135deg, #0F172A 0%, #1F3A42 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 8px 8px 16px rgba(0,0,0,0.15), -8px -8px 16px rgba(255,255,255,0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .theme-toggle {
+            width: 50px;
+            height: 50px;
+            border: none;
+            background: var(--surface);
+            border-radius: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 8px 8px 16px rgba(0,0,0,0.15), -8px -8px 16px rgba(255,255,255,0.8);
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            box-shadow: 12px 12px 24px rgba(0,0,0,0.15), -12px -12px 24px rgba(255,255,255,0.8);
+            transform: translateY(-2px);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 8px 8px 16px rgba(0,0,0,0.15), -8px -8px 16px rgba(255,255,255,0.8);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 12px 12px 24px rgba(0,0,0,0.15), -12px -12px 24px rgba(255,255,255,0.8);
+            transform: translateY(-2px);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea, input[type="text"], input[type="file"], select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--text);
+            font-family: monospace;
+            font-size: 13px;
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1), inset -4px -4px 8px rgba(255,255,255,0.8);
+            transition: all 0.3s;
+        }
+
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1), inset -4px -4px 8px rgba(255,255,255,0.8), 0 0 0 3px rgba(0,102,102,0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+            font-family: monospace;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 8px 8px 16px rgba(0,0,0,0.15), -8px -8px 16px rgba(255,255,255,0.8);
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            box-shadow: 12px 12px 24px rgba(0,0,0,0.15), -12px -12px 24px rgba(255,255,255,0.8);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1), inset -4px -4px 8px rgba(255,255,255,0.8);
+            transform: translateY(1px);
+        }
+
+        .results {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 8px 8px 16px rgba(0,0,0,0.15), -8px -8px 16px rgba(255,255,255,0.8);
+            margin-bottom: 30px;
+        }
+
+        .results h2 {
+            font-size: 20px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .result-content {
+            background: var(--secondary);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1), inset -4px -4px 8px rgba(255,255,255,0.8);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: var(--surface);
+            color: var(--text);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 8px 8px 16px rgba(0,0,0,0.15), -8px -8px 16px rgba(255,255,255,0.8);
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1), inset -4px -4px 8px rgba(255,255,255,0.8);
+        }
+
+        .tab-btn:hover {
+            box-shadow: 12px 12px 24px rgba(0,0,0,0.15), -12px -12px 24px rgba(255,255,255,0.8);
+            transform: translateY(-2px);
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status.success {
+            background: rgba(0, 166, 61, 0.15);
+            color: var(--success);
+        }
+
+        .status.error {
+            background: rgba(255, 33, 87, 0.15);
+            color: var(--danger);
+        }
+
+        .status.loading {
+            background: rgba(254, 153, 0, 0.15);
+            color: var(--warning);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 12px;
+        }
+
+        .system-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-card {
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            background: var(--secondary);
+            font-size: 12px;
+            box-shadow: inset 4px 4px 8px rgba(0,0,0,0.1), inset -4px -4px 8px rgba(255,255,255,0.8);
+        }
+
+        .status-card.online {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .status-card.offline {
+            color: var(--danger);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>Unified Test & Task Generation</h1>
+                <p style="color: var(--text-light); margin-top: 5px;">Generate test cases from requirements using both systems</p>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+                <span id="themeIcon">🌙</span>
+            </button>
+        </div>
+
+        <!-- System Status -->
+        <div class="system-status">
+            <div class="status-card" id="analyzer-status">
+                Checking Requirement Analyzer...
+            </div>
+            <div class="status-card" id="testgen-status">
+                Checking Test Generator...
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Requirement Analyzer Tab -->
+            <div class="card">
+                <h2>Requirement Analyzer (Port 8000)</h2>
+                
+                <div class="form-group">
+                    <label>Enter Requirements</label>
+                    <textarea id="analyzer-input" placeholder="Enter your requirements here...
+Example:
+- User should be able to login with username and password
+- System should validate email before sending confirmation
+- All data must be encrypted at rest"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Format</label>
+                    <select id="analyzer-format">
+                        <option value="free_text">Free Text</option>
+                        <option value="user_story">User Story</option>
+                        <option value="use_case">Use Case</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="analyzeRequirements()">Analyze Requirements</button>
+                
+                <div id="analyzer-status-msg" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- Rule-Based Test Generator Tab -->
+            <div class="card">
+                <h2>Rule-Based Test Generator (Port 8001)</h2>
+                
+                <div class="form-group">
+                    <label>Enter Requirements</label>
+                    <textarea id="testgen-input" placeholder="Enter your requirements here...
+Example:
+- Users must be able to create accounts
+- Password must be at least 8 characters
+- System should handle concurrent logins"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Input Format</label>
+                    <select id="testgen-format">
+                        <option value="free_text">Free Text</option>
+                        <option value="user_story">User Story</option>
+                        <option value="use_case">Use Case</option>
+                    </select>
+                </div>
+
+                <button class="btn" onclick="generateTestCases()">Generate Test Cases</button>
+                
+                <div id="testgen-status-msg" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" style="display: none;">
+            <div class="results">
+                <h2>Results</h2>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('analyzer-results')">Analyzer Results</button>
+                    <button class="tab-btn" onclick="switchTab('testgen-results')">Test Cases</button>
+                </div>
+
+                <div id="analyzer-results" class="result-content" style="display: block;"></div>
+                <div id="testgen-results" class="result-content" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Both systems running on localhost</p>
+            <p>Requirement Analyzer: http://localhost:8000 | Test Generator: http://localhost:8001</p>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('themeIcon');
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            icon.textContent = isDark ? '☀️' : '🌙';
+        }
+
+        // Initialize theme
+        function initTheme() {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            updateThemeIcon();
+        }
+
+        // Check system health
+        async function checkSystemHealth() {
+            // Check Requirement Analyzer (main system)
+            try {
+                const analyzerResp = await fetch('http://localhost:8000/health', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                const analyzerStatus = document.getElementById('analyzer-status');
+                if (analyzerResp.ok) {
+                    analyzerStatus.className = 'status-card online';
+                    analyzerStatus.textContent = '✓ System Online (Port 8000)';
+                } else {
+                    throw new Error('Not OK');
+                }
+            } catch (e) {
+                const analyzerStatus = document.getElementById('analyzer-status');
+                analyzerStatus.className = 'status-card offline';
+                analyzerStatus.textContent = '✗ System Offline';
+            }
+
+            // Note: Test Generator is now part of the same system on port 8000
+            try {
+                const testgenResp = await fetch('http://localhost:8000/api/v2/test-generation/health');
+                const testgenStatus = document.getElementById('testgen-status');
+                if (testgenResp.ok) {
+                    testgenStatus.className = 'status-card online';
+                    testgenStatus.textContent = '✓ Test Generation Ready';
+                } else {
+                    throw new Error('Not OK');
+                }
+            } catch (e) {
+                const testgenStatus = document.getElementById('testgen-status');
+                testgenStatus.className = 'status-card offline';
+                testgenStatus.textContent = '✗ Test Generation Unavailable';
+            }
+        }
+
+        // Analyze requirements
+        async function analyzeRequirements() {
+            const input = document.getElementById('analyzer-input').value;
+            const format = document.getElementById('analyzer-format').value;
+            const msgDiv = document.getElementById('analyzer-status-msg');
+
+            if (!input.trim()) {
+                msgDiv.innerHTML = '<div class="status error">Please enter requirements</div>';
+                return;
+            }
+
+            msgDiv.innerHTML = '<div class="status loading">Analyzing requirements...</div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('text', input);
+                formData.append('format', format);
+
+                // Use V3 endpoint
+                const response = await fetch('http://localhost:8000/api/v3/generate', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('analyzer-results').textContent = 
+                        JSON.stringify(data, null, 2);
+                    document.getElementById('results-section').style.display = 'block';
+                    msgDiv.innerHTML = '<div class="status success">Analysis complete!</div>';
+                } else {
+                    msgDiv.innerHTML = '<div class="status error">Analysis failed: ' + response.statusText + '</div>';
+                }
+            } catch (error) {
+                msgDiv.innerHTML = '<div class="status error">Error: ' + error.message + '</div>';
+            }
+        }
+
+        // Generate test cases
+        async function generateTestCases() {
+            const input = document.getElementById('testgen-input').value;
+            const format = document.getElementById('testgen-format').value;
+            const msgDiv = document.getElementById('testgen-status-msg');
+
+            if (!input.trim()) {
+                msgDiv.innerHTML = '<div class="status error">Please enter requirements</div>';
+                return;
+            }
+
+            msgDiv.innerHTML = '<div class="status loading">Generating test cases...</div>';
+
+            try {
+                // Use V2 test generation endpoint
+                const formData = new FormData();
+                formData.append('requirements', input);
+                formData.append('format', format);
+
+                const response = await fetch('http://localhost:8000/api/v2/test-generation/generate-test-cases', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('testgen-results').textContent = 
+                        JSON.stringify(data, null, 2);
+                    document.getElementById('results-section').style.display = 'block';
+                    const count = data.test_cases ? data.test_cases.length : 
+                                 data.test_count ? data.test_count : '?';
+                    msgDiv.innerHTML = '<div class="status success">Generated ' + count + ' test cases!</div>';
+                } else {
+                    const errorText = await response.text();
+                    msgDiv.innerHTML = '<div class="status error">Generation failed: ' + response.statusText + '<br>' + errorText.substring(0, 100) + '</div>';
+                }
+            } catch (error) {
+                msgDiv.innerHTML = '<div class="status error">Error: ' + error.message + '<br>Make sure the system is running</div>';
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            document.getElementById('analyzer-results').style.display = 'none';
+            document.getElementById('testgen-results').style.display = 'none';
+            document.getElementById(tabName).style.display = 'block';
+
+            // Update active button
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            checkSystemHealth();
+            setInterval(checkSystemHealth, 10000); // Check every 10 seconds
+        });
+    </script>
+</body>
+</html>

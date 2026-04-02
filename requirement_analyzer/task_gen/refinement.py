@@ -155,10 +155,43 @@ class RequirementRefiner:
     
     def _generate_user_story(self, actor: str, action: str, value: str, language: str) -> str:
         """Generate user story in proper format"""
+        # Clean action - remove redundant Vietnamese particles
         if language == "vi":
-            return f"Là một {actor}, tôi muốn {action}, {value}."
+            # Remove redundant " phải " at start of action
+            action = action.strip()
+            if action.lower().startswith("phải "):
+                action = action[5:].strip()
+            
+            # Clean up the value/benefit - remove if redundant particle already exists
+            value = value.strip()
+            
+            # Remove leading particles from value if present
+            for particle in ["để", "nhằm", "giúp"]:
+                if value.lower().startswith(particle + " "):
+                    value = value[len(particle)+1:].strip()
+                    break
+            
+            if not value or value == ".":
+                value = "hoàn thành công việc một cách hiệu quả"
+            
+            return f"Là một {actor}, tôi muốn {action}, để {value}."
         else:
+            # English version - ensure proper structure
+            action = action.strip()
+            if action.startswith("to "):
+                action = action[3:].strip()
+            
+            value = value.strip()
+            
+            # Remove leading particles from value if present
+            if value.lower().startswith("so that "):
+                value = value[8:].strip()
+            
+            if not value or value == ".":
+                value = "accomplish tasks more effectively"
+            
             return f"As a {actor}, I want to {action}, so that {value}."
+
     
     def _generate_title(self, action: str, language: str) -> str:
         """Generate concise title"""

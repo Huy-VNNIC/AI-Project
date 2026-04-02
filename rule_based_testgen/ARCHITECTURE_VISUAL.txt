@@ -1,0 +1,60 @@
+// Quick Visual Overview of System Components
+
+graph TB
+    subgraph Input["📥 INPUT LAYER"]
+        PDF[PDF Files]
+        DOCX[DOCX Files]
+        TXT[Text Files]
+    end
+    
+    subgraph Processing["🔄 PROCESSING PIPELINE"]
+        PREPROC["🧹 Text Preprocessor<br/>Clean & Normalize"]
+        SEGMENT["✂️ Sentence Segmenter<br/>Atomic Units"]
+        EXTRACT["🧠 Semantic Extractor<br/>spaCy NLP"]
+        NORMALIZE["🔄 Normalizer<br/>Synonyms"]
+        STRUCTURE["🔧 Structurer<br/>JSON Schema"]
+        GENERATE["🧪 Test Generator<br/>Rule Engine"]
+    end
+    
+    subgraph Output["📤 OUTPUT FORMATS"]
+        JSON["📄 JSON"]
+        EXCEL["📊 Excel"]
+        CSV["📋 CSV"]
+        MARKDOWN["📝 Markdown"]
+    end
+    
+    subgraph API["🌐 REST API"]
+        GEN_TEXT["/api/generate"]
+        GEN_FILE["/api/generate-file"]
+        HEALTH["/health"]
+        STATS["/api/stats"]
+    end
+    
+    PDF --> PREPROC
+    DOCX --> PREPROC
+    TXT --> PREPROC
+    
+    PREPROC --> SEGMENT
+    SEGMENT --> EXTRACT
+    EXTRACT --> NORMALIZE
+    NORMALIZE --> STRUCTURE
+    STRUCTURE --> GENERATE
+    
+    GENERATE --> JSON
+    GENERATE --> EXCEL
+    GENERATE --> CSV
+    GENERATE --> MARKDOWN
+    
+    PREPROC -.-> GEN_TEXT
+    SEGMENT -.-> GEN_TEXT
+    EXTRACT -.-> GEN_TEXT
+    NORMALIZE -.-> GEN_TEXT
+    STRUCTURE -.-> GEN_TEXT
+    GENERATE -.-> GEN_TEXT
+    
+    GEN_FILE -.-> PREPROC
+    
+    style Input fill:#e1f5ff
+    style Processing fill:#fff3e0
+    style Output fill:#e8f5e9
+    style API fill:#f3e5f5

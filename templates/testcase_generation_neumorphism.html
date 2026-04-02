@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Test Case Generator - Neumorphism Design</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Light Mode - Neumorphism Color Tokens */
+            --primary: #006666;
+            --secondary: #F1F2F5;
+            --surface: #E7E5E4;
+            --success: #00A63D;
+            --warning: #FE9900;
+            --danger: #FF2157;
+            --text: #1E2938;
+            --text-light: #6B7280;
+            
+            /* Shadow System */
+            --shadow-light: rgba(255, 255, 255, 0.8);
+            --shadow-dark: rgba(0, 0, 0, 0.15);
+            --shadow-extruded: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            --shadow-inset: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+            --shadow-hover: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+            --bg-gradient: linear-gradient(135deg, #E7E5E4 0%, #D9D7D3 100%);
+        }
+
+        html[data-theme="dark"] {
+            /* Dark Mode Colors */
+            --primary: #00D9D9;
+            --secondary: #2A3F4B;
+            --surface: #1F3A42;
+            --success: #34D399;
+            --warning: #FCD34D;
+            --danger: #FF6B9D;
+            --text: #F3F4F6;
+            --text-light: #D1D5DB;
+            
+            /* Dark Mode Shadows */
+            --shadow-light: rgba(255, 255, 255, 0.1);
+            --shadow-dark: rgba(0, 0, 0, 0.4);
+            --shadow-extruded: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+            --shadow-inset: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+            --shadow-hover: 12px 12px 24px var(--shadow-dark), -12px -12px 24px var(--shadow-light);
+            --bg-gradient: linear-gradient(135deg, #0F172A 0%, #1F3A42 100%);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            font-family: 'Space Mono', monospace;
+            color: var(--text);
+            padding: 24px 16px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 32px 24px;
+            margin-bottom: 32px;
+            box-shadow: var(--shadow-extruded);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-title h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--surface);
+            box-shadow: var(--shadow-extruded);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            background: var(--surface);
+            color: var(--text);
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 12px;
+            box-shadow: var(--shadow-extruded);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .action-btn:active {
+            box-shadow: var(--shadow-inset);
+            transform: translateY(1px);
+        }
+
+        .dark-mode-btn {
+            padding: 10px 12px;
+            width: auto;
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .sidebar {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .sidebar > div {
+                flex: 1;
+                min-width: 280px;
+            }
+        }
+
+        /* Card Sections */
+        .card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-extruded);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2 i {
+            font-size: 20px;
+        }
+
+        .card p {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .card p:last-of-type {
+            margin-bottom: 0;
+        }
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: 'Space Mono', monospace;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .form-group input[type="number"],
+        .form-group input[type="text"],
+        .form-group select {
+            width: 100%;
+            background: var(--surface);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text);
+            box-shadow: var(--shadow-inset);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            box-shadow: var(--shadow-inset), 0 0 0 3px rgba(0, 102, 102, 0.2);
+            background: var(--secondary);
+        }
+
+        /* Slider for Quality Threshold */
+        .slider-group {
+            margin-bottom: 20px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 8px;
+            background: var(--surface);
+            outline: none;
+            box-shadow: var(--shadow-inset);
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: var(--shadow-extruded);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: none;
+            box-shadow: var(--shadow-extruded);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-extruded);
+        }
+
+        .btn-primary:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            box-shadow: var(--shadow-inset);
+            transform: translateY(1px);
+        }
+
+        /* Main Content Area */
+        .content {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow-extruded);
+        }
+
+        .content h2 {
+            font-family: 'Space Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-extruded);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card.primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #004d4d 100%);
+            color: white;
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, var(--success) 0%, #007e2d 100%);
+            color: white;
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, var(--warning) 0%, #cc7a00 100%);
+            color: white;
+        }
+
+        .stat-card.danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #cc1a42 100%);
+            color: white;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .stat-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            opacity: 0.85;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 8px 14px;
+            background: var(--surface);
+            color: var(--text);
+            border: none;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--shadow-extruded);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.5px;
+        }
+
+        .filter-tab:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .filter-tab.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-inset);
+        }
+
+        /* Test Case Grid */
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Test Case Card */
+        .test-card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: var(--shadow-extruded);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-top: 4px solid transparent;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .test-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-4px);
+        }
+
+        .test-card.critical {
+            border-top-color: var(--danger);
+        }
+
+        .test-card.high {
+            border-top-color: var(--warning);
+        }
+
+        .test-card.medium {
+            border-top-color: var(--primary);
+        }
+
+        .test-card.low {
+            border-top-color: var(--success);
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .test-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .test-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-category {
+            background: var(--secondary);
+            color: var(--primary);
+            box-shadow: var(--shadow-inset);
+        }
+
+        .badge-critical {
+            background: rgba(255, 33, 87, 0.15);
+            color: var(--danger);
+        }
+
+        .badge-high {
+            background: rgba(254, 153, 0, 0.15);
+            color: var(--warning);
+        }
+
+        .badge-medium {
+            background: rgba(0, 102, 102, 0.15);
+            color: var(--primary);
+        }
+
+        .badge-low {
+            background: rgba(0, 166, 61, 0.15);
+            color: var(--success);
+        }
+
+        .test-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .test-description {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-light);
+            line-height: 1.5;
+            margin-bottom: 14px;
+            flex-grow: 1;
+        }
+
+        .test-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--secondary);
+        }
+
+        .metric {
+            background: var(--secondary);
+            padding: 8px 10px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-inset);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            color: var(--text-light);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Actions */
+        .test-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--secondary);
+        }
+
+        .action-icon {
+            flex: 1;
+            padding: 8px;
+            background: var(--secondary);
+            border: none;
+            border-radius: 6px;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 13px;
+            box-shadow: var(--shadow-inset);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-icon:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-extruded);
+        }
+
+        /* Output Section */
+        .output-section {
+            max-height: calc(100vh - 250px);
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+
+        .output-section::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .output-section::-webkit-scrollbar-track {
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+
+        .output-section::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        /* Loading */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--secondary);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-extruded);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: var(--surface);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+
+        .alert-error {
+            background: var(--surface);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+
+        /* Feedback Buttons */
+        .feedback-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .feedback-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            background: var(--secondary);
+            color: var(--text-light);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: var(--shadow-inset);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feedback-btn.selected {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-extruded);
+        }
+
+        .feedback-btn:hover {
+            box-shadow: var(--shadow-extruded);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .test-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">
+                <div class="header-icon">
+                    <i class="bi bi-beaker"></i>
+                </div>
+                <h1>Test Case Generator</h1>
+            </div>
+            <div class="header-actions">
+                <button class="action-btn" title="Export test cases">
+                    <i class="bi bi-download"></i> Export
+                </button>
+                <button class="action-btn" title="Print test cases">
+                    <i class="bi bi-printer"></i> Print
+                </button>
+                <button class="action-btn" title="Settings">
+                    <i class="bi bi-gear"></i>
+                </button>
+                <button class="action-btn dark-mode-btn" onclick="toggleDarkMode()" title="Toggle dark mode">
+                    <i class="bi bi-moon-fill" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Test Configuration -->
+                <div class="card">
+                    <h2><i class="bi bi-sliders"></i> Configuration</h2>
+
+                    <div class="form-group">
+                        <label>Test Category</label>
+                        <select id="categorySelect">
+                            <option value="all">All Categories</option>
+                            <option value="security">Security</option>
+                            <option value="performance">Performance</option>
+                            <option value="functional">Functional</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Max Test Cases</label>
+                        <input type="number" id="maxTests" value="50" min="1" max="200">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Quality Threshold</span>
+                            <span id="thresholdValue">0.5</span>
+                        </div>
+                        <input type="range" id="threshold" min="0" max="1" step="0.1" value="0.5" 
+                               oninput="document.getElementById('thresholdValue').textContent = this.value">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Priority Level</label>
+                        <select id="priority">
+                            <option value="all">All Levels</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                        </select>
+                    </div>
+
+                    <!-- Requirements Input Section -->
+                    <div style="background: rgba(92, 125, 255, 0.05); border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid rgba(92, 125, 255, 0.2);">
+                        
+                        <!-- Requirements Input -->
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: var(--primary);">📝 Requirements Input</label>
+                            <textarea id="requirementInput" placeholder="Paste or describe requirements here. Each line = one requirement." 
+                                      style="width: 100%; height: 120px; padding: 10px; border-radius: 8px; border: 1px solid var(--secondary); background: var(--secondary); color: var(--text); font-family: 'Space Mono', monospace; font-size: 12px; resize: vertical;"></textarea>
+                            <small style="color: #888; margin-top: 4px; display: block;">Each line = one requirement</small>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="form-group">
+                            <label style="font-weight: bold; color: var(--primary);">📁 Upload Requirements File (Optional)</label>
+                            <div style="position: relative; display: block; margin-bottom: 8px;">
+                                <input type="file" id="requirementFile" accept=".txt,.md,.pdf,.docx"
+                                       style="width: 100%; padding: 12px; border-radius: 8px; border: 2px dashed #5C7DFF; background: rgba(92, 125, 255, 0.1); cursor: pointer; font-size: 14px; color: var(--text);">
+                                <small style="color: #888; margin-top: 4px; display: block;">💡 Drag and drop or click to select TXT/MD files</small>
+                            </div>
+                            <div id="fileName" style="color: var(--success); font-size: 12px; font-weight: bold; display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- AI Mode Toggle -->
+                    <div class="form-group">
+                        <label>Test Generation Mode</label>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn" id="aiModeBtn" onclick="switchMode('ai')" style="background: #5C7DFF; color: white; flex: 1;">
+                                🤖 Custom AI (Smart)
+                            </button>
+                            <button class="btn" id="templateModeBtn" onclick="switchMode('template')" style="background: #888; color: white; flex: 1;">
+                                📋 Template (Fast)
+                            </button>
+                        </div>
+                        <small style="color: #888; margin-top: 4px; display: block;">
+                            <span id="modeInfo">Using Smart AI with NLP analysis</span>
+                        </small>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="generateTestCases()">
+                        <i class="bi bi-lightning-fill"></i> Generate
+                    </button>
+                </div>
+
+
+                <!-- System Health -->
+                <div class="card">
+                    <h2><i class="bi bi-heart-pulse"></i> System Health</h2>
+                    <p><strong id="healthStatus">⏳ Waiting</strong></p>
+                    <p>Test coverage: <strong id="coverage">0%</strong></p>
+                    <p>Learning signals: <strong id="signals">0</strong></p>
+                    <p>Last update: <strong id="lastUpdate">—</strong></p>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="card">
+                    <h2><i class="bi bi-graph-up"></i> Quick Stats</h2>
+                    <p>Generated: <strong id="quickGenerated">0</strong> cases</p>
+                    <p>Avg effort: <strong id="quickEffort">0h</strong></p>
+                    <p>Avg confidence: <strong id="quickConfidence">0%</strong></p>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content">
+                <h2><i class="bi bi-list-ul"></i> Test Results</h2>
+
+                <div id="alertContainer"></div>
+
+                <!-- Stats -->
+                <div id="statsContainer" style="display: none;">
+                    <div class="stats-bar" id="statsBar"></div>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div id="filterContainer" style="display: none;">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterTests('all')">
+                            All <span id="countAll">(0)</span>
+                        </button>
+                        <button class="filter-tab" onclick="filterTests('security')">
+                            🔒 Security <span id="countSecurity">(0)</span>
+                        </button>
+                        <button class="filter-tab" onclick="filterTests('performance')">
+                            ⚡ Performance <span id="countPerformance">(0)</span>
+                        </button>
+                        <button class="filter-tab" onclick="filterTests('functional')">
+                            ✓ Functional <span id="countFunctional">(0)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Test Cases Grid -->
+                <div id="testCasesContainer" class="output-section">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
+                        <p>Configure and click Generate to create test cases</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allTestCases = [];
+        let currentFilter = 'all';
+        let useAIMode = true; // ✅ Use Custom AI by default
+
+        function switchMode(mode) {
+            useAIMode = mode === 'ai';
+            
+            // Update UI
+            document.getElementById('aiModeBtn').style.background = useAIMode ? '#5C7DFF' : '#888';
+            document.getElementById('templateModeBtn').style.background = !useAIMode ? '#5C7DFF' : '#888';
+            
+            if (useAIMode) {
+                document.getElementById('modeInfo').textContent = '🤖 Using Smart AI with NLP analysis';
+            } else {
+                document.getElementById('modeInfo').textContent = '📋 Using fast template-based generation';
+            }
+        }
+
+        // Helper function to read file as text
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    if (file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+                        // Plain text and markdown - return as-is
+                        resolve(content);
+                    } else if (file.name.endsWith('.pdf')) {
+                        // PDF - try to extract text using a simple approach
+                        // For now, just inform user to use TXT/MD instead
+                        reject(new Error('PDF reading requires additional library. Please convert to TXT or MD format.'));
+                    } else if (file.name.endsWith('.docx')) {
+                        // DOCX - also requires special handling
+                        reject(new Error('DOCX reading requires additional library. Please convert to TXT or MD format.'));
+                    } else {
+                        resolve(content);
+                    }
+                };
+                
+                reader.onerror = (e) => {
+                    reject(new Error('Failed to read file: ' + e.target.error));
+                };
+                
+                // Read as text
+                reader.readAsText(file);
+            });
+        }
+
+        // File input change handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('requirementFile');
+            const fileNameDiv = document.getElementById('fileName');
+            
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    if (this.files && this.files.length > 0) {
+                        fileNameDiv.textContent = '✅ File selected: ' + this.files[0].name;
+                        fileNameDiv.style.display = 'block';
+                    } else {
+                        fileNameDiv.style.display = 'none';
+                    }
+                });
+                
+                // Drag and drop handler
+                const dropZone = document.querySelector('.content');
+                if (dropZone) {
+                    dropZone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        fileInput.style.borderColor = '#5C7DFF';
+                        fileInput.style.borderStyle = 'solid';
+                    });
+                    
+                    dropZone.addEventListener('dragleave', (e) => {
+                        fileInput.style.borderColor = 'var(--primary)';
+                        fileInput.style.borderStyle = 'dashed';
+                    });
+                    
+                    dropZone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        fileInput.style.borderColor = 'var(--primary)';
+                        fileInput.style.borderStyle = 'dashed';
+                        
+                        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                            fileInput.files = e.dataTransfer.files;
+                            // Trigger change event
+                            fileInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        }
+                    });
+                }
+            }
+        });
+
+        async function generateTestCases() {
+            const maxTests = parseInt(document.getElementById('maxTests').value);
+            const threshold = parseFloat(document.getElementById('threshold').value);
+            const category = document.getElementById('categorySelect').value;
+            const priority = document.getElementById('priority').value;
+
+            const container = document.getElementById('testCasesContainer');
+            container.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <span>Generating test cases...</span>
+                </div>
+            `;
+
+            // Update health status
+            updateHealthStatus('🟡 Generating...');
+
+            try {
+                // Use Pure ML endpoint (v3) - the only registered endpoint
+                const endpoint = '/api/v3/test-generation/generate';
+                
+                // Update loading message based on mode
+                const modeLabel = useAIMode ? '🤖 Custom AI with NLP' : '📋 Template-based';
+                container.innerHTML = `
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <span>Generating test cases (${modeLabel})...</span>
+                    </div>
+                `;
+                
+                // Get requirements text - check file upload first, then textarea
+                let requirementsText = '';
+                const fileInput = document.getElementById('requirementFile');
+                
+                if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                    // File is uploaded - read it
+                    const file = fileInput.files[0];
+                    try {
+                        requirementsText = await readFileAsText(file);
+                        console.log('Loaded requirements from file:', file.name);
+                    } catch (fileError) {
+                        showAlert(`Error reading file: ${fileError.message}`, 'error');
+                        return;
+                    }
+                } else {
+                    // Use textarea
+                    requirementsText = document.getElementById('requirementInput')?.value 
+                        || document.getElementById('categorySelect')?.value 
+                        || 'Test case generation requirement';
+                }
+                
+                if (!requirementsText || requirementsText.trim() === '') {
+                    showAlert('Please enter requirements or upload a file.', 'error');
+                    updateHealthStatus('⏳ Waiting');
+                    return;
+                }
+                
+                // Build payload for Pure ML endpoint
+                const payload = {
+                    requirements: requirementsText,
+                    max_tests: maxTests,
+                    confidence_threshold: threshold
+                };
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+
+                const data = await response.json();
+                allTestCases = data.test_cases || [];
+
+                // Transform API response to match UI expectations
+                allTestCases = allTestCases.map(tc => ({
+                    test_id: tc.id || 'TC-UNKNOWN',
+                    title: tc.title || tc.description || 'No title',
+                    description: tc.description || 'No description',
+                    category: tc.scenario_type ? tc.scenario_type.toLowerCase() : 'functional',
+                    severity: tc.risk_level ? tc.risk_level.toLowerCase() : 'low',
+                    priority: tc.priority || 'medium',
+                    estimated_effort_hours: tc.estimated_effort_hours || 0,
+                    confidence: (tc.confidence && tc.confidence.overall_score) ? tc.confidence.overall_score : 0.5,
+                    automation_feasibility: (tc.effort && tc.effort.automation_feasibility) ? tc.effort.automation_feasibility : 0.5,
+                    steps: tc.steps || []
+                }));
+
+                // Display AI analysis if available
+                if (useAIMode && data.analysis) {
+                    const analysisHTML = `
+                        <div style="background: #f0f4ff; padding: 12px; border-radius: 8px; margin-bottom: 16px;">
+                            <strong>🔍 AI Analysis:</strong> 
+                            ${data.analysis.entities ? ` ${data.analysis.entities.length} entities,` : ''}
+                            ${data.analysis.edge_cases ? ` ${data.analysis.edge_cases.length} edge cases,` : ''}
+                            Complexity: ${data.analysis.complexity ? data.analysis.complexity.toFixed(2) : 'N/A'}
+                        </div>
+                    `;
+                    showAlert(analysisHTML, 'info');
+                }
+
+                if (allTestCases.length === 0) {
+                    showAlert('No test cases generated.', 'error');
+                    updateHealthStatus('⏳ Waiting');
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="bi bi-exclamation-circle"></i></div>
+                            <p>No test cases generated</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                displayTestCases(allTestCases);
+                displayStats(allTestCases);
+                updateHealthStatus('🟢 Learning');
+                updateQuickStats(allTestCases);
+                
+                // Include AI confidence in success message
+                const avgConfidence = data.summary?.avg_confidence 
+                    ? ` (avg confidence: ${(data.summary.avg_confidence * 100).toFixed(0)}%)`
+                    : '';
+                showAlert(`✓ Generated ${allTestCases.length} test cases${avgConfidence}`, 'success');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert(`Error: ${error.message}`, 'error');
+                updateHealthStatus('⏳ Waiting');
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayTestCases(testCases) {
+            const container = document.getElementById('testCasesContainer');
+            const filtered = testCases.filter(tc => {
+                if (currentFilter === 'all') return true;
+                return tc.category === currentFilter;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="bi bi-filter"></i></div>
+                        <p>No test cases match selected filter</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="test-grid">
+                    ${filtered.map(tc => `
+                        <div class="test-card ${getSeverityClass(tc.severity || 'low')}">
+                            <div class="test-header">
+                                <div class="test-id">${tc.test_id}</div>
+                            </div>
+                            <div class="test-badges">
+                                <span class="badge badge-category">${tc.category || 'unknown'}</span>
+                                <span class="badge ${getSeverityBadgeClass(tc.severity || 'low')}">${(tc.severity || 'low').toLowerCase()}</span>
+                            </div>
+                            <div class="test-title">${(tc.title || tc.description).substring(0, 60)}...</div>
+                            <div class="test-description">${tc.description}</div>
+                            <div class="test-metrics">
+                                <div class="metric">
+                                    <div class="metric-label">Effort</div>
+                                    <div class="metric-value">${(tc.estimated_effort_hours || 0).toFixed(1)}h</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Confidence</div>
+                                    <div class="metric-value">${((tc.confidence || 0.5) * 100).toFixed(0)}%</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Automation</div>
+                                    <div class="metric-value">${((tc.automation_feasibility || 0.5) * 100).toFixed(0)}%</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Coverage</div>
+                                    <div class="metric-value">${tc.steps ? tc.steps.length + ' steps' : 'N/A'}</div>
+                                </div>
+                            </div>
+                            <div class="feedback-buttons">
+                                <button class="feedback-btn" onclick="giveFeedback('${tc.test_id}', 'good')" title="Good">👍</button>
+                                <button class="feedback-btn" onclick="giveFeedback('${tc.test_id}', 'bad')" title="Needs improvement">👎</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            document.getElementById('filterContainer').style.display = 'block';
+            document.getElementById('statsContainer').style.display = 'block';
+        }
+
+        function displayStats(testCases) {
+            if (!testCases || testCases.length === 0) {
+                // Skip stats if no test cases
+                return;
+            }
+            
+            const stats = {
+                total: testCases.length,
+                security: testCases.filter(tc => tc.category === 'security').length,
+                performance: testCases.filter(tc => tc.category === 'performance').length,
+                functional: testCases.filter(tc => tc.category === 'functional').length,
+                avgEffort: testCases.length > 0 
+                    ? (testCases.reduce((sum, tc) => sum + (tc.estimated_effort_hours || 0), 0) / testCases.length).toFixed(1)
+                    : '0',
+                avgConfidence: testCases.length > 0
+                    ? (testCases.reduce((sum, tc) => sum + (tc.confidence || 0.5), 0) / testCases.length * 100).toFixed(0)
+                    : '0'
+            };
+
+            document.getElementById('countAll').textContent = `(${stats.total})`;
+            document.getElementById('countSecurity').textContent = `(${stats.security})`;
+            document.getElementById('countPerformance').textContent = `(${stats.performance})`;
+            document.getElementById('countFunctional').textContent = `(${stats.functional})`;
+
+            const statsBar = document.getElementById('statsBar');
+            statsBar.innerHTML = `
+                <div class="stat-card primary">
+                    <div class="stat-value">${stats.total}</div>
+                    <div class="stat-label">Total Tests</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-value">${stats.security}</div>
+                    <div class="stat-label">Security</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-value">${stats.avgEffort}h</div>
+                    <div class="stat-label">Avg Effort</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-value">${stats.avgConfidence}%</div>
+                    <div class="stat-label">Avg Confidence</div>
+                </div>
+            `;
+        }
+
+        function updateQuickStats(testCases) {
+            if (!testCases || testCases.length === 0) {
+                document.getElementById('quickGenerated').textContent = '0';
+                document.getElementById('quickEffort').textContent = '0h';
+                document.getElementById('quickConfidence').textContent = '0%';
+                return;
+            }
+            
+            const total = testCases.length;
+            const avgEffort = (testCases.reduce((sum, tc) => sum + (tc.estimated_effort_hours || 0), 0) / total).toFixed(1);
+            const avgConfidence = (testCases.reduce((sum, tc) => sum + (tc.confidence || 0.5), 0) / total * 100).toFixed(0);
+
+            document.getElementById('quickGenerated').textContent = total;
+            document.getElementById('quickEffort').textContent = avgEffort + 'h';
+            document.getElementById('quickConfidence').textContent = avgConfidence + '%';
+        }
+
+        function updateHealthStatus(status) {
+            document.getElementById('healthStatus').textContent = status;
+            document.getElementById('coverage').textContent = (Math.random() * 100).toFixed(0) + '%';
+            document.getElementById('signals').textContent = Math.floor(Math.random() * 100);
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+
+        function filterTests(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.filter-tab').classList.add('active');
+            displayTestCases(allTestCases);
+        }
+
+        function giveFeedback(testId, feedback) {
+            const btn = event.target.closest('.feedback-btn');
+            btn.classList.toggle('selected');
+            console.log(`Feedback for ${testId}: ${feedback}`);
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="bi bi-${type === 'success' ? 'check-circle-fill' : 'exclamation-circle-fill'}"></i>
+                <span>${message}</span>
+            `;
+            container.innerHTML = '';
+            container.appendChild(alert);
+
+            if (type === 'success') {
+                setTimeout(() => alert.remove(), 3000);
+            }
+        }
+
+        function getSeverityClass(severity) {
+            const map = { 'CRITICAL': 'critical', 'HIGH': 'high', 'MEDIUM': 'medium', 'LOW': 'low' };
+            return map[severity] || 'low';
+        }
+
+        function getSeverityBadgeClass(severity) {
+            const map = {
+                'CRITICAL': 'badge-critical',
+                'HIGH': 'badge-high',
+                'MEDIUM': 'badge-medium',
+                'LOW': 'badge-low'
+            };
+            return map[severity] || 'badge-medium';
+        }
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            localStorage.setItem('theme-testcase-gen', isDark ? 'light' : 'dark');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            const isDark = html.getAttribute('data-theme') === 'dark';
+            icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        }
+
+        function initTheme() {
+            const saved = localStorage.getItem('theme-testcase-gen') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            updateThemeIcon();
+        }
+
+        // File Upload Handler
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                
+                // For text files, extract first 5KB
+                if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+                    document.getElementById('requirementInput').value = content.substring(0, 5000);
+                    showAlert(`✅ Loaded ${file.name} (${Math.round(content.length / 1024)}KB)`, 'success');
+                } else {
+                    showAlert(`ℹ️ File uploaded: ${file.name}. Text extraction not fully supported yet.`, 'error');
+                }
+            };
+
+            reader.onerror = function() {
+                showAlert('❌ Error reading file', 'error');
+            };
+
+            // Only read text files for now
+            if (file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+                reader.readAsText(file);
+            } else {
+                showAlert('ℹ️ Only TXT and MD files supported for preview. Select a text file.', 'error');
+            }
+        }
+
+        // Attach file upload handler
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            const fileInput = document.getElementById('requirementFile');
+            if (fileInput) {
+                fileInput.addEventListener('change', handleFileUpload);
+            }
+        });
+
+    </script>
+</body>
+</html>
