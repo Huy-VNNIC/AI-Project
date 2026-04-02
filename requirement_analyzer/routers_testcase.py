@@ -422,7 +422,7 @@ async def testcase_upload_page():
                 document.getElementById('resultsContent').innerHTML = '<div class="loading"><p>🔄 Analyzing requirements...</p></div>';
 
                 try {
-                    const response = await fetch('/api/v2/test-generation/analyze-file-detailed', {
+                    const response = await fetch('/api/v3/test-generation/analyze-file-detailed', {
                         method: 'POST',
                         body: formData
                     });
@@ -516,16 +516,23 @@ async def testcase_upload_page():
                             <div class="test-case-list">
                                 <strong>📊 Generated Test Cases (${item.test_cases.length}):</strong>
                                 ${item.test_cases.map((tc, i) => `
-                                    <div class="test-case" style="padding: 8px; margin: 4px 0; background: white; border-radius: 3px;">
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; font-size: 11px;">
-                                            <div><strong>ID:</strong> ${tc.id}</div>
-                                            <div><strong>Type:</strong> ${tc.scenario_type}</div>
-                                            <div><strong>Priority:</strong> ${tc.priority}</div>
-                                            <div><strong>Steps:</strong> ${tc.steps_count}</div>
+                                    <div class="test-case" style="padding: 12px; margin: 8px 0; background: white; border-radius: 4px; border-left: 4px solid #667eea; cursor: pointer; transition: all 0.3s;" 
+                                         onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" 
+                                         onmouseout="this.style.boxShadow='none'"
+                                         onclick="showTestCaseDetails('${tc.id}', ${JSON.stringify(tc).replace(/'/g, '&apos;')})">
+                                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px; font-size: 11px;">
+                                            <div><strong>ID:</strong> <span style="color: #667eea; font-weight: bold;">${tc.id}</span></div>
+                                            <div><strong>Type:</strong> ${tc.type || tc.scenario_type}</div>
+                                            <div><strong>Priority:</strong> <span style="color: ${tc.priority === 'CRITICAL' ? '#d32f2f' : tc.priority === 'HIGH' ? '#f57c00' : '#1976d2'};">${tc.priority}</span></div>
+                                            <div><strong>Steps:</strong> ${tc.steps_count || tc.steps?.length || 0}</div>
+                                            <div><strong>Confidence:</strong> ${(tc.confidence * 100).toFixed(0)}%</div>
                                         </div>
-                                        <div style="margin-top: 4px; color: #666;" title="${tc.title}">${tc.title.substring(0, 80)}...</div>
-                                        <div style="margin-top: 4px; color: #999; font-size: 10px;">
-                                            Effort: ${tc.estimated_effort_hours.toFixed(1)}h | Confidence: ${(tc.confidence * 100).toFixed(0)}%
+                                        <div style="margin-top: 6px; color: #333; font-weight: 500;" title="${tc.title}">${tc.title}</div>
+                                        <div style="margin-top: 4px; color: #999; font-size: 11px;">
+                                            Effort: ${tc.estimated_effort_hours?.toFixed(1) || '1.0'}h | Confidence: ${(tc.confidence * 100).toFixed(0)}%
+                                        </div>
+                                        <div style="margin-top: 6px; font-size: 11px; color: #667eea; text-decoration: underline;">
+                                            👉 Click to view full details
                                         </div>
                                     </div>
                                 `).join('')}
@@ -575,7 +582,139 @@ async def testcase_upload_page():
                 a.click();
                 document.body.removeChild(a);
             }
+
+            // Show detailed test case information in modal
+            function showTestCaseDetails(testCaseId, testCase) {
+                const modal = document.getElementById('testCaseModal');
+                if (!modal) {
+                    console.error('Modal not found');
+                    return;
+                }
+
+                // Parse test case data
+                let preconditions = testCase.preconditions || [];
+                let testData = testCase.test_data || {};
+                let steps = testCase.steps || [];
+                let validation = testCase.validation || [];
+                let expectedResult = testCase.expected_result || '';
+
+                // Build HTML
+                let html = `
+                    <div class="modal-content">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #667eea; padding-bottom: 12px; margin-bottom: 16px;">
+                            <div>
+                                <h2 style="margin: 0; color: #333;">${testCase.title}</h2>
+                                <p style="margin: 4px 0; color: #666; font-size: 13px;">ID: <strong>${testCaseId}</strong></p>
+                            </div>
+                            <button onclick="closeTestCaseModal()" style="background: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 16px;">✕</button>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                            <div style="background: #e3f2fd; padding: 12px; border-radius: 4px;">
+                                <strong style="color: #667eea;">Type:</strong><br>
+                                <span style="font-size: 14px; font-weight: bold;">${testCase.type || 'unknown'}</span>
+                            </div>
+                            <div style="background: #fff3e0; padding: 12px; border-radius: 4px;">
+                                <strong style="color: #f57c00;">Priority:</strong><br>
+                                <span style="font-size: 14px; font-weight: bold; color: ${testCase.priority === 'CRITICAL' ? '#d32f2f' : testCase.priority === 'HIGH' ? '#f57c00' : '#1976d2'};">${testCase.priority || 'MEDIUM'}</span>
+                            </div>
+                            <div style="background: #f3e5f5; padding: 12px; border-radius: 4px;">
+                                <strong style="color: #7b1fa2;">Confidence:</strong><br>
+                                <span style="font-size: 14px; font-weight: bold;">${(testCase.confidence * 100).toFixed(1)}%</span>
+                            </div>
+                            <div style="background: #e8f5e9; padding: 12px; border-radius: 4px;">
+                                <strong style="color: #388e3c;">Effort:</strong><br>
+                                <span style="font-size: 14px; font-weight: bold;">${testCase.estimated_effort_hours?.toFixed(1) || '1.0'}h</span>
+                            </div>
+                        </div>
+
+                        <!-- Preconditions -->
+                        <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">📋 Preconditions</h3>
+                            <ul style="margin: 0; padding-left: 20px; color: #555;">
+                                ${preconditions && preconditions.length > 0 ? 
+                                    preconditions.map(p => `<li style="margin: 4px 0; font-size: 13px;">${p}</li>`).join('') :
+                                    '<li style="color: #999;">None specified</li>'
+                                }
+                            </ul>
+                        </div>
+
+                        <!-- Test Data -->
+                        <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">📊 Test Data</h3>
+                            ${Object.keys(testData).length > 0 ? `
+                                <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                                    <tr style="background: #e3f2fd; border-bottom: 1px solid #ddd;">
+                                        <th style="padding: 8px; text-align: left; font-weight: bold; color: #667eea;">Key</th>
+                                        <th style="padding: 8px; text-align: left; font-weight: bold; color: #667eea;">Value</th>
+                                    </tr>
+                                    ${Object.entries(testData).map(([key, value]) => `
+                                        <tr style="border-bottom: 1px solid #eee;">
+                                            <td style="padding: 8px; color: #333;"><strong>${key}</strong></td>
+                                            <td style="padding: 8px; color: #666;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">${JSON.stringify(value)}</code></td>
+                                        </tr>
+                                    `).join('')}
+                                </table>
+                            ` : '<p style="color: #999; font-size: 13px;">No test data specified</p>'}
+                        </div>
+
+                        <!-- Steps -->
+                        <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">👣 Test Steps</h3>
+                            ${steps && steps.length > 0 ? `
+                                <ol style="margin: 0; padding-left: 20px; color: #555;">
+                                    ${steps.map((step, idx) => `
+                                        <li style="margin: 8px 0; font-size: 13px;">
+                                            <strong>Action:</strong> ${step.action || step}<br>
+                                            ${step.expected ? `<strong>Expected:</strong> ${step.expected}` : ''}
+                                        </li>
+                                    `).join('')}
+                                </ol>
+                            ` : '<p style="color: #999; font-size: 13px;">No steps specified</p>'}
+                        </div>
+
+                        <!-- Expected Result -->
+                        <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #e8f5e9;">
+                            <h3 style="margin: 0 0 10px 0; color: #388e3c; font-size: 16px;">✅ Expected Result</h3>
+                            <p style="margin: 0; color: #333; font-size: 13px; line-height: 1.6; white-space: pre-wrap;">${expectedResult || 'Not specified'}</p>
+                        </div>
+
+                        <!-- Validation Criteria -->
+                        <div style="border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">🔍 Validation Criteria</h3>
+                            <ul style="margin: 0; padding-left: 20px; color: #555;">
+                                ${validation && validation.length > 0 ? 
+                                    validation.map(v => `<li style="margin: 4px 0; font-size: 13px;">✓ ${v}</li>`).join('') :
+                                    '<li style="color: #999;">No validation criteria specified</li>'
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('modalBody').innerHTML = html;
+                modal.style.display = 'flex';
+            }
+
+            function closeTestCaseModal() {
+                document.getElementById('testCaseModal').style.display = 'none';
+            }
+
+            // Close modal when clicking outside
+            window.onclick = function(event) {
+                const modal = document.getElementById('testCaseModal');
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            }
         </script>
+
+        <!-- Test Case Details Modal -->
+        <div id="testCaseModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); flex-direction: column; justify-content: center; align-items: center;">
+            <div style="width: 90%; max-width: 1000px; max-height: 90vh; background-color: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); overflow-y: auto; padding: 20px;">
+                <div id="modalBody"></div>
+            </div>
+        </div>
     </body>
     </html>
     """
