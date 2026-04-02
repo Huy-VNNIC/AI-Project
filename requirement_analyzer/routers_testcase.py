@@ -557,6 +557,12 @@ async def testcase_upload_page():
                             <button onclick="exportJSON()" style="background: #4CAF50; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
                                 ⚙️ Export JSON
                             </button>
+                            <button onclick="exportHtmlReport()" style="background: #2196F3; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
+                                📊 Export HTML Report
+                            </button>
+                            <button onclick="exportPdfReport()" style="background: #E91E63; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
+                                📄 Export PDF Report
+                            </button>
                         </div>
                     </div>
                 `;
@@ -820,6 +826,66 @@ async def testcase_upload_page():
 
             function exportJSON() {
                 exportWithFormat('json');
+            }
+
+            function exportHtmlReport() {
+                if (!window.currentFile) {
+                    alert('⚠️ Please analyze a file first');
+                    return;
+                }
+                exportReportWithFormat('html');
+            }
+
+            function exportPdfReport() {
+                if (!window.currentFile) {
+                    alert('⚠️ Please analyze a file first');
+                    return;
+                }
+                exportReportWithFormat('pdf');
+            }
+
+            async function exportReportWithFormat(format) {
+                try {
+                    const formData = new FormData();
+                    formData.append('file', window.currentFile);
+                    
+                    const maxTests = parseInt(document.getElementById('maxTests').value) || 8;
+                    formData.append('max_tests', maxTests);
+                    
+                    let endpoint;
+                    let filename;
+                    
+                    if (format === 'html') {
+                        endpoint = '/api/v3/test-generation/export-html-report';
+                        filename = `test_report_${new Date().toISOString().slice(0, 10)}.html`;
+                    } else if (format === 'pdf') {
+                        endpoint = '/api/v3/test-generation/export-pdf-report';
+                        filename = `test_report_${new Date().toISOString().slice(0, 10)}.pdf`;
+                    }
+                    
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Export failed: ${response.statusText}`);
+                    }
+                    
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    alert(`✓ ${format.toUpperCase()} report exported successfully!`);
+                } catch (error) {
+                    alert(`✗ Export failed: ${error.message}`);
+                    console.error(error);
+                }
             }
 
             // Legacy compatibility
@@ -1752,6 +1818,169 @@ async def get_export_statistics(file: UploadFile = File(...), max_tests: int = 8
                 "rtm",
                 "json"
             ]
+        }
+    
+    except Exception as e:
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/api/v3/test-generation/export-html-report")
+async def export_html_report(file: UploadFile = File(...), max_tests: int = 8):
+    """
+    Export test cases as interactive HTML report with charts and visualizations
+    Includes test distribution, confidence metrics, and quality analysis
+    """
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
+        from requirement_analyzer.task_gen.report_generator import ReportGenerator
+        from fastapi.responses import FileResponse
+        
+        # Parse file
+        file_content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        parser = RequirementFileParser()
+        if file_type == 'docx':
+            requirements = parser.parse_file(None, file_type, binary_content=file_content)
+        else:
+            requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found"},
+                status_code=400
+            )
+        
+        # Generate test cases
+        generator = AITestCaseGeneratorV3()
+        test_data = generator.generate(requirements, max_test_cases_per_req=max_tests)
+        
+        # Generate HTML report
+        report_gen = ReportGenerator(test_data)
+        html_content = report_gen.generate_html_report()
+        
+        # Return as HTML file download
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False, encoding='utf-8') as f:
+            f.write(html_content)
+            temp_file = f.name
+        
+        return FileResponse(
+            temp_file,
+            media_type="text/html",
+            filename=f"test_report_{generator.timestamp.replace(' ', '_').replace(':', '-')}.html"
+        )
+    
+    except Exception as e:
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/api/v3/test-generation/export-pdf-report")
+async def export_pdf_report(file: UploadFile = File(...), max_tests: int = 8):
+    """
+    Export test cases as formatted PDF report with charts
+    Professional format suitable for stakeholder review
+    """
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
+        from requirement_analyzer.task_gen.report_generator import ReportGenerator
+        from fastapi.responses import FileResponse
+        
+        # Parse file
+        file_content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        parser = RequirementFileParser()
+        if file_type == 'docx':
+            requirements = parser.parse_file(None, file_type, binary_content=file_content)
+        else:
+            requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found"},
+                status_code=400
+            )
+        
+        # Generate test cases
+        generator = AITestCaseGeneratorV3()
+        test_data = generator.generate(requirements, max_test_cases_per_req=max_tests)
+        
+        # Generate PDF report
+        report_gen = ReportGenerator(test_data)
+        pdf_content = report_gen.generate_pdf_report()
+        
+        if isinstance(pdf_content, bytes) and pdf_content.startswith(b'%PDF'):
+            # Valid PDF
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode='wb', suffix='.pdf', delete=False) as f:
+                f.write(pdf_content)
+                temp_file = f.name
+            
+            return FileResponse(
+                temp_file,
+                media_type="application/pdf",
+                filename=f"test_report_{generator.timestamp.replace(' ', '_').replace(':', '-')}.pdf"
+            )
+        else:
+            # reportlab not installed, return message
+            return JSONResponse(
+                {"status": "warning", "message": "PDF export requires: pip install reportlab"},
+                status_code=400
+            )
+    
+    except Exception as e:
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/api/v3/test-generation/export-report-stats")
+async def export_report_statistics(file: UploadFile = File(...), max_tests: int = 8):
+    """
+    Export detailed statistics in JSON format for analytics/dashboards
+    Includes quality scores, recommendations, and detailed metrics
+    """
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
+        from requirement_analyzer.task_gen.report_generator import ReportGenerator
+        import json
+        
+        # Parse file
+        file_content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        parser = RequirementFileParser()
+        if file_type == 'docx':
+            requirements = parser.parse_file(None, file_type, binary_content=file_content)
+        else:
+            requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found"},
+                status_code=400
+            )
+        
+        # Generate test cases
+        generator = AITestCaseGeneratorV3()
+        test_data = generator.generate(requirements, max_test_cases_per_req=max_tests)
+        
+        # Generate statistics
+        report_gen = ReportGenerator(test_data)
+        stats_json = report_gen.export_statistics_json()
+        stats = json.loads(stats_json)
+        
+        return {
+            "status": "success",
+            "statistics": stats
         }
     
     except Exception as e:
