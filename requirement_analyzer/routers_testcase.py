@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException, File, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
 from typing import Optional, List
 import json
+from datetime import datetime
 from requirement_analyzer.file_util import RequirementFileParser
 
 router = APIRouter(prefix="", tags=["testcase"])
@@ -850,33 +851,47 @@ async def testcase_upload_page():
 
             async function exportReportWithFormat(format) {
                 try {
+                    if (!window.currentFile) {
+                        alert('Please analyze file first');
+                        return;
+                    }
+                    
                     const formData = new FormData();
                     formData.append('file', window.currentFile);
                     
                     const maxTests = parseInt(document.getElementById('maxTests').value) || 8;
-                    formData.append('max_tests', maxTests);
                     
                     let endpoint;
                     let filename;
                     
                     if (format === 'html') {
-                        endpoint = '/api/v3/test-generation/export-html-report';
+                        endpoint = `/api/v3/test-generation/export-html-report?max_tests=${maxTests}`;
                         filename = `test_report_${new Date().toISOString().slice(0, 10)}.html`;
                     } else if (format === 'pdf') {
-                        endpoint = '/api/v3/test-generation/export-pdf-report';
+                        endpoint = `/api/v3/test-generation/export-pdf-report?max_tests=${maxTests}`;
                         filename = `test_report_${new Date().toISOString().slice(0, 10)}.pdf`;
                     }
+                    
+                    console.log('Exporting to:', endpoint);
                     
                     const response = await fetch(endpoint, {
                         method: 'POST',
                         body: formData
                     });
                     
+                    console.log('Response status:', response.status);
+                    
                     if (!response.ok) {
-                        throw new Error(`Export failed: ${response.statusText}`);
+                        const errorText = await response.text();
+                        console.error('Error response:', errorText);
+                        throw new Error(`Export failed: ${response.status} ${response.statusText} - ${errorText.substring(0, 100)}`);
                     }
                     
                     const blob = await response.blob();
+                    if (blob.size === 0) {
+                        throw new Error('Empty response received');
+                    }
+                    
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
@@ -1835,15 +1850,23 @@ async def get_export_statistics(file: UploadFile = File(...), max_tests: int = 8
 async def export_html_report(file: UploadFile = File(...), max_tests: int = 8):
     """
     Export test cases as interactive HTML report with charts and visualizations
-    Includes test distribution, confidence metrics, and quality analysis
     """
     try:
         from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
         from requirement_analyzer.task_gen.report_generator import ReportGenerator
         from fastapi.responses import FileResponse
+        import tempfile
+        import os
+        
+        # Validate file
+        if not file or not file.filename:
+            raise ValueError("No file provided")
         
         # Parse file
         file_content = await file.read()
+        if not file_content:
+            raise ValueError("File is empty")
+            
         file_type = file.filename.split('.')[-1].lower()
         
         parser = RequirementFileParser()
@@ -1853,10 +1876,7 @@ async def export_html_report(file: UploadFile = File(...), max_tests: int = 8):
             requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
         
         if not requirements:
-            return JSONResponse(
-                {"status": "error", "message": "No requirements found"},
-                status_code=400
-            )
+            raise ValueError("No requirements found in file")
         
         # Generate test cases
         generator = AITestCaseGeneratorV3()
@@ -1866,21 +1886,32 @@ async def export_html_report(file: UploadFile = File(...), max_tests: int = 8):
         report_gen = ReportGenerator(test_data)
         html_content = report_gen.generate_html_report()
         
-        # Return as HTML file download
-        import tempfile
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False, encoding='utf-8') as f:
+        # Save to temporary file
+        temp_dir = tempfile.gettempdir()
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        temp_file = os.path.join(temp_dir, f"test_report_{timestamp}.html")
+        
+        with open(temp_file, 'w', encoding='utf-8') as f:
             f.write(html_content)
-            temp_file = f.name
         
         return FileResponse(
             temp_file,
             media_type="text/html",
-            filename=f"test_report_{generator.timestamp.replace(' ', '_').replace(':', '-')}.html"
+            filename=f"test_report_{timestamp}.html",
+            headers={"Content-Disposition": f"attachment; filename=test_report_{timestamp}.html"}
         )
     
-    except Exception as e:
+    except ValueError as e:
         return JSONResponse(
-            {"status": "error", "message": str(e)},
+            {"status": "error", "detail": str(e)},
+            status_code=400
+        )
+    except Exception as e:
+        import traceback
+        error_msg = f"{type(e).__name__}: {str(e)}"
+        print(f"Export HTML error: {error_msg}\n{traceback.format_exc()}")
+        return JSONResponse(
+            {"status": "error", "detail": error_msg},
             status_code=500
         )
 
