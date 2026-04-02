@@ -1060,3 +1060,141 @@ async def testcase_dashboard():
     </body>
     </html>
     """
+
+
+@router.post("/api/v3/test-generation/analyze-file-detailed")
+async def analyze_file_detailed_v3(file: UploadFile = File(...), max_tests: int = 8):
+    """
+    PRODUCTION-GRADE Test Case Analysis - v3
+    Generates REAL, ACTIONABLE test cases using smart requirement understanding
+    
+    Key improvements over v2:
+    - Concrete test data (not generic)  
+    - Real input/output pairs
+    - Boundary value analysis with actual tests
+    - State machine test generation
+    - Requirement quality validation
+    - Smart deduplication
+    """
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
+        
+        file_content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        # Support: txt, csv, md, markdown, docx
+        supported_types = ['txt', 'csv', 'md', 'markdown', 'docx']
+        if file_type not in supported_types:
+            raise ValueError(f"Unsupported file type: .{file_type}. Supported: TXT, CSV, MD, DOCX")
+        
+        # Parse file
+        parser = RequirementFileParser()
+        try:
+            if file_type == 'docx':
+                requirements = parser.parse_file(None, file_type, binary_content=file_content)
+            else:
+                requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        except ValueError as e:
+            return JSONResponse(
+                {"status": "error", "message": str(e)},
+                status_code=400
+            )
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found in file"},
+                status_code=400
+            )
+        
+        # Generate using production-grade v3
+        generator = AITestCaseGeneratorV3()
+        v3_results = generator.generate(requirements, max_test_cases_per_req=max_tests)
+        
+        # Format response
+        detailed_analysis = []
+        skipped_analysis = []
+        total_test_cases = 0
+        total_confidence = 0
+        
+        for req_result in v3_results['results']:
+            req_id = req_result['requirement_id']
+            req_text = req_result['requirement_text']
+            test_cases = req_result['test_cases']
+            
+            # Separate actionable from ambiguous
+            if not req_result['is_actionable']:
+                skipped_analysis.append({
+                    'index': len(detailed_analysis) + len(skipped_analysis) + 1,
+                    'requirement': req_text,
+                    'requirement_id': req_id,
+                    'reason': 'Requirement is ambiguous or unclear',
+                    'quality_issues': req_result.get('quality_issues', []),
+                    'note': 'Please clarify this requirement before generating tests'
+                })
+                continue
+            
+            # Process actionable requirements
+            formatted_tests = []
+            req_confidence = 0
+            
+            for tc in test_cases:
+                if tc.get('type') != 'requirement_quality_check':
+                    formatted_tests.append({
+                        'id': tc.get('id'),
+                        'title': tc.get('title'),
+                        'type': tc.get('type'),
+                        'priority': tc.get('priority'),
+                        'confidence': round(tc.get('confidence', 0.85) * 100) / 100,
+                        'preconditions': tc.get('preconditions', []),
+                        'test_data': tc.get('test_data', {}),
+                        'steps_count': len(tc.get('steps', [])),
+                        'expected_result': tc.get('expected_result', ''),
+                        'validation':tc.get('validation', [])
+                    })
+                    if 'confidence' in tc:
+                        req_confidence += tc['confidence']
+            
+            if formatted_tests:
+                avg_conf = req_confidence / len(formatted_tests) if formatted_tests else 0
+                detailed_analysis.append({
+                    'index': len(detailed_analysis) + 1,
+                    'requirement_id': req_id,
+                    'requirement': req_text,
+                    'word_count': len(req_text.split()),
+                    'character_count': len(req_text),
+                    'nlp_confidence': avg_conf,
+                    'test_cases_count': len(formatted_tests),
+                    'test_cases': formatted_tests
+                })
+                total_test_cases += len(formatted_tests)
+                total_confidence += avg_conf
+        
+        # Calculate summary
+        avg_confidence = total_confidence / len(detailed_analysis) if detailed_analysis else 0
+        
+        return {
+            "status": "success",
+            "generator_version": "v3_production",
+            "filename": file.filename,
+            "file_type": file_type.upper(),
+            "total_requirements_in_file": len(requirements),
+            "total_requirements_analyzed": len(detailed_analysis),
+            "total_requirements_skipped": len(skipped_analysis),
+            "total_test_cases_generated": total_test_cases,
+            "avg_nlp_confidence": round(avg_confidence * 100) / 100,
+            "detailed": detailed_analysis,
+            "skipped_requirements": skipped_analysis if skipped_analysis else None,
+            "quality_metrics": {
+                "ambiguous_requirements": v3_results['summary']['ambiguous_requirements'],
+                "actionable_requirements": v3_results['summary']['actionable_requirements'],
+                "test_cases_by_type": v3_results['summary']['test_cases_by_type'],
+                "avg_test_quality_score": v3_results['summary']['avg_test_quality_score']
+            }
+        }
+    
+    except Exception as e:
+        import traceback
+        return JSONResponse(
+            {"status": "error", "message": str(e), "traceback": traceback.format_exc()},
+            status_code=500
+        )
