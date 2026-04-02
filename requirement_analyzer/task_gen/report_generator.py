@@ -249,8 +249,8 @@ class ReportGenerator:
     def _generate_overview_html(self) -> str:
         """Generate overview statistics"""
         total_reqs = len(self.detailed)
-        total_tests = sum(r.get('test_cases_count', 0) for r in self.detailed)
-        avg_confidence = self.test_data.get('avg_nlp_confidence', 0)
+        total_tests = sum(len(r.get('test_cases', [])) for r in self.detailed)
+        avg_confidence = self.summary.get('avg_test_quality_score', 0)
         
         return f"""
         <div class="section">
@@ -859,8 +859,8 @@ class ReportGenerator:
         stats = {
             "timestamp": self.timestamp,
             "total_requirements": len(self.detailed),
-            "total_test_cases": sum(r.get('test_cases_count', 0) for r in self.detailed),
-            "average_confidence": self.test_data.get('avg_nlp_confidence', 0),
+            "total_test_cases": sum(len(r.get('test_cases', [])) for r in self.detailed),
+            "average_confidence": self.summary.get('avg_test_quality_score', 0),
             "test_type_distribution": {},
             "priority_distribution": {},
             "confidence_distribution": self._calculate_confidence_distribution(),
@@ -903,8 +903,8 @@ class ReportGenerator:
     
     def _calculate_quality_score(self) -> float:
         """Calculate overall quality score (0-100)"""
-        total_tests = sum(r.get('test_cases_count', 0) for r in self.detailed)
-        avg_confidence = self.test_data.get('avg_nlp_confidence', 0)
+        total_tests = sum(len(r.get('test_cases', [])) for r in self.detailed)
+        avg_confidence = self.summary.get('avg_test_quality_score', 0)
         
         # Count diverse test types
         test_types = set()
@@ -922,8 +922,8 @@ class ReportGenerator:
         """Generate recommendations based on analysis"""
         recommendations = []
         
-        total_tests = sum(r.get('test_cases_count', 0) for r in self.detailed)
-        avg_confidence = self.test_data.get('avg_nlp_confidence', 0)
+        total_tests = sum(len(r.get('test_cases', [])) for r in self.detailed)
+        avg_confidence = self.summary.get('avg_test_quality_score', 0)
         
         if avg_confidence < 0.75:
             recommendations.append("⚠️ Độ tin cậy NLP thấp - Hãy làm rõ requirements")
