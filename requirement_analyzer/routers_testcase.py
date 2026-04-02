@@ -1961,7 +1961,7 @@ async def export_pdf_report(file: UploadFile = File(...), max_tests: int = 8):
             return FileResponse(
                 temp_file,
                 media_type="application/pdf",
-                filename=f"test_report_{generator.timestamp.replace(' ', '_').replace(':', '-')}.pdf"
+                filename=f"test_report_{report_gen.timestamp.replace(' ', '_').replace(':', '-')}.pdf"
             )
         else:
             # reportlab not installed, return message
