@@ -317,6 +317,10 @@ class ReportGenerator:
         
         for req in self.detailed:
             for tc in req.get('test_cases', []):
+                # Skip quality check records
+                if tc.get('type') == 'requirement_quality_check':
+                    continue
+                    
                 tc_type = tc.get('type', 'other')
                 test_type_count[tc_type] = test_type_count.get(tc_type, 0) + 1
                 
@@ -692,9 +696,12 @@ class ReportGenerator:
                 req_text = req.get('requirement_text', '')[:150]
                 test_cases = req.get('test_cases', [])
                 
-                # Calculate average confidence for this requirement
-                if test_cases:
-                    confidence = sum(float(tc.get('confidence', 0.85)) for tc in test_cases) / len(test_cases)
+                # Filter actual test cases (exclude quality checks)
+                actual_test_cases = [tc for tc in test_cases if tc.get('type') != 'requirement_quality_check']
+                
+                # Calculate average confidence for this requirement (only from actual test cases)
+                if actual_test_cases:
+                    confidence = sum(float(tc.get('confidence', 0.85)) for tc in actual_test_cases) / len(actual_test_cases)
                 else:
                     confidence = 0
                 
@@ -711,13 +718,13 @@ class ReportGenerator:
                 story.append(Paragraph(f"<i>{req_text}...</i>", styles['Normal']))
                 story.append(Spacer(1, 0.1*inch))
                 
-                # Test cases table for this requirement
-                if test_cases:
+                # Test cases table for this requirement (actual_test_cases already filtered above)
+                if actual_test_cases:
                     tc_data = [['ID', 'Type', 'Priority', 'Confidence', 'Effort']]
-                    for tc in test_cases:
+                    for tc in actual_test_cases:
                         tc_id = tc.get('id', 'N/A')[:15]
-                        tc_type = tc.get('type', 'N/A').replace('_', ' ')[:12]
-                        tc_priority = tc.get('priority', 'N/A')[:8]
+                        tc_type = tc.get('type', 'N/A').replace('_', ' ').title()[:12]
+                        tc_priority = tc.get('priority', 'N/A')
                         tc_conf = f"{float(tc.get('confidence', 0.85)):.0%}"
                         tc_effort = f"{float(tc.get('effort', 1.0)):.1f}h"
                         tc_data.append([tc_id, tc_type, tc_priority, tc_conf, tc_effort])
