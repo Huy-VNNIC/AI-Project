@@ -442,6 +442,10 @@ async def testcase_upload_page():
             }
 
             function displayDetailedResults(data) {
+                // Store file for export functions
+                window.currentFile = uploadedFile;
+                window.detailedData = data;
+                
                 let totalTestCases = 0;
                 let avgConfidence = 0;
                 let confCount = 0;
@@ -546,22 +550,22 @@ async def testcase_upload_page():
                         <h3 style="margin-bottom: 15px; color: #0369a1;">Export Options</h3>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <button onclick="exportPytest()" style="background: #FF9800; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                📝 Export Pytest
+                                Export Pytest
                             </button>
                             <button onclick="exportGherkin()" style="background: #9C27B0; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                📋 Export Gherkin
+                                Export Gherkin
                             </button>
                             <button onclick="exportRTM()" style="background: #00BCD4; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                📊 Export RTM (CSV)
+                                Export RTM (CSV)
                             </button>
                             <button onclick="exportJSON()" style="background: #4CAF50; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                ⚙️ Export JSON
+                                Export JSON
                             </button>
                             <button onclick="exportHtmlReport()" style="background: #2196F3; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                📊 Export HTML Report
+                                Export HTML Report
                             </button>
                             <button onclick="exportPdfReport()" style="background: #E91E63; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                📄 Export PDF Report
+                                Export PDF Report
                             </button>
                         </div>
                     </div>
