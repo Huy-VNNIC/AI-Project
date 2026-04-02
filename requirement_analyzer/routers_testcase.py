@@ -483,7 +483,7 @@ async def testcase_upload_page():
                     if (item.error) {
                         html += `
                             <div class="requirement-item" style="border-color: #f44336;">
-                                <h4>⚠️ Requirement ${item.index}</h4>
+                                <h4>Requirement ${item.index}</h4>
                                 <p style="color: #666;">${item.requirement}</p>
                                 <p style="color: #f44336; font-size: 12px;">Error: ${item.error}</p>
                             </div>
@@ -493,7 +493,7 @@ async def testcase_upload_page():
 
                     html += `
                         <div class="requirement-item">
-                            <h4>📋 Requirement ${item.index}</h4>
+                            <h4>Requirement ${item.index}</h4>
                             <p style="color: #333; font-weight: 500; margin-bottom: 8px;">
                                 "${item.requirement}"
                             </p>
@@ -514,12 +514,12 @@ async def testcase_upload_page():
                             </div>
 
                             <div class="test-case-list">
-                                <strong>📊 Generated Test Cases (${item.test_cases.length}):</strong>
+                                <strong>Generated Test Cases (${item.test_cases.length}):</strong>
                                 ${item.test_cases.map((tc, i) => `
-                                    <div class="test-case" style="padding: 12px; margin: 8px 0; background: white; border-radius: 4px; border-left: 4px solid #667eea; cursor: pointer; transition: all 0.3s;" 
+                                    <div class="test-case" data-tc-id="${tc.id}" style="padding: 12px; margin: 8px 0; background: white; border-radius: 4px; border-left: 4px solid #667eea; cursor: pointer; transition: all 0.3s;" 
                                          onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" 
                                          onmouseout="this.style.boxShadow='none'"
-                                         onclick="showTestCaseDetails('${tc.id}', ${JSON.stringify(tc).replace(/'/g, '&apos;')})">
+                                         onclick="showTestCaseDetailsV2('${tc.id}')">
                                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px; font-size: 11px;">
                                             <div><strong>ID:</strong> <span style="color: #667eea; font-weight: bold;">${tc.id}</span></div>
                                             <div><strong>Type:</strong> ${tc.type || tc.scenario_type}</div>
@@ -532,7 +532,7 @@ async def testcase_upload_page():
                                             Effort: ${tc.estimated_effort_hours?.toFixed(1) || '1.0'}h | Confidence: ${(tc.confidence * 100).toFixed(0)}%
                                         </div>
                                         <div style="margin-top: 6px; font-size: 11px; color: #667eea; text-decoration: underline;">
-                                            👉 Click to view full details
+                                            Click to view full details
                                         </div>
                                     </div>
                                 `).join('')}
@@ -543,12 +543,27 @@ async def testcase_upload_page():
 
                 html += `
                     <div style="margin-top: 30px; display: flex; gap: 10px;">
-                        <button onclick="downloadDetailedJSON()" style="background: #4CAF50; flex: 1;">📥 Download Detailed JSON</button>
-                        <button onclick="downloadDetailedCSV()" style="background: #2196F3; flex: 1;">📥 Download as CSV</button>
+                        <button onclick="downloadDetailedJSON()" style="background: #4CAF50; flex: 1;">Download Detailed JSON</button>
+                        <button onclick="downloadDetailedCSV()" style="background: #2196F3; flex: 1;">Download as CSV</button>
                     </div>
                 `;
 
                 document.getElementById('resultsContent').innerHTML = html;
+                
+                // Store test case data globally for modal display
+                window.testCasesData = {};
+                data.detailed.forEach((req, idx) => {
+                    if (req.test_cases) {
+                        req.test_cases.forEach(tc => {
+                            window.testCasesData[tc.id] = {
+                                ...tc,
+                                requirement: req.requirement,
+                                requirement_index: req.index
+                            };
+                        });
+                    }
+                });
+                
                 window.detailedData = data;
             }
 
@@ -583,15 +598,22 @@ async def testcase_upload_page():
                 document.body.removeChild(a);
             }
 
-            // Show detailed test case information in modal
-            function showTestCaseDetails(testCaseId, testCase) {
+            // Show detailed test case information in modal (Fixed version)
+            function showTestCaseDetailsV2(testCaseId) {
                 const modal = document.getElementById('testCaseModal');
                 if (!modal) {
                     console.error('Modal not found');
                     return;
                 }
 
-                // Parse test case data
+                // Get test case data from global storage
+                const testCase = window.testCasesData[testCaseId];
+                if (!testCase) {
+                    console.error('Test case not found:', testCaseId);
+                    return;
+                }
+
+                // Parse test case data safely
                 let preconditions = testCase.preconditions || [];
                 let testData = testCase.test_data || {};
                 let steps = testCase.steps || [];
@@ -602,11 +624,12 @@ async def testcase_upload_page():
                 let html = `
                     <div class="modal-content">
                         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #667eea; padding-bottom: 12px; margin-bottom: 16px;">
-                            <div>
-                                <h2 style="margin: 0; color: #333;">${testCase.title}</h2>
+                            <div style="flex: 1;">
+                                <h2 style="margin: 0; color: #333;">${testCase.title || 'Test Case'}</h2>
                                 <p style="margin: 4px 0; color: #666; font-size: 13px;">ID: <strong>${testCaseId}</strong></p>
+                                <p style="margin: 4px 0; color: #999; font-size: 12px;">From: ${testCase.requirement}</p>
                             </div>
-                            <button onclick="closeTestCaseModal()" style="background: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 16px;">✕</button>
+                            <button onclick="closeTestCaseModal()" style="background: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 16px; white-space: nowrap;">Close</button>
                         </div>
 
                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
@@ -620,17 +643,17 @@ async def testcase_upload_page():
                             </div>
                             <div style="background: #f3e5f5; padding: 12px; border-radius: 4px;">
                                 <strong style="color: #7b1fa2;">Confidence:</strong><br>
-                                <span style="font-size: 14px; font-weight: bold;">${(testCase.confidence * 100).toFixed(1)}%</span>
+                                <span style="font-size: 14px; font-weight: bold;">${((testCase.confidence || 0) * 100).toFixed(1)}%</span>
                             </div>
                             <div style="background: #e8f5e9; padding: 12px; border-radius: 4px;">
                                 <strong style="color: #388e3c;">Effort:</strong><br>
-                                <span style="font-size: 14px; font-weight: bold;">${testCase.estimated_effort_hours?.toFixed(1) || '1.0'}h</span>
+                                <span style="font-size: 14px; font-weight: bold;">${(testCase.estimated_effort_hours || 1.0).toFixed(1)}h</span>
                             </div>
                         </div>
 
                         <!-- Preconditions -->
                         <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
-                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">📋 Preconditions</h3>
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Preconditions</h3>
                             <ul style="margin: 0; padding-left: 20px; color: #555;">
                                 ${preconditions && preconditions.length > 0 ? 
                                     preconditions.map(p => `<li style="margin: 4px 0; font-size: 13px;">${p}</li>`).join('') :
@@ -641,7 +664,7 @@ async def testcase_upload_page():
 
                         <!-- Test Data -->
                         <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
-                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">📊 Test Data</h3>
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Test Data</h3>
                             ${Object.keys(testData).length > 0 ? `
                                 <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
                                     <tr style="background: #e3f2fd; border-bottom: 1px solid #ddd;">
@@ -651,7 +674,7 @@ async def testcase_upload_page():
                                     ${Object.entries(testData).map(([key, value]) => `
                                         <tr style="border-bottom: 1px solid #eee;">
                                             <td style="padding: 8px; color: #333;"><strong>${key}</strong></td>
-                                            <td style="padding: 8px; color: #666;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">${JSON.stringify(value)}</code></td>
+                                            <td style="padding: 8px; color: #666;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">${typeof value === 'string' ? value : JSON.stringify(value)}</code></td>
                                         </tr>
                                     `).join('')}
                                 </table>
@@ -660,12 +683,12 @@ async def testcase_upload_page():
 
                         <!-- Steps -->
                         <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
-                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">👣 Test Steps</h3>
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Test Steps</h3>
                             ${steps && steps.length > 0 ? `
                                 <ol style="margin: 0; padding-left: 20px; color: #555;">
                                     ${steps.map((step, idx) => `
                                         <li style="margin: 8px 0; font-size: 13px;">
-                                            <strong>Action:</strong> ${step.action || step}<br>
+                                            <strong>Action:</strong> ${typeof step === 'string' ? step : step.action || 'N/A'}<br>
                                             ${step.expected ? `<strong>Expected:</strong> ${step.expected}` : ''}
                                         </li>
                                     `).join('')}
@@ -675,13 +698,13 @@ async def testcase_upload_page():
 
                         <!-- Expected Result -->
                         <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #e8f5e9;">
-                            <h3 style="margin: 0 0 10px 0; color: #388e3c; font-size: 16px;">✅ Expected Result</h3>
+                            <h3 style="margin: 0 0 10px 0; color: #388e3c; font-size: 16px;">Expected Result</h3>
                             <p style="margin: 0; color: #333; font-size: 13px; line-height: 1.6; white-space: pre-wrap;">${expectedResult || 'Not specified'}</p>
                         </div>
 
                         <!-- Validation Criteria -->
                         <div style="border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
-                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">🔍 Validation Criteria</h3>
+                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Validation Criteria</h3>
                             <ul style="margin: 0; padding-left: 20px; color: #555;">
                                 ${validation && validation.length > 0 ? 
                                     validation.map(v => `<li style="margin: 4px 0; font-size: 13px;">✓ ${v}</li>`).join('') :
@@ -703,7 +726,7 @@ async def testcase_upload_page():
             // Close modal when clicking outside
             window.onclick = function(event) {
                 const modal = document.getElementById('testCaseModal');
-                if (event.target === modal) {
+                if (modal && event.target === modal) {
                     modal.style.display = 'none';
                 }
             }
