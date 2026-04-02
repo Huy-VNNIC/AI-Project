@@ -25,7 +25,9 @@ class ReportGenerator:
             test_data: Output from AITestCaseGeneratorV3.generate()
         """
         self.test_data = test_data
-        self.detailed = test_data.get('detailed', [])
+        # Use 'results' key from AITestCaseGeneratorV3 output
+        self.detailed = test_data.get('results', [])
+        self.summary = test_data.get('summary', {})
         self.timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.colors = {
             'critical': '#FF6B6B',
@@ -633,8 +635,8 @@ class ReportGenerator:
             story.append(Paragraph("OVERVIEW STATISTICS", styles['Heading2']))
             
             total_reqs = len(self.detailed)
-            total_tests = sum(r.get('test_cases_count', 0) for r in self.detailed)
-            avg_confidence = self.test_data.get('avg_nlp_confidence', 0)
+            total_tests = sum(len(r.get('test_cases', [])) for r in self.detailed)
+            avg_confidence = self.summary.get('avg_test_quality_score', 0)
             
             overview_data = [
                 ['Metric', 'Value'],
@@ -687,9 +689,14 @@ class ReportGenerator:
                     story.append(PageBreak())
                 
                 req_id = req.get('requirement_id', 'UNKNOWN')
-                req_text = req.get('requirement', '')[:150]
-                confidence = req.get('nlp_confidence', 0)
+                req_text = req.get('requirement_text', '')[:150]
                 test_cases = req.get('test_cases', [])
+                
+                # Calculate average confidence for this requirement
+                if test_cases:
+                    confidence = sum(float(tc.get('confidence', 0.85)) for tc in test_cases) / len(test_cases)
+                else:
+                    confidence = 0
                 
                 # Requirement header
                 req_style = ParagraphStyle(
