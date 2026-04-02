@@ -542,9 +542,22 @@ async def testcase_upload_page():
                 });
 
                 html += `
-                    <div style="margin-top: 30px; display: flex; gap: 10px;">
-                        <button onclick="downloadDetailedJSON()" style="background: #4CAF50; flex: 1;">Download Detailed JSON</button>
-                        <button onclick="downloadDetailedCSV()" style="background: #2196F3; flex: 1;">Download as CSV</button>
+                    <div style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px; color: #0369a1;">Export Options</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <button onclick="exportPytest()" style="background: #FF9800; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
+                                📝 Export Pytest
+                            </button>
+                            <button onclick="exportGherkin()" style="background: #9C27B0; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
+                                📋 Export Gherkin
+                            </button>
+                            <button onclick="exportRTM()" style="background: #00BCD4; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
+                                📊 Export RTM (CSV)
+                            </button>
+                            <button onclick="exportJSON()" style="background: #4CAF50; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
+                                ⚙️ Export JSON
+                            </button>
+                        </div>
                     </div>
                 `;
 
@@ -729,6 +742,93 @@ async def testcase_upload_page():
                 if (modal && event.target === modal) {
                     modal.style.display = 'none';
                 }
+            }
+
+            // ===== EXPORT FUNCTIONS =====
+
+            function getUploadedFile() {
+                const fileInput = document.querySelector('input[type="file"]');
+                return fileInput?.files[0];
+            }
+
+            async function exportWithFormat(format) {
+                const file = getUploadedFile();
+                if (!file) {
+                    alert('Please upload a file first');
+                    return;
+                }
+
+                const maxTests = document.getElementById('maxTests')?.value || 8;
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('max_tests', maxTests);
+
+                const endpoints = {
+                    'pytest': '/api/v3/test-generation/export-pytest',
+                    'gherkin': '/api/v3/test-generation/export-gherkin',
+                    'rtm': '/api/v3/test-generation/export-rtm',
+                    'json': '/api/v3/test-generation/export-json'
+                };
+
+                const fileNames = {
+                    'pytest': 'test_hotel_booking_generated.py',
+                    'gherkin': 'hotel_booking_generated.feature',
+                    'rtm': 'requirements_traceability_matrix_generated.csv',
+                    'json': 'test_cases_detailed_generated.json'
+                };
+
+                try {
+                    const response = await fetch(endpoints[format], {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'Export failed');
+                    }
+
+                    // Download file
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = fileNames[format];
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+
+                    alert(`✓ ${format.toUpperCase()} exported successfully!`);
+                } catch (error) {
+                    alert(`✗ Export failed: ${error.message}`);
+                    console.error(error);
+                }
+            }
+
+            function exportPytest() {
+                exportWithFormat('pytest');
+            }
+
+            function exportGherkin() {
+                exportWithFormat('gherkin');
+            }
+
+            function exportRTM() {
+                exportWithFormat('rtm');
+            }
+
+            function exportJSON() {
+                exportWithFormat('json');
+            }
+
+            // Legacy compatibility
+            function downloadDetailedJSON() {
+                exportJSON();
+            }
+
+            function downloadDetailedCSV() {
+                exportRTM();
             }
         </script>
 
@@ -1358,5 +1458,304 @@ async def analyze_file_detailed_v3(file: UploadFile = File(...), max_tests: int 
         import traceback
         return JSONResponse(
             {"status": "error", "message": str(e), "traceback": traceback.format_exc()},
+            status_code=500
+        )
+
+
+# ===== PYTEST EXPORT ENDPOINTS =====
+
+@router.post("/api/v3/test-generation/export-pytest")
+async def export_pytest_code(file: UploadFile = File(...), max_tests: int = 8):
+    """
+    Export test cases as executable pytest code
+    Returns Python file with all test cases ready to run
+    """
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
+        from requirement_analyzer.task_gen.pytest_export_generator import PytestExportGenerator
+        from fastapi.responses import FileResponse
+        import os
+        import tempfile
+        
+        # Parse file
+        file_content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        supported_types = ['txt', 'csv', 'md', 'markdown', 'docx']
+        if file_type not in supported_types:
+            raise ValueError(f"Unsupported file type: .{file_type}")
+        
+        parser = RequirementFileParser()
+        if file_type == 'docx':
+            requirements = parser.parse_file(None, file_type, binary_content=file_content)
+        else:
+            requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found"},
+                status_code=400
+            )
+        
+        # Generate test cases
+        generator = AITestCaseGeneratorV3()
+        test_data = generator.generate(requirements, max_test_cases_per_req=max_tests)
+        
+        # Export to pytest
+        exporter = PytestExportGenerator(test_data)
+        pytest_code = exporter.generate_pytest_file()
+        
+        # Save to temporary file
+        with tempfile.NamedTemporaryFile(
+            mode='w',
+            suffix='_pytest.py',
+            delete=False,
+            encoding='utf-8'
+        ) as f:
+            f.write(pytest_code)
+            temp_file = f.name
+        
+        # Return file
+        return FileResponse(
+            path=temp_file,
+            filename=f"test_hotel_booking_generated.py",
+            media_type="text/plain"
+        )
+    
+    except Exception as e:
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/api/v3/test-generation/export-gherkin")
+async def export_gherkin_code(file: UploadFile = File(...), max_tests: int = 8):
+    """
+    Export test cases as Gherkin/BDD feature files
+    Returns feature file for Cucumber/BDD frameworks
+    """
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
+        from requirement_analyzer.task_gen.pytest_export_generator import PytestExportGenerator
+        from fastapi.responses import FileResponse
+        import tempfile
+        
+        # Parse file
+        file_content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        parser = RequirementFileParser()
+        if file_type == 'docx':
+            requirements = parser.parse_file(None, file_type, binary_content=file_content)
+        else:
+            requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found"},
+                status_code=400
+            )
+        
+        # Generate test cases
+        generator = AITestCaseGeneratorV3()
+        test_data = generator.generate(requirements, max_test_cases_per_req=max_tests)
+        
+        # Export to Gherkin
+        exporter = PytestExportGenerator(test_data)
+        gherkin_code = exporter.export_gherkin_file()
+        
+        # Save to temporary file
+        with tempfile.NamedTemporaryFile(
+            mode='w',
+            suffix='.feature',
+            delete=False,
+            encoding='utf-8'
+        ) as f:
+            f.write(gherkin_code)
+            temp_file = f.name
+        
+        # Return file
+        return FileResponse(
+            path=temp_file,
+            filename=f"hotel_booking_generated.feature",
+            media_type="text/plain"
+        )
+    
+    except Exception as e:
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/api/v3/test-generation/export-rtm")
+async def export_rtm_matrix(file: UploadFile = File(...), max_tests: int = 8):
+    """
+    Export Requirements Traceability Matrix (RTM)
+    Returns CSV file showing requirement-to-test mapping
+    """
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
+        from requirement_analyzer.task_gen.pytest_export_generator import PytestExportGenerator
+        from fastapi.responses import FileResponse
+        import tempfile
+        
+        # Parse file
+        file_content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        parser = RequirementFileParser()
+        if file_type == 'docx':
+            requirements = parser.parse_file(None, file_type, binary_content=file_content)
+        else:
+            requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found"},
+                status_code=400
+            )
+        
+        # Generate test cases
+        generator = AITestCaseGeneratorV3()
+        test_data = generator.generate(requirements, max_test_cases_per_req=max_tests)
+        
+        # Export to RTM
+        exporter = PytestExportGenerator(test_data)
+        rtm_csv = exporter.export_rtm_csv()
+        
+        # Save to temporary file
+        with tempfile.NamedTemporaryFile(
+            mode='w',
+            suffix='.csv',
+            delete=False,
+            encoding='utf-8'
+        ) as f:
+            f.write(rtm_csv)
+            temp_file = f.name
+        
+        # Return file
+        return FileResponse(
+            path=temp_file,
+            filename=f"requirements_traceability_matrix_generated.csv",
+            media_type="text/csv"
+        )
+    
+    except Exception as e:
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/api/v3/test-generation/export-json")
+async def export_json_detailed(file: UploadFile = File(...), max_tests: int = 8):
+    """
+    Export all test data as detailed JSON
+    Returns complete JSON with all test case details
+    """
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
+        from requirement_analyzer.task_gen.pytest_export_generator import PytestExportGenerator
+        from fastapi.responses import FileResponse
+        import tempfile
+        
+        # Parse file
+        file_content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        parser = RequirementFileParser()
+        if file_type == 'docx':
+            requirements = parser.parse_file(None, file_type, binary_content=file_content)
+        else:
+            requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found"},
+                status_code=400
+            )
+        
+        # Generate test cases
+        generator = AITestCaseGeneratorV3()
+        test_data = generator.generate(requirements, max_test_cases_per_req=max_tests)
+        
+        # Export to JSON
+        exporter = PytestExportGenerator(test_data)
+        json_data = exporter.export_json_detailed()
+        
+        # Save to temporary file
+        with tempfile.NamedTemporaryFile(
+            mode='w',
+            suffix='.json',
+            delete=False,
+            encoding='utf-8'
+        ) as f:
+            f.write(json_data)
+            temp_file = f.name
+        
+        # Return file
+        return FileResponse(
+            path=temp_file,
+            filename=f"test_cases_detailed_generated.json",
+            media_type="application/json"
+        )
+    
+    except Exception as e:
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
+            status_code=500
+        )
+
+
+@router.post("/api/v3/test-generation/get-statistics")
+async def get_export_statistics(file: UploadFile = File(...), max_tests: int = 8):
+    """
+    Get statistics about generated test cases
+    Useful for planning and CI/CD integration
+    """
+    try:
+        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
+        from requirement_analyzer.task_gen.pytest_export_generator import PytestExportGenerator
+        
+        # Parse file
+        file_content = await file.read()
+        file_type = file.filename.split('.')[-1].lower()
+        
+        parser = RequirementFileParser()
+        if file_type == 'docx':
+            requirements = parser.parse_file(None, file_type, binary_content=file_content)
+        else:
+            requirements = parser.parse_file(file_content.decode('utf-8'), file_type)
+        
+        if not requirements:
+            return JSONResponse(
+                {"status": "error", "message": "No requirements found"},
+                status_code=400
+            )
+        
+        # Generate test cases
+        generator = AITestCaseGeneratorV3()
+        test_data = generator.generate(requirements, max_test_cases_per_req=max_tests)
+        
+        # Get statistics
+        exporter = PytestExportGenerator(test_data)
+        stats = exporter.get_statistics()
+        
+        return {
+            "status": "success",
+            "statistics": stats,
+            "export_formats_available": [
+                "pytest",
+                "gherkin",
+                "rtm",
+                "json"
+            ]
+        }
+    
+    except Exception as e:
+        return JSONResponse(
+            {"status": "error", "message": str(e)},
             status_code=500
         )
