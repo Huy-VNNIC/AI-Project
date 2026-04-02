@@ -715,10 +715,11 @@ class ReportGenerator:
                 story.append(Paragraph(f"<i>{req_text}...</i>", styles['Normal']))
                 story.append(Spacer(1, 0.1*inch))
                 
-                # Test cases table for this requirement (actual_test_cases already filtered above)
-                if actual_test_cases:
+                # Test cases table for this requirement (filtered to exclude quality checks)
+                filtered_test_cases = [tc for tc in test_cases if tc.get('type') != 'requirement_quality_check']
+                if filtered_test_cases:
                     tc_data = [['ID', 'Type', 'Priority', 'Confidence', 'Effort']]
-                    for tc in actual_test_cases:
+                    for tc in filtered_test_cases:
                         tc_id = tc.get('id', 'N/A')[:15]
                         tc_type = tc.get('type', 'N/A').replace('_', ' ').title()[:12]
                         tc_priority = tc.get('priority', 'N/A')
