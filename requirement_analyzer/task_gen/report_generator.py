@@ -612,6 +612,41 @@ class ReportGenerator:
             from reportlab.lib.units import inch
             from reportlab.lib import colors
             from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+            from reportlab.pdfbase import pdfmetrics
+            from reportlab.pdfbase.ttfonts import TTFont
+            import os
+            import subprocess
+            
+            # ==================== FONT REGISTRATION FOR VIETNAMESE SUPPORT ====================
+            # Try to register a Unicode font that supports Vietnamese
+            font_registered = False
+            supported_fonts = ['DejaVuSans', 'DejaVuSans-Bold', 'LiberationSans', 'NotoSans']
+            
+            for font_name in supported_fonts:
+                # Try common system font paths
+                font_paths = [
+                    f'/usr/share/fonts/truetype/dejavu/{font_name.lower()}.ttf',
+                    f'/usr/share/fonts/truetype/{font_name.lower()}.ttf',
+                    f'C:\\Windows\\Fonts\\{font_name}.ttf',
+                    f'/System/Library/Fonts/{font_name}.ttf',
+                ]
+                
+                for font_path in font_paths:
+                    if os.path.exists(font_path):
+                        try:
+                            pdfmetrics.registerFont(TTFont(font_name, font_path))
+                            font_registered = True
+                            break
+                        except:
+                            pass
+                
+                if font_registered:
+                    break
+            
+            # Fallback: Use default fonts but ensure UTF-8 handling
+            # If font registration failed, we'll use a workaround
+            default_font = font_name if font_registered else 'Helvetica'
+            default_font_bold = f'{default_font}-Bold' if font_registered else 'Helvetica-Bold'
             
             # Create PDF buffer
             pdf_buffer = BytesIO()
@@ -631,7 +666,7 @@ class ReportGenerator:
                 textColor=colors.HexColor('#0369a1'),
                 spaceAfter=10,
                 alignment=TA_CENTER,
-                fontName='Helvetica-Bold'
+                fontName=default_font_bold
             )
             story.append(Paragraph("TEST CASE ANALYSIS REPORT", title_style))
             story.append(Paragraph("AI-Generated Test Cases with NLP Analysis", styles['Normal']))
@@ -658,7 +693,7 @@ class ReportGenerator:
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0369a1')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 0), (-1, 0), default_font_bold),
                 ('FONTSIZE', (0, 0), (-1, 0), 12),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
                 ('GRID', (0, 0), (-1, -1), 1, colors.grey),
@@ -708,7 +743,7 @@ class ReportGenerator:
                     parent=styles['Heading3'],
                     fontSize=12,
                     textColor=colors.HexColor('#0369a1'),
-                    fontName='Helvetica-Bold',
+                    fontName=default_font_bold,
                     spaceAfter=8
                 )
                 story.append(Paragraph(f"{req_id} (Confidence: {confidence:.1%})", req_style))
@@ -732,7 +767,7 @@ class ReportGenerator:
                         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#00BCD4')),
                         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTNAME', (0, 0), (-1, 0), default_font_bold),
                         ('FONTSIZE', (0, 0), (-1, -1), 8),
                         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
                         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.lightcyan, colors.white])
@@ -759,7 +794,7 @@ class ReportGenerator:
             metrics_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0369a1')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 0), (-1, 0), default_font_bold),
                 ('GRID', (0, 0), (-1, -1), 1, colors.grey),
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.lightgrey, colors.white])
             ]))
