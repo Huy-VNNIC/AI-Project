@@ -595,107 +595,257 @@ class ReportGenerator:
 """
     
     def generate_pdf_report(self) -> bytes:
-        """Generate PDF report with charts"""
+        """Generate professional PDF report with charts and all test cases"""
         try:
             from reportlab.lib.pagesizes import letter, A4
             from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle, Image
             from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
             from reportlab.lib.units import inch
             from reportlab.lib import colors
-            from reportlab.lib.enums import TA_CENTER, TA_LEFT
+            from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
             
-            # Create PDF
+            # Create PDF buffer
             pdf_buffer = BytesIO()
-            doc = SimpleDocTemplate(pdf_buffer, pagesize=A4)
+            doc = SimpleDocTemplate(pdf_buffer, pagesize=A4, 
+                                   topMargin=0.5*inch, bottomMargin=0.5*inch,
+                                   leftMargin=0.5*inch, rightMargin=0.5*inch)
             story = []
             styles = getSampleStyleSheet()
+            
+            # ==================== PAGE 1: TITLE & OVERVIEW ====================
             
             # Title
             title_style = ParagraphStyle(
                 'CustomTitle',
                 parent=styles['Heading1'],
-                fontSize=24,
+                fontSize=28,
                 textColor=colors.HexColor('#0369a1'),
-                spaceAfter=30,
-                alignment=TA_CENTER
+                spaceAfter=10,
+                alignment=TA_CENTER,
+                fontName='Helvetica-Bold'
             )
-            story.append(Paragraph("📊 Test Case Analysis Report", title_style))
+            story.append(Paragraph("TEST CASE ANALYSIS REPORT", title_style))
+            story.append(Paragraph("AI-Generated Test Cases with NLP Analysis", styles['Normal']))
             story.append(Paragraph(f"Generated: {self.timestamp}", styles['Normal']))
             story.append(Spacer(1, 0.3*inch))
             
-            # Overview Stats
-            story.append(Paragraph("📈 Tổng Quan", styles['Heading2']))
+            # Overview Statistics
+            story.append(Paragraph("OVERVIEW STATISTICS", styles['Heading2']))
+            
             total_reqs = len(self.detailed)
             total_tests = sum(r.get('test_cases_count', 0) for r in self.detailed)
             avg_confidence = self.test_data.get('avg_nlp_confidence', 0)
             
             overview_data = [
-                ['Chỉ Số', 'Giá Trị'],
-                ['Requirements', str(total_reqs)],
-                ['Test Cases', str(total_tests)],
-                ['NLP Confidence', f'{avg_confidence:.1%}'],
-                ['Test/Requirement', f'{total_tests/total_reqs if total_reqs > 0 else 0:.1f}']
+                ['Metric', 'Value'],
+                ['Requirements Analyzed', str(total_reqs)],
+                ['Total Test Cases', str(total_tests)],
+                ['Avg NLP Confidence', f'{avg_confidence:.1%}'],
+                ['Tests per Requirement', f'{total_tests/total_reqs if total_reqs > 0 else 0:.1f}']
             ]
             
-            overview_table = Table(overview_data)
+            overview_table = Table(overview_data, colWidths=[3*inch, 2*inch])
             overview_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0369a1')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('FONTSIZE', (0, 0), (-1, 0), 12),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
                 ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white])
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.lightgrey, colors.white])
             ]))
             story.append(overview_table)
             story.append(Spacer(1, 0.3*inch))
             
-            # Test Type Distribution
+            # ==================== PAGE 2: CHARTS ====================
+            
             story.append(PageBreak())
-            story.append(Paragraph("📋 Phân Tích Chi Tiết", styles['Heading2']))
+            story.append(Paragraph("ANALYSIS CHARTS", styles['Heading2']))
             
-            type_counts = {}
-            for req in self.detailed:
-                for tc in req.get('test_cases', []):
-                    tc_type = tc.get('type', 'other')
-                    type_counts[tc_type] = type_counts.get(tc_type, 0) + 1
+            # Create charts using matplotlib
+            charts_path = self._create_matplotlib_charts()
             
-            type_data = [['Loại Test', 'Số Lượng', 'Tỷ Lệ %']]
-            for t, c in sorted(type_counts.items(), key=lambda x: x[1], reverse=True):
-                type_data.append([t, str(c), f'{c/sum(type_counts.values())*100:.1f}%'])
+            if charts_path:
+                for chart_file, chart_title in charts_path:
+                    try:
+                        img = Image(chart_file, width=5.5*inch, height=3*inch)
+                        story.append(Paragraph(chart_title, styles['Heading3']))
+                        story.append(img)
+                        story.append(Spacer(1, 0.2*inch))
+                    except:
+                        pass
             
-            type_table = Table(type_data)
-            type_table.setStyle(TableStyle([
+            # ==================== PAGE 3+: TEST CASE DETAILS ====================
+            
+            story.append(PageBreak())
+            story.append(Paragraph("TEST CASE DETAILS BY REQUIREMENT", styles['Heading2']))
+            
+            # Add test cases by requirement
+            for req_idx, req in enumerate(self.detailed):
+                if req_idx > 0 and req_idx % 3 == 0:
+                    story.append(PageBreak())
+                
+                req_id = req.get('requirement_id', 'UNKNOWN')
+                req_text = req.get('requirement', '')[:150]
+                confidence = req.get('nlp_confidence', 0)
+                test_cases = req.get('test_cases', [])
+                
+                # Requirement header
+                req_style = ParagraphStyle(
+                    'ReqStyle',
+                    parent=styles['Heading3'],
+                    fontSize=12,
+                    textColor=colors.HexColor('#0369a1'),
+                    fontName='Helvetica-Bold',
+                    spaceAfter=8
+                )
+                story.append(Paragraph(f"{req_id} (Confidence: {confidence:.1%})", req_style))
+                story.append(Paragraph(f"<i>{req_text}...</i>", styles['Normal']))
+                story.append(Spacer(1, 0.1*inch))
+                
+                # Test cases table for this requirement
+                if test_cases:
+                    tc_data = [['ID', 'Type', 'Priority', 'Confidence', 'Effort']]
+                    for tc in test_cases:
+                        tc_id = tc.get('id', 'N/A')[:15]
+                        tc_type = tc.get('type', 'N/A').replace('_', ' ')[:12]
+                        tc_priority = tc.get('priority', 'N/A')[:8]
+                        tc_conf = f"{float(tc.get('confidence', 0.85)):.0%}"
+                        tc_effort = f"{float(tc.get('effort', 1.0)):.1f}h"
+                        tc_data.append([tc_id, tc_type, tc_priority, tc_conf, tc_effort])
+                    
+                    tc_table = Table(tc_data, colWidths=[0.9*inch, 1.2*inch, 0.9*inch, 0.9*inch, 0.8*inch])
+                    tc_table.setStyle(TableStyle([
+                        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#00BCD4')),
+                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                        ('FONTSIZE', (0, 0), (-1, -1), 8),
+                        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.lightcyan, colors.white])
+                    ]))
+                    story.append(tc_table)
+                
+                story.append(Spacer(1, 0.2*inch))
+            
+            # ==================== FINAL PAGE: SUMMARY ====================
+            
+            story.append(PageBreak())
+            story.append(Paragraph("QUALITY METRICS & RECOMMENDATIONS", styles['Heading2']))
+            
+            quality_score = self._calculate_quality_score()
+            recommendations = self._generate_recommendations()
+            
+            metrics_data = [
+                ['Quality Score', f'{quality_score:.0f}/100'],
+                ['Test Diversity', 'Good' if len(set(tc.get('type') for req in self.detailed for tc in req.get('test_cases', []))) >= 3 else 'Fair'],
+                ['Coverage', f'{total_tests} test cases across {total_reqs} requirements']
+            ]
+            
+            metrics_table = Table(metrics_data, colWidths=[2*inch, 3*inch])
+            metrics_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0369a1')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.beige, colors.white])
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.lightgrey, colors.white])
             ]))
-            story.append(type_table)
+            story.append(metrics_table)
             story.append(Spacer(1, 0.2*inch))
             
-            # Requirement Breakdown
-            story.append(Paragraph("📝 Chi Tiết Requirement", styles['Heading3']))
-            for req in self.detailed[:10]:  # First 10 requirements
-                req_id = req.get('requirement_id', 'UNKNOWN')
-                req_text = req.get('requirement', '')[:80]
-                confidence = req.get('nlp_confidence', 0)
-                test_count = req.get('test_cases_count', 0)
-                
-                story.append(Paragraph(
-                    f"<b>{req_id}</b> - {req_text}... (Confidence: {confidence:.1%}, Tests: {test_count})",
-                    styles['Normal']
-                ))
+            story.append(Paragraph("RECOMMENDATIONS", styles['Heading3']))
+            for rec in recommendations:
+                story.append(Paragraph(f"• {rec}", styles['Normal']))
             
             # Build PDF
             doc.build(story)
             return pdf_buffer.getvalue()
         
-        except ImportError:
-            return b"PDF library not installed. Install reportlab: pip install reportlab"
+        except ImportError as e:
+            return f"PDF libraries not installed. Install: pip install reportlab matplotlib".encode()
+        except Exception as e:
+            return f"PDF generation error: {str(e)}".encode()
+    
+    def _create_matplotlib_charts(self) -> List[tuple]:
+        """Create matplotlib charts and return paths to files"""
+        import tempfile
+        import os
+        
+        chart_files = []
+        
+        try:
+            import matplotlib.pyplot as plt
+            
+            temp_dir = tempfile.gettempdir()
+            
+            # ========== Chart 1: Test Type Distribution ==========
+            type_counts = {}
+            for req in self.detailed:
+                for tc in req.get('test_cases', []):
+                    tc_type = tc.get('type', 'other').replace('_', ' ').title()
+                    type_counts[tc_type] = type_counts.get(tc_type, 0) + 1
+            
+            if type_counts:
+                fig, ax = plt.subplots(figsize=(8, 5))
+                types = list(type_counts.keys())
+                counts = list(type_counts.values())
+                colors_list = ['#4CAF50', '#FF6B6B', '#2196F3', '#9C27B0', '#FF9800']
+                ax.pie(counts, labels=types, autopct='%1.1f%%', colors=colors_list[:len(types)],
+                       startangle=90, textprops={'fontsize': 10})
+                ax.set_title('Test Type Distribution', fontsize=14, fontweight='bold')
+                chart_file = os.path.join(temp_dir, 'chart_test_types.png')
+                plt.savefig(chart_file, dpi=100, bbox_inches='tight')
+                plt.close()
+                chart_files.append((chart_file, 'Test Type Distribution'))
+            
+            # ========== Chart 2: Priority Distribution ==========
+            priority_counts = {}
+            for req in self.detailed:
+                for tc in req.get('test_cases', []):
+                    priority = tc.get('priority', 'MEDIUM')
+                    priority_counts[priority] = priority_counts.get(priority, 0) + 1
+            
+            if priority_counts:
+                fig, ax = plt.subplots(figsize=(8, 5))
+                priorities = list(priority_counts.keys())
+                counts = list(priority_counts.values())
+                priority_colors = {'CRITICAL': '#FF6B6B', 'HIGH': '#FFA500', 'MEDIUM': '#FFD700'}
+                bar_colors = [priority_colors.get(p, '#999') for p in priorities]
+                ax.bar(priorities, counts, color=bar_colors, edgecolor='black', linewidth=1.5)
+                ax.set_ylabel('Number of Test Cases', fontsize=11, fontweight='bold')
+                ax.set_title('Priority Distribution', fontsize=14, fontweight='bold')
+                ax.grid(axis='y', alpha=0.3)
+                chart_file = os.path.join(temp_dir, 'chart_priority.png')
+                plt.savefig(chart_file, dpi=100, bbox_inches='tight')
+                plt.close()
+                chart_files.append((chart_file, 'Priority Distribution'))
+            
+            # ========== Chart 3: Confidence Distribution ==========
+            confidence_values = []
+            for req in self.detailed:
+                for tc in req.get('test_cases', []):
+                    confidence_values.append(float(tc.get('confidence', 0.85)))
+            
+            if confidence_values:
+                fig, ax = plt.subplots(figsize=(8, 5))
+                bins = [0, 0.7, 0.8, 0.9, 1.0]
+                bin_labels = ['< 70%', '70-80%', '80-90%', '> 90%']
+                counts, _ = np.histogram(confidence_values, bins=bins)
+                colors_list = ['#FF6B6B', '#FFA500', '#FFD700', '#51cf66']
+                ax.bar(bin_labels, counts, color=colors_list, edgecolor='black', linewidth=1.5)
+                ax.set_ylabel('Number of Test Cases', fontsize=11, fontweight='bold')
+                ax.set_title('Confidence Distribution', fontsize=14, fontweight='bold')
+                ax.grid(axis='y', alpha=0.3)
+                chart_file = os.path.join(temp_dir, 'chart_confidence.png')
+                plt.savefig(chart_file, dpi=100, bbox_inches='tight')
+                plt.close()
+                chart_files.append((chart_file, 'Confidence Distribution'))
+            
+        except Exception as e:
+            print(f"Chart creation error: {e}")
+        
+        return chart_files
     
     def export_statistics_json(self) -> str:
         """Export statistics as JSON for dashboard/analytics"""
