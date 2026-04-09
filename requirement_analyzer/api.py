@@ -18,6 +18,7 @@ import tempfile
 import pandas as pd
 import json
 import logging
+import re
 from pathlib import Path
 
 # Thiết lập logging
@@ -32,6 +33,7 @@ sys.path.append(str(PROJECT_ROOT))
 # Import các module cần thiết
 from requirement_analyzer.analyzer import RequirementAnalyzer
 from requirement_analyzer.estimator import EffortEstimator
+from requirement_analyzer.task_Invest_text import InvestAnalyzer
 from requirement_analyzer.task_integration import get_integration
 from requirement_analyzer.utils import preprocess_text_for_estimation, improve_confidence_level
 
@@ -103,6 +105,47 @@ class COCOMOParameters(BaseModel):
     
     # Estimation Method
     method: Optional[str] = "weighted_average"
+
+class InvestRequest(BaseModel):
+    text: str
+    split_mode: Optional[str] = "line"
+    min_length: Optional[int] = 15
+
+def split_invest_inputs(text: str, split_mode: str) -> List[str]:
+    """
+    Split user input into logical INVEST items.
+    In line mode, continuation lines are merged when they appear to belong
+    to the same requirement sentence.
+    """
+    raw_text = text or ""
+    if split_mode == "paragraph":
+        return [chunk.strip() for chunk in re.split(r"\n\s*\n+", raw_text) if chunk.strip()]
+
+    merged_items: List[str] = []
+    current = ""
+
+    for raw_line in raw_text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        if not current:
+            current = line
+            continue
+
+        starts_like_continuation = bool(re.match(r"^[a-zA-ZÀ-ỹ0-9]", line)) and line[:1].islower()
+        previous_expects_continuation = current.endswith(",") or current.endswith(":") or current.endswith(";")
+
+        if previous_expects_continuation or starts_like_continuation:
+            current = f"{current} {line}"
+        else:
+            merged_items.append(current.strip())
+            current = line
+
+    if current:
+        merged_items.append(current.strip())
+
+    return merged_items
 
 # Khởi tạo FastAPI app
 app = FastAPI(
@@ -897,6 +940,75 @@ async def task_generation_page(request: Request):
     Trang task generation và automated effort estimation
     """
     return templates.TemplateResponse("task_generation.html", {"request": request})
+
+@app.get("/task_Invest", response_class=HTMLResponse)
+async def task_invest_page(request: Request):
+    """
+    Trang hien thi ket qua/task INVEST
+    """
+    return templates.TemplateResponse("task_Invest.html", {"request": request})
+
+@app.post("/api/task-invest/analyze")
+async def analyze_invest_tasks(payload: InvestRequest):
+    """
+    Analyze tasks/user stories with INVEST criteria
+    """
+    try:
+        split_mode = (payload.split_mode or "line").lower()
+        min_length = max(1, payload.min_length or 15)
+        analyzer = InvestAnalyzer()
+
+        chunks = split_invest_inputs(payload.text or "", split_mode)
+        tasks = [chunk.strip() for chunk in chunks if chunk and chunk.strip() and len(chunk.strip()) >= min_length]
+        if not tasks:
+            return {
+                "status": "success",
+                "summary": {
+                    "task_count": 0,
+                    "average_score": 0,
+                    "overall_label": "No data",
+                    "criteria_pass_rates": {}
+                },
+                "results": []
+            }
+
+        results = []
+        for task in tasks:
+            results.extend(analyzer.analyze_many(task))
+        criteria_keys = ["independent", "negotiable", "valuable", "estimable", "small", "testable"]
+        total_score = sum(item.get("score", 0) for item in results)
+        max_score = len(results) * len(criteria_keys)
+        average_score = round(total_score / len(results), 2)
+
+        if max_score > 0 and (total_score / max_score) >= 0.8:
+            overall_label = "Strong INVEST"
+        elif max_score > 0 and (total_score / max_score) >= 0.5:
+            overall_label = "Needs Refinement"
+        else:
+            overall_label = "Weak INVEST"
+
+        criteria_pass_rates = {}
+        for key in criteria_keys:
+            passed = sum(1 for item in results if item.get("criteria", {}).get(key, {}).get("pass"))
+            criteria_pass_rates[key] = {
+                "passed": passed,
+                "total": len(results),
+                "percent": round((passed / len(results)) * 100) if results else 0
+            }
+
+        return {
+            "status": "success",
+            "summary": {
+                "task_count": len(results),
+                "average_score": average_score,
+                "overall_label": overall_label,
+                "criteria_pass_rates": criteria_pass_rates
+            },
+            "results": results
+        }
+    except Exception as e:
+        logger.error(f"Error analyzing INVEST tasks: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/debug", response_class=HTMLResponse)
 async def debug_page(request: Request):

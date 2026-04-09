@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INVEST Task Review</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(180deg, #f7fbfd 0%, #eef4f8 100%);
+            min-height: 100vh;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f4c81, #2f7c95);
+            color: #fff;
+            border-radius: 24px;
+        }
+
+        .panel,
+        .task-card {
+            border: 0;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(16, 24, 40, .08);
+        }
+
+        .dimension-box {
+            background: #f8fbfd;
+            border: 1px solid #e7eef3;
+            border-radius: 16px;
+            padding: .9rem;
+        }
+
+        .dimension-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: .75rem;
+        }
+
+        .pill {
+            border-radius: 999px;
+            padding: .35rem .8rem;
+            font-size: .85rem;
+            font-weight: 600;
+        }
+
+        .good {
+            background: rgba(31, 143, 95, .12);
+            color: #1f8f5f;
+        }
+
+        .mid {
+            background: rgba(217, 142, 4, .14);
+            color: #d98e04;
+        }
+
+        .bad {
+            background: rgba(196, 69, 54, .12);
+            color: #c44536;
+        }
+
+        .task-text {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg, #0f4c81, #2f7c95);">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-semibold" href="/"><i class="bi bi-diagram-3"></i> Requirement Analyzer</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">Effort Estimation</a>
+                <a class="nav-link" href="/task-generation">Task Generation</a>
+                <a class="nav-link active" href="/task_Invest">INVEST Review</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4 py-lg-3">
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="card panel mb-4">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-3">Task Input</h4>
+                        <div>
+                            <ul class="nav nav-pills mb-3 justify-content-center" id="input-tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="text-input-tab" data-bs-toggle="pill"
+                                        data-bs-target="#text-input" type="button">
+                                        <i class="bi bi-keyboard"></i> Text
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="file-input-tab" data-bs-toggle="pill"
+                                        data-bs-target="#file-input" type="button">
+                                        <i class="bi bi-file-upload"></i> File
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <form id="investForm">
+                            <div class="mb-3">
+                                <label for="taskInput" class="form-label fw-semibold">Enter tasks</label>
+                                <textarea class="form-control font-monospace" id="taskInput" rows="14" placeholder="As a customer, I want to save multiple shipping addresses so that I can checkout faster.
+As an admin, I want to export monthly revenue reports so that I can review business performance.
+Build login feature."></textarea>
+                            </div>
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label for="splitMode" class="form-label fw-semibold">Split mode</label>
+                                    <select id="splitMode" class="form-select">
+                                        <option value="line">One task per line</option>
+                                        <option value="paragraph">One task per paragraph</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="minLength" class="form-label fw-semibold">Minimum length</label>
+                                    <input type="number" id="minLength" class="form-control" min="10" max="300"
+                                        value="15">
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button type="submit" class="btn btn-primary btn-lg flex-grow-1"><i
+                                        class="bi bi-search"></i> Analyze INVEST</button>
+                                <button type="button" class="btn btn-outline-secondary btn-lg"
+                                    id="sampleBtn">Sample</button>
+                                <button type="button" class="btn btn-outline-dark btn-lg" id="clearBtn">Clear</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="card panel">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Quick checklist</h5>
+                        <ul class="text-muted ps-3 mb-0">
+                            <li><b>Independent</b>: Avoid combining multiple dependent tasks; each user story should be
+                                independent so it can be developed and delivered separately.</li>
+
+                            <li><b>Negotiable</b>: Focus on the goal and desired outcome, not a fixed implementation;
+                                the details can be discussed and refined during development.</li>
+
+                            <li><b>Valuable</b>: Clearly deliver value to the user or the business; every user story
+                                must provide meaningful benefit.</li>
+
+                            <li><b>Estimable</b>: Be clear and detailed enough so the team can estimate the effort
+                                required.</li>
+
+                            <li><b>Small</b>: Be small enough to be completed within a single sprint; avoid overly large
+                                or complex stories.</li>
+
+                            <li><b>Testable</b>: Can be verified through clear acceptance criteria.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card panel mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <div>
+                                <h4 class="fw-bold mb-1">INVEST Overview</h4>
+                                <p class="text-muted mb-0">Aggregated results for the tasks you entered.</p>
+                            </div>
+                            <button class="btn btn-outline-primary" id="copyBtn" type="button"><i
+                                    class="bi bi-clipboard"></i> Copy Summary</button>
+                        </div>
+                        <div id="emptyState" class="text-center py-5">
+                            <i class="bi bi-card-checklist display-4 text-muted"></i>
+                            <h5 class="mt-3">No tasks analyzed yet</h5>
+                            <p class="text-muted mb-0">Enter tasks on the left, then click <strong>Analyze INVEST</strong>.</p>
+                        </div>
+                        <div id="summaryState" style="display:none;">
+                            <div class="row g-3 mt-1">
+                                <div class="col-sm-4">
+                                    <div class="border rounded-4 p-3 h-100 bg-light">
+                                        <div class="text-muted small">Tasks</div>
+                                        <div class="fs-2 fw-bold" id="sumCount">0</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="border rounded-4 p-3 h-100 bg-light">
+                                        <div class="text-muted small">Average score</div>
+                                        <div class="fs-2 fw-bold" id="sumAvg">0/6</div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="border rounded-4 p-3 h-100 bg-light">
+                                        <div class="text-muted small">Assessment</div>
+                                        <div class="fs-5 fw-bold" id="sumLevel">-</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <h6 class="fw-bold mb-3">Pass rate by criterion</h6>
+                                <div class="dimension-grid" id="dimensionSummary"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="resultsList" class="d-grid gap-3"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/task-invest.js"></script>
+</body>
+
+</html>
