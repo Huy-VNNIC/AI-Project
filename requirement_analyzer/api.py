@@ -19,6 +19,7 @@ import pandas as pd
 import json
 import logging
 import re
+import csv
 from pathlib import Path
 
 # Thiết lập logging
@@ -34,6 +35,7 @@ sys.path.append(str(PROJECT_ROOT))
 from requirement_analyzer.analyzer import RequirementAnalyzer
 from requirement_analyzer.estimator import EffortEstimator
 from requirement_analyzer.task_Invest_text import InvestAnalyzer
+from requirement_analyzer.task_refine_invest import InvestTaskRefiner
 from requirement_analyzer.task_integration import get_integration
 from requirement_analyzer.utils import preprocess_text_for_estimation, improve_confidence_level
 
@@ -111,11 +113,321 @@ class InvestRequest(BaseModel):
     split_mode: Optional[str] = "line"
     min_length: Optional[int] = 15
 
+
+def _build_empty_invest_response() -> Dict[str, Any]:
+    return {
+        "status": "success",
+        "summary": {
+            "task_count": 0,
+            "average_score": 0,
+            "score_scale": 6,
+            "overall_label": "No data",
+            "criteria_pass_rates": {}
+        },
+        "results": []
+    }
+
+
+def _build_error_invest_response(detail: str) -> Dict[str, Any]:
+    """Helper function to build consistent error response for INVEST analysis"""
+    return {
+        "status": "error",
+        "detail": detail,
+        "summary": {
+            "task_count": 0,
+            "average_score": 0,
+            "score_scale": 6,
+            "overall_label": "Error",
+            "criteria_pass_rates": {},
+        },
+        "results": [],
+    }
+
+
+def _build_invest_response_from_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    criteria_keys = ["independent", "negotiable", "valuable", "estimable", "small", "testable"]
+    total_score = sum(item.get("score", 0) for item in results)
+    average_score = round(total_score / len(results), 4) if results else 0
+
+    if not results:
+        overall_label = "No data"
+    elif average_score >= 5:
+        overall_label = "Strong INVEST"
+    elif average_score >= 3:
+        overall_label = "Needs Refinement"
+    else:
+        overall_label = "Weak INVEST"
+
+    criteria_pass_rates = {}
+    for key in criteria_keys:
+        passed = sum(1 for item in results if item.get("criteria", {}).get(key, {}).get("pass"))
+        criteria_pass_rates[key] = {
+            "passed": passed,
+            "total": len(results),
+            "percent": round((passed / len(results)) * 100) if results else 0
+        }
+
+    return {
+        "status": "success",
+        "summary": {
+            "task_count": len(results),
+            "average_score": average_score,
+            "overall_label": overall_label,
+            "criteria_pass_rates": criteria_pass_rates
+        },
+        "results": results
+    }
+
+
+def _parse_invest_tasks_from_json_payload(payload: Any) -> List[str]:
+    if isinstance(payload, list):
+        items = payload
+    elif isinstance(payload, dict) and isinstance(payload.get("tasks"), list):
+        items = payload["tasks"]
+    else:
+        raise ValueError("JSON file must be a task array or an object containing 'tasks'.")
+
+    parsed_tasks: List[str] = []
+    for item in items:
+        if isinstance(item, str):
+            text = item.strip()
+        elif isinstance(item, dict):
+            title = str(item.get("title", "")).strip()
+            description = str(item.get("description", "")).strip()
+            acceptance_criteria = item.get("acceptance_criteria", [])
+            if isinstance(acceptance_criteria, list):
+                acceptance_text = "\n".join(str(ac).strip() for ac in acceptance_criteria if str(ac).strip())
+            else:
+                acceptance_text = str(acceptance_criteria or "").strip()
+            text = "\n".join(part for part in [title, description, acceptance_text] if part).strip()
+        else:
+            text = str(item).strip()
+
+        if text:
+            parsed_tasks.append(text)
+    return parsed_tasks
+
+
+def _compose_invest_task_text(title: str = "", description: str = "", acceptance_criteria: Optional[List[str]] = None) -> str:
+    parts: List[str] = []
+    if title and title.strip():
+        parts.append(f"Title: {title.strip()}")
+    if description and description.strip():
+        parts.append(f"Description: {description.strip()}")
+    cleaned_ac = [str(item).strip() for item in (acceptance_criteria or []) if str(item).strip()]
+    if cleaned_ac:
+        parts.append("Acceptance Criteria:")
+        parts.extend(f"- {item}" for item in cleaned_ac)
+    return "\n".join(parts).strip()
+
+
+def _build_task_dict_from_text(text: str, index: int) -> Dict[str, Any]:
+    normalized = (text or "").strip()
+    single_line = re.sub(r"\s+", " ", normalized).strip()
+    title = single_line[:80].rstrip(" ,.;:-") if single_line else f"Task {index}"
+    return {
+        "title": title or f"Task {index}",
+        "description": normalized,
+        "acceptance_criteria": [],
+    }
+
+
+def _parse_csv_tasks_from_text(decoded_text: str) -> List[Dict[str, Any]]:
+    lines = [line for line in decoded_text.splitlines() if line.strip()]
+    if not lines:
+        return []
+
+    reader = csv.DictReader(lines)
+    if reader.fieldnames:
+        normalized_fields = {field.strip().lower(): field for field in reader.fieldnames if field}
+        if "title" in normalized_fields or "description" in normalized_fields:
+            tasks: List[Dict[str, Any]] = []
+            for index, row in enumerate(reader, start=1):
+                title = str(row.get(normalized_fields.get("title", ""), "")).strip()
+                description = str(row.get(normalized_fields.get("description", ""), "")).strip()
+                acceptance_key = normalized_fields.get("acceptance_criteria")
+                acceptance_raw = row.get(acceptance_key, "") if acceptance_key else ""
+                acceptance_criteria = [
+                    item.strip()
+                    for item in re.split(r"\s*\|\s*", str(acceptance_raw or ""))
+                    if item.strip()
+                ]
+                combined_text = "\n".join(part for part in [title, description] if part).strip()
+                if not combined_text and not acceptance_criteria:
+                    continue
+                tasks.append({
+                    "title": title or f"Task {index}",
+                    "description": description or combined_text or title or f"Task {index}",
+                    "acceptance_criteria": acceptance_criteria,
+                })
+            if tasks:
+                return tasks
+
+    return [
+        _build_task_dict_from_text(line, index)
+        for index, line in enumerate(lines, start=1)
+    ]
+
+
+def _parse_uploaded_tasks_to_payload(
+    decoded_text: str,
+    file_ext: str,
+    split_mode: str,
+    min_length: int,
+) -> Dict[str, Any]:
+    if file_ext == ".json":
+        try:
+            payload = json.loads(decoded_text)
+        except json.JSONDecodeError as exc:
+            raise HTTPException(status_code=400, detail=f"Invalid JSON file: {exc.msg}") from exc
+
+        if isinstance(payload, list):
+            return {"tasks": payload}
+        if isinstance(payload, dict) and isinstance(payload.get("tasks"), list):
+            return payload
+        raise HTTPException(
+            status_code=400,
+            detail="JSON file must be a task array or an object containing 'tasks'.",
+        )
+
+    if file_ext == ".csv":
+        tasks = _parse_csv_tasks_from_text(decoded_text)
+        return {"tasks": tasks}
+
+    chunks = split_invest_inputs(decoded_text, split_mode)
+    tasks = [
+        _build_task_dict_from_text(chunk.strip(), index)
+        for index, chunk in enumerate(chunks, start=1)
+        if chunk and chunk.strip() and len(chunk.strip()) >= min_length
+    ]
+    return {"tasks": tasks}
+
+
+def _build_refined_invest_file_response(refined_payload: Dict[str, Any], min_dimension: int) -> Dict[str, Any]:
+    all_tasks = refined_payload.get("tasks", []) or []
+    display_tasks = all_tasks
+    criteria_keys = ["independent", "negotiable", "valuable", "estimable", "small", "testable"]
+
+    results: List[Dict[str, Any]] = []
+    for task in display_tasks:
+        invest = task.get("invest", {})
+        score_map = invest.get("score", {}) or {}
+        criteria = {}
+        pass_count = 0
+        for key in criteria_keys:
+            dim_score = int(score_map.get(key, 0) or 0)
+            passed = dim_score >= min_dimension
+            if passed:
+                pass_count += 1
+            criteria[key] = {
+                "pass": passed,
+                "reason": f"Score {dim_score}/5"
+            }
+
+        refinement_info = task.get("invest_refinement", {}) or {}
+        status = refinement_info.get("status", "unknown")
+        notes = refinement_info.get("notes") or []
+        if status == "kept" and not notes:
+            notes = [refinement_info.get("reason") or "Task already met INVEST, no changes required."]
+        original_text = _compose_invest_task_text(
+            refinement_info.get("original_title") or task.get("title") or "",
+            refinement_info.get("original_description") or task.get("description") or "",
+            refinement_info.get("original_acceptance_criteria") or task.get("acceptance_criteria") or [],
+        )
+        refined_text = _compose_invest_task_text(
+            task.get("title") or "Untitled task",
+            task.get("description") or "",
+            task.get("acceptance_criteria") or [],
+        )
+        results.append({
+            "title": task.get("title") or "Untitled task",
+            "original": original_text,
+            "refined_title": task.get("title") or "Untitled task",
+            "refined": refined_text,
+            "refined_description": task.get("description") or "",
+            "acceptance_criteria": task.get("acceptance_criteria") or [],
+            "issues": notes,
+            "criteria": criteria,
+            "score": pass_count,
+            "invest_total": invest.get("total", 0),
+            "invest_grade": invest.get("grade", "Unknown"),
+            "meets_invest": invest.get("meets_invest", False),
+            "recommended_action": "keep" if invest.get("meets_invest", False) else "refine",
+            "refinement_status": status,
+        })
+
+    if not results:
+        return {
+            "status": "success",
+            "mode": "refined_tasks",
+            "summary": {
+                "task_count": 0,
+                "average_score": 0,
+                "score_scale": 6,
+                "overall_label": "No tasks found",
+                "criteria_pass_rates": {
+                    key: {"passed": 0, "total": 0, "percent": 0}
+                    for key in criteria_keys
+                },
+            },
+            "results": [],
+            "refinement": {
+                "before": refined_payload.get("summary_before", {}),
+            "after": refined_payload.get("summary_after", {}),
+            "invest_ready_total": refined_payload.get("invest_ready_total", 0),
+            "refined_ready_total": refined_payload.get("refined_ready_total", 0),
+            "invest_not_ready_total": refined_payload.get("invest_not_ready_total", 0),
+            "displayed_total": 0,
+        },
+    }
+
+    criteria_pass_rates = {}
+    for key in criteria_keys:
+        passed = sum(1 for item in results if item.get("criteria", {}).get(key, {}).get("pass"))
+        criteria_pass_rates[key] = {
+            "passed": passed,
+            "total": len(results),
+            "percent": round((passed / len(results)) * 100) if results else 0
+        }
+
+    avg_score = round(sum(item.get("score", 0) for item in results) / (len(results) * 6), 4) if results else 0
+    ready_count = sum(1 for item in results if item.get("meets_invest"))
+    overall_label = (
+        "Tasks ready for INVEST"
+        if ready_count == len(results)
+        else "Tasks reviewed"
+    )
+    return {
+        "status": "success",
+        "mode": "refined_tasks",
+        "summary": {
+            "task_count": len(results),
+            "average_score": avg_score,
+            "score_scale": 6,
+            "overall_label": overall_label,
+            "criteria_pass_rates": criteria_pass_rates,
+        },
+        "results": results,
+        "refinement": {
+            "before": refined_payload.get("summary_before", {}),
+            "after": refined_payload.get("summary_after", {}),
+            "invest_ready_total": refined_payload.get("invest_ready_total", 0),
+            "refined_ready_total": refined_payload.get("refined_ready_total", 0),
+            "invest_not_ready_total": refined_payload.get("invest_not_ready_total", 0),
+            "refined_total": len(results),
+            "displayed_total": len(results),
+        },
+    }
+
 def split_invest_inputs(text: str, split_mode: str) -> List[str]:
     """
     Split user input into logical INVEST items.
     In line mode, continuation lines are merged when they appear to belong
     to the same requirement sentence.
+    
+    Also handles:
+    1. User story format: "As a ..., I want to action1, action2, and action3 ..."
+    2. Comma-separated lists: "Build login, forgot password, social login, audit log, and admin dashboard"
     """
     raw_text = text or ""
     if split_mode == "paragraph":
@@ -145,7 +457,170 @@ def split_invest_inputs(text: str, split_mode: str) -> List[str]:
     if current:
         merged_items.append(current.strip())
 
-    return merged_items
+    # Process merged items to detect and split various patterns
+    final_items: List[str] = []
+    for item in merged_items:
+        # First try to split as user story if it matches that pattern
+        user_story_result = _split_user_story(item)
+        if user_story_result:
+            final_items.extend(user_story_result)
+        # Otherwise try comma-separated list
+        elif _is_comma_separated_list(item):
+            split_items = _split_comma_separated_list(item)
+            final_items.extend(split_items)
+        else:
+            final_items.append(item)
+    
+    return final_items
+
+
+def _split_user_story(text: str) -> List[str]:
+    """
+    Split user story format text.
+    E.g., "As a student, I want to register, view, update and delete my mentoring requests."
+    -> ["As a student, I want to register my mentoring requests.",
+        "As a student, I want to view my mentoring requests.",
+        "As a student, I want to update my mentoring requests.",
+        "As a student, I want to delete my mentoring requests."]
+    """
+    # Pattern: "As a [role], I want to [action1], [action2], and [action3] [suffix]"
+    user_story_pattern = r'^(As\s+[^,]+,\s*I\s+want\s+to)\s+(.+?)$'
+    match = re.match(user_story_pattern, text, re.IGNORECASE)
+    
+    if not match:
+        return []
+    
+    prefix = match.group(1)  # "As a student, I want to"
+    after_prefix = match.group(2)  # "register, view, update and delete my mentoring requests."
+    
+    # Extract actions and suffix
+    # Find the last "and" to separate actions from suffix
+    and_index = after_prefix.rfind(' and ')
+    
+    if and_index == -1:
+        # No "and", try to find comma pattern
+        comma_parts = [p.strip() for p in after_prefix.split(',')]
+        if len(comma_parts) < 2:
+            return []
+        
+        # Find where the actual tail begins (typically after last noun-like word)
+        actions_part = ', '.join(comma_parts[:-1])
+        suffix_part = comma_parts[-1]
+    else:
+        # Extract prefix before "and" and everything after "and"
+        before_and = after_prefix[:and_index].strip()
+        after_and = after_prefix[and_index + 5:].strip()  # Skip " and "
+        
+        # Split before_and by comma to get all actions
+        action_list = [p.strip() for p in before_and.split(',')]
+        action_list.append(after_and.split()[0].strip(',.;') if after_and.split() else after_and)
+        
+        # Suffix is everything after the last action
+        suffix_words = after_and.split()[1:] if ' ' in after_and else []
+        suffix_part = ' '.join(suffix_words) if suffix_words else after_and
+    
+    # Now split by comma in the actions part
+    if and_index != -1:
+        before_and = after_prefix[:and_index].strip()
+        after_and_part = after_prefix[and_index + 5:].strip()
+        
+        # Extract all actions
+        actions = [p.strip() for p in before_and.split(',')]
+        
+        # The last action and suffix are in after_and_part
+        # Find where the action ends and suffix begins
+        last_action_match = re.match(r'^(\S+)(?:\s+(.+))?$', after_and_part)
+        if last_action_match:
+            last_action = last_action_match.group(1)
+            suffix_part = (last_action_match.group(2) or '').strip()
+            actions.append(last_action)
+        else:
+            actions.append(after_and_part)
+            suffix_part = ''
+    else:
+        comma_parts = [p.strip() for p in after_prefix.split(',')]
+        actions = [p for p in comma_parts if p]
+        suffix_part = ''
+    
+    # Clean up actions and build results
+    result: List[str] = []
+    for action in actions:
+        if action:
+            action_clean = action.strip(',.;: ')
+            if suffix_part:
+                full_text = f"{prefix} {action_clean} {suffix_part}".strip()
+            else:
+                full_text = f"{prefix} {action_clean}".strip()
+            
+            # Ensure sentence ends with period
+            if not full_text.endswith('.'):
+                full_text += '.'
+            
+            result.append(full_text)
+    
+    return result if len(result) > 1 else []
+
+
+def _is_comma_separated_list(text: str) -> bool:
+    """
+    Detect if text is a comma-separated list of features/items.
+    E.g., "Build login, forgot password, social login, audit log, and admin dashboard"
+    """
+    comma_count = text.count(',')
+    return comma_count >= 1 and len(text) > 40
+
+
+def _split_comma_separated_list(text: str) -> List[str]:
+    """
+    Split comma-separated list into individual items.
+    Handles the pattern: "item1, item2, item3, and item4"
+    """
+    # Replace " and " with "," to handle the final "and" conjunction
+    normalized = re.sub(r'\s+and\s+', ', ', text, flags=re.IGNORECASE)
+    
+    # Split by comma
+    items = [item.strip() for item in normalized.split(',') if item.strip()]
+    
+    # Clean up items
+    if items:
+        cleaned_items = _clean_list_items(items)
+        return cleaned_items
+    
+    return [text]
+
+
+def _clean_list_items(items: List[str]) -> List[str]:
+    """
+    Clean up list items by extracting and applying common prefixes/verbs.
+    E.g., "Build login, forgot password, social login" 
+    -> Apply "Build" verb to all items that don't start with it
+    """
+    if not items:
+        return items
+    
+    cleaned_items: List[str] = []
+    
+    # Extract common verb/action from first item (preserve original casing)
+    first_item = items[0]
+    common_verb_match = re.match(r'^([A-Za-z]+)\s+', first_item)
+    common_verb_original = common_verb_match.group(1) if common_verb_match else None
+    common_verb_lower = common_verb_original.lower() if common_verb_original else None
+    
+    for item in items:
+        cleaned_item = item.strip()
+        
+        # If we have a common verb
+        if common_verb_lower:
+            # Extract the first word of this item
+            first_word = cleaned_item.split()[0].lower() if cleaned_item.split() else ""
+            
+            # If the first word is NOT the common verb, prepend it
+            if first_word != common_verb_lower:
+                cleaned_item = f"{common_verb_original} {cleaned_item}"
+        
+        cleaned_items.append(cleaned_item)
+    
+    return cleaned_items
 
 # Khởi tạo FastAPI app
 app = FastAPI(
@@ -946,7 +1421,172 @@ async def task_invest_page(request: Request):
     """
     Trang hien thi ket qua/task INVEST
     """
-    return templates.TemplateResponse("task_Invest.html", {"request": request})
+    return templates.TemplateResponse(
+        "task_Invest.html",
+        {
+            "request": request,
+            "analysis_data": None,
+            "active_tab": "text",
+            "form_values": {
+                "text": "",
+                "split_mode": "line",
+                "min_length": 15,
+            },
+            "uploaded_file_name": "",
+        },
+    )
+
+
+async def _process_task_invest_submission(
+    *,
+    text: str = "",
+    split_mode: str = "line",
+    min_length: int = 15,
+    input_mode: str = "text",
+    file: Optional[UploadFile] = None,
+) -> Dict[str, Any]:
+    analysis_data: Dict[str, Any]
+    logger.info(f"input_mode={input_mode}, file={file.filename if file else None}, text_len={len(text)}")
+    has_uploaded_file = bool(file and getattr(file, "filename", None))
+    effective_input_mode = "file" if has_uploaded_file else ("file" if input_mode == "file" else "text")
+    logger.info(f"effective_input_mode={effective_input_mode}")
+    split_mode = (split_mode or "line").lower()
+    min_length = max(1, int(min_length or 15))
+
+    if effective_input_mode == "file":
+        if not file or not file.filename:
+            raise HTTPException(status_code=400, detail="Please choose a file to analyze.")
+
+        allowed_extensions = {".txt", ".md", ".json", ".csv"}
+        file_ext = Path(file.filename).suffix.lower()
+        if file_ext not in allowed_extensions:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported file format. Please upload one of: {', '.join(sorted(allowed_extensions))}"
+            )
+
+        content = await file.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+        decoded_text = content.decode("utf-8-sig")
+        payload = _parse_uploaded_tasks_to_payload(decoded_text, file_ext, split_mode, min_length)
+        uploaded_tasks = payload.get("tasks", []) if isinstance(payload, dict) else []
+        if not uploaded_tasks:
+            analysis_data = _build_empty_invest_response()
+        else:
+            # Analyze uploaded tasks with InvestAnalyzer
+            analyzer = InvestAnalyzer()
+            results = []
+            for task in uploaded_tasks:
+                task_text = _compose_invest_task_text(
+                    task.get("title", ""),
+                    task.get("description", ""),
+                    task.get("acceptance_criteria", [])
+                )
+                results.extend(analyzer.analyze_many(task_text))
+            analysis_data = _build_invest_response_from_results(results)
+            analysis_data["source"] = {
+                "filename": file.filename,
+                "file_type": file_ext,
+                "task_count": len(uploaded_tasks),
+            }
+        return analysis_data
+
+    analyzer = InvestAnalyzer()
+    chunks = split_invest_inputs(text or "", split_mode)
+    tasks = [chunk.strip() for chunk in chunks if chunk and chunk.strip() and len(chunk.strip()) >= min_length]
+    if not tasks:
+        return _build_empty_invest_response()
+
+    # Analyze all tasks with InvestAnalyzer
+    results = []
+    for task in tasks:
+        results.extend(analyzer.analyze_many(task))
+
+    # Return results directly from InvestAnalyzer (accurate INVEST evaluation)
+    return _build_invest_response_from_results(results)
+
+
+@app.post("/task_Invest", response_class=HTMLResponse)
+async def task_invest_page_submit(
+    request: Request,
+    text: str = Form(""),
+    split_mode: str = Form("line"),
+    min_length: int = Form(15),
+    input_mode: str = Form("text"),
+    file: Optional[UploadFile] = File(None),
+):
+    """
+    Process INVEST analysis directly on the /task_Invest page.
+    Supports both text input and uploaded files.
+    """
+    analysis_data: Dict[str, Any]
+    has_uploaded_file = bool(file and getattr(file, "filename", None))
+    effective_input_mode = "file" if has_uploaded_file else ("file" if input_mode == "file" else "text")
+    active_tab = effective_input_mode
+    uploaded_file_name = file.filename if file and file.filename else ""
+
+    try:
+        split_mode = (split_mode or "line").lower()
+        min_length = max(1, int(min_length or 15))
+        analysis_data = await _process_task_invest_submission(
+            text=text,
+            split_mode=split_mode,
+            min_length=min_length,
+            input_mode=input_mode,
+            file=file,
+        )
+    except HTTPException as exc:
+        analysis_data = _build_error_invest_response(exc.detail)
+    except UnicodeDecodeError:
+        analysis_data = _build_error_invest_response("File must be UTF-8 encoded.")
+    except Exception as exc:
+        logger.error(f"Error processing /task_Invest form: {exc}", exc_info=True)
+        analysis_data = _build_error_invest_response(str(exc))
+
+    return templates.TemplateResponse(
+        "task_Invest.html",
+        {
+            "request": request,
+            "analysis_data": analysis_data,
+            "active_tab": active_tab,
+            "form_values": {
+                "text": text or "",
+                "split_mode": split_mode,
+                "min_length": min_length,
+            },
+            "uploaded_file_name": uploaded_file_name,
+        },
+    )
+
+
+@app.post("/api/task-invest/analyze-form")
+async def analyze_invest_form(
+    text: str = Form(""),
+    split_mode: str = Form("line"),
+    min_length: int = Form(15),
+    input_mode: str = Form("text"),
+    file: Optional[UploadFile] = File(None),
+):
+    try:
+        analysis_data = await _process_task_invest_submission(
+            text=text,
+            split_mode=split_mode,
+            min_length=min_length,
+            input_mode=input_mode,
+            file=file,
+        )
+        analysis_data["active_tab"] = "file" if (file and getattr(file, "filename", None)) else ("file" if input_mode == "file" else "text")
+        return analysis_data
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="File must be UTF-8 encoded.")
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error(f"Error processing /api/task-invest/analyze-form: {exc}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(exc))
+
 
 @app.post("/api/task-invest/analyze")
 async def analyze_invest_tasks(payload: InvestRequest):
@@ -961,54 +1601,17 @@ async def analyze_invest_tasks(payload: InvestRequest):
         chunks = split_invest_inputs(payload.text or "", split_mode)
         tasks = [chunk.strip() for chunk in chunks if chunk and chunk.strip() and len(chunk.strip()) >= min_length]
         if not tasks:
-            return {
-                "status": "success",
-                "summary": {
-                    "task_count": 0,
-                    "average_score": 0,
-                    "overall_label": "No data",
-                    "criteria_pass_rates": {}
-                },
-                "results": []
-            }
+            return _build_empty_invest_response()
 
         results = []
         for task in tasks:
             results.extend(analyzer.analyze_many(task))
-        criteria_keys = ["independent", "negotiable", "valuable", "estimable", "small", "testable"]
-        total_score = sum(item.get("score", 0) for item in results)
-        max_score = len(results) * len(criteria_keys)
-        average_score = round(total_score / len(results), 2)
-
-        if max_score > 0 and (total_score / max_score) >= 0.8:
-            overall_label = "Strong INVEST"
-        elif max_score > 0 and (total_score / max_score) >= 0.5:
-            overall_label = "Needs Refinement"
-        else:
-            overall_label = "Weak INVEST"
-
-        criteria_pass_rates = {}
-        for key in criteria_keys:
-            passed = sum(1 for item in results if item.get("criteria", {}).get(key, {}).get("pass"))
-            criteria_pass_rates[key] = {
-                "passed": passed,
-                "total": len(results),
-                "percent": round((passed / len(results)) * 100) if results else 0
-            }
-
-        return {
-            "status": "success",
-            "summary": {
-                "task_count": len(results),
-                "average_score": average_score,
-                "overall_label": overall_label,
-                "criteria_pass_rates": criteria_pass_rates
-            },
-            "results": results
-        }
+        return _build_invest_response_from_results(results)
     except Exception as e:
         logger.error(f"Error analyzing INVEST tasks: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
 
 @app.get("/debug", response_class=HTMLResponse)
 async def debug_page(request: Request):
@@ -1030,7 +1633,7 @@ def start_server(host="0.0.0.0", port=8000):
     """
     Khởi động server API
     """
-    uvicorn.run("requirement_analyzer.api:app", host=host, port=port, reload=True)
+    uvicorn.run("requirement_analyzer.api:app", host=host, port=port, reload=False)
 
 if __name__ == "__main__":
-    start_server()
+    start_server(port=8000)

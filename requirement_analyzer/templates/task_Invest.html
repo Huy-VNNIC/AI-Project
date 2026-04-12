@@ -4,9 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="referrer" content="no-referrer">
     <title>INVEST Task Review</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" crossorigin="anonymous">
     <style>
         body {
             background: linear-gradient(180deg, #f7fbfd 0%, #eef4f8 100%);
@@ -89,38 +93,58 @@
                         <div>
                             <ul class="nav nav-pills mb-3 justify-content-center" id="input-tabs" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="text-input-tab" data-bs-toggle="pill"
+                                    <button class="nav-link {% if (active_tab or 'text') == 'text' %}active{% endif %}" id="text-input-tab" data-bs-toggle="pill"
                                         data-bs-target="#text-input" type="button">
                                         <i class="bi bi-keyboard"></i> Text
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="file-input-tab" data-bs-toggle="pill"
+                                    <button class="nav-link {% if active_tab == 'file' %}active{% endif %}" id="file-input-tab" data-bs-toggle="pill"
                                         data-bs-target="#file-input" type="button">
                                         <i class="bi bi-file-upload"></i> File
                                     </button>
                                 </li>
                             </ul>
                         </div>
-                        <form id="investForm">
-                            <div class="mb-3">
-                                <label for="taskInput" class="form-label fw-semibold">Enter tasks</label>
-                                <textarea class="form-control font-monospace" id="taskInput" rows="14" placeholder="As a customer, I want to save multiple shipping addresses so that I can checkout faster.
+                        <form id="investForm" method="post" action="/task_Invest" enctype="multipart/form-data">
+                            <input type="hidden" name="input_mode" id="inputMode" value="{{ active_tab or 'text' }}">
+                            <div class="tab-content mb-3" id="input-tab-content">
+                                <div class="tab-pane fade {% if (active_tab or 'text') == 'text' %}show active{% endif %}" id="text-input" role="tabpanel"
+                                    aria-labelledby="text-input-tab">
+                                    <label for="taskInput" class="form-label fw-semibold">Enter tasks</label>
+                                    <textarea class="form-control font-monospace" id="taskInput" name="text" rows="14" placeholder="As a customer, I want to save multiple shipping addresses so that I can checkout faster.
 As an admin, I want to export monthly revenue reports so that I can review business performance.
-Build login feature."></textarea>
+Build login feature.">{{ form_values.text or '' }}</textarea>
+                                </div>
+                                <div class="tab-pane fade {% if active_tab == 'file' %}show active{% endif %}" id="file-input" role="tabpanel"
+                                    aria-labelledby="file-input-tab">
+                                    <label for="taskFile" class="form-label fw-semibold">Upload task file</label>
+                                    <input class="form-control" type="file" id="taskFile" name="file"
+                                        accept=".txt,.md,.json,.csv">
+                                    <div class="form-text">
+                                        Supported formats: <code>.txt</code>, <code>.md</code>, <code>.json</code>,
+                                        <code>.csv</code>.
+                                        For text files, enter one task per line or paragraph.
+                                        For JSON, use a task array or an object with <code>tasks</code>.
+                                    </div>
+                                    <div class="mt-3 small text-muted" id="selectedFileInfo"
+                                        {% if uploaded_file_name %}style="display:block;"{% else %}style="display:none;"{% endif %}>
+                                        {% if uploaded_file_name %}Selected file: {{ uploaded_file_name }}{% endif %}
+                                    </div>
+                                </div>
                             </div>
                             <div class="row g-3 mb-3">
                                 <div class="col-sm-6">
                                     <label for="splitMode" class="form-label fw-semibold">Split mode</label>
-                                    <select id="splitMode" class="form-select">
-                                        <option value="line">One task per line</option>
-                                        <option value="paragraph">One task per paragraph</option>
+                                    <select id="splitMode" name="split_mode" class="form-select">
+                                        <option value="line" {% if (form_values.split_mode or 'line') == 'line' %}selected{% endif %}>One task per line</option>
+                                        <option value="paragraph" {% if form_values.split_mode == 'paragraph' %}selected{% endif %}>One task per paragraph</option>
                                     </select>
                                 </div>
                                 <div class="col-sm-6">
                                     <label for="minLength" class="form-label fw-semibold">Minimum length</label>
-                                    <input type="number" id="minLength" class="form-control" min="10" max="300"
-                                        value="15">
+                                    <input type="number" id="minLength" name="min_length" class="form-control" min="10" max="300"
+                                        value="{{ form_values.min_length or 15 }}">
                                 </div>
                             </div>
                             <div class="d-grid gap-2 d-md-flex">
@@ -169,44 +193,203 @@ Build login feature."></textarea>
                             <button class="btn btn-outline-primary" id="copyBtn" type="button"><i
                                     class="bi bi-clipboard"></i> Copy Summary</button>
                         </div>
-                        <div id="emptyState" class="text-center py-5">
+                        <div id="emptyState" class="text-center py-5" {% if analysis_data and analysis_data.results %}style="display:none;"{% endif %}>
                             <i class="bi bi-card-checklist display-4 text-muted"></i>
                             <h5 class="mt-3">No tasks analyzed yet</h5>
                             <p class="text-muted mb-0">Enter tasks on the left, then click <strong>Analyze INVEST</strong>.</p>
                         </div>
-                        <div id="summaryState" style="display:none;">
+                        <div id="summaryState" {% if analysis_data and analysis_data.summary %}style="display:block;"{% else %}style="display:none;"{% endif %}>
                             <div class="row g-3 mt-1">
                                 <div class="col-sm-4">
                                     <div class="border rounded-4 p-3 h-100 bg-light">
                                         <div class="text-muted small">Tasks</div>
-                                        <div class="fs-2 fw-bold" id="sumCount">0</div>
+                                        <div class="fs-2 fw-bold" id="sumCount">{{ analysis_data.summary.task_count if analysis_data and analysis_data.summary else 0 }}</div>
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="border rounded-4 p-3 h-100 bg-light">
                                         <div class="text-muted small">Average score</div>
-                                        <div class="fs-2 fw-bold" id="sumAvg">0/6</div>
+                                        <div class="fs-2 fw-bold" id="sumAvg">
+                                            {% if analysis_data and analysis_data.summary %}
+                                                {{ analysis_data.summary.average_score | round(4) }}
+                                            {% else %}
+                                                0.0
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="border rounded-4 p-3 h-100 bg-light">
                                         <div class="text-muted small">Assessment</div>
-                                        <div class="fs-5 fw-bold" id="sumLevel">-</div>
+                                        <div class="fs-5 fw-bold" id="sumLevel">{{ analysis_data.summary.overall_label if analysis_data and analysis_data.summary else '-' }}</div>
                                     </div>
                                 </div>
                             </div>
                             <div class="mt-4">
                                 <h6 class="fw-bold mb-3">Pass rate by criterion</h6>
-                                <div class="dimension-grid" id="dimensionSummary"></div>
+                                <div class="dimension-grid" id="dimensionSummary">
+                                    {% if analysis_data and analysis_data.summary and analysis_data.summary.criteria_pass_rates %}
+                                        {% for key, label in [
+                                            ('independent', 'Independent'),
+                                            ('negotiable', 'Negotiable'),
+                                            ('valuable', 'Valuable'),
+                                            ('estimable', 'Estimable'),
+                                            ('small', 'Small'),
+                                            ('testable', 'Testable')
+                                        ] %}
+                                            {% set info = analysis_data.summary.criteria_pass_rates.get(key, {'passed': 0, 'total': 0, 'percent': 0}) %}
+                                            {% set percent = info.percent or 0 %}
+                                            {% if percent >= 80 %}
+                                                {% set pill_class = 'good' %}
+                                            {% elif percent >= 50 %}
+                                                {% set pill_class = 'mid' %}
+                                            {% else %}
+                                                {% set pill_class = 'bad' %}
+                                            {% endif %}
+                                            <div class="dimension-box">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <h6 class="mb-0">{{ label }}</h6>
+                                                    <span class="pill {{ pill_class }}">{{ percent }}%</span>
+                                                </div>
+                                                <p class="mb-0 text-muted">{{ info.passed }}/{{ info.total }} tasks passed.</p>
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div id="resultsList" class="d-grid gap-3"></div>
+                {% if analysis_data and analysis_data.status == 'error' %}
+                    <div class="alert alert-danger">{{ analysis_data.detail }}</div>
+                {% endif %}
+                {% if analysis_data and (not analysis_data.results) and analysis_data.status != 'error' %}
+                    <div class="alert alert-warning">
+                        No tasks are being displayed.
+                        {% if analysis_data.summary %}
+                            Summary: {{ analysis_data.summary.task_count or 0 }} tasks, {{ analysis_data.summary.overall_label or 'No data' }}.
+                        {% endif %}
+                        {% if analysis_data.refinement %}
+                            Refinement: displayed={{ analysis_data.refinement.displayed_total or 0 }},
+                            ready={{ analysis_data.refinement.refined_ready_total or 0 }},
+                            not_ready={{ analysis_data.refinement.invest_not_ready_total or 0 }}.
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <div id="resultsList" class="d-grid gap-3">
+                    {% if analysis_data and analysis_data.results %}
+                        {% for result in analysis_data.results %}
+                            {% set score = result.score or 0 %}
+                            {% if result.refinement_status == 'kept' and result.meets_invest %}
+                                {% set badge_text = 'Already INVEST-ready' %}
+                                {% set badge_class = 'good' %}
+                                {% set helper_text = 'This task already met the INVEST threshold, so no refinement was required.' %}
+                            {% elif result.meets_invest %}
+                                {% set badge_text = 'Refined and INVEST-ready' %}
+                                {% set badge_class = 'good' %}
+                                {% set helper_text = 'This refined task now meets the INVEST threshold.' %}
+                            {% elif score >= 3 %}
+                                {% set badge_text = 'Refined, review again' %}
+                                {% set badge_class = 'mid' %}
+                                {% set helper_text = 'This task was refined, but it still needs improvement to fully meet INVEST.' %}
+                            {% else %}
+                                {% set badge_text = 'Needs Refinement' %}
+                                {% set badge_class = 'bad' %}
+                                {% set helper_text = 'This task still needs more improvement to meet INVEST.' %}
+                            {% endif %}
+                            <div class="card task-card">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                                        <div>
+                                            <div class="text-muted small mb-1">Task {{ loop.index }}</div>
+                                            <h5 class="mb-2">{{ result.title or ('Task ' ~ loop.index) }}</h5>
+                                            <div class="mb-2">INVEST score: {{ result.score or 0 }}/6</div>
+                                            <span class="pill {{ badge_class }}">{{ badge_text }}</span>
+                                            {% if result.invest_total %}
+                                                <div class="text-muted small mt-2">Detailed INVEST total: {{ result.invest_total }}/30{% if result.invest_grade %} • {{ result.invest_grade }}{% endif %}</div>
+                                            {% endif %}
+                                            <div class="{% if result.meets_invest %}text-success{% else %}text-warning{% endif %} small mt-2">{{ helper_text }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <div class="text-muted small mb-2">Original input</div>
+                                        <div class="task-text">{{ result.original or '' }}</div>
+                                    </div>
+                                    {% if result.refined_title or result.refined_description or result.refined %}
+                                        <div class="mt-3">
+                                            <div class="text-muted small mb-2">Refined task</div>
+                                            <div class="task-text"><strong>Title:</strong> {{ result.refined_title or result.title }}</div>
+                                            <div class="task-text mt-2"><strong>Description:</strong> {{ result.refined_description or result.refined or '' }}</div>
+                                        </div>
+                                    {% endif %}
+                                    {% if result.acceptance_criteria %}
+                                        <div class="mt-4">
+                                            <h6 class="fw-bold mb-3">Acceptance Criteria</h6>
+                                            <ul class="mb-0 ps-3">
+                                                {% for item in result.acceptance_criteria %}
+                                                    <li>{{ item }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                    <div class="mt-4">
+                                        <h6 class="fw-bold mb-3">Criterion breakdown</h6>
+                                        <div class="dimension-grid">
+                                            {% for key, label in [
+                                                ('independent', 'Independent'),
+                                                ('negotiable', 'Negotiable'),
+                                                ('valuable', 'Valuable'),
+                                                ('estimable', 'Estimable'),
+                                                ('small', 'Small'),
+                                                ('testable', 'Testable')
+                                            ] %}
+                                                {% set item = result.criteria.get(key, {'pass': False, 'reason': 'No analysis available.'}) %}
+                                                <div class="dimension-box">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <h6 class="mb-0">{{ label }}</h6>
+                                                        <span class="pill {{ 'good' if item.pass else 'bad' }}">{{ 'Pass' if item.pass else 'Review' }}</span>
+                                                    </div>
+                                                    <p>{{ item.reason }}</p>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h6 class="fw-bold mb-3">Improvement notes</h6>
+                                        {% if result.issues %}
+                                            <ul class="mb-0 ps-3">
+                                                {% for issue in result.issues %}
+                                                    <li>{{ issue }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <p class="mb-0 text-success">This task already looks strong against INVEST.</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                {% if analysis_data %}
+                    <div class="card panel mt-4">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold mb-3">Debug Response</h6>
+                            <pre class="mb-0 small task-text">{{ analysis_data | tojson(indent=2) }}</pre>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const initialInvestData = JSON.parse('{{ analysis_data | tojson | safe }}');
+    const initialActiveTab = JSON.parse('{{ (active_tab or "text") | tojson | safe }}');
+
+    window.initialInvestData = initialInvestData;
+    window.initialActiveTab = initialActiveTab;
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="/static/js/task-invest.js"></script>
 </body>
 

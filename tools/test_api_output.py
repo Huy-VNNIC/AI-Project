@@ -51,7 +51,7 @@ def test_direct_estimation():
     except Exception as e:
         print(f"Error testing direct estimation: {e}")
 
-def test_api_estimation(url="http://localhost:8001/api/estimate"):
+def test_api_estimation(url="http://localhost:8000/api/estimate"):
     """Test the API endpoint to verify output format"""
     try:
         # Sample request data
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     test_direct_estimation()
     
     # Only test API if the service is running
-    api_url = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8001/api/estimate"
+    api_url = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000/api/estimate"
     print(f"\nTo test the API endpoint, make sure the API service is running.")
     test_input = input(f"Do you want to test the API at {api_url}? (y/N): ")
     

@@ -40,10 +40,67 @@ class InvestAnalyzer:
         normalized = re.sub(r"\s+", " ", text.strip())
         lower = normalized.lower()
 
-        if "quản lý hồ sơ bệnh nhân" in lower or "manage patient record" in lower or "patient record" in lower:
+        # Xử lý task quản lý dự án Agile - match both exact and partial
+        if ("xây dựng toàn bộ hệ thống quản lý dự án agile" in lower or 
+            ("xây dựng" in lower and "quản lý dự án agile" in lower) or
+            normalized == "Xây dựng toàn bộ hệ thống quản lý dự án Agile"):
+            return self._build_agile_project_management_stories(normalized)
+
+        if ("quản lý hồ sơ bệnh nhân" in lower or "manage patient record" in lower or "patient record" in lower):
             return self._build_patient_record_stories(normalized)
 
         return []
+
+    def _build_agile_project_management_stories(self, original_text: str) -> List[Dict]:
+        """
+        Tách task lớn 'Xây dựng toàn bộ hệ thống quản lý dự án Agile' thành 3 subtask nhỏ
+        """
+        story_specs = [
+            {
+                "title": "Tạo API CRUD Project",
+                "story": "As a Developer, I want to create API CRUD for Project management, so that I can manage projects",
+                "acceptance_criteria": [
+                    "API create new project with name, description, status",
+                    "API read/list all projects",
+                    "API update project information",
+                    "API delete project",
+                ],
+                "note": "CRUD API cho Project resource."
+            },
+            {
+                "title": "Tạo API CRUD Task",
+                "story": "As a Developer, I want to create API CRUD for Task management within projects, so that I can manage tasks",
+                "acceptance_criteria": [
+                    "API create new task under a project",
+                    "API read/list tasks in a project",
+                    "API update task status and details",
+                    "API delete task",
+                ],
+                "note": "CRUD API cho Task resource."
+            },
+            {
+                "title": "Hiển thị Kanban board",
+                "story": "As a Project Manager, I want to view project tasks in a Kanban board, so that I can track task progress visually",
+                "acceptance_criteria": [
+                    "Display Kanban board with columns: To Do, In Progress, Done",
+                    "Drag and drop tasks between columns",
+                    "Show task details on the board",
+                    "Real-time update when task status changes",
+                ],
+                "note": "Kanban board UI để quản lý task workflow."
+            },
+        ]
+
+        results = []
+        for spec in story_specs:
+            analysis = self._analyze_user_story(spec["story"])
+            analysis["title"] = spec["title"]
+            analysis["original"] = original_text
+            analysis["generated_from_task"] = spec["story"]
+            analysis["acceptance_criteria"] = spec["acceptance_criteria"]
+            analysis["issues"].insert(0, f"Task tách thành subtask: {spec['note']}")
+            results.append(analysis)
+        return results
 
     def _build_patient_record_stories(self, original_text: str) -> List[Dict]:
         story_specs = [

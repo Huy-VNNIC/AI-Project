@@ -153,6 +153,9 @@ class InvestTaskRefiner:
                 kept["invest_refinement"] = {
                     "status": "kept",
                     "reason": "Task already meets INVEST thresholds.",
+                    "original_title": str(task.get("title") or "Untitled task"),
+                    "original_description": str(task.get("description") or ""),
+                    "original_acceptance_criteria": _normalize_ac(task.get("acceptance_criteria")),
                 }
                 refined_tasks.append(kept)
                 continue
@@ -225,6 +228,8 @@ class InvestTaskRefiner:
 
         working = deepcopy(task)
         original_title = str(working.get("title") or "Untitled task")
+        original_description = str(working.get("description") or "")
+        original_acceptance_criteria = _normalize_ac(working.get("acceptance_criteria"))
         notes: List[str] = []
 
         if "independent" in weak:
@@ -246,14 +251,27 @@ class InvestTaskRefiner:
         final_tasks: List[TaskLike] = []
         for item in refined_tasks:
             item["story_points"] = _story_points_for_refined(item)
-            item["dependencies"] = [str(dep).strip() for dep in item.get("dependencies", []) if str(dep).strip()]
+            item["dependencies"] = [
+                str(dep).strip() for dep in item.get("dependencies", []) if str(dep).strip()
+            ]
             item["acceptance_criteria"] = _normalize_ac(item.get("acceptance_criteria"))
             item["description"] = _ensure_period(str(item.get("description") or ""))
+
+            # 👇 ADD 2 FIELD QUAN TRỌNG CHO UI
+            item["refined_title"] = item.get("title")
+            item["refined_description"] = item.get("description")
+
+            # 👇 OPTIONAL (nếu UI dùng)
+            item["refined"] = item.get("description")
+
             item["invest_refinement"] = {
                 "status": "refined",
                 "original_title": original_title,
+                "original_description": original_description,
+                "original_acceptance_criteria": original_acceptance_criteria,
                 "notes": notes or ["Task was normalized to improve INVEST compliance."],
             }
+
             final_tasks.append(item)
         return final_tasks
 

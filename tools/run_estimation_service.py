@@ -522,7 +522,7 @@ def parse_arguments():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(description='Effort Estimation Service')
     parser.add_argument('--host', default='0.0.0.0', help='Host to run the server on')
-    parser.add_argument('--port', type=int, default=8001, help='Port to run the server on')
+    parser.add_argument('--port', type=int, default=8000, help='Port to run the server on')
     parser.add_argument('--debug', action='store_true', help='Run in debug mode')
     parser.add_argument('--production', action='store_true', help='Run in production mode with Waitress')
     return parser.parse_args()
