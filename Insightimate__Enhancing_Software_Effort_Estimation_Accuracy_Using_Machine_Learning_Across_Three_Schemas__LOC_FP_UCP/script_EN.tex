@@ -1,0 +1,322 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+% Colors
+\definecolor{slideblue}{RGB}{0,51,102}
+\definecolor{timergreen}{RGB}{46,139,87}
+\definecolor{noteorange}{RGB}{204,102,0}
+\definecolor{bglight}{RGB}{240,245,255}
+
+% Slide header style
+\newcounter{slidenum}
+\setcounter{slidenum}{0}
+\newcommand{\slide}[2]{%
+  \stepcounter{slidenum}%
+  \vspace{0.6em}
+  \begin{mdframed}[backgroundcolor=slideblue!90, linecolor=slideblue,
+    leftmargin=0pt, rightmargin=0pt, innerleftmargin=10pt,
+    innerrightmargin=10pt, innertopmargin=6pt, innerbottommargin=6pt]
+    \color{white}\large\bfseries Slide \theslidenum\ --- #1
+    \hfill \textcolor{yellow!80!white}{\normalsize\itshape #2}
+  \end{mdframed}
+  \vspace{0.3em}
+}
+
+\newcommand{\say}[1]{%
+  \begin{mdframed}[backgroundcolor=bglight, linecolor=slideblue!40,
+    leftmargin=0pt, rightmargin=0pt, innerleftmargin=12pt,
+    innerrightmargin=12pt, innertopmargin=8pt, innerbottommargin=8pt,
+    linewidth=1.5pt]
+  #1
+  \end{mdframed}
+}
+
+\newcommand{\pointnote}[1]{%
+  \vspace{0.2em}
+  \noindent\textcolor{noteorange}{\bfseries [Presenter note:]} \textit{#1}
+  \vspace{0.2em}
+}
+
+\newcommand{\transition}[1]{%
+  \vspace{0.15em}
+  \noindent\textcolor{timergreen}{\bfseries $\Rightarrow$ Transition:} \textit{#1}
+  \vspace{0.3em}
+}
+
+\begin{document}
+
+% Title
+\begin{center}
+  {\LARGE\bfseries\color{slideblue}
+    Presentation Script --- English Version}\\[0.5em]
+  {\large A Unified Ensemble Learning Framework for\\
+    Software Effort Estimation Across Multiple Schemas}\\[0.4em]
+  {\normalsize Student Scientific Research Conference 2026 --- Duy Tan University}\\[0.2em]
+  {\normalsize\color{timergreen} Total time: \textbf{10 minutes} + 5 minutes Q\&A}
+\end{center}
+\hrule
+\vspace{1em}
+
+% ─────────────────────────────────────────────────
+\slide{Title Slide}{30 sec}
+
+\say{
+Good morning, everyone. My name is Nguyen Nhat Huy, and I am presenting on behalf of my team. Our paper is titled \textbf{``A Unified Ensemble Learning Framework for Software Effort Estimation Across Multiple Schemas.''}
+
+In short, we ask one question: \textit{Can machine learning estimate software development effort more accurately --- and more fairly --- than existing methods?} Today I will show you that the answer is yes, and I will explain how we built a framework that proves it in a rigorous, reproducible way.
+}
+
+\transition{Click to Slide 2.}
+
+% ─────────────────────────────────────────────────
+\slide{The Problem: Software Effort Estimation}{1 min}
+
+\say{
+Let me start with the problem.
+
+According to the Standish Group's Chaos Report, only \textbf{29 percent} of software projects succeed. More than half run over time or over budget, and 19 percent fail completely. One of the biggest reasons is \textbf{inaccurate effort estimation} --- teams simply do not know how long a project will take.
+
+Now, the research community has tried to solve this. There are two main approaches. The first is \textbf{parametric models} like COCOMO II --- they are transparent but often too rigid for diverse data. The second is \textbf{machine learning} models like Random Forest and XGBoost --- they are flexible, but there is a problem.
+}
+
+\pointnote{Point to the block on the right: ``Three Sizing Schemas in Practice.''}
+
+\say{
+The problem is that software projects measure their size in three different ways. You can count \textbf{Lines of Code (LOC)}, \textbf{Function Points (FP)}, or \textbf{Use Case Points (UCP)}. These three schemas have very different dataset sizes --- LOC has 2,765 projects, while FP and UCP each have fewer than 160. They have been studied in complete isolation from each other.
+
+There is no unified, fair, reproducible framework that compares machine learning across all three schemas at the same time. That is exactly the gap we fill.
+}
+
+\transition{Click to Slide 3.}
+
+% ─────────────────────────────────────────────────
+\slide{Research Gaps \& Research Questions}{1 min}
+
+\say{
+We identified \textbf{three specific research gaps}.
+
+\textbf{Gap G1} is about weak dataset auditability. Most papers say they used ``a public dataset'' but give no details about where it came from, how duplicates were removed, or how to reproduce the data. This makes replication impossible.
+
+\textbf{Gap G2} is about unfair baselines. Many studies compare machine learning against COCOMO II with \textit{default} parameters, even when the required inputs are missing. This is a straw-man comparison --- the baseline is set up to lose.
+
+\textbf{Gap G3} is about misleading aggregated results. When you average results across all schemas together --- what we call micro-averaging --- LOC data dominates, because LOC makes up 90.5 percent of all data. The performance on FP and UCP simply gets hidden.
+}
+
+\pointnote{Point to the right column with the two research questions.}
+
+\say{
+From these three gaps, we formed two research questions. \textbf{RQ1}: Do ensemble methods outperform a \textit{calibrated} baseline --- not just a default one --- across all three schemas? \textbf{RQ2}: Does macro-averaging with Leave-One-Source-Out cross-validation give a more honest picture than micro-averaging?
+
+Our primary contribution is a \textbf{reproducible cross-schema benchmarking framework} --- a methodological artifact the community can reuse.
+}
+
+\transition{Click to Slide 4.}
+
+% ─────────────────────────────────────────────────
+\slide{Dataset: Auditable Manifest --- 18 Sources}{45 sec}
+
+\say{
+To address Gap G1, we built an \textbf{auditable dataset manifest}.
+
+We collected data from \textbf{18 publicly available sources}, spanning from 1979 to 2022, with a total of \textbf{3,054 projects}. For each source, we documented the DOI or URL, applied cross-source deduplication rules to remove overlapping projects, and wrote rebuild scripts so anyone can recreate our exact dataset from scratch.
+
+The preprocessing pipeline has four steps. First, we harmonize units --- all effort values become person-months, and LOC values become KLOC. Second, we impute missing feature values using medians. Third, we apply IQR-based capping to handle outliers without discarding data. Fourth, we apply a log-1-plus-x transform to reduce skewness.
+
+This directly addresses Gap G1 and is our \textbf{first contribution}.
+}
+
+\transition{Click to Slide 5.}
+
+% ─────────────────────────────────────────────────
+\slide{ML Framework \& Evaluation Protocols}{1 min 15 sec}
+
+\say{
+Now for the machine learning framework itself.
+
+The key design principle is \textbf{schema-independent training}. We train a separate model for each schema --- one for LOC, one for FP, one for UCP. Each model is written as: \textit{predicted effort equals some function of the input features for that schema.}
+
+We evaluate five models: Linear Regression, Decision Tree, Random Forest, Gradient Boosting, and XGBoost.
+}
+
+\pointnote{Point to the right block: ``Schema-Specific Protocols.''}
+
+\say{
+Importantly, each schema gets its own evaluation protocol, designed to match its sample size.
+
+For \textbf{LOC}, which has 2,765 projects, we use a standard 80/20 split repeated over 10 random seeds, plus a special test called \textbf{Leave-One-Source-Out (LOSO)}, where we train on 10 data sources and test on the 11th. This tests cross-source generalization.
+
+For \textbf{FP}, which has only 158 projects, we use Leave-One-Out Cross-Validation with 158 folds, plus bootstrap confidence intervals. This is the right choice for a small sample.
+
+For \textbf{UCP} with 131 projects, we use the 80/20 split with 5-fold inner cross-validation.
+
+These schema-specific protocols address Gap G3 and are our \textbf{third contribution}.
+}
+
+\transition{Click to Slide 6.}
+
+% ─────────────────────────────────────────────────
+\slide{Two Core Methodological Innovations}{1 min}
+
+\say{
+Beyond the models themselves, we introduced \textbf{three methodological innovations}.
+
+\textbf{Innovation 1} is the \textbf{calibrated baseline}. Instead of comparing against COCOMO II with default parameters, we fit a simple power-law model --- log of effort equals alpha plus beta times log of size --- on the \textit{training data only}, per schema, per seed. This means machine learning must beat a baseline that is already well-optimized, not a broken one. This addresses Gap G2.
+
+\textbf{Innovation 2} is \textbf{macro-averaging}. Instead of one average across all 3,054 projects, we compute the metric separately for each schema and take the simple average. LOC gets one-third weight, FP gets one-third, UCP gets one-third --- regardless of sample size. This gives a fair picture across all three schemas and addresses Gap G3.
+
+\textbf{Innovation 3} is \textbf{tail evaluation} --- we separately measure performance on the top 10 percent of projects by effort, because those are the hardest to predict and the most costly to get wrong.
+}
+
+\transition{Click to Slide 7.}
+
+% ─────────────────────────────────────────────────
+\slide{Overall Results: Macro-Averaged}{1 min}
+
+\say{
+Now for the results.
+}
+
+\pointnote{Point to the table on the left.}
+
+\say{
+This table shows macro-averaged metrics across all three schemas, averaged over 10 random seeds. The best model is \textbf{Random Forest}.
+
+Random Forest achieves an MAE of \textbf{12.66 person-months}, compared to 18.45 for the calibrated baseline. That is a \textbf{31 percent} reduction in mean absolute error.
+
+More strikingly, the MMRE --- the mean magnitude of relative error --- drops from 1.12 down to \textbf{0.647}, a \textbf{42 percent improvement}. The PRED(25) score, which measures the fraction of predictions within 25 percent of the true value, increases from 0.254 to \textbf{0.395}.
+
+This answers \textbf{RQ1}: yes, ensemble methods significantly outperform even a well-calibrated baseline.
+}
+
+\pointnote{Point to the alertblock ``Statistical Significance.''}
+
+\say{
+And these results are statistically significant. The Wilcoxon signed-rank test gives p less than 0.001. Cohen's d is 1.23, which is a \textit{large} effect size. This is not noise --- this is a real, meaningful improvement.
+}
+
+\transition{Click to Slide 8.}
+
+% ─────────────────────────────────────────────────
+\slide{Per-Schema Results \& Cross-Source Generalization}{1 min}
+
+\say{
+Let us now look at each schema separately.
+}
+
+\pointnote{Point to the table row by row.}
+
+\say{
+For \textbf{LOC}, Random Forest reduces MAE from 16.8 down to 11.2 person-months, with a 40 percent MMRE improvement.
+
+For \textbf{FP} --- and I want to note these are \textit{exploratory} results because we only have 158 projects --- Random Forest reduces MAE from 21.4 to 15.8, a 38 percent MMRE improvement.
+
+For \textbf{UCP}, Random Forest gives the strongest result: a 49 percent MMRE improvement.
+
+The improvements are consistent across all three schemas. This is only possible because we designed schema-specific protocols --- without that, the FP and UCP results would be drowned out.
+}
+
+\pointnote{Point to the two green boxes at the bottom.}
+
+\say{
+Now for \textbf{RQ2}: generalization. When we use Leave-One-Source-Out, the MAE degrades by only 21 percent compared to the random split. That is a small degradation, meaning the model does generalize reasonably well to projects from new sources.
+
+For the hardest projects --- the top 10 percent by effort --- Random Forest still degrades by 57 to 72 percent in MAE. But the baseline degrades by 83 to 100 percent. So ensemble methods are clearly better, even in the most difficult cases.
+}
+
+\transition{Click to Slide 9.}
+
+% ─────────────────────────────────────────────────
+\slide{Ablation Study \& Threats to Validity}{45 sec}
+
+\say{
+We also ran an ablation study to understand which preprocessing steps matter most.
+}
+
+\pointnote{Point to the ablation table.}
+
+\say{
+When we remove each step one by one and retrain, unit harmonization turns out to be the most critical step. Without it, MAE jumps from 11.2 all the way to 17.3 person-months. The log transform and IQR capping also contribute, but unit harmonization is foundational.
+
+We are transparent about the \textbf{threats to validity}. The FP results are exploratory. Our definition of one person-month as 160 hours may not fit every organization. Our models do not share information across schemas. And the datasets are mostly from North America and Europe, which may not represent modern development environments.
+}
+
+\transition{Click to Slide 10.}
+
+% ─────────────────────────────────────────────────
+\slide{Conclusion \& Future Work}{30 sec}
+
+\say{
+To conclude.
+
+We made \textbf{five scientific contributions}: an auditable dataset manifest, a calibrated baseline, schema-appropriate evaluation protocols, macro-averaging, and tail evaluation. Together, these form a complete and reproducible benchmarking framework.
+
+The headline result is a \textbf{42 percent MMRE improvement} with statistical significance. And the LOSO test shows the model generalizes --- it is not just memorizing training data.
+
+For future work, we plan to explore cross-schema transfer learning, deep learning for time-series project data, Agile metrics like story points, and active learning for the small FP and UCP datasets.
+
+\textbf{The main message is this}: our primary contribution is not any single model --- it is the \textit{framework itself}, which the community can adopt, extend, and build on.
+}
+
+\transition{Click to the Q\&A slide. Thank the committee.}
+
+% ─────────────────────────────────────────────────
+\slide{Q\&A / Thank You}{Demo + Q\&A: 5 min}
+
+\say{
+Thank you very much for your attention. I am happy to take questions from the committee. If you would like to see the source code, dataset rebuild scripts, or experimental logs, they are all available --- please ask and I will provide them.
+}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+% ─────────────────────────────────────────────────
+{\large\bfseries\color{slideblue} Anticipated Questions \& Suggested Answers}
+
+\vspace{0.5em}
+
+\noindent\textbf{Q1: Why Random Forest instead of deep learning?}
+
+\say{
+Deep learning needs a lot of data to train well. For FP and UCP, we only have 100 to 160 projects each. Random Forest works well on small, tabular datasets. It is also interpretable through feature importance scores, which matters for a research paper. Our goal is not to find the most powerful model --- it is to build a fair comparison framework.
+}
+
+\noindent\textbf{Q2: How do you prevent overfitting?}
+
+\say{
+We use several techniques together: LOOCV for FP, LOSO for cross-source testing, 10 independent random seeds, out-of-bag score monitoring for Random Forest, and IQR capping to reduce the influence of extreme outliers. Any single technique can fail, but together they give strong evidence the model is robust.
+}
+
+\noindent\textbf{Q3: Why report MMRE if it has known bias toward underestimation?}
+
+\say{
+We report MMRE mainly for comparison with prior literature. Our \textit{primary} metric is MAE, because it is symmetric and unbiased. We are aware of the MMRE bias, and we say so in the Threats to Validity section.
+}
+
+\noindent\textbf{Q4: Why not use full COCOMO II as the baseline?}
+
+\say{
+Most of the FP and UCP datasets do not have the cost drivers that COCOMO II requires. If we used default values for those missing inputs, the baseline would be artificially weak --- a straw-man. We instead calibrate a power-law model on the training data itself, which is a much fairer comparison.
+}
+
+\noindent\textbf{Q5: Can this framework be applied to modern Agile projects?}
+
+\say{
+Not directly with the current datasets, which mostly predate Agile. But the \textit{framework design} --- the auditable manifest, calibrated baseline, macro-averaging, schema-specific protocols --- can all be applied to Agile data. Extending to story points and DevOps metrics is one of our stated future directions.
+}
+
+\vspace{1em}
+\hrule
+\begin{center}
+\textit{\small End of English Script --- Duy Tan University, April 2026}
+\end{center}
+
+\end{document}

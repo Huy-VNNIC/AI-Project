@@ -71,7 +71,7 @@ pip install -r requirements.txt
 
 3. Run the requirement analyzer API:
 ```bash
-python -m requirement_analyzer.api
+source venv/bin/activate
 ```
 
 ## API Documentation

@@ -1,0 +1,487 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{tabularx}
+
+% ── Màu sắc ─────────────────────────────────────────────────
+\definecolor{darkblue}{RGB}{0,51,102}
+\definecolor{darkred}{RGB}{180,30,30}
+\definecolor{darkgreen}{RGB}{30,120,60}
+\definecolor{darkorange}{RGB}{190,90,0}
+\definecolor{lightgray}{RGB}{245,247,252}
+\definecolor{warnyellow}{RGB}{255,243,205}
+\definecolor{warnborder}{RGB}{200,160,0}
+
+% ── Lệnh tiện ích ────────────────────────────────────────────
+\newcounter{qnum}
+\setcounter{qnum}{0}
+
+% Hộp câu hỏi (màu đỏ nhạt)
+\newcommand{\question}[2]{%
+  \stepcounter{qnum}%
+  \vspace{0.5em}
+  \begin{mdframed}[backgroundcolor=darkred!8, linecolor=darkred,
+    linewidth=1.8pt, leftmargin=0pt, rightmargin=0pt,
+    innerleftmargin=12pt, innerrightmargin=12pt,
+    innertopmargin=7pt, innerbottommargin=7pt]
+  \noindent{\bfseries\color{darkred}[Câu \theqnum] #1}\\[2pt]
+  {\small\itshape\color{darkblue}Loại câu hỏi: #2}
+  \end{mdframed}
+}
+
+% Hộp trả lời (màu xanh nhạt)
+\newcommand{\answer}[1]{%
+  \begin{mdframed}[backgroundcolor=lightgray, linecolor=darkblue!30,
+    linewidth=1pt, leftmargin=0pt, rightmargin=0pt,
+    innerleftmargin=12pt, innerrightmargin=12pt,
+    innertopmargin=8pt, innerbottommargin=8pt]
+  \noindent{\bfseries\color{darkgreen}Gợi ý trả lời:}\\[4pt]
+  #1
+  \end{mdframed}
+  \vspace{0.3em}
+}
+
+% Hộp cảnh báo / lưu ý chiến thuật
+\newcommand{\tactic}[1]{%
+  \begin{mdframed}[backgroundcolor=warnyellow, linecolor=warnborder,
+    linewidth=1.2pt, leftmargin=0pt, rightmargin=0pt,
+    innerleftmargin=10pt, innerrightmargin=10pt,
+    innertopmargin=5pt, innerbottommargin=5pt]
+  \noindent{\bfseries\color{darkorange}Chiến thuật trả lời:} \textit{#1}
+  \end{mdframed}
+  \vspace{0.4em}
+}
+
+% Tiêu đề phần
+\newcommand{\qsection}[1]{%
+  \vspace{1em}
+  \begin{mdframed}[backgroundcolor=darkblue!90, linecolor=darkblue,
+    leftmargin=0pt, rightmargin=0pt, innerleftmargin=10pt,
+    innerrightmargin=10pt, innertopmargin=6pt, innerbottommargin=6pt]
+  \color{white}\large\bfseries #1
+  \end{mdframed}
+  \vspace{0.3em}
+}
+
+% ─────────────────────────────────────────────────────────────
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries\color{darkblue}
+    Chuẩn bị Hỏi đáp (Q\&A) --- Hội đồng Chấm điểm}\\[0.4em]
+  {\large Đề tài: \textit{Một Khung Học Máy Tập Thể cho Ước Lượng}\\
+    \textit{Công Sức Phần Mềm trên Ba Lược Đồ: LOC, FP, UCP}}\\[0.3em]
+  {\normalsize Hội nghị Sinh viên Nghiên cứu Khoa học 2026 ---
+    Trường Đại học Duy Tân}\\[0.15em]
+  {\small\color{darkgreen}\bfseries Thời gian hỏi đáp: 3 phút
+    (sau 2 phút demo) --- Tổng phần 2: 5 phút}
+\end{center}
+\hrule
+\vspace{0.5em}
+
+\begin{mdframed}[backgroundcolor=warnyellow, linecolor=warnborder,
+  linewidth=1.5pt, innerleftmargin=12pt, innerrightmargin=12pt,
+  innertopmargin=8pt, innerbottommargin=8pt]
+\noindent{\bfseries\color{darkorange}Lưu ý chiến lược tổng quan:}
+\begin{itemize}[leftmargin=1.5em, itemsep=1pt]
+  \item Hội đồng xoáy vào: \textbf{(1) Chọn dataset}, \textbf{(2) Chọn thuật toán},
+    \textbf{(3) Overfitting}, \textbf{(4) Cơ chế đánh giá mô hình}.
+  \item Trả lời \textbf{ngắn gọn, thẳng vào kỹ thuật} --- tối đa 45 giây/câu.
+  \item Phân công: người phụ trách Model/AI trả lời câu hỏi thuật toán;
+    người phụ trách Data trả lời câu hỏi dataset.
+  \item \textbf{Không} dùng từ ``em nghĩ'' --- dùng ``theo kết quả thực nghiệm của nhóm em\ldots''
+\end{itemize}
+\end{mdframed}
+
+\vspace{0.5em}
+\hrule
+\vspace{0.3em}
+
+% ═══════════════════════════════════════════════════════════════
+\qsection{Nhóm 1 --- Câu hỏi về Dữ liệu và Dataset (G1)}
+% ═══════════════════════════════════════════════════════════════
+
+\question{Tiêu chí nào để nhóm chọn 18 nguồn dữ liệu này? Tại sao không dùng
+  ít hơn hoặc nhiều hơn?}{Dataset Selection --- Mức độ khó: Trung bình}
+
+\answer{
+Nhóm em chọn theo ba tiêu chí cứng: \textbf{(1) có DOI hoặc URL có thể xác minh công khai},
+\textbf{(2) chứa ít nhất một trong ba lược đồ LOC/FP/UCP}, và
+\textbf{(3) không bị trùng lặp hoàn toàn với nguồn khác sau khi áp quy tắc deduplication}.
+18 nguồn là tổng hợp của tất cả dataset phần mềm công khai thỏa ba tiêu chí trên tính đến
+năm 2022, bao gồm các bộ nổi tiếng như ISBSG, NASA93, China, Desharnais.
+Số lượng không cố định trước --- nhóm em dừng khi đã quét toàn bộ kho dữ liệu
+PROMISE Repository và các bài báo trích dẫn từ năm 1979 đến 2022.
+}
+
+\tactic{Nhấn mạnh: ``Chúng em ghi lại toàn bộ nguồn gốc và viết rebuild script.
+  Bất kỳ ai cũng có thể tái tạo chính xác bộ dữ liệu của chúng em từ đầu ---
+  đây là Đóng góp số 1 của đề tài.''}
+
+% ────────────────────────────────────────────────────────────────
+\question{Nhóm xử lý trùng lặp dữ liệu giữa 18 nguồn như thế nào?
+  Có rủi ro cùng một dự án xuất hiện ở nhiều nguồn không?}{Data Leakage --- Mức độ khó: Cao}
+
+\answer{
+Đây là rủi ro thực sự và nhóm em thừa nhận trong phần Threats to Validity.
+Quy tắc deduplication của chúng em gồm: \textbf{(a) so khớp theo tên dự án + năm + effort},
+\textbf{(b) loại bỏ nếu ba trường này trùng nhau ở ngưỡng $\pm$5\%},
+và \textbf{(c) ưu tiên giữ bản từ nguồn có nhiều trường dữ liệu hơn}.
+Tuy nhiên do thiếu metadata đầy đủ ở một số bộ cũ (NASA93, Kemerer), vẫn có khả năng
+trùng lặp sót. Chúng em ghi nhận đây là giới hạn, và kịch bản rebuild script giúp
+cộng đồng kiểm tra lại nếu muốn áp quy tắc nghiêm ngặt hơn.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{FP chỉ có 158 dự án và UCP chỉ có 131 dự án --- liệu kết quả có đủ
+  tin cậy về mặt thống kê không?}{Small Sample --- Mức độ khó: Cao}
+
+\answer{
+Nhóm em thiết kế giao thức riêng để giải quyết chính xác vấn đề này.
+Với \textbf{FP} ($n=158$): dùng \textbf{Leave-One-Out Cross-Validation (LOOCV)}
+--- 158 vòng, mỗi vòng test trên 1 điểm dữ liệu, cho phép tận dụng tối đa dữ liệu.
+Kết quả FP được kèm \textbf{khoảng tin cậy 95\% bootstrap}.
+Chúng em cũng ghi rõ kết quả FP là \textbf{mang tính tham khảo (exploratory)},
+không khẳng định kết luận mạnh.
+Với \textbf{UCP} ($n=131$): dùng 80/20 kết hợp 5-fold CV qua 10 seeds.
+Đây là cách tiêu chuẩn cho tập dữ liệu nhỏ trong cộng đồng SEE.
+}
+
+\tactic{Nếu hội đồng hỏi thêm về mẫu nhỏ, hãy nói:
+  ``Đây cũng là lý do chúng em chọn macro-averaging --- để không để LOC
+  (2.765 dự án) che khuất kết quả thực sự của FP và UCP.''}
+
+% ═══════════════════════════════════════════════════════════════
+\qsection{Nhóm 2 --- Câu hỏi về Thuật toán và Kiến trúc (G2/G3)}
+% ═══════════════════════════════════════════════════════════════
+
+\question{Tại sao chọn Random Forest mà không dùng Deep Learning
+  (LSTM, Transformer, hoặc Neural Network)?}{Algorithm Choice --- Mức độ khó: Cao}
+
+\answer{
+Ba lý do kỹ thuật cụ thể:
+\begin{enumerate}[leftmargin=2em, itemsep=2pt]
+  \item \textbf{Kích thước mẫu:} LSTM/Transformer cần hàng nghìn mẫu để học hiệu quả.
+    FP và UCP chỉ có 131--158 dự án --- deep learning sẽ overfit nghiêm trọng.
+  \item \textbf{Dữ liệu dạng bảng (tabular):} Theo nhiều benchmark tabular ML
+    (Shwartz-Ziv \& Armon, 2022), Random Forest và XGBoost thường vượt deep learning
+    trên dữ liệu bảng có ít đặc trưng ($< 20$ features).
+  \item \textbf{Giải thích được:} Feature importance của RF giúp xác định biến nào
+    đóng góp nhất --- quan trọng trong nghiên cứu khoa học SEE để cộng đồng kiểm chứng.
+\end{enumerate}
+Mục tiêu của nhóm không phải tìm mô hình mạnh nhất ---
+mà xây dựng \textbf{khung so sánh công bằng và tái lập được}.
+Deep Learning là hướng phát triển tương lai đã đề cập trong phần Future Work.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{Tại sao không dùng COCOMO II đầy đủ làm baseline thay vì
+  dùng power-law calibrated model?}{Baseline Design --- Mức độ khó: Cao}
+
+\answer{
+COCOMO II yêu cầu 17 cost driver (EM\textsubscript{i}) như kinh nghiệm đội, độ phức tạp nền tảng,
+hỗ trợ công cụ, v.v. Tuy nhiên \textbf{phần lớn dataset FP và UCP công khai không có
+các biến số này}. Nếu dùng giá trị mặc định ($EM_i = 1.0$), baseline sẽ vô tình yếu đi ---
+đây là so sánh không công bằng, được gọi là ``straw-man comparison'' trong
+cộng đồng nghiên cứu. Trong thí nghiệm sơ bộ, COCOMO II mặc định cho MMRE $> 2.5$
+trên FP/UCP.
+
+Thay vào đó, nhóm em dùng \textbf{power-law size-only model} được hiệu chỉnh
+trên chính dữ liệu huấn luyện ($\log E = \alpha + \beta \log \text{Size}$)
+--- bảo toàn tinh thần tham số của COCOMO nhưng công bằng hơn nhiều.
+Đây là Đóng góp số 2 của đề tài.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{Sự khác biệt giữa Random Forest và XGBoost trong bài toán này là gì?
+  Tại sao RF lại tốt hơn XGBoost ở đây?}{Model Comparison --- Mức độ khó: Trung bình}
+
+\answer{
+Cả hai đều là ensemble methods nhưng khác nhau về cơ chế:
+\textbf{Random Forest} xây song song nhiều cây và lấy trung bình (bagging) ---
+ổn định hơn khi dữ liệu có nhiễu và mẫu nhỏ.
+\textbf{XGBoost} xây tuần tự các cây bổ sung sai số (boosting) ---
+mạnh hơn khi dữ liệu lớn và cần khai thác pattern tinh vi.
+
+Trong thực nghiệm của nhóm em, RF đạt MAE $= 12.66$ PM so với XGBoost $= 13.21$ PM
+trên macro-average. RF ổn định hơn (độ lệch chuẩn $\pm 0.85$ vs. $\pm 0.92$).
+Điều này nhất quán với các nghiên cứu trước về SEE với tập dữ liệu không đồng nhất:
+RF ít nhạy cảm hơn với ngoại lai và không cần tuning tinh vi để cho kết quả tốt.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{Tại sao huấn luyện độc lập cho từng lược đồ mà không
+  dùng transfer learning giữa LOC, FP và UCP?}{Cross-Schema Transfer --- Mức độ khó: Cao}
+
+\answer{
+Ba lược đồ có \textbf{không gian đặc trưng hoàn toàn khác nhau}:
+LOC đo số dòng code (KLOC), FP đo điểm chức năng, UCP đo điểm use case ---
+không có ánh xạ trực tiếp giữa các đơn vị này.
+Nếu gộp chung và huấn luyện một mô hình duy nhất, mô hình sẽ học biểu diễn lẫn lộn
+giữa ba hệ đo lường không tương thích.
+
+Transfer learning giữa các lược đồ là \textbf{hướng nghiên cứu tương lai} thú vị ---
+đã đề cập trong phần Future Work.
+Để đảm bảo kết quả sạch cho benchmark này, nhóm em chọn
+huấn luyện độc lập như một thiết kế thận trọng.
+}
+
+% ═══════════════════════════════════════════════════════════════
+\qsection{Nhóm 3 --- Câu hỏi về Overfitting và Tổng quát hóa}
+% ═══════════════════════════════════════════════════════════════
+
+\question{Làm thế nào nhóm kiểm soát hiện tượng overfitting, đặc biệt
+  với FP và UCP có mẫu rất nhỏ?}{Overfitting Control --- Mức độ khó: Cao}
+
+\answer{
+Nhóm em áp dụng \textbf{năm cơ chế kiểm soát overfitting đồng thời}:
+\begin{enumerate}[leftmargin=2em, itemsep=2pt]
+  \item \textbf{LOOCV cho FP ($n=158$):} 158-fold --- mỗi điểm được test độc lập.
+  \item \textbf{10 random seeds độc lập:} Đảm bảo kết quả ổn định qua các phân chia khác nhau.
+  \item \textbf{OOB score monitoring:} Out-of-Bag score của RF cho phép ước lượng
+    lỗi trên dữ liệu chưa thấy mà không cần validation set riêng.
+  \item \textbf{IQR-capping:} Giảm ảnh hưởng của ngoại lai cực đoan
+    có thể khiến mô hình học các pattern bất thường.
+  \item \textbf{Grid Search với inner CV (3-fold):} Hyperparameter tuning
+    chỉ trên training fold, không để test set ảnh hưởng đến lựa chọn tham số.
+\end{enumerate}
+Mỗi cơ chế riêng lẻ có thể không đủ, nhưng kết hợp lại cho bằng chứng
+vững chắc về tính ổn định của mô hình.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{Leave-One-Source-Out (LOSO) là gì và tại sao nó quan trọng?
+  Kết quả LOSO của nhóm nói lên điều gì?}{LOSO Generalization --- Mức độ khó: Trung bình}
+
+\answer{
+\textbf{LOSO} (Leave-One-Source-Out) là giao thức kiểm tra xuyên nguồn:
+mô hình được huấn luyện trên dữ liệu từ 10 nguồn và kiểm tra trên
+nguồn còn lại --- lặp lại 11 lần (vì LOC có 11 nguồn).
+Đây là cách đo độ tổng quát hóa thực tế: liệu mô hình có thể dự đoán
+tốt trên \textbf{dữ liệu từ tổ chức/dự án hoàn toàn mới} hay không.
+
+Kết quả của nhóm: MAE tăng \textbf{chỉ 21\%} so với chia ngẫu nhiên 80/20.
+Đây là mức chấp nhận được --- mô hình không bị phụ thuộc chặt vào đặc điểm
+của từng nguồn cụ thể. Đây là câu trả lời cho \textbf{RQ2} của đề tài.
+}
+
+% ═══════════════════════════════════════════════════════════════
+\qsection{Nhóm 4 --- Câu hỏi về Đánh giá và Số liệu}
+% ═══════════════════════════════════════════════════════════════
+
+\question{Tại sao báo cáo MMRE trong khi biết chỉ số này có bias
+  (xu hướng ưu ái underestimation)?}{Evaluation Metric --- Mức độ khó: Trung bình}
+
+\answer{
+Nhóm em báo cáo MMRE chủ yếu vì \textbf{mục đích so sánh với tài liệu trước} ---
+phần lớn các bài báo SEE dùng MMRE làm chỉ số chính, nên việc báo cáo giúp
+cộng đồng so sánh trực tiếp.
+
+Tuy nhiên, \textbf{chỉ số chính (primary metric) của nhóm em là MAE} ---
+đối xứng, không bị lệch, và có ý nghĩa thực tiễn trực tiếp (person-months).
+Nhóm em đã ghi nhận rõ giới hạn của MMRE trong phần Threats to Validity
+(Construct Validity) và đề xuất sử dụng MdMRE cùng PRED(25) như chỉ số bổ sung
+để giảm ảnh hưởng của bias.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{Macro-averaging khác micro-averaging như thế nào?
+  Tại sao macro-averaging công bằng hơn trong trường hợp này?}{Aggregation --- Mức độ khó: Trung bình}
+
+\answer{
+\textbf{Micro-averaging} tính trên toàn bộ 3.054 dự án gộp lại.
+Do LOC chiếm 2.765/3.054 dự án ($= 90.5\%$), kết quả ``tổng thể'' thực chất
+phản ánh gần như hoàn toàn kết quả trên LOC --- FP và UCP bị chìm.
+
+\textbf{Macro-averaging} tính chỉ số riêng cho từng lược đồ rồi lấy trung bình đơn giản:
+$$m_{\text{macro}} = \frac{1}{3}(m_{\text{LOC}} + m_{\text{FP}} + m_{\text{UCP}})$$
+Mỗi lược đồ đóng góp $33.3\%$, bất kể kích thước mẫu.
+Điều này đảm bảo đánh giá \textbf{công bằng ngang nhau} giữa các lược đồ ---
+giải quyết trực tiếp Khoảng trống G3.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{Kiểm định Wilcoxon được áp dụng như thế nào? Tại sao dùng
+  Wilcoxon thay vì t-test thông thường?}{Statistical Test --- Mức độ khó: Trung bình}
+
+\answer{
+Nhóm em áp dụng \textbf{Wilcoxon signed-rank test} trên 10 cặp giá trị MAE
+(RF vs. Baseline) từ 10 random seeds.
+Wilcoxon được ưu tiên hơn t-test vì:
+\textbf{(a)} Phân phối MAE qua các seeds không được đảm bảo là chuẩn (normal),
+đặc biệt với tập dữ liệu nhỏ.
+\textbf{(b)} Wilcoxon là non-parametric test --- không giả định phân phối chuẩn,
+mạnh mẽ hơn khi $n = 10$ quan sát.
+
+Kết quả: $p < 0.001$, $z = 9.87$ --- xác nhận sự cải thiện của RF so với baseline
+\textbf{có ý nghĩa thống kê cao}. Hệ số hiệu ứng Cohen's $d = 1.23$ (lớn theo
+ngưỡng của Cohen: $d > 0.8$) xác nhận kết quả không chỉ có ý nghĩa thống kê
+mà còn có ý nghĩa thực tiễn.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{PRED(25) là gì và tại sao chọn ngưỡng 25\%?}{Evaluation Metric --- Mức độ khó: Thấp}
+
+\answer{
+\textbf{PRED(25)} là tỷ lệ dự báo có sai số tương đối (MRE) $\leq 25\%$ so với thực tế:
+$$\text{PRED}(k) = \frac{|\{i : \text{MRE}_i \leq k/100\}|}{n}$$
+Ngưỡng 25\% là chuẩn ngành SEE từ nghiên cứu của Conte et al. (1986) và
+được cộng đồng SEE duy trì để đảm bảo khả năng so sánh giữa các nghiên cứu.
+Kết quả nhóm em: RF đạt PRED(25) $= 0.395$ --- nghĩa là $39.5\%$ dự án
+được ước lượng sai không quá 25\%, so với $25.4\%$ của baseline.
+}
+
+% ═══════════════════════════════════════════════════════════════
+\qsection{Nhóm 5 --- Câu hỏi về Đóng góp Khoa học và Ứng dụng}
+% ═══════════════════════════════════════════════════════════════
+
+\question{Đóng góp thực sự của đề tài so với các nghiên cứu SEE trước đây là gì?
+  Điểm mới ở đâu?}{Research Contribution --- Mức độ khó: Cao}
+
+\answer{
+Nhóm em đóng góp \textbf{phương pháp luận} (methodological artifact),
+không chỉ là một mô hình mới. Cụ thể, đây là \textbf{lần đầu tiên} một nghiên cứu
+kết hợp đồng thời:
+\begin{enumerate}[leftmargin=2em, itemsep=2pt]
+  \item \textbf{Bản đồ nguồn dữ liệu có thể tái tạo} (dataset manifest + rebuild scripts)
+    --- không chỉ ghi ``chúng tôi dùng PROMISE dataset''.
+  \item \textbf{Baseline hiệu chỉnh công bằng} fitted trên training data per seed ---
+    không dùng COCOMO II với tham số mặc định.
+  \item \textbf{Giao thức riêng biệt cho từng lược đồ} (LOOCV cho FP nhỏ,
+    LOSO cho LOC lớn).
+  \item \textbf{Macro-averaging} để báo cáo công bằng qua ba lược đồ.
+  \item \textbf{Tail evaluation} cho top 10\% dự án khó nhất.
+\end{enumerate}
+Khung này có thể tái sử dụng --- bất kỳ nghiên cứu nào muốn so sánh
+mô hình mới đều có thể dùng framework của nhóm em làm nền tảng.
+}
+
+\tactic{Đây là câu quan trọng nhất. Hãy chủ động nhấn mạnh:
+  ``Kết quả 42\% MMRE improvement là minh chứng cho giá trị của framework ---
+  nhưng \emph{chính framework} mới là đóng góp cốt lõi.''}
+
+% ────────────────────────────────────────────────────────────────
+\question{Khung này có thể áp dụng cho dự án Agile/Scrum hiện đại không?
+  Story points có thể tích hợp được không?}{Applicability --- Mức độ khó: Trung bình}
+
+\answer{
+Với \textbf{bộ dữ liệu hiện tại} ($1979$--$2022$, chủ yếu pre-Agile): không áp dụng trực tiếp.
+
+Nhưng \textbf{thiết kế framework} hoàn toàn có thể mở rộng:
+$s \in \{\text{LOC, FP, UCP, Story Points, Object Points}\}$ ---
+chỉ cần thêm story points như lược đồ thứ tư với giao thức đánh giá riêng.
+Thách thức là chưa có bộ dữ liệu Agile công khai đủ lớn và chuẩn hóa.
+Đây là một trong những hướng nghiên cứu tương lai mà nhóm em đề xuất.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{Kết quả thực nghiệm có bị ảnh hưởng bởi việc
+  hầu hết dữ liệu đến từ Bắc Mỹ và Châu Âu không?}{External Validity --- Mức độ khó: Cao}
+
+\answer{
+Có --- đây là giới hạn rõ ràng mà nhóm em thừa nhận trong phần External Validity.
+Phần lớn 18 nguồn đến từ Bắc Mỹ (NASA, IBM, Canada) và Châu Âu (Finland, UK),
+ngoại trừ bộ China dataset.
+Môi trường phát triển phần mềm tại Đông Nam Á hoặc các nước đang phát triển
+có thể có đặc điểm năng suất, team size, và công nghệ khác.
+Kết quả tổng quát hóa cho bối cảnh Việt Nam cần được kiểm chứng thêm
+với dữ liệu địa phương --- đây cũng là hướng mà nhóm em muốn tiếp tục.
+}
+
+% ═══════════════════════════════════════════════════════════════
+\qsection{Nhóm 6 --- Câu hỏi ``Bẫy'' / Bất ngờ}
+% ═══════════════════════════════════════════════════════════════
+
+\question{Mô hình của nhóm đạt $R^2 = 0.812$ --- nhưng $R^2$ cao có nghĩa là
+  mô hình dự đoán tốt không? Có thể $R^2$ cao nhưng MAE vẫn lớn không?}{Critical Thinking --- Mức độ khó: Cao}
+
+\answer{
+Câu hỏi rất sắc bén. $R^2$ đo tỷ lệ phương sai được giải thích ---
+$R^2$ cao nghĩa là mô hình bắt được xu hướng tổng thể, nhưng \textbf{không đảm bảo
+sai số tuyệt đối nhỏ} trên từng dự án cụ thể.
+
+Ví dụ: nếu dữ liệu có phân phối rất rộng (effort từ 1 đến 10.000 PM),
+mô hình có thể đạt $R^2$ cao chỉ bằng cách đoán đúng chiều hướng,
+trong khi MAE vẫn lớn về giá trị tuyệt đối.
+Đây là lý do nhóm em \textbf{ưu tiên MAE và MdAE} làm chỉ số chính,
+và báo cáo $R^2$ chỉ như chỉ số bổ sung.
+}
+
+% ────────────────────────────────────────────────────────────────
+\question{Nếu nhóm em có thêm thời gian và nguồn lực, nhóm sẽ cải thiện điều gì
+  trong nghiên cứu này?}{Future Work --- Mức độ khó: Thấp (nhưng quan trọng về ấn tượng)}
+
+\answer{
+Ba ưu tiên cụ thể và có thể thực hiện được:
+\begin{enumerate}[leftmargin=2em, itemsep=2pt]
+  \item \textbf{Transfer learning giữa các lược đồ:} Huấn luyện model trên LOC (lớn)
+    rồi fine-tune cho FP/UCP (nhỏ) --- có thể tăng đáng kể hiệu năng trên FP/UCP.
+  \item \textbf{Thu thập dữ liệu Agile:} Xây dataset story points từ Jira/Trello
+    của các công ty phần mềm Việt Nam để kiểm chứng framework trong bối cảnh địa phương.
+  \item \textbf{Tích hợp thêm đặc trưng:} Thêm team velocity, sprint length,
+    technology stack --- thay vì chỉ dùng size metric.
+\end{enumerate}
+}
+
+\tactic{Câu này là cơ hội thể hiện tư duy nghiên cứu. Trả lời tự nhiên,
+  thể hiện nhóm hiểu giới hạn và có tầm nhìn rõ ràng.}
+
+% ═══════════════════════════════════════════════════════════════
+\vspace{1em}
+\hrule
+\vspace{0.5em}
+
+\begin{mdframed}[backgroundcolor=darkblue!8, linecolor=darkblue,
+  linewidth=1.5pt, innerleftmargin=12pt, innerrightmargin=12pt,
+  innertopmargin=8pt, innerbottommargin=8pt]
+\noindent{\bfseries\color{darkblue}Bảng tóm tắt phân công trả lời:}
+
+\vspace{0.4em}
+\begin{tabular}{>{\bfseries}p{4.5cm} p{9cm}}
+\toprule
+Loại câu hỏi & Người trả lời \\
+\midrule
+Dataset / Data quality & Thành viên phụ trách Data/Preprocessing \\
+Thuật toán / Model & Thành viên phụ trách Model/AI \\
+Evaluation metrics & Thành viên phụ trách Experiment/Evaluation \\
+Đóng góp khoa học & Trưởng nhóm (người thuyết trình) \\
+Ứng dụng thực tiễn & Bất kỳ thành viên nào --- chuẩn bị trước \\
+\bottomrule
+\end{tabular}
+\end{mdframed}
+
+\vspace{0.5em}
+
+\begin{mdframed}[backgroundcolor=darkgreen!8, linecolor=darkgreen,
+  linewidth=1.5pt, innerleftmargin=12pt, innerrightmargin=12pt,
+  innertopmargin=8pt, innerbottommargin=8pt]
+\noindent{\bfseries\color{darkgreen}Checklist cuối cùng trước hội nghị:}
+\begin{itemize}[leftmargin=1.5em, itemsep=2pt]
+  \item[$\square$] Tập trả lời từng câu theo đồng hồ --- mỗi câu $\leq 45$ giây.
+  \item[$\square$] Mock presentation đủ 10 phút báo cáo + 2 phút demo.
+  \item[$\square$] Chuẩn bị sẵn số liệu cụ thể: MAE $= 12.66$, MMRE $= 0.647$,
+    $p < 0.001$, Cohen's $d = 1.23$, LOSO degradation $21\%$.
+  \item[$\square$] Mọi thành viên thuộc lòng đóng góp chính của đề tài
+    (5 đóng góp khoa học).
+  \item[$\square$] Rebuild scripts và experiment logs sẵn sàng cung cấp cho hội đồng.
+\end{itemize}
+\end{mdframed}
+
+\vspace{0.5em}
+\hrule
+\begin{center}
+\textit{\small Tài liệu chuẩn bị Q\&A --- Hội nghị SVNCKH 2026 ---
+  Trường Đại học Duy Tân, Tháng 4 năm 2026}
+\end{center}
+
+\end{document}

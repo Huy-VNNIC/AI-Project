@@ -1,0 +1,334 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{lmodern}
+
+% Colors
+\definecolor{slideblue}{RGB}{0,51,102}
+\definecolor{timergreen}{RGB}{46,139,87}
+\definecolor{noteorange}{RGB}{204,102,0}
+\definecolor{bglight}{RGB}{240,245,255}
+
+% Slide header style
+\newcounter{slidenum}
+\setcounter{slidenum}{0}
+\newcommand{\slide}[2]{%
+  \stepcounter{slidenum}%
+  \vspace{0.6em}
+  \begin{mdframed}[backgroundcolor=slideblue!90, linecolor=slideblue,
+    leftmargin=0pt, rightmargin=0pt, innerleftmargin=10pt,
+    innerrightmargin=10pt, innertopmargin=6pt, innerbottommargin=6pt]
+    \color{white}\large\bfseries Slide \theslidenum\ --- #1
+    \hfill \textcolor{yellow!80!white}{\normalsize\itshape #2}
+  \end{mdframed}
+  \vspace{0.3em}
+}
+
+\newcommand{\say}[1]{%
+  \begin{mdframed}[backgroundcolor=bglight, linecolor=slideblue!40,
+    leftmargin=0pt, rightmargin=0pt, innerleftmargin=12pt,
+    innerrightmargin=12pt, innertopmargin=8pt, innerbottommargin=8pt,
+    linewidth=1.5pt]
+  #1
+  \end{mdframed}
+}
+
+\newcommand{\pointnote}[1]{%
+  \vspace{0.2em}
+  \noindent\textcolor{noteorange}{\bfseries [Ghi chu presenter:]} \textit{#1}
+  \vspace{0.2em}
+}
+
+\newcommand{\transition}[1]{%
+  \vspace{0.15em}
+  \noindent\textcolor{timergreen}{\bfseries $\Rightarrow$ Chuyen slide:} \textit{#1}
+  \vspace{0.3em}
+}
+
+\begin{document}
+
+% Title
+\begin{center}
+  {\LARGE\bfseries\color{slideblue}
+    Script Thuyết Trình --- Phiên bản Tiếng Việt}\\[0.5em]
+  {\large Một Khung Học Máy Tập Thể cho Ước Lượng\\
+    Công Sức Phần Mềm Trên Ba Lược Đồ}\\[0.4em]
+  {\normalsize Hội nghị Sinh viên Nghiên cứu Khoa học 2026 --- Trường Đại học Duy Tân}\\[0.2em]
+  {\normalsize\color{timergreen} Tổng thời gian: \textbf{10 phút} + 5 phút hỏi đáp}
+\end{center}
+\hrule
+\vspace{1em}
+
+\noindent\textbf{Lưu ý trước khi thuyết trình:}
+\begin{itemize}[leftmargin=1.5em]
+  \item Nói vừa đủ nghe, không quá nhanh.
+  \item Dùng con trỏ chỉ vào bảng/biểu đồ khi nhắc đến số liệu.
+  \item Nếu quên, nhìn vào dòng chữ nghiêng in nhỏ ở cuối mỗi slide.
+\end{itemize}
+
+\vspace{0.5em}
+\hrule
+\vspace{0.5em}
+
+% ─────────────────────────────────────────────────
+\slide{Trang tieu de}{30 giay}
+
+\say{
+Kinh chao Ban giam khao va toan the quy vi! Em ten la Nguyen Nhat Huy, thay mat nhom tac gia trinh bay de tai nghien cuu co tua de: \textbf{``Mot Khung Hoc May Tap The cho Uoc Luong Cong Suc Phan Mem tren Ba Luoc Do: LOC, FP va UCP.''}
+
+Giang vien huong dan cua em la Thay Nguyen Duc Man, truong Quoc te, Dai hoc Duy Tan.
+
+Cau hoi trung tam ma chung em muon giai dap la: \textit{Lieu hoc may co the uoc luong cong suc phat trien phan mem tot hon, chinh xac hon, va cong bang hon so voi cac phuong phap hien tai?} Trong 10 phut toi, em se chung minh rang câu tra loi la Co --- va trinh bay ro rang cach chung em xay dung mot khung thu nghiem co nen tang khoa hoc vung chac.
+}
+
+\transition{Bam sang Slide 2.}
+
+% ─────────────────────────────────────────────────
+\slide{Van de: Uoc luong Cong suc Phan mem}{1 phut}
+
+\say{
+Truoc tien, em muon dat van de.
+
+Theo Bao cao Chaos cua To chuc Standish Group, chi co \textbf{29\%} du an phan mem dat yeu cau. Hon mot nua du an bi tre tien do hoac vuot ngan sach, va 19\% bi huy bo hoan toan. Mot trong nhung nguyen nhan chinh la \textbf{uoc luong cong suc sai} --- nguoi quan ly du an khong biet chinh xac du an can bao nhieu thoi gian va nhan luc.
+
+Cong dong nghien cuu da de xuat nhieu giai phap. Co hai huong chinh: \textbf{mo hinh tham so} nhu COCOMO II --- minh bach nhung cung nhac, khong linh hoat voi du lieu da dang; va \textbf{hoc may} nhu Random Forest va XGBoost --- linh hoat hon, nhung thieu mot khung danh gia chuan.
+}
+
+\pointnote{Chi vao khung bên phai: ``Ba luoc do dinh co pho bien.''}
+
+\say{
+Van de cu the la the nay: cac du an phan mem do kich thuoc cua minh theo ba cach khac nhau. Co the dem \textbf{So dong code (LOC)}, \textbf{Function Points (FP)}, hoac \textbf{Use Case Points (UCP)}. Ba luoc do nay co kich thuoc du lieu rat khac nhau --- LOC co toi 2.765 du an, con FP va UCP chi co duoi 160 du an moi loai. Va dieu quan trong la: chung dang duoc nghien cuu \textbf{rieng le, tach biet nhau}.
+
+Cho den nay, chua co mot khung danh gia thong nhat, cong bang, va co the tai tao duoc de so sanh hoc may tren ca ba luoc do cung mot luc. Day chinh la khoang trong ma chung em lap day.
+}
+
+\transition{Bam sang Slide 3.}
+
+% ─────────────────────────────────────────────────
+\slide{Cac khoang trong Nghien cuu va Cau hoi Nghien cuu}{1 phut}
+
+\say{
+Chung em xac dinh duoc \textbf{ba khoang trong nghien cuu cu the}.
+
+\textbf{Khoang trong G1} la \textit{tinh kiem chung du lieu yeu}. Phan lon cac bai bao chi ghi ``chung toi su dung bo du lieu cong khai'' ma khong cung cap nguon goc, quy tac loai bo trung lap, hay kich ban tai tao. Dieu nay khien viec kiem chung lai ket qua la bat kha thi.
+
+\textbf{Khoang trong G2} la \textit{duong co so khong cong bang}. Nhieu nghien cuu so sanh hoc may voi COCOMO II su dung \textit{tham so mac dinh}, ngay ca khi cac bien dau vao can thiet cua COCOMO bi thieu. Day la mot so sanh khong cong bang --- duong co so duoc cai dat trong the ``chac chan se thua.''
+
+\textbf{Khoang trong G3} la \textit{bao cao ket qua don gian hoa qua muc}. Khi gop ket qua cua ca ba luoc do vao mot chi so duy nhat, du lieu LOC chiem 90.5\% tong so du an va lam lu mo ket qua thuc su cua FP va UCP.
+}
+
+\pointnote{Chi vao cot ben phai: hai cau hoi nghien cuu.}
+
+\say{
+Tu ba khoang trong do, chung em dat ra hai Cau hoi Nghien cuu. \textbf{RQ1}: Lieu cac mo hinh tap the co vuot troi hon mot duong co so \textit{da duoc hieu chinh tot} --- khong phai mac dinh --- tren ca ba luoc do hay khong? \textbf{RQ2}: Lieu viec tinh trung binh vi mo co ket hop kiem tra Leave-One-Source-Out co dua ra mot danh gia trung thuc hon so voi trung binh vi mo hay khong?
+
+Dong gop chinh cua chung em la mot \textbf{khung danh gia chuan, co the tai tao duoc} --- mot tao pham phuong phap luan ma cong dong nghien cuu co the ap dung lai.
+}
+
+\transition{Bam sang Slide 4.}
+
+% ─────────────────────────────────────────────────
+\slide{Bo du lieu: Danh muc 18 Nguon (1979--2022)}{45 giay}
+
+\say{
+De giai quyet Khoang trong G1, chung em xay dung mot \textbf{danh muc du lieu co the kiem chung}.
+
+Chung em thu thap du lieu tu \textbf{18 nguon cong khai}, trai dai tu 1979 den 2022, voi tong cong \textbf{3.054 du an phan mem}. Voi moi nguon, chung em ghi lai DOI hoac duong dan URL, ap dung quy tac loai bo trung lap giua cac nguon, va viet kich ban tai tao de bat ki ai cung co the tao lai chinh xac bo du lieu cua chung em tu dau.
+
+Quy trinh tien xu ly gom bon buoc: thu nhat, \textbf{dong nhat don vi} --- tat ca cong suc deu chuyen ve person-month, LOC chuyen ve KLOC; thu hai, \textbf{xu ly gia tri thieu} bang trung vi; thu ba, \textbf{giam thieu ngoai lai} bang phuong phap IQR-capping; thu tu, \textbf{chuan hoa phan phoi} bang bien doi log(1+x) de giam do lech.
+
+Day la \textbf{Dong gop so 1} cua chung em, giai quyet truc tiep Khoang trong G1.
+}
+
+\transition{Bam sang Slide 5.}
+
+% ─────────────────────────────────────────────────
+\slide{Khung Hoc May va Cac Giao thuc Danh gia}{1 phut 15 giay}
+
+\say{
+Tiep theo la kien truc cua khung hoc may.
+
+Nguyen tac thiet ke chinh la \textbf{huan luyen doc lap theo luoc do}. Chung em huan luyen mot mo hinh rieng cho moi luoc do --- mot cho LOC, mot cho FP, mot cho UCP. Cong thuc tong quat la: cong suc du doan bang mot ham nao do ap dung len cac dac trung dau vao cua luoc do tuong ung.
+
+Chung em danh gia nam mo hinh: Hoi quy tuyen tinh, Cay quyet dinh, \textbf{Random Forest}, \textbf{Gradient Boosting}, va \textbf{XGBoost}.
+}
+
+\pointnote{Chi vao khung ben phai: ``Giao thuc rieng biet cho tung luoc do.''}
+
+\say{
+Diem then chot la moi luoc do duoc ap dung giao thuc danh gia phu hop voi kich thuoc mau cua no.
+
+Voi \textbf{LOC} co 2.765 du an, chung em chia 80/20 lap lai 10 lan voi cac hat giong ngau nhien khac nhau, ket hop voi kiem tra \textbf{LOSO --- Leave-One-Source-Out} --- tuc la huan luyen tren 10 nguon du lieu va kiem tra tren nguon con lai. Day la cach do do tong quat hoa xuyen nguon.
+
+Voi \textbf{FP} chi co 158 du an, chung em su dung \textbf{Leave-One-Out Cross-Validation} 158 vong, ket hop khoang tin cay bootstrap. Day la lua chon dung dan cho mau nho.
+
+Voi \textbf{UCP} 131 du an, chung em dung chia 80/20 ket hop 5-fold cross-validation.
+
+Cac giao thuc nay giai quyet Khoang trong G3 va la \textbf{Dong gop so 3}.
+}
+
+\transition{Bam sang Slide 6.}
+
+% ─────────────────────────────────────────────────
+\slide{Hai Doi moi Phuong phap Luan Chinh}{1 phut}
+
+\say{
+Ngoai cac mo hinh, chung em con de xuat \textbf{ba cai tien phuong phap luan}.
+
+\textbf{Cai tien so 1} la \textbf{duong co so da hieu chinh}. Thay vi dung COCOMO II voi tham so mac dinh, chung em huan luyen mot mo hinh luat luy thua --- logarit cong suc bang alpha cong beta nhan logarit kich thuoc --- tren \textit{chinh du lieu huan luyen}, rieng cho tung luoc do, rieng cho tung lan chay thu nghiem. Nhu vay, hoc may phai vuot qua mot duong co so da duoc toi uu hoa tot, khong phai mot duong co so gia tao. Day giai quyet Khoang trong G2.
+
+\textbf{Cai tien so 2} la \textbf{trung binh vi mo}. Thay vi tinh mot trung binh duy nhat tren 3.054 du an --- goi la trung binh vi mo --- chung em tinh chi so rieng cho tung luoc do roi lay trung binh don gian. LOC chiem 1/3, FP chiem 1/3, UCP chiem 1/3, bat ke kich thuoc mau. Nhu vay moi luoc do duoc danh gia cong bang ngang nhau, giai quyet Khoang trong G3.
+
+\textbf{Cai tien so 3} la \textbf{danh gia phan duoi} --- chung em phan tich rieng 10\% cac du an co cong suc cao nhat, vi day la nhom kho du doan nhat va ton kem nhat neu uoc luong sai.
+}
+
+\transition{Bam sang Slide 7.}
+
+% ─────────────────────────────────────────────────
+\slide{Ket qua Tong the: Trung binh Vi mo qua 10 Hat giong}{1 phut}
+
+\say{
+Bay gio la ket qua.
+}
+
+\pointnote{Chi vao bang ben trai.}
+
+\say{
+Bang nay the hien chi so trung binh vi mo tren ca ba luoc do, trung binh qua 10 lan thu nghiem. Mo hinh tot nhat la \textbf{Random Forest}.
+
+Random Forest dat MAE --- Sai so Tuyet doi Trung binh --- la \textbf{12,66 person-month}, so voi 18,45 cua duong co so da hieu chinh. Do la muc giam \textbf{31\%}.
+
+An tuong hon, chi so MMRE --- Sai so Tuong doi Trung binh --- giam tu 1,12 xuong con \textbf{0,647}, tuong duong \textbf{42\% cai thien}. PRED(25) --- ty le du bao nam trong nguong 25\% so voi thuc te --- tang tu 0,254 len \textbf{0,395}.
+
+Day la cau tra loi cho \textbf{RQ1}: co, cac mo hinh tap the vuot troi ro ret so voi duong co so da duoc hieu chinh tot.
+}
+
+\pointnote{Chi vao khung ``Statistical Significance.''}
+
+\say{
+Va ket qua nay co \textbf{y nghia thong ke}. Kiem dinh Wilcoxon cho p nho hon 0,001. He so hieu ung Cohen d bang 1,23, duoc xep loai \textit{lon}. Day khong phai ngau nhien --- day la su cai thien that su va co y nghia thuc tien.
+}
+
+\transition{Bam sang Slide 8.}
+
+% ─────────────────────────────────────────────────
+\slide{Ket qua Tung Luoc Do va Kha nang Tong quat hoa}{1 phut}
+
+\say{
+Bay gio chung em xem xet tung luoc do rieng le.
+}
+
+\pointnote{Chi vao bang theo tung hang.}
+
+\say{
+Voi \textbf{LOC}, Random Forest giam MAE tu 16,8 xuong 11,2 person-month, cai thien MMRE 40\%.
+
+Voi \textbf{FP} --- xin luu y rang day la ket qua \textit{mang tinh tham do} vi mau chi co 158 du an --- Random Forest giam MAE tu 21,4 xuong 15,8, cai thien MMRE 38\%.
+
+Voi \textbf{UCP}, ket qua an tuong nhat: cai thien MMRE 49\%.
+
+Su cai thien nhat quan tren ca ba luoc do. Dieu nay chi co the thuc hien duoc vi chung em thiet ke giao thuc rieng biet cho tung luoc do.
+}
+
+\pointnote{Chi vao hai khung xanh la o phia duoi.}
+
+\say{
+De tra loi \textbf{RQ2} ve kha nang tong quat hoa: khi dung Leave-One-Source-Out, MAE chi giam 21\% so voi chia du lieu ngau nhien thong thuong. Muc giam nay la kha nho, nghia la mo hinh van tong quat hoa duoc kha tot sang du lieu tu cac nguon moi chua gap.
+
+Con doi voi nhom du an kho nhat --- 10\% co cong suc cao nhat --- Random Forest MAE giam 57 den 72\%, trong khi duong co so giam toi 83 den 100\%. Mo hinh tap the ro rang tot hon dang ke trong nhom kho nhat nay.
+}
+
+\transition{Bam sang Slide 9.}
+
+% ─────────────────────────────────────────────────
+\slide{Nghien cuu Tru lieu va Cac Moi de doa Tinh hop le}{45 giay}
+
+\say{
+Chung em cung thuc hien \textbf{nghien cuu tru lieu} de hieu ro phan dong gop cua tung buoc tien xu ly.
+}
+
+\pointnote{Chi vao bang tru lieu.}
+
+\say{
+Khi bo lan luot tung buoc va huan luyen lai, ket qua cho thay \textbf{dong nhat don vi} la buoc quan trong nhat. Neu khong co no, MAE tang von tu 11,2 len toi 17,3 person-month. Bien doi log va IQR-capping cung dong gop dang ke, nhung dong nhat don vi la nen tang.
+
+Chung em cung thanh that ve \textbf{cac moi de doa tinh hop le}. Ket qua FP mang tinh tham do do mau con nho. Quy dinh 1 person-month bang 160 gio co the khac nhau giua cac to chuc. Cac mo hinh khong chia se thong tin giua ba luoc do. Va phan lon du lieu den tu Bac My va Chau Au, chua dai dien day du cho moi truong phat trien hien dai.
+}
+
+\transition{Bam sang Slide 10.}
+
+% ─────────────────────────────────────────────────
+\slide{Ket luan va Huong Nghien cuu Tuong lai}{30 giay}
+
+\say{
+De ket luan.
+
+Chung em da thuc hien \textbf{nam dong gop khoa hoc}: danh muc du lieu co the kiem chung, duong co so da hieu chinh, giao thuc danh gia phu hop tung luoc do, trung binh vi mo, va danh gia phan duoi. Tat ca hinh thanh mot khung danh gia day du va co the tai tao duoc.
+
+Ket qua noi bat la \textbf{cai thien 42\% MMRE} voi y nghia thong ke. Va kiem tra LOSO cho thay mo hinh co kha nang tong quat hoa tot --- no khong chi hoc thuoc long du lieu huan luyen.
+
+Huong nghien cuu tuong lai bao gom: hoc chuyen giao giua cac luoc do, mo hinh LSTM va Transformer cho du lieu chuoi thoi gian, mo rong sang chi so Agile nhu story points, va hoc tich cuc cho cac bo du lieu FP va UCP con nho.
+
+\textbf{Thong diep chinh cua chung em la}: dong gop quan trong nhat khong phai la bat ky mo hinh cu the nao --- ma la \textit{ban than khung danh gia}, mot tao pham co the tai su dung, mo rong va ke thua cho cac nghien cuu SEE trong tuong lai.
+}
+
+\transition{Bam sang slide Q\&A. Cam on Ban giam khao.}
+
+% ─────────────────────────────────────────────────
+\slide{Hoi dap / Cam on}{Demo + Hoi dap: 5 phut}
+
+\say{
+Cam on Ban giam khao va toan the quy vi da lang nghe! Nhom em rat vui long tiep nhan cac cau hoi. Neu quy vi muon xem ma nguon, kich ban tai tao du lieu, hoac nhat ky thu nghiem, tat ca deu san sang --- xin vui long hoi va chung em se cung cap ngay.
+}
+
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+% ─────────────────────────────────────────────────
+{\large\bfseries\color{slideblue} Cac Cau hoi Du kien va Goi y Tra loi}
+
+\vspace{0.5em}
+
+\noindent\textbf{C1: Tai sao dung Random Forest ma khong dung Deep Learning?}
+
+\say{
+Hoc sau can nhieu du lieu de huan luyen hieu qua. Voi FP va UCP, moi loai chi co khoang 100--160 du an. Random Forest hoat dong tot tren du lieu dang bang voi mau nho. Ngoai ra, no co the giai thich duoc qua chi so feature importance, dieu nay quan trong trong mot bai bao nghien cuu. Muc tieu cua chung em khong phai tim mo hinh manh nhat --- ma xay dung khung so sanh cong bang nhat.
+}
+
+\noindent\textbf{C2: Lam the nao de kiem soat hien tuong overfit?}
+
+\say{
+Chung em ket hop nhieu ky thuat: LOOCV cho FP, LOSO cho kiem tra xuyen nguon, 10 hat giong ngau nhien doc lap, giam sat chi so OOB score, va IQR-capping de giam anh huong cua ngoai lai. Moi ky thuat rieng le co the that bai, nhung ket hop lai chung cho bang chung chac chan rang mo hinh co tinh on dinh.
+}
+
+\noindent\textbf{C3: Tai sao bao cao MMRE khi biet rang chi so nay co do lech?}
+
+\say{
+Chung em bao cao MMRE chu yeu de so sanh voi tai lieu truoc do. \textit{Chi so chinh} cua chung em la MAE vi no doi xung va khong co do lech. Chung em nhan thuc ro do lech cua MMRE va da ghi nhan trong phan Moi de doa Tinh hop le.
+}
+
+\noindent\textbf{C4: Tai sao khong dung COCOMO II day du lam duong co so?}
+
+\say{
+Phan lon bo du lieu FP va UCP thieu cac bien so dau vao ma COCOMO II yeu cau. Neu dung gia tri mac dinh cho nhung bien so thieu do, duong co so se vo tinh yeu di --- day la so sanh khong cong bang, chinh xac la Khoang trong G2 ma chung em dang co gai quyet. Chung em thay the bang mot mo hinh luat luy thua duoc hieu chinh tren chinh du lieu huan luyen, cong bang hon nhieu.
+}
+
+\noindent\textbf{C5: Khung nay co ap dung duoc cho du an Agile hien dai khong?}
+
+\say{
+Voi bo du lieu hien tai thi khong truc tiep, vi phan lon du lieu co truoc Agile. Nhung \textit{thiet ke khung} --- danh muc co the kiem chung, duong co so da hieu chinh, trung binh vi mo, giao thuc rieng theo luoc do --- hoan toan co the ap dung cho du lieu Agile. Mo rong sang story points va chi so DevOps la mot trong nhung huong nghien cuu tuong lai cua chung em.
+}
+
+\vspace{1em}
+\hrule
+\begin{center}
+\textit{\small Ket thuc Script Tieng Viet --- Truong Dai hoc Duy Tan, Thang 4 nam 2026}
+\end{center}
+
+\end{document}

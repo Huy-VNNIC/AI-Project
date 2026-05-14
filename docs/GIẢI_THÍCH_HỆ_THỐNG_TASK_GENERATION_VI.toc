@@ -1,0 +1,48 @@
+\babel@toc {vietnamese}{}\relax 
+\contentsline {chapter}{\numberline {1}GIỚI THIỆU HỆ THỐNG}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Task Generation System là gì?}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Quy Trình Xử Lý - Pipeline}{3}{section.1.2}%
+\contentsline {chapter}{\numberline {2}CÁC STAGE CHI TIẾT}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Stage 1: Segmentation (Tách Tài Liệu)}{5}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Mục Đích}{5}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Đầu Vào \& Đầu Ra}{5}{subsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.1.3}Ví Dụ}{6}{subsection.2.1.3}%
+\contentsline {section}{\numberline {2.2}Stage 2: Requirement Detection (Phát Hiện)}{6}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Mục Đích}{6}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Cách Hoạt Động}{6}{subsection.2.2.2}%
+\contentsline {section}{\numberline {2.3}Stage 3: Enrichment (Phân Loại)}{7}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Mục Đích}{7}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Multi-Class Classifiers}{7}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}Ví Dụ Enrichment}{8}{subsection.2.3.3}%
+\contentsline {section}{\numberline {2.4}Stage 4: Task Generation (Tạo Task)}{8}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}3 Modes Tạo Task}{8}{subsection.2.4.1}%
+\contentsline {subsubsection}{Mode 1: Template-Based (Nhanh \& Consistent)}{9}{section*.2}%
+\contentsline {subsubsection}{Mode 2: LLM-Based (Linh Hoạt \& Natural)}{10}{section*.3}%
+\contentsline {subsubsection}{Mode 3: Model-Based (Production - No APIs)}{11}{section*.4}%
+\contentsline {subsection}{\numberline {2.4.2}So Sánh 3 Modes}{11}{subsection.2.4.2}%
+\contentsline {section}{\numberline {2.5}Stage 5: Post-Processing}{12}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Các Bước}{12}{subsection.2.5.1}%
+\contentsline {chapter}{\numberline {3}TASK SCHEMA - CỬ TRÚC DỮ LIỆU}{13}{chapter.3}%
+\contentsline {section}{\numberline {3.1}GeneratedTask Model}{13}{section.3.1}%
+\contentsline {chapter}{\numberline {4}PIPELINE CODE - HOW IT WORKS}{15}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Main Pipeline Class}{16}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Usage Example}{17}{section.4.2}%
+\contentsline {chapter}{\numberline {5}USER STORIES VÀ TASKS TRONG HỆ THỐNG}{18}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Task Generation Feature - User Stories}{18}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}US1: Tạo Requirement Document}{18}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}US2: Generate Tasks from Requirements}{19}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}US3: Review \& Edit Generated Tasks}{20}{subsection.5.1.3}%
+\contentsline {subsection}{\numberline {5.1.4}US4: Export Tasks to Jira}{20}{subsection.5.1.4}%
+\contentsline {section}{\numberline {5.2}Related Backend Tasks}{21}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Task: Implement Requirement Detector ML Model}{21}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Task: Implement Enrichment Classifiers}{22}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Task: Implement LLM Integration}{23}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Task: Implement Model-Based Generator}{24}{subsection.5.2.4}%
+\contentsline {chapter}{\numberline {6}KIẾN TRÚC \& TECHNICAL DETAILS}{25}{chapter.6}%
+\contentsline {section}{\numberline {6.1}System Architecture}{26}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Component Dependencies}{27}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Data Flow Example}{28}{section.6.3}%
+\contentsline {chapter}{\numberline {7}CÓ GÌ VUI VẪN VỀ HỆ THỐNG}{29}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Advantages}{29}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Limitations \& Future Work}{29}{section.7.2}%
+\contentsline {chapter}{\numberline {8}SUMMARY}{30}{chapter.8}%

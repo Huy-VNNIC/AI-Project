@@ -1,0 +1,6 @@
+REQ-001: The system shall authenticate users using email and password with bcrypt hashing and enforce a minimum password length of 8 characters.
+REQ-002: The shopping cart shall calculate the total price including tax rate of 10% and apply discount codes that reduce the price by a maximum of 50%.
+REQ-003: The system shall allow users to upload profile images in PNG or JPEG format with a maximum file size of 5MB.
+REQ-004: The API shall return paginated results with a default page size of 20 items and support sorting by date, name, or price.
+REQ-005: The notification service shall send email alerts within 30 seconds when a critical system error is detected and log all notifications to the audit trail.
+REQ-006: Users shall be able to export their transaction history as CSV or PDF format filtered by date range with a maximum export period of 12 months.

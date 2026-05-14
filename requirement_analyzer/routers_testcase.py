@@ -4,7 +4,8 @@ Tích hợp vào requirement_analyzer.api
 """
 
 from fastapi import APIRouter, HTTPException, File, UploadFile
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+from pathlib import Path as _Path
 from typing import Optional, List
 import json
 from datetime import datetime
@@ -219,17 +220,20 @@ Feature: User Login
 
                 try {
                     document.querySelector('button').textContent = 'Generating...';
-                    
-                    const formData = new FormData();
-                    formData.append('requirements', requirements);
 
-                    const response = await fetch('/api/v2/test-generation/generate-test-cases', {
+                    const response = await fetch('/api/v3/test-generation/generate', {
                         method: 'POST',
-                        body: formData
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            requirements: requirements,
+                            max_tests: 15,
+                            confidence_threshold: 0.5
+                        })
                     });
 
                     if (!response.ok) {
-                        throw new Error('API error: ' + response.statusText);
+                        const errText = await response.text();
+                        throw new Error('API error: ' + errText);
                     }
 
                     const data = await response.json();
@@ -240,6 +244,11 @@ Feature: User Login
                 } finally {
                     document.querySelector('button').textContent = 'Generate Test Cases';
                 }
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
             }
 
             function displayTestCases(data) {
@@ -254,16 +263,60 @@ Feature: User Login
                     return;
                 }
 
-                let html = `<h3>Generated Test Cases (${data.test_cases.length} total)</h3>`;
+                const summary = data.summary || {};
+                let html = `<h3>Generated ${data.test_cases.length} Test Cases</h3>`;
+                html += `<p style="color:#666;font-size:12px;margin-bottom:15px;">Avg Quality: ${Math.round((summary.avg_quality_score||0)*100)}% | Time: ${summary.generation_time_ms||0}ms | System: ${escapeHtml(summary.system||'AI')}</p>`;
 
-                data.test_cases.forEach((testCase, index) => {
+                data.test_cases.forEach((tc) => {
+                    const type = tc.type || tc.scenario_type || 'Functional';
+                    const quality = Math.round((tc.ml_quality_score || tc.quality_score || 0.7) * 100);
+                    const priority = tc.priority || 'Medium';
+                    const effort = tc.estimated_effort_hours || 0.5;
+                    const domain = tc.domain || '';
+
+                    // Steps rendering
+                    let stepsHtml = '';
+                    if (Array.isArray(tc.steps)) {
+                        stepsHtml = '<ol style="margin:8px 0 8px 20px;font-size:12px;color:#444;">';
+                        tc.steps.forEach(step => {
+                            if (typeof step === 'object' && step.action) {
+                                stepsHtml += '<li style="margin-bottom:4px;"><strong>' + escapeHtml(step.action) + '</strong>';
+                                if (step.expected_result) stepsHtml += '<br><span style="color:#0369a1;">→ ' + escapeHtml(step.expected_result) + '</span>';
+                                stepsHtml += '</li>';
+                            } else {
+                                stepsHtml += '<li>' + escapeHtml(String(step)) + '</li>';
+                            }
+                        });
+                        stepsHtml += '</ol>';
+                    }
+
+                    // Preconditions
+                    let preHtml = '';
+                    if (Array.isArray(tc.preconditions) && tc.preconditions.length > 0) {
+                        preHtml = tc.preconditions.map(p => escapeHtml(p)).join('; ');
+                    } else if (typeof tc.preconditions === 'string') {
+                        preHtml = escapeHtml(tc.preconditions);
+                    } else {
+                        preHtml = 'None';
+                    }
+
+                    const typeColors = {
+                        'happy_path': '#059669', 'negative': '#dc2626', 'security': '#7c3aed',
+                        'boundary': '#d97706', 'performance': '#2563eb', 'edge_case': '#ea580c',
+                        'data_integrity': '#0891b2', 'integration': '#4f46e5'
+                    };
+                    const typeColor = typeColors[type] || '#0369a1';
+
                     html += `
-                        <div class="test-case">
-                            <h4>TC-${String(index + 1).padStart(3, '0')}: ${testCase.title || 'Test Case ' + (index + 1)}</h4>
-                            <p><strong>Type:</strong> <span class="test-type">${testCase.type || 'Functional'}</span></p>
-                            <p><strong>Preconditions:</strong> ${testCase.preconditions || 'None'}</p>
-                            <p><strong>Steps:</strong> ${(testCase.steps || ['No steps']).join(' → ')}</p>
-                            <p><strong>Expected:</strong> ${testCase.expected_result || 'Not specified'}</p>
+                        <div class="test-case" style="border-left-color:${typeColor};">
+                            <h4>${escapeHtml(tc.test_id || tc.id || '')}: ${escapeHtml(tc.title || 'Test Case')}</h4>
+                            <p><span class="test-type" style="background:${typeColor}20;color:${typeColor};">${escapeHtml(type)}</span>
+                               <span style="margin-left:8px;font-size:11px;color:#666;">Priority: <strong>${escapeHtml(priority)}</strong> | Quality: <strong>${quality}%</strong> | Effort: <strong>${effort}h</strong>${domain ? ' | Domain: <strong>'+escapeHtml(domain)+'</strong>' : ''}</span></p>
+                            <p style="font-size:12px;color:#555;margin-top:6px;"><strong>Description:</strong> ${escapeHtml(tc.description)}</p>
+                            <p style="font-size:12px;color:#555;"><strong>Preconditions:</strong> ${preHtml}</p>
+                            ${stepsHtml}
+                            <p style="font-size:12px;color:#0369a1;margin-top:6px;"><strong>Expected:</strong> ${escapeHtml(tc.expected_result)}</p>
+                            ${tc.why_generated ? '<p style="font-size:11px;color:#888;margin-top:4px;">💡 ' + escapeHtml(tc.why_generated) + '</p>' : ''}
                         </div>
                     `;
                 });
@@ -280,495 +333,852 @@ Feature: User Login
 
 @router.get("/testcase/upload", response_class=HTMLResponse)
 async def testcase_upload_page():
-    """File upload page for requirements"""
+    """File upload page → serves the modern Analysis Results Dashboard."""
+    # Serve the new Linear/Notion-inspired dashboard (has built-in upload zone).
+    dash_file = _Path(__file__).parent.parent / "templates" / "analysis_dashboard.html"
+    if dash_file.exists():
+        return FileResponse(dash_file, media_type="text/html")
+    # Fallback to legacy upload page if template missing
     return """
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Upload Requirements</title>
+        <title>Upload Requirements — AI Test Generator</title>
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
         <style>
+            :root {
+                --parchment: #f5f4ed;
+                --ivory: #faf9f5;
+                --white: #ffffff;
+                --warm-sand: #e8e6dc;
+                --near-black: #141413;
+                --dark-surface: #30302e;
+                --terracotta: #c96442;
+                --coral: #d97757;
+                --charcoal-warm: #4d4c48;
+                --olive-gray: #5e5d59;
+                --stone-gray: #87867f;
+                --dark-warm: #3d3d3a;
+                --warm-silver: #b0aea5;
+                --border-cream: #f0eee6;
+                --border-warm: #e8e6dc;
+                --ring-warm: #d1cfc5;
+                --ring-deep: #c2c0b6;
+                --error-crimson: #b53333;
+                --focus-blue: #3898ec;
+                --font-serif: 'Playfair Display', Georgia, serif;
+                --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+                --font-mono: 'JetBrains Mono', monospace;
+            }
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                background: linear-gradient(135deg, #0f766e 0%, #06b6d4 50%, #0369a1 100%);
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+                background: var(--parchment);
+                font-family: var(--font-sans);
                 min-height: 100vh;
-                padding: 20px;
+                color: var(--near-black);
+                line-height: 1.6;
             }
-            .container { max-width: 1000px; margin: 0 auto; }
-            .header {
-                background: white;
-                border-radius: 12px;
-                padding: 30px;
-                margin-bottom: 30px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+            /* Navigation */
+            .nav {
+                position: sticky; top: 0; z-index: 100;
+                background: var(--ivory);
+                border-bottom: 1px solid var(--border-cream);
+                padding: 16px 0;
             }
-            .header h1 { color: #0369a1; font-size: 32px; margin-bottom: 10px; }
+            .nav-inner {
+                max-width: 1200px; margin: 0 auto; padding: 0 32px;
+                display: flex; align-items: center; justify-content: space-between;
+            }
+            .nav-brand {
+                font-family: var(--font-serif); font-weight: 500; font-size: 20px;
+                color: var(--near-black); text-decoration: none;
+            }
+            .nav-links { display: flex; gap: 24px; align-items: center; }
+            .nav-links a {
+                font-size: 15px; color: var(--olive-gray); text-decoration: none;
+                font-weight: 500; transition: color 0.2s;
+            }
+            .nav-links a:hover { color: var(--near-black); }
+            .nav-links a.active { color: var(--terracotta); }
+
+            /* Container */
+            .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+            /* Hero / Header */
+            .header-section {
+                padding: 64px 0 48px;
+                border-bottom: 1px solid var(--border-cream);
+            }
+            .header-section h1 {
+                font-family: var(--font-serif); font-weight: 500; font-size: 52px;
+                line-height: 1.15; color: var(--near-black); margin-bottom: 16px;
+            }
+            .header-section .subtitle {
+                font-size: 20px; color: var(--olive-gray); line-height: 1.6;
+                max-width: 640px;
+            }
+
+            /* Upload Panel */
+            .upload-section { padding: 48px 0; }
+            .upload-grid {
+                display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+            }
             .panel {
-                background: white;
-                border-radius: 12px;
-                padding: 30px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-                margin-bottom: 20px;
+                background: var(--ivory);
+                border: 1px solid var(--border-cream);
+                border-radius: 16px;
+                padding: 32px;
+                box-shadow: rgba(0,0,0,0.05) 0px 4px 24px;
+            }
+            .panel h2 {
+                font-family: var(--font-serif); font-weight: 500; font-size: 25px;
+                line-height: 1.2; color: var(--near-black); margin-bottom: 20px;
             }
             .upload-zone {
-                border: 3px dashed #0369a1;
-                border-radius: 12px;
-                padding: 40px;
+                border: 2px dashed var(--ring-warm);
+                border-radius: 16px;
+                padding: 48px 32px;
                 text-align: center;
-                background: #f9f9f9;
+                background: var(--parchment);
                 cursor: pointer;
-                transition: all 0.3s;
+                transition: all 0.3s ease;
             }
             .upload-zone:hover {
-                background: #e3f2fd;
-                border-color: #0d7377;
+                background: var(--ivory);
+                border-color: var(--terracotta);
             }
-            .upload-zone p { color: #666; margin: 10px 0; }
+            .upload-zone.file-selected {
+                border-color: var(--terracotta);
+                border-style: solid;
+                background: var(--ivory);
+            }
+            .upload-icon {
+                width: 56px; height: 56px; margin: 0 auto 16px;
+                background: var(--warm-sand); border-radius: 12px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 24px;
+            }
+            .upload-zone h3 {
+                font-family: var(--font-sans); font-weight: 600; font-size: 16px;
+                color: var(--near-black); margin-bottom: 8px;
+            }
+            .upload-zone p { font-size: 14px; color: var(--stone-gray); margin: 4px 0; }
+            .upload-zone .filetypes {
+                display: inline-flex; gap: 6px; margin-top: 12px;
+            }
+            .upload-zone .filetypes span {
+                background: var(--warm-sand); color: var(--charcoal-warm);
+                font-size: 11px; font-weight: 600; padding: 4px 10px;
+                border-radius: 6px; letter-spacing: 0.5px;
+            }
+            .file-info {
+                margin-top: 16px; padding: 12px 16px;
+                background: var(--parchment); border-radius: 8px;
+                font-size: 14px; color: var(--olive-gray);
+                display: none; align-items: center; gap: 8px;
+            }
+            .file-info.show { display: flex; }
+            .file-info .fname { font-weight: 600; color: var(--near-black); }
+
             input[type="file"] { display: none; }
-            button {
-                padding: 12px 24px;
-                background: #0369a1;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: 600;
-                margin-top: 20px;
-                transition: all 0.3s;
+
+            /* Controls */
+            .controls {
+                margin-top: 24px;
+                display: flex; flex-direction: column; gap: 16px;
             }
-            button:hover { background: #0d7377; }
-            .results {
-                display: none;
-                margin-top: 20px;
-                padding: 20px;
-                background: #f9f9f9;
-                border-radius: 8px;
+            .form-group label {
+                display: block; font-size: 14px; font-weight: 500;
+                color: var(--charcoal-warm); margin-bottom: 6px;
             }
-            .results.show { display: block; }
-            .loading { text-align: center; color: #0369a1; }
-            .requirement-item {
-                background: white;
-                padding: 15px;
-                margin-bottom: 10px;
-                border-radius: 6px;
-                border-left: 4px solid #0369a1;
+            .form-group input, .form-group select {
+                width: 100%; padding: 10px 14px;
+                border: 1px solid var(--border-warm); border-radius: 12px;
+                font-family: var(--font-sans); font-size: 15px;
+                color: var(--near-black); background: var(--white);
+                transition: border-color 0.2s;
             }
-            .requirement-item h4 { color: #333; margin-bottom: 8px; }
-            .test-case-list {
-                margin-top: 15px;
-                max-height: 300px;
+            .form-group input:focus, .form-group select:focus {
+                outline: none; border-color: var(--focus-blue);
+                box-shadow: 0 0 0 3px rgba(56,152,236,0.12);
+            }
+
+            /* Buttons */
+            .btn {
+                display: inline-flex; align-items: center; justify-content: center;
+                gap: 8px; padding: 12px 24px; border: none; border-radius: 12px;
+                font-family: var(--font-sans); font-size: 16px; font-weight: 600;
+                cursor: pointer; transition: all 0.2s; text-decoration: none;
+            }
+            .btn-primary {
+                background: var(--terracotta); color: var(--ivory);
+                box-shadow: var(--terracotta) 0 0 0 0, var(--terracotta) 0 0 0 1px;
+            }
+            .btn-primary:hover {
+                background: #b8593a; transform: translateY(-1px);
+                box-shadow: rgba(0,0,0,0.08) 0 4px 16px;
+            }
+            .btn-primary:disabled {
+                background: var(--ring-warm); color: var(--stone-gray);
+                cursor: not-allowed; transform: none; box-shadow: none;
+            }
+            .btn-secondary {
+                background: var(--warm-sand); color: var(--charcoal-warm);
+                box-shadow: var(--warm-sand) 0 0 0 0, var(--ring-warm) 0 0 0 1px;
+            }
+            .btn-secondary:hover { background: var(--ring-warm); }
+            .btn-dark {
+                background: var(--dark-surface); color: var(--ivory);
+                box-shadow: var(--dark-surface) 0 0 0 0, var(--dark-surface) 0 0 0 1px;
+            }
+            .btn-dark:hover { background: var(--near-black); }
+            .btn-sm { padding: 8px 16px; font-size: 14px; border-radius: 8px; }
+            .btn-full { width: 100%; }
+
+            /* Info panel */
+            .info-panel { padding: 0; }
+            .info-card {
+                padding: 20px; border-bottom: 1px solid var(--border-cream);
+            }
+            .info-card:last-child { border-bottom: none; }
+            .info-card h3 {
+                font-family: var(--font-serif); font-weight: 500; font-size: 18px;
+                color: var(--near-black); margin-bottom: 8px;
+            }
+            .info-card p { font-size: 14px; color: var(--olive-gray); line-height: 1.6; }
+            .info-card .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+            .tag {
+                font-size: 12px; font-weight: 500; padding: 4px 10px;
+                border-radius: 6px; background: var(--parchment); color: var(--olive-gray);
+                border: 1px solid var(--border-cream);
+            }
+
+            /* Results */
+            .results-section {
+                display: none; padding: 48px 0 64px;
+            }
+            .results-section.show { display: block; }
+            .results-section h2 {
+                font-family: var(--font-serif); font-weight: 500; font-size: 36px;
+                line-height: 1.2; color: var(--near-black); margin-bottom: 32px;
+            }
+
+            /* Stats bar */
+            .stats-bar {
+                display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+                margin-bottom: 40px;
+            }
+            .stat-card {
+                background: var(--ivory); border: 1px solid var(--border-cream);
+                border-radius: 12px; padding: 20px; text-align: center;
+            }
+            .stat-card .value {
+                font-family: var(--font-serif); font-size: 32px; font-weight: 500;
+                color: var(--terracotta); line-height: 1.2;
+            }
+            .stat-card .label {
+                font-size: 13px; color: var(--stone-gray); margin-top: 6px;
+                font-weight: 500;
+            }
+
+            /* Requirement cards */
+            .req-card {
+                background: var(--ivory); border: 1px solid var(--border-cream);
+                border-radius: 16px; margin-bottom: 24px; overflow: hidden;
+                box-shadow: rgba(0,0,0,0.03) 0 2px 12px;
+            }
+            .req-header {
+                padding: 24px 28px; background: var(--parchment);
+                border-bottom: 1px solid var(--border-cream);
+                display: flex; justify-content: space-between; align-items: flex-start;
+            }
+            .req-header .req-index {
+                font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+                color: var(--terracotta); background: rgba(201,100,66,0.08);
+                padding: 4px 10px; border-radius: 6px;
+            }
+            .req-header .req-text {
+                font-family: var(--font-serif); font-size: 18px; font-weight: 500;
+                color: var(--near-black); line-height: 1.4; flex: 1; margin: 0 16px;
+            }
+            .req-meta {
+                display: flex; gap: 12px; padding: 16px 28px;
+                border-bottom: 1px solid var(--border-cream);
+            }
+            .meta-chip {
+                display: inline-flex; align-items: center; gap: 4px;
+                font-size: 12px; color: var(--olive-gray);
+                background: var(--parchment); padding: 6px 12px; border-radius: 8px;
+                font-weight: 500;
+            }
+            .meta-chip strong { color: var(--near-black); }
+
+            /* Test case items */
+            .tc-list { padding: 16px 28px 24px; }
+            .tc-item {
+                background: var(--white); border: 1px solid var(--border-cream);
+                border-radius: 12px; padding: 16px 20px; margin-bottom: 12px;
+                cursor: pointer; transition: all 0.2s;
+            }
+            .tc-item:hover {
+                border-color: var(--ring-warm);
+                box-shadow: rgba(0,0,0,0.05) 0 4px 24px;
+                transform: translateY(-1px);
+            }
+            .tc-item-top {
+                display: flex; justify-content: space-between; align-items: center;
+                margin-bottom: 8px;
+            }
+            .tc-id {
+                font-family: var(--font-mono); font-size: 12px;
+                color: var(--terracotta); font-weight: 500;
+            }
+            .tc-type-badge {
+                font-size: 11px; font-weight: 600; padding: 3px 10px;
+                border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+            }
+            .tc-title {
+                font-size: 15px; font-weight: 500; color: var(--near-black);
+                line-height: 1.4; margin-bottom: 8px;
+            }
+            .tc-bottom {
+                display: flex; gap: 16px; font-size: 12px; color: var(--stone-gray);
+            }
+            .tc-bottom strong { color: var(--olive-gray); }
+
+            /* Export section */
+            .export-section {
+                margin-top: 48px; padding-top: 48px;
+                border-top: 1px solid var(--border-cream);
+            }
+            .export-section h3 {
+                font-family: var(--font-serif); font-weight: 500; font-size: 25px;
+                color: var(--near-black); margin-bottom: 20px;
+            }
+            .export-grid {
+                display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+            }
+            .export-btn {
+                display: flex; align-items: center; gap: 10px;
+                padding: 14px 20px; background: var(--ivory);
+                border: 1px solid var(--border-cream); border-radius: 12px;
+                font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+                color: var(--charcoal-warm); cursor: pointer; transition: all 0.2s;
+            }
+            .export-btn:hover {
+                background: var(--warm-sand); border-color: var(--ring-warm);
+                transform: translateY(-1px);
+            }
+            .export-btn .icon {
+                width: 36px; height: 36px; border-radius: 8px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 16px; flex-shrink: 0;
+            }
+
+            /* Modal — Claude style */
+            .modal-overlay {
+                display: none; position: fixed; z-index: 999;
+                left: 0; top: 0; width: 100%; height: 100%;
+                background: rgba(20,20,19,0.6); backdrop-filter: blur(4px);
+                justify-content: center; align-items: center;
+            }
+            .modal-overlay.show { display: flex; }
+            .modal-box {
+                width: 92%; max-width: 900px; max-height: 88vh;
+                background: var(--ivory); border-radius: 20px;
+                box-shadow: rgba(0,0,0,0.2) 0 24px 64px;
                 overflow-y: auto;
-                background: #f3f3f3;
-                padding: 10px;
-                border-radius: 6px;
             }
-            .test-case { font-size: 12px; color: #666; padding: 5px; border-bottom: 1px solid #ddd; }
-            .stat-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px; }
-            .stat { background: #e3f2fd; padding: 15px; border-radius: 6px; }
-            .stat h3 { color: #0369a1; font-size: 24px; }
-            .stat p { color: #666; font-size: 12px; }
+            .modal-header {
+                position: sticky; top: 0; z-index: 10;
+                background: var(--ivory);
+                padding: 28px 32px 20px;
+                border-bottom: 1px solid var(--border-cream);
+            }
+            .modal-header h2 {
+                font-family: var(--font-serif); font-weight: 500; font-size: 25px;
+                color: var(--near-black); line-height: 1.3; margin-bottom: 4px;
+            }
+            .modal-header .modal-sub {
+                font-size: 13px; color: var(--stone-gray);
+            }
+            .modal-close {
+                position: absolute; right: 24px; top: 24px;
+                width: 36px; height: 36px; border-radius: 8px;
+                background: var(--warm-sand); border: none; cursor: pointer;
+                font-size: 18px; color: var(--charcoal-warm);
+                display: flex; align-items: center; justify-content: center;
+                transition: background 0.2s;
+            }
+            .modal-close:hover { background: var(--ring-warm); }
+            .modal-body { padding: 28px 32px 32px; }
+            .modal-meta-grid {
+                display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+                margin-bottom: 28px;
+            }
+            .modal-meta-card {
+                background: var(--parchment); border-radius: 10px; padding: 14px;
+                text-align: center;
+            }
+            .modal-meta-card .mmc-label {
+                font-size: 11px; font-weight: 600; color: var(--stone-gray);
+                text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+            }
+            .modal-meta-card .mmc-value {
+                font-family: var(--font-serif); font-size: 20px; font-weight: 500;
+                color: var(--near-black);
+            }
+            .modal-section {
+                margin-bottom: 24px;
+            }
+            .modal-section-title {
+                font-family: var(--font-serif); font-weight: 500; font-size: 18px;
+                color: var(--near-black); margin-bottom: 12px;
+                padding-bottom: 8px; border-bottom: 1px solid var(--border-cream);
+            }
+            .modal-section ul {
+                list-style: none; padding: 0;
+            }
+            .modal-section ul li {
+                font-size: 14px; color: var(--olive-gray); line-height: 1.6;
+                padding: 6px 0; padding-left: 20px; position: relative;
+            }
+            .modal-section ul li::before {
+                content: ''; position: absolute; left: 0; top: 14px;
+                width: 6px; height: 6px; border-radius: 50%;
+                background: var(--terracotta);
+            }
+            .step-item {
+                padding: 14px 18px; background: var(--parchment);
+                border-radius: 10px; margin-bottom: 10px;
+            }
+            .step-num {
+                font-family: var(--font-mono); font-size: 11px; color: var(--terracotta);
+                font-weight: 600; margin-bottom: 4px;
+            }
+            .step-action { font-size: 14px; font-weight: 500; color: var(--near-black); }
+            .step-expected {
+                font-size: 13px; color: var(--olive-gray); margin-top: 4px;
+                padding-left: 16px; border-left: 2px solid var(--terracotta);
+            }
+            .test-data-table {
+                width: 100%; border-collapse: collapse; font-size: 13px;
+            }
+            .test-data-table th {
+                text-align: left; padding: 10px 14px; font-weight: 600;
+                background: var(--parchment); color: var(--charcoal-warm);
+                border-bottom: 1px solid var(--border-warm);
+            }
+            .test-data-table td {
+                padding: 10px 14px; color: var(--olive-gray);
+                border-bottom: 1px solid var(--border-cream);
+            }
+            .test-data-table td code {
+                font-family: var(--font-mono); font-size: 12px;
+                background: var(--parchment); padding: 2px 8px; border-radius: 4px;
+            }
+            .expected-result-box {
+                background: rgba(201,100,66,0.06); border: 1px solid rgba(201,100,66,0.15);
+                border-radius: 12px; padding: 18px 20px;
+                font-size: 14px; color: var(--near-black); line-height: 1.7;
+            }
+
+            /* Loading */
+            .loading-container {
+                text-align: center; padding: 64px 32px;
+            }
+            .spinner {
+                width: 40px; height: 40px; border: 3px solid var(--border-warm);
+                border-top-color: var(--terracotta); border-radius: 50%;
+                animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+            }
+            @keyframes spin { to { transform: rotate(360deg); } }
+            .loading-text {
+                font-size: 15px; color: var(--olive-gray); font-weight: 500;
+            }
+
+            /* Error */
+            .error-box {
+                padding: 20px; background: rgba(181,51,51,0.06);
+                border: 1px solid rgba(181,51,51,0.15); border-radius: 12px;
+                color: var(--error-crimson); font-size: 14px;
+            }
+
+            /* Responsive */
+            @media (max-width: 991px) {
+                .upload-grid { grid-template-columns: 1fr; }
+                .stats-bar { grid-template-columns: repeat(2, 1fr); }
+                .export-grid { grid-template-columns: repeat(2, 1fr); }
+                .modal-meta-grid { grid-template-columns: repeat(2, 1fr); }
+            }
+            @media (max-width: 640px) {
+                .header-section h1 { font-size: 36px; }
+                .container { padding: 0 16px; }
+                .stats-bar { grid-template-columns: 1fr 1fr; }
+                .export-grid { grid-template-columns: 1fr; }
+                .nav-links { gap: 12px; }
+            }
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="header">
-                <h1>📄 Upload Requirements File</h1>
-                <p>Upload requirements file and generate detailed test cases from each requirement</p>
-            </div>
-
-            <div class="panel">
-                <h2>📥 Upload Requirements File</h2>
-                <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
-                    <p style="font-size: 32px;">📁</p>
-                    <p><strong>Click to upload</strong> or drag & drop</p>
-                    <p style="font-size: 12px;">Supported: <strong>TXT, CSV, MD, DOCX</strong></p>
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-inner">
+                <a href="/testcase" class="nav-brand">AI Test Generator</a>
+                <div class="nav-links">
+                    <a href="/testcase">Text Input</a>
+                    <a href="/testcase/upload" class="active">File Upload</a>
+                    <a href="/testcase/dashboard">Dashboard</a>
                 </div>
-                <input type="file" id="fileInput" accept=".txt,.csv,.md,.markdown,.docx" onchange="handleFileUpload(event)">
-                
-                <div style="margin-top: 15px;">
-                    <label>Max Test Cases per Requirement:</label>
-                    <input type="number" id="maxTests" value="10" min="1" max="50" style="width: 100px; padding: 8px;">
-                </div>
-
-                <button onclick="analyzeFile()">Analyze & Generate Test Cases</button>
             </div>
+        </nav>
 
-            <div id="results" class="results">
+        <!-- Header -->
+        <div class="header-section">
+            <div class="container">
+                <h1>Upload Requirements</h1>
+                <p class="subtitle">Upload your requirements document and let the AI analyze each requirement with NLP-powered parsing, generating comprehensive test cases with intelligent coverage.</p>
+            </div>
+        </div>
+
+        <!-- Upload Area -->
+        <div class="upload-section">
+            <div class="container">
+                <div class="upload-grid">
+                    <!-- Left: Upload + Controls -->
+                    <div class="panel">
+                        <h2>Upload Document</h2>
+                        <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                            <div class="upload-icon">📄</div>
+                            <h3>Click to select file</h3>
+                            <p>or drag and drop your requirements document</p>
+                            <div class="filetypes">
+                                <span>TXT</span><span>CSV</span><span>MD</span><span>DOCX</span>
+                            </div>
+                        </div>
+                        <input type="file" id="fileInput" accept=".txt,.csv,.md,.markdown,.docx" onchange="handleFileUpload(event)">
+
+                        <div class="file-info" id="fileInfo">
+                            <span>📎</span>
+                            <span class="fname" id="fileName"></span>
+                            <span id="fileSize" style="color:var(--stone-gray);font-size:12px;"></span>
+                        </div>
+
+                        <div class="controls">
+                            <div class="form-group">
+                                <label>Max Test Cases per Requirement</label>
+                                <input type="number" id="maxTests" value="10" min="1" max="50">
+                            </div>
+                            <button class="btn btn-primary btn-full" id="analyzeBtn" onclick="analyzeFile()" disabled>
+                                Analyze &amp; Generate Test Cases
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Info -->
+                    <div class="panel info-panel">
+                        <div class="info-card">
+                            <h3>NLP-Powered Analysis</h3>
+                            <p>Each requirement is parsed using spaCy dependency parsing to extract subjects, verbs, objects, conditions, and numeric constraints — enabling context-aware test generation.</p>
+                            <div class="tag-row">
+                                <span class="tag">spaCy NLP</span>
+                                <span class="tag">SVO Extraction</span>
+                                <span class="tag">Dependency Parse</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <h3>Intelligent Test Types</h3>
+                            <p>The AI strategically selects test types based on the parsed semantics — security tests for auth requirements, boundary tests for numeric constraints, and more.</p>
+                            <div class="tag-row">
+                                <span class="tag">Happy Path</span>
+                                <span class="tag">Negative</span>
+                                <span class="tag">Security</span>
+                                <span class="tag">Boundary</span>
+                                <span class="tag">Edge Case</span>
+                                <span class="tag">Data Integrity</span>
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <h3>Export Formats</h3>
+                            <p>Export generated test cases to Pytest, Gherkin/BDD, RTM (CSV), JSON, HTML Report, or PDF Report.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="results-section" id="resultsSection">
+            <div class="container">
                 <h2>Analysis Results</h2>
                 <div id="resultsContent"></div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal-overlay" id="testCaseModal">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Test Case Details</h2>
+                    <p class="modal-sub" id="modalSub"></p>
+                    <button class="modal-close" onclick="closeTestCaseModal()">✕</button>
+                </div>
+                <div class="modal-body" id="modalBody"></div>
             </div>
         </div>
 
         <script>
             let uploadedFile = null;
 
+            function escapeHtml(str) {
+                if (!str) return '';
+                return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            }
+
+            // Drag-and-drop support
+            const dropZone = document.getElementById('dropZone');
+            ['dragenter','dragover'].forEach(evt => {
+                dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add('file-selected'); });
+            });
+            ['dragleave','drop'].forEach(evt => {
+                dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.remove('file-selected'); });
+            });
+            dropZone.addEventListener('drop', e => {
+                const file = e.dataTransfer.files[0];
+                if (file) { setFile(file); }
+            });
+
             function handleFileUpload(event) {
-                uploadedFile = event.target.files[0];
-                console.log('File selected:', uploadedFile.name);
+                setFile(event.target.files[0]);
+            }
+
+            function setFile(file) {
+                uploadedFile = file;
+                window.currentFile = file;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = (file.size/1024).toFixed(1) + ' KB';
+                document.getElementById('fileInfo').classList.add('show');
+                document.getElementById('dropZone').classList.add('file-selected');
+                document.getElementById('analyzeBtn').disabled = false;
             }
 
             async function analyzeFile() {
-                if (!uploadedFile) {
-                    alert('Please select a file');
-                    return;
-                }
+                if (!uploadedFile) return;
+
+                const resultsSection = document.getElementById('resultsSection');
+                resultsSection.classList.add('show');
+                const rc = document.getElementById('resultsContent');
+                rc.innerHTML = '<div class="loading-container"><div class="spinner"></div><p class="loading-text">Analyzing requirements with NLP pipeline...</p><p style="font-size:13px;color:var(--stone-gray);margin-top:8px;">File: ' + escapeHtml(uploadedFile.name) + '</p></div>';
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                 const formData = new FormData();
                 formData.append('file', uploadedFile);
                 formData.append('max_tests', document.getElementById('maxTests').value);
 
-                document.getElementById('results').classList.add('show');
-                document.getElementById('resultsContent').innerHTML = '<div class="loading"><p>🔄 Analyzing requirements...</p></div>';
-
                 try {
                     const response = await fetch('/api/v3/test-generation/analyze-file-detailed', {
-                        method: 'POST',
-                        body: formData
+                        method: 'POST', body: formData
                     });
-
                     const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.detail || 'Failed to analyze file');
-                    }
-
+                    if (!response.ok) throw new Error(data.detail || 'Failed to analyze file');
                     displayDetailedResults(data);
                 } catch (error) {
-                    console.error('Error:', error);
-                    document.getElementById('resultsContent').innerHTML = 
-                        '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+                    rc.innerHTML = '<div class="error-box">Error: ' + escapeHtml(error.message) + '</div>';
                 }
             }
 
             function displayDetailedResults(data) {
-                // Store file for export functions
-                window.currentFile = uploadedFile;
                 window.detailedData = data;
-                
-                let totalTestCases = 0;
-                let avgConfidence = 0;
-                let confCount = 0;
+                let totalTestCases = 0, avgConfidence = 0, confCount = 0, totalEffort = 0;
 
                 data.detailed.forEach(item => {
-                    if (item.test_cases_count) {
-                        totalTestCases += item.test_cases_count;
-                    }
-                    if (item.nlp_confidence) {
-                        avgConfidence += item.nlp_confidence;
-                        confCount++;
-                    }
+                    if (item.test_cases_count) totalTestCases += item.test_cases_count;
+                    if (item.nlp_confidence) { avgConfidence += item.nlp_confidence; confCount++; }
+                    if (item.avg_effort) totalEffort += item.avg_effort * (item.test_cases_count || 0);
                 });
+                if (confCount > 0) avgConfidence /= confCount;
 
-                // Calculate statistics
-                if (confCount > 0) {
-                    avgConfidence = avgConfidence / confCount;
-                }
+                let html = '';
 
-                let html = `
-                    <div class="stat-row" style="margin-bottom: 30px;">
-                        <div class="stat">
-                            <h3>${data.detailed.length}</h3>
-                            <p>Requirements Analyzed</p>
-                        </div>
-                        <div class="stat">
-                            <h3>${totalTestCases}</h3>
-                            <p>Test Cases Generated</p>
-                        </div>
-                        <div class="stat">
-                            <h3>${(avgConfidence * 100).toFixed(1)}%</h3>
-                            <p>Avg NLP Confidence</p>
-                        </div>
-                    </div>
-                `;
+                // Stats bar
+                html += '<div class="stats-bar">';
+                html += '<div class="stat-card"><div class="value">' + data.detailed.length + '</div><div class="label">Requirements Analyzed</div></div>';
+                html += '<div class="stat-card"><div class="value">' + totalTestCases + '</div><div class="label">Test Cases Generated</div></div>';
+                html += '<div class="stat-card"><div class="value">' + (avgConfidence * 100).toFixed(1) + '%</div><div class="label">Avg NLP Confidence</div></div>';
+                html += '<div class="stat-card"><div class="value">' + totalEffort.toFixed(1) + 'h</div><div class="label">Total Estimated Effort</div></div>';
+                html += '</div>';
 
-                // Display each requirement with detailed analysis
+                // Type color map
+                const typeColors = {
+                    'happy_path': {bg:'#f0fdf4',fg:'#166534',border:'#bbf7d0'},
+                    'negative': {bg:'#fef2f2',fg:'#991b1b',border:'#fecaca'},
+                    'security': {bg:'#faf5ff',fg:'#6b21a8',border:'#e9d5ff'},
+                    'boundary': {bg:'#fffbeb',fg:'#92400e',border:'#fde68a'},
+                    'performance': {bg:'#eff6ff',fg:'#1e40af',border:'#bfdbfe'},
+                    'edge_case': {bg:'#fff7ed',fg:'#9a3412',border:'#fed7aa'},
+                    'data_integrity': {bg:'#ecfeff',fg:'#155e75',border:'#a5f3fc'},
+                    'integration': {bg:'#eef2ff',fg:'#3730a3',border:'#c7d2fe'}
+                };
+
+                // Requirement cards
                 data.detailed.forEach((item, idx) => {
                     if (item.error) {
-                        html += `
-                            <div class="requirement-item" style="border-color: #f44336;">
-                                <h4>Requirement ${item.index}</h4>
-                                <p style="color: #666;">${item.requirement}</p>
-                                <p style="color: #f44336; font-size: 12px;">Error: ${item.error}</p>
-                            </div>
-                        `;
+                        html += '<div class="req-card"><div class="req-header"><span class="req-index">REQ-' + item.index + '</span><span class="req-text" style="color:var(--error-crimson);">' + escapeHtml(item.requirement) + '</span></div><div style="padding:16px 28px;"><div class="error-box">' + escapeHtml(item.error) + '</div></div></div>';
                         return;
                     }
 
-                    html += `
-                        <div class="requirement-item">
-                            <h4>Requirement ${item.index}</h4>
-                            <p style="color: #333; font-weight: 500; margin-bottom: 8px;">
-                                "${item.requirement}"
-                            </p>
-                            
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin: 10px 0; font-size: 12px;">
-                                <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
-                                    <strong style="color: #0369a1;">Words:</strong> ${item.word_count}
-                                </div>
-                                <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
-                                    <strong style="color: #0369a1;">Chars:</strong> ${item.character_count}
-                                </div>
-                                <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
-                                    <strong style="color: #0369a1;">Confidence:</strong> ${(item.nlp_confidence * 100).toFixed(1)}%
-                                </div>
-                                <div style="background: #e3f2fd; padding: 8px; border-radius: 4px;">
-                                    <strong style="color: #0369a1;">Test Cases:</strong> ${item.test_cases_count}
-                                </div>
-                            </div>
+                    html += '<div class="req-card">';
+                    html += '<div class="req-header"><span class="req-index">REQ-' + item.index + '</span><span class="req-text">' + escapeHtml(item.requirement) + '</span></div>';
+                    html += '<div class="req-meta">';
+                    html += '<span class="meta-chip">Words: <strong>' + item.word_count + '</strong></span>';
+                    html += '<span class="meta-chip">Chars: <strong>' + item.character_count + '</strong></span>';
+                    html += '<span class="meta-chip">NLP Confidence: <strong>' + (item.nlp_confidence * 100).toFixed(1) + '%</strong></span>';
+                    html += '<span class="meta-chip">Test Cases: <strong>' + item.test_cases_count + '</strong></span>';
+                    html += '</div>';
 
-                            <div class="test-case-list">
-                                <strong>Generated Test Cases (${item.test_cases.length}):</strong>
-                                ${item.test_cases.map((tc, i) => `
-                                    <div class="test-case" data-tc-id="${tc.id}" style="padding: 12px; margin: 8px 0; background: white; border-radius: 4px; border-left: 4px solid #0369a1; cursor: pointer; transition: all 0.3s;" 
-                                         onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'" 
-                                         onmouseout="this.style.boxShadow='none'"
-                                         onclick="showTestCaseDetailsV2('${tc.id}')">
-                                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 8px; font-size: 11px;">
-                                            <div><strong>ID:</strong> <span style="color: #0369a1; font-weight: bold;">${tc.id}</span></div>
-                                            <div><strong>Type:</strong> ${tc.type || tc.scenario_type}</div>
-                                            <div><strong>Priority:</strong> <span style="color: ${tc.priority === 'CRITICAL' ? '#d32f2f' : tc.priority === 'HIGH' ? '#f57c00' : '#1976d2'};">${tc.priority}</span></div>
-                                            <div><strong>Steps:</strong> ${tc.steps_count || tc.steps?.length || 0}</div>
-                                            <div><strong>Confidence:</strong> ${(tc.confidence * 100).toFixed(0)}%</div>
-                                        </div>
-                                        <div style="margin-top: 6px; color: #333; font-weight: 500;" title="${tc.title}">${tc.title}</div>
-                                        <div style="margin-top: 4px; color: #999; font-size: 11px;">
-                                            Effort: ${tc.estimated_effort_hours?.toFixed(1) || '1.0'}h | Confidence: ${(tc.confidence * 100).toFixed(0)}%
-                                        </div>
-                                        <div style="margin-top: 6px; font-size: 11px; color: #0369a1; text-decoration: underline;">
-                                            Click to view full details
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
+                    html += '<div class="tc-list">';
+                    (item.test_cases || []).forEach(tc => {
+                        const type = tc.type || tc.scenario_type || 'functional';
+                        const colors = typeColors[type] || {bg:'var(--parchment)',fg:'var(--charcoal-warm)',border:'var(--border-warm)'};
+                        const priority = tc.priority || 'Medium';
+                        const priorityColor = priority === 'Critical' || priority === 'CRITICAL' ? 'var(--error-crimson)' : priority === 'High' || priority === 'HIGH' ? 'var(--terracotta)' : 'var(--olive-gray)';
+
+                        html += '<div class="tc-item" onclick="showTestCaseDetailsV2(\\'' + (tc.id || '') + '\\')">';
+                        html += '<div class="tc-item-top"><span class="tc-id">' + escapeHtml(tc.id) + '</span>';
+                        html += '<span class="tc-type-badge" style="background:' + colors.bg + ';color:' + colors.fg + ';border:1px solid ' + colors.border + ';">' + escapeHtml(type) + '</span></div>';
+                        html += '<div class="tc-title">' + escapeHtml(tc.title) + '</div>';
+                        html += '<div class="tc-bottom">';
+                        html += '<span>Priority: <strong style="color:' + priorityColor + ';">' + escapeHtml(priority) + '</strong></span>';
+                        html += '<span>Steps: <strong>' + (tc.steps_count || tc.steps?.length || 0) + '</strong></span>';
+                        html += '<span>Confidence: <strong>' + ((tc.confidence || 0) * 100).toFixed(0) + '%</strong></span>';
+                        html += '<span>Effort: <strong>' + (tc.estimated_effort_hours || 1.0).toFixed(1) + 'h</strong></span>';
+                        html += '</div></div>';
+                    });
+                    html += '</div></div>';
                 });
 
-                html += `
-                    <div style="margin-top: 30px;">
-                        <h3 style="margin-bottom: 15px; color: #0369a1;">Export Options</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <button onclick="exportPytest()" style="background: #FF9800; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                Export Pytest
-                            </button>
-                            <button onclick="exportGherkin()" style="background: #9C27B0; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                Export Gherkin
-                            </button>
-                            <button onclick="exportRTM()" style="background: #00BCD4; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                Export RTM (CSV)
-                            </button>
-                            <button onclick="exportJSON()" style="background: #4CAF50; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                Export JSON
-                            </button>
-                            <button onclick="exportHtmlReport()" style="background: #2196F3; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                Export HTML Report
-                            </button>
-                            <button onclick="exportPdfReport()" style="background: #E91E63; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; color: white;">
-                                Export PDF Report
-                            </button>
-                        </div>
-                    </div>
-                `;
+                // Export section
+                html += '<div class="export-section"><h3>Export Results</h3><div class="export-grid">';
+                const exports = [
+                    {fn:'exportPytest',icon:'🐍',label:'Pytest',desc:'Python test file',color:'#f59e0b'},
+                    {fn:'exportGherkin',icon:'🥒',label:'Gherkin / BDD',desc:'Feature file',color:'#8b5cf6'},
+                    {fn:'exportRTM',icon:'📊',label:'RTM (CSV)',desc:'Traceability matrix',color:'#06b6d4'},
+                    {fn:'exportJSON',icon:'📋',label:'JSON',desc:'Structured data',color:'#22c55e'},
+                    {fn:'exportHtmlReport',icon:'🌐',label:'HTML Report',desc:'Full report',color:'#3b82f6'},
+                    {fn:'exportPdfReport',icon:'📑',label:'PDF Report',desc:'Printable report',color:'#ec4899'}
+                ];
+                exports.forEach(e => {
+                    html += '<button class="export-btn" onclick="' + e.fn + '()">';
+                    html += '<span class="icon" style="background:' + e.color + '15;color:' + e.color + ';">' + e.icon + '</span>';
+                    html += '<span><strong>' + e.label + '</strong><br><span style="font-size:12px;font-weight:400;color:var(--stone-gray);">' + e.desc + '</span></span>';
+                    html += '</button>';
+                });
+                html += '</div></div>';
 
                 document.getElementById('resultsContent').innerHTML = html;
-                
-                // Store test case data globally for modal display
+
+                // Store test case data for modal
                 window.testCasesData = {};
-                data.detailed.forEach((req, idx) => {
+                data.detailed.forEach(req => {
                     if (req.test_cases) {
                         req.test_cases.forEach(tc => {
-                            window.testCasesData[tc.id] = {
-                                ...tc,
-                                requirement: req.requirement,
-                                requirement_index: req.index
-                            };
+                            window.testCasesData[tc.id] = { ...tc, requirement: req.requirement, requirement_index: req.index };
                         });
                     }
                 });
-                
-                window.detailedData = data;
             }
 
-            function downloadDetailedJSON() {
-                const json = JSON.stringify(window.detailedData, null, 2);
-                const blob = new Blob([json], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'requirements_analysis_detailed.json';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            }
-
-            function downloadDetailedCSV() {
-                let csv = 'Req Index,Requirement,Word Count,Char Count,NLP Confidence,Test Cases Count,Avg Effort Hours\\n';
-                
-                window.detailedData.detailed.forEach(item => {
-                    if (!item.error) {
-                        csv += `"${item.index}","${item.requirement.replace(/"/g, '\\"')}","${item.word_count}","${item.character_count}","${(item.nlp_confidence*100).toFixed(1)}%","${item.test_cases_count}","${item.avg_effort.toFixed(2)}"\\n`;
-                    }
-                });
-
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'requirements_analysis.csv';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            }
-
-            // Show detailed test case information in modal (Fixed version)
             function showTestCaseDetailsV2(testCaseId) {
-                const modal = document.getElementById('testCaseModal');
-                if (!modal) {
-                    console.error('Modal not found');
-                    return;
+                const tc = window.testCasesData[testCaseId];
+                if (!tc) return;
+
+                document.getElementById('modalTitle').textContent = tc.title || 'Test Case';
+                document.getElementById('modalSub').textContent = 'ID: ' + testCaseId + '  •  From: ' + (tc.requirement || '').substring(0, 100);
+
+                const typeColors = {
+                    'happy_path':'#166534','negative':'#991b1b','security':'#6b21a8',
+                    'boundary':'#92400e','performance':'#1e40af','edge_case':'#9a3412',
+                    'data_integrity':'#155e75','integration':'#3730a3'
+                };
+                const type = tc.type || tc.scenario_type || 'functional';
+                const tColor = typeColors[type] || 'var(--terracotta)';
+
+                let body = '';
+
+                // Meta grid
+                body += '<div class="modal-meta-grid">';
+                body += '<div class="modal-meta-card"><div class="mmc-label">Type</div><div class="mmc-value" style="color:' + tColor + ';font-size:16px;">' + escapeHtml(type) + '</div></div>';
+                body += '<div class="modal-meta-card"><div class="mmc-label">Priority</div><div class="mmc-value">' + escapeHtml(tc.priority || 'Medium') + '</div></div>';
+                body += '<div class="modal-meta-card"><div class="mmc-label">Confidence</div><div class="mmc-value">' + ((tc.confidence || 0) * 100).toFixed(1) + '%</div></div>';
+                body += '<div class="modal-meta-card"><div class="mmc-label">Effort</div><div class="mmc-value">' + (tc.estimated_effort_hours || 1.0).toFixed(1) + 'h</div></div>';
+                body += '</div>';
+
+                // Preconditions
+                const preconds = tc.preconditions || [];
+                if (preconds.length > 0) {
+                    body += '<div class="modal-section"><div class="modal-section-title">Preconditions</div><ul>';
+                    preconds.forEach(p => { body += '<li>' + escapeHtml(typeof p === 'string' ? p : JSON.stringify(p)) + '</li>'; });
+                    body += '</ul></div>';
                 }
 
-                // Get test case data from global storage
-                const testCase = window.testCasesData[testCaseId];
-                if (!testCase) {
-                    console.error('Test case not found:', testCaseId);
-                    return;
+                // Test Data
+                const testData = tc.test_data || {};
+                if (Object.keys(testData).length > 0) {
+                    body += '<div class="modal-section"><div class="modal-section-title">Test Data</div>';
+                    body += '<table class="test-data-table"><tr><th>Key</th><th>Value</th></tr>';
+                    Object.entries(testData).forEach(([k, v]) => {
+                        body += '<tr><td><strong>' + escapeHtml(k) + '</strong></td><td><code>' + escapeHtml(typeof v === 'string' ? v : JSON.stringify(v)) + '</code></td></tr>';
+                    });
+                    body += '</table></div>';
                 }
 
-                // Parse test case data safely
-                let preconditions = testCase.preconditions || [];
-                let testData = testCase.test_data || {};
-                let steps = testCase.steps || [];
-                let validation = testCase.validation || [];
-                let expectedResult = testCase.expected_result || '';
+                // Steps
+                const steps = tc.steps || [];
+                if (steps.length > 0) {
+                    body += '<div class="modal-section"><div class="modal-section-title">Test Steps</div>';
+                    steps.forEach((step, i) => {
+                        body += '<div class="step-item">';
+                        body += '<div class="step-num">Step ' + (i + 1) + '</div>';
+                        body += '<div class="step-action">' + escapeHtml(typeof step === 'string' ? step : (step.action || 'N/A')) + '</div>';
+                        const exp = typeof step === 'object' ? (step.expected_result || step.expected || '') : '';
+                        if (exp) body += '<div class="step-expected">' + escapeHtml(exp) + '</div>';
+                        body += '</div>';
+                    });
+                    body += '</div>';
+                }
 
-                // Build HTML
-                let html = `
-                    <div class="modal-content">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0369a1; padding-bottom: 12px; margin-bottom: 16px;">
-                            <div style="flex: 1;">
-                                <h2 style="margin: 0; color: #333;">${testCase.title || 'Test Case'}</h2>
-                                <p style="margin: 4px 0; color: #666; font-size: 13px;">ID: <strong>${testCaseId}</strong></p>
-                                <p style="margin: 4px 0; color: #999; font-size: 12px;">From: ${testCase.requirement}</p>
-                            </div>
-                            <button onclick="closeTestCaseModal()" style="background: #f44336; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 16px; white-space: nowrap;">Close</button>
-                        </div>
+                // Expected Result
+                body += '<div class="modal-section"><div class="modal-section-title">Expected Result</div>';
+                body += '<div class="expected-result-box">' + escapeHtml(tc.expected_result || 'Not specified') + '</div></div>';
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
-                            <div style="background: #e3f2fd; padding: 12px; border-radius: 4px;">
-                                <strong style="color: #0369a1;">Type:</strong><br>
-                                <span style="font-size: 14px; font-weight: bold;">${testCase.type || 'unknown'}</span>
-                            </div>
-                            <div style="background: #fff3e0; padding: 12px; border-radius: 4px;">
-                                <strong style="color: #f57c00;">Priority:</strong><br>
-                                <span style="font-size: 14px; font-weight: bold; color: ${testCase.priority === 'CRITICAL' ? '#d32f2f' : testCase.priority === 'HIGH' ? '#f57c00' : '#1976d2'};">${testCase.priority || 'MEDIUM'}</span>
-                            </div>
-                            <div style="background: #f3e5f5; padding: 12px; border-radius: 4px;">
-                                <strong style="color: #7b1fa2;">Confidence:</strong><br>
-                                <span style="font-size: 14px; font-weight: bold;">${((testCase.confidence || 0) * 100).toFixed(1)}%</span>
-                            </div>
-                            <div style="background: #e8f5e9; padding: 12px; border-radius: 4px;">
-                                <strong style="color: #388e3c;">Effort:</strong><br>
-                                <span style="font-size: 14px; font-weight: bold;">${(testCase.estimated_effort_hours || 1.0).toFixed(1)}h</span>
-                            </div>
-                        </div>
+                // Validation
+                const validation = tc.validation || [];
+                if (validation.length > 0) {
+                    body += '<div class="modal-section"><div class="modal-section-title">Validation Criteria</div><ul>';
+                    validation.forEach(v => { body += '<li>' + escapeHtml(v) + '</li>'; });
+                    body += '</ul></div>';
+                }
 
-                        <!-- Preconditions -->
-                        <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
-                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Preconditions</h3>
-                            <ul style="margin: 0; padding-left: 20px; color: #555;">
-                                ${preconditions && preconditions.length > 0 ? 
-                                    preconditions.map(p => `<li style="margin: 4px 0; font-size: 13px;">${p}</li>`).join('') :
-                                    '<li style="color: #999;">None specified</li>'
-                                }
-                            </ul>
-                        </div>
-
-                        <!-- Test Data -->
-                        <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
-                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Test Data</h3>
-                            ${Object.keys(testData).length > 0 ? `
-                                <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
-                                    <tr style="background: #e3f2fd; border-bottom: 1px solid #ddd;">
-                                        <th style="padding: 8px; text-align: left; font-weight: bold; color: #0369a1;">Key</th>
-                                        <th style="padding: 8px; text-align: left; font-weight: bold; color: #0369a1;">Value</th>
-                                    </tr>
-                                    ${Object.entries(testData).map(([key, value]) => `
-                                        <tr style="border-bottom: 1px solid #eee;">
-                                            <td style="padding: 8px; color: #333;"><strong>${key}</strong></td>
-                                            <td style="padding: 8px; color: #666;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">${typeof value === 'string' ? value : JSON.stringify(value)}</code></td>
-                                        </tr>
-                                    `).join('')}
-                                </table>
-                            ` : '<p style="color: #999; font-size: 13px;">No test data specified</p>'}
-                        </div>
-
-                        <!-- Steps -->
-                        <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
-                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Test Steps</h3>
-                            ${steps && steps.length > 0 ? `
-                                <ol style="margin: 0; padding-left: 20px; color: #555;">
-                                    ${steps.map((step, idx) => `
-                                        <li style="margin: 8px 0; font-size: 13px;">
-                                            <strong>Action:</strong> ${typeof step === 'string' ? step : step.action || 'N/A'}<br>
-                                            ${step.expected ? `<strong>Expected:</strong> ${step.expected}` : ''}
-                                        </li>
-                                    `).join('')}
-                                </ol>
-                            ` : '<p style="color: #999; font-size: 13px;">No steps specified</p>'}
-                        </div>
-
-                        <!-- Expected Result -->
-                        <div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #e8f5e9;">
-                            <h3 style="margin: 0 0 10px 0; color: #388e3c; font-size: 16px;">Expected Result</h3>
-                            <p style="margin: 0; color: #333; font-size: 13px; line-height: 1.6; white-space: pre-wrap;">${expectedResult || 'Not specified'}</p>
-                        </div>
-
-                        <!-- Validation Criteria -->
-                        <div style="border: 1px solid #ddd; border-radius: 6px; padding: 12px; background: #f9f9f9;">
-                            <h3 style="margin: 0 0 10px 0; color: #333; font-size: 16px;">Validation Criteria</h3>
-                            <ul style="margin: 0; padding-left: 20px; color: #555;">
-                                ${validation && validation.length > 0 ? 
-                                    validation.map(v => `<li style="margin: 4px 0; font-size: 13px;">✓ ${v}</li>`).join('') :
-                                    '<li style="color: #999;">No validation criteria specified</li>'
-                                }
-                            </ul>
-                        </div>
-                    </div>
-                `;
-
-                document.getElementById('modalBody').innerHTML = html;
-                modal.style.display = 'flex';
+                document.getElementById('modalBody').innerHTML = body;
+                document.getElementById('testCaseModal').classList.add('show');
             }
 
             function closeTestCaseModal() {
-                document.getElementById('testCaseModal').style.display = 'none';
+                document.getElementById('testCaseModal').classList.remove('show');
             }
-
-            // Close modal when clicking outside
-            window.onclick = function(event) {
-                const modal = document.getElementById('testCaseModal');
-                if (modal && event.target === modal) {
-                    modal.style.display = 'none';
-                }
-            }
+            window.onclick = function(e) {
+                if (e.target === document.getElementById('testCaseModal')) closeTestCaseModal();
+            };
 
             // ===== EXPORT FUNCTIONS =====
-
-            function getUploadedFile() {
-                const fileInput = document.querySelector('input[type="file"]');
-                return fileInput?.files[0];
-            }
+            function getUploadedFile() { return uploadedFile; }
 
             async function exportWithFormat(format) {
                 const file = getUploadedFile();
-                if (!file) {
-                    alert('Please upload a file first');
-                    return;
-                }
-
+                if (!file) { alert('Please upload and analyze a file first'); return; }
                 const maxTests = document.getElementById('maxTests')?.value || 8;
                 const formData = new FormData();
                 formData.append('file', file);
@@ -780,149 +1190,48 @@ async def testcase_upload_page():
                     'rtm': '/api/v3/test-generation/export-rtm',
                     'json': '/api/v3/test-generation/export-json'
                 };
-
                 const fileNames = {
-                    'pytest': 'test_hotel_booking_generated.py',
-                    'gherkin': 'hotel_booking_generated.feature',
-                    'rtm': 'requirements_traceability_matrix_generated.csv',
-                    'json': 'test_cases_detailed_generated.json'
+                    'pytest': 'test_generated.py',
+                    'gherkin': 'generated.feature',
+                    'rtm': 'traceability_matrix.csv',
+                    'json': 'test_cases.json'
                 };
-
                 try {
-                    const response = await fetch(endpoints[format], {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.message || 'Export failed');
-                    }
-
-                    // Download file
+                    const response = await fetch(endpoints[format], { method: 'POST', body: formData });
+                    if (!response.ok) { const err = await response.json(); throw new Error(err.message || 'Export failed'); }
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = fileNames[format];
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
+                    const a = document.createElement('a'); a.href = url; a.download = fileNames[format];
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
                     window.URL.revokeObjectURL(url);
-
-                    alert(`✓ ${format.toUpperCase()} exported successfully!`);
-                } catch (error) {
-                    alert(`✗ Export failed: ${error.message}`);
-                    console.error(error);
-                }
+                } catch (error) { alert('Export failed: ' + error.message); }
             }
-
-            function exportPytest() {
-                exportWithFormat('pytest');
-            }
-
-            function exportGherkin() {
-                exportWithFormat('gherkin');
-            }
-
-            function exportRTM() {
-                exportWithFormat('rtm');
-            }
-
-            function exportJSON() {
-                exportWithFormat('json');
-            }
-
-            function exportHtmlReport() {
-                if (!window.currentFile) {
-                    alert('⚠️ Please analyze a file first');
-                    return;
-                }
-                exportReportWithFormat('html');
-            }
-
-            function exportPdfReport() {
-                if (!window.currentFile) {
-                    alert('⚠️ Please analyze a file first');
-                    return;
-                }
-                exportReportWithFormat('pdf');
-            }
+            function exportPytest() { exportWithFormat('pytest'); }
+            function exportGherkin() { exportWithFormat('gherkin'); }
+            function exportRTM() { exportWithFormat('rtm'); }
+            function exportJSON() { exportWithFormat('json'); }
 
             async function exportReportWithFormat(format) {
+                if (!uploadedFile) { alert('Please analyze a file first'); return; }
+                const formData = new FormData();
+                formData.append('file', uploadedFile);
+                const maxTests = parseInt(document.getElementById('maxTests').value) || 8;
+                const ext = format === 'html' ? 'html' : 'pdf';
+                const endpoint = '/api/v3/test-generation/export-' + ext + '-report?max_tests=' + maxTests;
+                const filename = 'test_report_' + new Date().toISOString().slice(0, 10) + '.' + ext;
                 try {
-                    if (!window.currentFile) {
-                        alert('Please analyze file first');
-                        return;
-                    }
-                    
-                    const formData = new FormData();
-                    formData.append('file', window.currentFile);
-                    
-                    const maxTests = parseInt(document.getElementById('maxTests').value) || 8;
-                    
-                    let endpoint;
-                    let filename;
-                    
-                    if (format === 'html') {
-                        endpoint = `/api/v3/test-generation/export-html-report?max_tests=${maxTests}`;
-                        filename = `test_report_${new Date().toISOString().slice(0, 10)}.html`;
-                    } else if (format === 'pdf') {
-                        endpoint = `/api/v3/test-generation/export-pdf-report?max_tests=${maxTests}`;
-                        filename = `test_report_${new Date().toISOString().slice(0, 10)}.pdf`;
-                    }
-                    
-                    console.log('Exporting to:', endpoint);
-                    
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    
-                    console.log('Response status:', response.status);
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('Error response:', errorText);
-                        throw new Error(`Export failed: ${response.status} ${response.statusText} - ${errorText.substring(0, 100)}`);
-                    }
-                    
+                    const response = await fetch(endpoint, { method: 'POST', body: formData });
+                    if (!response.ok) throw new Error('Export failed: ' + response.status);
                     const blob = await response.blob();
-                    if (blob.size === 0) {
-                        throw new Error('Empty response received');
-                    }
-                    
+                    if (blob.size === 0) throw new Error('Empty response');
                     const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    
-                    alert(`✓ ${format.toUpperCase()} report exported successfully!`);
-                } catch (error) {
-                    alert(`✗ Export failed: ${error.message}`);
-                    console.error(error);
-                }
+                    const a = document.createElement('a'); a.href = url; a.download = filename;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                } catch (error) { alert('Export failed: ' + error.message); }
             }
-
-            // Legacy compatibility
-            function downloadDetailedJSON() {
-                exportJSON();
-            }
-
-            function downloadDetailedCSV() {
-                exportRTM();
-            }
+            function exportHtmlReport() { exportReportWithFormat('html'); }
+            function exportPdfReport() { exportReportWithFormat('pdf'); }
         </script>
-
-        <!-- Test Case Details Modal -->
-        <div id="testCaseModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); flex-direction: column; justify-content: center; align-items: center;">
-            <div style="width: 90%; max-width: 1000px; max-height: 90vh; background-color: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); overflow-y: auto; padding: 20px;">
-                <div id="modalBody"></div>
-            </div>
-        </div>
     </body>
     </html>
     """
@@ -1412,29 +1721,20 @@ async def testcase_dashboard():
 @router.post("/api/v3/test-generation/analyze-file-detailed")
 async def analyze_file_detailed_v3(file: UploadFile = File(...), max_tests: int = 8):
     """
-    PRODUCTION-GRADE Test Case Analysis - v3
-    Generates REAL, ACTIONABLE test cases using smart requirement understanding
-    
-    Key improvements over v2:
-    - Concrete test data (not generic)  
-    - Real input/output pairs
-    - Boundary value analysis with actual tests
-    - State machine test generation
-    - Requirement quality validation
-    - Smart deduplication
+    NLP-Powered Test Case Analysis using spaCy dependency parsing.
+    Uses AITestGenerator (smart_ai_generator_v2) for real context-aware generation.
     """
     try:
-        from requirement_analyzer.task_gen.test_case_generator_v3 import AITestCaseGeneratorV3
-        
+        from requirement_analyzer.task_gen.smart_ai_generator_v2 import AITestGenerator
+
         file_content = await file.read()
         file_type = file.filename.split('.')[-1].lower()
-        
-        # Support: txt, csv, md, markdown, docx
+
         supported_types = ['txt', 'csv', 'md', 'markdown', 'docx']
         if file_type not in supported_types:
             raise ValueError(f"Unsupported file type: .{file_type}. Supported: TXT, CSV, MD, DOCX")
-        
-        # Parse file
+
+        # Parse file into requirement strings
         parser = RequirementFileParser()
         try:
             if file_type == 'docx':
@@ -1446,99 +1746,102 @@ async def analyze_file_detailed_v3(file: UploadFile = File(...), max_tests: int 
                 {"status": "error", "message": str(e)},
                 status_code=400
             )
-        
+
         if not requirements:
             return JSONResponse(
                 {"status": "error", "message": "No requirements found in file"},
                 status_code=400
             )
-        
-        # Generate using production-grade v3
-        generator = AITestCaseGeneratorV3()
-        v3_results = generator.generate(requirements, max_test_cases_per_req=max_tests)
-        
-        # Format response
+
+        # Generate using real NLP generator (spaCy-based)
+        generator = AITestGenerator()
         detailed_analysis = []
-        skipped_analysis = []
         total_test_cases = 0
-        total_confidence = 0
-        
-        for req_result in v3_results['results']:
-            req_id = req_result['requirement_id']
-            req_text = req_result['requirement_text']
-            test_cases = req_result['test_cases']
-            
-            # Separate actionable from ambiguous
-            if not req_result['is_actionable']:
-                skipped_analysis.append({
-                    'index': len(detailed_analysis) + len(skipped_analysis) + 1,
-                    'requirement': req_text,
-                    'requirement_id': req_id,
-                    'reason': 'Requirement is ambiguous or unclear',
-                    'quality_issues': req_result.get('quality_issues', []),
-                    'note': 'Please clarify this requirement before generating tests'
-                })
+        total_confidence = 0.0
+        type_distribution = {}
+
+        for req_idx, req_text in enumerate(requirements, 1):
+            req_text = req_text.strip()
+            if not req_text:
                 continue
-            
-            # Process actionable requirements
+
+            # Generate for this single requirement
+            result = generator.generate([req_text], max_tests=max_tests)
+            test_cases = result.get("test_cases", [])
+
+            if not test_cases:
+                continue
+
+            # Format test cases for frontend
             formatted_tests = []
-            req_confidence = 0
-            
+            req_confidence = 0.0
             for tc in test_cases:
-                if tc.get('type') != 'requirement_quality_check':
-                    formatted_tests.append({
-                        'id': tc.get('id'),
-                        'title': tc.get('title'),
-                        'type': tc.get('type'),
-                        'priority': tc.get('priority'),
-                        'confidence': round(tc.get('confidence', 0.85) * 100) / 100,
-                        'preconditions': tc.get('preconditions', []),
-                        'test_data': tc.get('test_data', {}),
-                        'steps_count': len(tc.get('steps', [])),
-                        'expected_result': tc.get('expected_result', ''),
-                        'validation':tc.get('validation', [])
-                    })
-                    if 'confidence' in tc:
-                        req_confidence += tc['confidence']
-            
-            if formatted_tests:
-                avg_conf = req_confidence / len(formatted_tests) if formatted_tests else 0
-                detailed_analysis.append({
-                    'index': len(detailed_analysis) + 1,
-                    'requirement_id': req_id,
-                    'requirement': req_text,
-                    'word_count': len(req_text.split()),
-                    'character_count': len(req_text),
-                    'nlp_confidence': avg_conf,
-                    'test_cases_count': len(formatted_tests),
-                    'test_cases': formatted_tests
+                conf = tc.get("ai_confidence", tc.get("ml_quality_score", 0.8))
+                tc_type = tc.get("test_type", tc.get("type", "unknown"))
+                formatted_tests.append({
+                    'id': tc.get('id', tc.get('test_id')),
+                    'title': tc.get('title', ''),
+                    'type': tc_type,
+                    'priority': tc.get('priority', 'Medium'),
+                    'confidence': round(conf, 2),
+                    'preconditions': tc.get('preconditions', []),
+                    'test_data': tc.get('test_data', {}),
+                    'steps_count': len(tc.get('steps', [])),
+                    'steps': tc.get('steps', []),
+                    'expected_result': tc.get('expected_result', ''),
+                    'validation': tc.get('postconditions', []),
+                    'description': tc.get('description', ''),
+                    'why_generated': tc.get('why_generated', ''),
+                    'domain': tc.get('domain', 'general'),
+                    'risk_level': tc.get('risk_level', 'medium'),
                 })
-                total_test_cases += len(formatted_tests)
-                total_confidence += avg_conf
-        
-        # Calculate summary
+                req_confidence += conf
+                type_distribution[tc_type] = type_distribution.get(tc_type, 0) + 1
+
+            avg_conf = req_confidence / len(formatted_tests) if formatted_tests else 0
+            # Always use sequential per-file ID so rows in the dashboard
+            # don't collide on the generator's internal "REQ-XXX-001" tags.
+            req_id = f"REQ-{req_idx:03d}"
+            # Re-tag every test case with this stable requirement_id and a
+            # unique TC id (TC-001-01, TC-001-02 …) so the UI never collides.
+            for tc_pos, tc in enumerate(formatted_tests, 1):
+                tc['requirement_id'] = req_id
+                tc['id'] = f"TC-{req_idx:03d}-{tc_pos:02d}"
+
+            detailed_analysis.append({
+                'index': len(detailed_analysis) + 1,
+                'requirement_id': req_id,
+                'requirement': req_text,
+                'word_count': len(req_text.split()),
+                'character_count': len(req_text),
+                'nlp_confidence': round(avg_conf, 2),
+                'test_cases_count': len(formatted_tests),
+                'test_cases': formatted_tests,
+            })
+            total_test_cases += len(formatted_tests)
+            total_confidence += avg_conf
+
         avg_confidence = total_confidence / len(detailed_analysis) if detailed_analysis else 0
-        
+
         return {
             "status": "success",
-            "generator_version": "v3_production",
+            "generator_version": "v4_nlp_spacy",
             "filename": file.filename,
             "file_type": file_type.upper(),
             "total_requirements_in_file": len(requirements),
             "total_requirements_analyzed": len(detailed_analysis),
-            "total_requirements_skipped": len(skipped_analysis),
+            "total_requirements_skipped": 0,
             "total_test_cases_generated": total_test_cases,
-            "avg_nlp_confidence": round(avg_confidence * 100) / 100,
+            "avg_nlp_confidence": round(avg_confidence, 2),
             "detailed": detailed_analysis,
-            "skipped_requirements": skipped_analysis if skipped_analysis else None,
             "quality_metrics": {
-                "ambiguous_requirements": v3_results['summary']['ambiguous_requirements'],
-                "actionable_requirements": v3_results['summary']['actionable_requirements'],
-                "test_cases_by_type": v3_results['summary']['test_cases_by_type'],
-                "avg_test_quality_score": v3_results['summary']['avg_test_quality_score']
+                "test_cases_by_type": type_distribution,
+                "avg_test_quality_score": round(avg_confidence, 3),
+                "nlp_engine": "spaCy (en_core_web_sm)",
+                "analysis_pipeline": "dependency_parse → SVO_extraction → semantic_strategy → context_aware_builder",
             }
         }
-    
+
     except Exception as e:
         import traceback
         return JSONResponse(

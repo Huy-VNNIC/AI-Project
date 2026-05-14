@@ -11,10 +11,13 @@ from starlette.responses import Response as StarletteResponse
 from io import BytesIO
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
+from contextlib import asynccontextmanager
 import uvicorn
 import os
 import sys
 import tempfile
+import threading
+import time
 import pandas as pd
 import json
 import logging
@@ -41,6 +44,66 @@ from requirement_analyzer.task_integration import get_integration
 from requirement_analyzer.utils import preprocess_text_for_estimation, improve_confidence_level
 from requirement_analyzer.api_v2_handler import V2TaskGenerator
 
+# ── Task-gen singleton (thread-safe pre-warmed instance) ──────────────────────
+_task_gen_lock = threading.Lock()
+_task_gen_instance: Optional[V2TaskGenerator] = None
+_task_gen_ready = False
+_task_gen_error: Optional[str] = None
+_task_gen_startup_time: Optional[float] = None
+
+
+def get_task_generator() -> V2TaskGenerator:
+    """Return the module-level singleton. Raises 503 if not yet initialised."""
+    if not _task_gen_ready:
+        raise HTTPException(
+            status_code=503,
+            detail="Task generation model is still loading. Retry in a few seconds."
+        )
+    if _task_gen_error:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Task generation model failed to load: {_task_gen_error}"
+        )
+    return _task_gen_instance
+
+
+def _init_task_generator():
+    """Background initialisation – called once at startup."""
+    global _task_gen_instance, _task_gen_ready, _task_gen_error, _task_gen_startup_time
+    t0 = time.time()
+    try:
+        logger.info("[TaskGen] Initialising V2TaskGenerator…")
+        inst = V2TaskGenerator()
+        # Warm up priority classifier with a trivial inference
+        try:
+            from requirement_analyzer.task_gen.smart_priority import get_priority_classifier
+            clf = get_priority_classifier()
+            clf.predict("The system shall allow users to login securely")
+            logger.info("[TaskGen] Priority classifier warmed up ✓")
+        except Exception as e:
+            logger.warning(f"[TaskGen] Priority warm-up skipped: {e}")
+        with _task_gen_lock:
+            _task_gen_instance = inst
+            _task_gen_ready = True
+            _task_gen_startup_time = round(time.time() - t0, 2)
+        logger.info(f"[TaskGen] V2TaskGenerator ready in {_task_gen_startup_time}s ✓")
+    except Exception as exc:
+        with _task_gen_lock:
+            _task_gen_error = str(exc)
+            _task_gen_ready = False
+        logger.error(f"[TaskGen] Failed to initialise V2TaskGenerator: {exc}", exc_info=True)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """FastAPI lifespan: warm-up models before accepting requests."""
+    # Run initialisation in a background thread so uvicorn loop stays responsive
+    thread = threading.Thread(target=_init_task_generator, daemon=True, name="taskgen-init")
+    thread.start()
+    logger.info("[Startup] Task gen initialisation started in background thread")
+    yield
+    logger.info("[Shutdown] API shutting down")
+
 # Model cho request API
 class RequirementText(BaseModel):
     text: str
@@ -49,6 +112,24 @@ class RequirementText(BaseModel):
 class TaskList(BaseModel):
     tasks: List[Dict[str, Any]]
     method: Optional[str] = "weighted_average"
+
+
+class DependencyAIRequest(BaseModel):
+    """Build a dependency-AI graph from a list of stories.
+
+    Each story should expose at least: ``title`` or ``user_story``,
+    optionally ``story_points`` and ``sprint``.
+    """
+    stories: List[Dict[str, Any]]
+    language: Optional[str] = None
+
+
+class WhatIfRequest(BaseModel):
+    """Simulate moving one story to a different sprint."""
+    stories: List[Dict[str, Any]]
+    story_id: str
+    new_sprint: int
+    language: Optional[str] = None
 
 class COCOMOParameters(BaseModel):
     # Software Size
@@ -114,7 +195,8 @@ class COCOMOParameters(BaseModel):
 app = FastAPI(
     title="Software Effort Estimation API",
     description="API để phân tích yêu cầu phần mềm và ước lượng nỗ lực phát triển",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -157,6 +239,14 @@ try:
 except Exception as e:
     logger.warning(f"Could not register Test Case UI router: {e}")
 
+# Register QA Studio v3 (4-stage pipeline)
+try:
+    from requirement_analyzer.routers_qa_studio import router as qa_studio_router
+    app.include_router(qa_studio_router, tags=["QA Pipeline v3"])
+    logger.info("✓ QA Studio v3 router registered")
+except Exception as e:
+    logger.warning(f"Could not register QA Studio v3 router: {e}")
+
 # Import and register Test Routes (multiple test pages)
 try:
     from app.routers import test_routes
@@ -188,6 +278,15 @@ async def testcase_generation():
     if testcase_file_old.exists():
         return FileResponse(testcase_file_old, media_type="text/html")
     raise HTTPException(status_code=404, detail="Test Case Generator not found")
+
+
+@app.get("/analysis-dashboard")
+async def analysis_dashboard():
+    """Serve modern Analysis Results Dashboard (Linear/Notion-style)."""
+    dash_file = Path(__file__).parent.parent / "templates" / "analysis_dashboard.html"
+    if dash_file.exists():
+        return FileResponse(dash_file, media_type="text/html")
+    raise HTTPException(status_code=404, detail="Analysis Dashboard not found")
 
 @app.get("/favicon.ico")
 async def favicon():
@@ -383,10 +482,35 @@ def estimate_from_tasks(tasks: TaskList):
 # Task Generation API Endpoints
 @app.get("/api/task-generation/status")
 async def task_generation_status():
+    """Health check for task generation service (shows warm-up status)"""
+    return {
+        "status": "ready" if _task_gen_ready else ("error" if _task_gen_error else "loading"),
+        "service": "task-generation",
+        "mode": "model",
+        "model_ready": _task_gen_ready,
+        "startup_time_s": _task_gen_startup_time,
+        "error": _task_gen_error,
+    }
+
+@app.get("/api/task-generation/health")
+async def task_generation_health():
     """
-    Health check endpoint for task generation service
+    Readiness probe for task generation service.
+    Returns 200 when the model is fully loaded, 503 while loading.
     """
-    return {"status": "healthy", "service": "task-generation"}
+    if not _task_gen_ready:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Model loading{'... (error: ' + _task_gen_error + ')' if _task_gen_error else '...'}"
+        )
+    return {
+        "status": "healthy",
+        "model_ready": True,
+        "startup_time_s": _task_gen_startup_time,
+        "priority_classes": 4,
+        "fibonacci": [1, 2, 3, 5, 8, 13, 21],
+        "supported_formats": [".txt", ".md", ".pdf", ".docx", ".rst"],
+    }
 
 @app.post("/api/task-generation/generate")
 async def generate_tasks_from_text(requirement: RequirementText):
@@ -401,15 +525,21 @@ async def generate_tasks_from_text(requirement: RequirementText):
     - INVEST scoring for story quality
     """
     try:
-        # Initialize V2 generator
-        generator = V2TaskGenerator()
-        
-        # Process through V2 pipeline
+        # Use pre-warmed singleton (raises 503 if still loading)
+        generator = get_task_generator()
+
+        # Parse optional sprint_weeks from request body
+        sprint_weeks = None
+        if hasattr(requirement, 'sprint_weeks'):
+            sprint_weeks = requirement.sprint_weeks
+
+        # Process through V2 pipeline (language auto-detected)
         result = generator.generate_from_text(
             text=requirement.text,
-            language="vi"  # Default to Vietnamese
+            language=None,       # auto-detect
+            sprint_weeks=sprint_weeks,
         )
-        
+
         return result
     except Exception as e:
         logger.error(f"Error generating tasks with V2 pipeline: {str(e)}", exc_info=True)
@@ -418,38 +548,236 @@ async def generate_tasks_from_text(requirement: RequirementText):
 @app.post("/api/task-generation/generate-from-file")
 async def generate_tasks_from_file(file: UploadFile = File(...)):
     """
-    Generate tasks from uploaded requirement file using V2 Pipeline
-    
-    Supports: .txt, .md, .pdf (text content)
-    
-    Features:
-    - Proper Agile User Story format
-    - Task decomposition into multiple subtasks
-    - Specific Given/When/Then acceptance criteria
-    - Functional vs Non-functional requirement distinction
-    - Noise filtering (removes intro/description text)
+    Generate tasks from uploaded requirement file using V2 Pipeline.
+    Supports: .txt, .md, .pdf, .docx (text extraction)
     """
-    try:
-        # Read file content
-        content = await file.read()
-        text_content = content.decode("utf-8")
-        
-        # Initialize V2 generator
-        generator = V2TaskGenerator()
-        
-        # Process through V2 pipeline
-        result = generator.generate_from_text(
-            text=text_content,
-            language="vi"  # Default to Vietnamese
+    ALLOWED_EXTENSIONS = {".txt", ".md", ".pdf", ".docx", ".doc", ".rst"}
+    MAX_FILE_SIZE_MB = 5
+
+    # Validate file type
+    filename = file.filename or "upload.txt"
+    ext = Path(filename).suffix.lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type '{ext}'. Allowed: {', '.join(ALLOWED_EXTENSIONS)}"
         )
-        
-        # Add file info to result
-        result["filename"] = file.filename
-        
+
+    try:
+        content = await file.read()
+
+        # Enforce size limit
+        if len(content) > MAX_FILE_SIZE_MB * 1024 * 1024:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File too large (max {MAX_FILE_SIZE_MB} MB)"
+            )
+
+        # Extract text based on format
+        text_content = _extract_text_from_upload(content, ext, filename)
+
+        if not text_content or len(text_content.strip()) < 20:
+            raise HTTPException(
+                status_code=422,
+                detail="Could not extract usable text from the file. Please check the file content."
+            )
+
+        generator = get_task_generator()
+        result = generator.generate_from_text(text=text_content, language=None)
+        result["filename"] = filename
+        result["file_size_bytes"] = len(content)
+        result["extracted_chars"] = len(text_content)
         return result
+
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error generating tasks from file: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ── Dependency AI endpoints ──────────────────────────────────────────────
+@app.post("/api/task-generation/dependency-ai")
+async def dependency_ai_analyze(payload: DependencyAIRequest):
+    """Run :class:`DependencyAI` over an externally-supplied story list.
+
+    Returns the full graph (nodes, edges, critical path, bottlenecks,
+    risk scores, validation issues, recommendations).  Useful when the
+    UI already has stories cached and just wants the analytics.
+    """
+    try:
+        generator = get_task_generator()
+        result = generator._compute_dependency_ai(payload.stories)
+        return result
+    except Exception as e:
+        logger.error(f"DependencyAI analyze failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/task-generation/dependency-ai/what-if")
+async def dependency_ai_what_if(payload: WhatIfRequest):
+    """Simulate moving ``story_id`` to ``new_sprint``.
+
+    Returns the resolved/introduced violations and net delta without
+    mutating the persisted plan.
+    """
+    try:
+        from requirement_analyzer.task_gen.semantic import (
+            SemanticParser, DependencyAI, StoryNode,
+        )
+        from requirement_analyzer.task_gen.semantic.embedding import auto_backend
+    except ImportError as e:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Semantic engine not available: {e}",
+        )
+
+    parser = SemanticParser()
+    nodes = []
+    for idx, s in enumerate(payload.stories):
+        text = ((s.get("title") or "") + ". "
+                + (s.get("user_story") or "")).strip(". ").strip()
+        if not text:
+            continue
+        try:
+            ir = parser.parse(text)
+        except Exception:
+            continue
+        nodes.append(StoryNode(
+            story_id=str(s.get("id") or s.get("task_id") or f"S{idx + 1}"),
+            ir=ir,
+            sprint=s.get("sprint"),
+            story_points=int(s.get("story_points") or 0) or None,
+            title=s.get("title") or s.get("user_story", "")[:80],
+        ))
+
+    if not nodes:
+        raise HTTPException(status_code=422, detail="No parseable stories")
+
+    try:
+        embed = auto_backend()
+    except Exception:
+        embed = None
+    ai = DependencyAI(embedding_backend=embed).build(nodes)
+
+    if payload.story_id not in ai.nodes:
+        raise HTTPException(
+            status_code=404,
+            detail=f"story_id '{payload.story_id}' not found",
+        )
+
+    return ai.what_if(payload.story_id, payload.new_sprint)
+
+
+def _extract_text_from_upload(content: bytes, ext: str, filename: str) -> str:
+    """Extract plain text from uploaded file content."""
+    if ext in (".txt", ".md", ".rst"):
+        # Try UTF-8 first, fall back to latin-1
+        for enc in ("utf-8", "utf-8-sig", "latin-1", "cp1252"):
+            try:
+                return content.decode(enc)
+            except (UnicodeDecodeError, LookupError):
+                continue
+        return content.decode("latin-1", errors="replace")
+
+    if ext == ".pdf":
+        try:
+            import io
+            import pdfplumber
+            with pdfplumber.open(io.BytesIO(content)) as pdf:
+                pages = [page.extract_text() or "" for page in pdf.pages]
+            return "\n".join(pages)
+        except ImportError:
+            pass
+        # Fallback: try PyPDF2
+        try:
+            import io
+            import PyPDF2
+            reader = PyPDF2.PdfReader(io.BytesIO(content))
+            return "\n".join(page.extract_text() or "" for page in reader.pages)
+        except ImportError:
+            raise HTTPException(
+                status_code=422,
+                detail="PDF parsing requires 'pdfplumber' or 'PyPDF2'. Install with: pip install pdfplumber"
+            )
+
+    if ext in (".docx", ".doc"):
+        try:
+            import io
+            import docx
+            doc = docx.Document(io.BytesIO(content))
+            return "\n".join(p.text for p in doc.paragraphs if p.text.strip())
+        except ImportError:
+            raise HTTPException(
+                status_code=422,
+                detail="DOCX parsing requires 'python-docx'. Install with: pip install python-docx"
+            )
+
+    # Generic fallback
+    return content.decode("utf-8", errors="replace")
+
+
+@app.get("/api/task-generation/history")
+async def get_task_history(limit: int = 20):
+    """
+    Get list of recent task generation sessions.
+    Returns session summaries (no task payload).
+    """
+    try:
+        from requirement_analyzer.task_gen.task_history import list_history
+        return {"sessions": list_history(limit=limit)}
+    except Exception as e:
+        logger.error(f"Error getting task history: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/task-generation/history/{session_id}")
+async def get_task_history_session(session_id: str):
+    """
+    Get a specific task generation session by session_id.
+    """
+    try:
+        from requirement_analyzer.task_gen.task_history import get_history_session
+        record = get_history_session(session_id)
+        if record is None:
+            raise HTTPException(status_code=404, detail=f"Session '{session_id}' not found")
+        return record
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting history session: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/api/task-generation/history/{session_id}")
+async def delete_task_history_session(session_id: str):
+    """
+    Delete a task generation history session.
+    """
+    try:
+        from requirement_analyzer.task_gen.task_history import delete_history_session
+        deleted = delete_history_session(session_id)
+        if not deleted:
+            raise HTTPException(status_code=404, detail=f"Session '{session_id}' not found")
+        return {"status": "deleted", "session_id": session_id}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/task-generation/reliability-report")
+async def get_reliability_report():
+    """
+    Return the AI model reliability validation report.
+    Covers: dataset transparency, model comparison (7 models), Cohen's Kappa.
+    """
+    from pathlib import Path
+    import json
+    report_path = Path(__file__).parent / "models" / "task_gen" / "models" / "reliability_report.json"
+    if not report_path.exists():
+        raise HTTPException(status_code=404, detail="Reliability report not found. Run validate_reliability.py first.")
+    return json.loads(report_path.read_text())
+
 
 @app.post("/trello-import")
 def import_from_trello(data: Dict[str, Any] = Body(...)):

@@ -1,0 +1,567 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{lmodern}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+% Màu sắc
+\definecolor{qcolor}{RGB}{0,90,160}
+\definecolor{acolor}{RGB}{20,110,40}
+\definecolor{notecolor}{RGB}{160,80,0}
+\definecolor{warncolor}{RGB}{180,0,0}
+\definecolor{bgQ}{RGB}{230,242,255}
+\definecolor{bgA}{RGB}{235,255,235}
+\definecolor{bgNote}{RGB}{255,245,220}
+\definecolor{headercolor}{RGB}{0,60,120}
+
+% Header / Footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{headercolor}\textbf{TRA LỜI CÂU HỎI HỘI ĐỒNG -- INSIGHTIMATE}}
+\fancyhead[R]{\small\color{headercolor}Hội nghị SVNCKH 2026 -- DTU}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+
+% Tiêu đề section
+\titleformat{\section}{\large\bfseries\color{headercolor}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries\color{qcolor}}{}{0em}{}
+
+% Môi trường câu hỏi
+\newmdenv[
+  backgroundcolor=bgQ,
+  linecolor=qcolor,
+  linewidth=2pt,
+  leftline=true,
+  rightline=false,
+  topline=false,
+  bottomline=false,
+  innerleftmargin=10pt,
+  innerrightmargin=8pt,
+  innertopmargin=6pt,
+  innerbottommargin=6pt
+]{questionbox}
+
+% Môi trường câu trả lời
+\newmdenv[
+  backgroundcolor=bgA,
+  linecolor=acolor,
+  linewidth=2pt,
+  leftline=true,
+  rightline=false,
+  topline=false,
+  bottomline=false,
+  innerleftmargin=10pt,
+  innerrightmargin=8pt,
+  innertopmargin=6pt,
+  innerbottommargin=6pt
+]{answerbox}
+
+% Môi trường ghi chú
+\newmdenv[
+  backgroundcolor=bgNote,
+  linecolor=notecolor,
+  linewidth=2pt,
+  leftline=true,
+  rightline=false,
+  topline=false,
+  bottomline=false,
+  innerleftmargin=10pt,
+  innerrightmargin=8pt,
+  innertopmargin=4pt,
+  innerbottommargin=4pt
+]{notebox}
+
+\newcommand{\Q}[2]{%
+  \begin{questionbox}
+    \textbf{\color{qcolor}[C\arabic{questioncounter}] #1}
+  \end{questionbox}
+  \begin{answerbox}
+    \textbf{\color{acolor}Trả lời:} #2
+  \end{answerbox}
+  \stepcounter{questioncounter}
+  \vspace{6pt}
+}
+
+\newcounter{questioncounter}
+\setcounter{questioncounter}{1}
+
+% =========================================================
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries\color{headercolor} TÀI LIỆU TRA LỜI CÂU HỎI HỘI ĐỒNG}\\[4pt]
+  {\large\color{qcolor} Đề tài: \textit{Insightimate -- Nâng cao độ chính xác ước lượng nỗ lực phần mềm}}\\[2pt]
+  {\normalsize\color{qcolor} sử dụng Machine Learning theo ba schema: LOC, FP, UCP}\\[6pt]
+  {\small Hội nghị Sinh viên Nghiên cứu Khoa học 2026 -- Đại học Duy Tân}\\[2pt]
+  {\small\color{gray} Ngày: 23/04/2026 \quad|\quad Phiên bản: 2.0 (Mở rộng theo đề cương AI Module)}
+\end{center}
+
+\vspace{2pt}
+\hrule
+\vspace{8pt}
+
+\begin{notebox}
+  \textbf{\color{notecolor}Hướng dẫn sử dụng:} Tài liệu này tổng hợp các câu hỏi dự kiến từ hội đồng phản biện, bao gồm cả câu hỏi kỹ thuật chuyên sâu về COCOMO II, tiền xử lý dữ liệu, mô hình ML và hướng mở rộng hệ thống. Nhóm nên đọc kỹ từng câu trả lời và luyện tập nói trước gương.
+\end{notebox}
+
+\vspace{6pt}
+
+% =========================================================
+\section{NHÓM 1 -- Tổng quan về đề tài \& COCOMO II}
+
+\Q{COCOMO II là gì? Tại sao nhóm chọn COCOMO II làm nền tảng lý thuyết?}{%
+  \textbf{COCOMO II} (Constructive Cost Model II) là mô hình ước lượng chi phí và nỗ lực phát triển phần mềm do Barry Boehm và cộng sự phát triển (1995, USC). COCOMO II cải tiến so với COCOMO I bằng cách hỗ trợ nhiều vòng đời phát triển hiện đại (Agile, OO, reuse-based).
+
+  \textbf{Công thức cốt lõi:}
+  \[
+    \text{Effort} = A \times \text{Size}^{E} \times \prod_{i=1}^{n} EM_i
+  \]
+  trong đó $A$ là hằng số hiệu chỉnh, $E$ là số mũ quy mô (scale factor), $EM_i$ là các hệ số điều chỉnh nỗ lực (effort multipliers).
+
+  \textbf{Lý do chọn:}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Được sử dụng rộng rãi nhất trong nghiên cứu học thuật và thực tế công nghiệp.
+    \item Hỗ trợ cả ba metric kích thước: LOC, FP, UCP -- phù hợp với ba schema của đề tài.
+    \item Có nền tảng toán học rõ ràng, dễ mở rộng tích hợp ML.
+    \item Nguồn tham chiếu: Boehm et al. (2000), \textit{Software Cost Estimation with COCOMO II}, Prentice Hall.
+  \end{itemize}
+}
+
+\Q{Sự khác biệt giữa COCOMO I và COCOMO II là gì?}{%
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Tiêu chí} & \textbf{COCOMO I} & \textbf{COCOMO II} \\
+    \midrule
+    Năm ra đời & 1981 & 1995--2000 \\
+    Metric kích thước & Chỉ LOC & LOC, FP, UCP \\
+    Vòng đời hỗ trợ & Waterfall & Waterfall, Agile, Reuse \\
+    Số hệ số điều chỉnh & 15 & 17 (EM) + 5 (SF) \\
+    Hiệu chỉnh & Cố định & Có thể hiệu chỉnh theo tổ chức \\
+    \bottomrule
+  \end{tabular}
+}
+
+\Q{Ba schema LOC, FP, UCP là gì? Tại sao đề tài nghiên cứu cả ba schema thay vì chỉ một?}{%
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item \textbf{LOC (Lines of Code / KLOC):} Đo kích thước dựa trên số dòng code. Dễ đo, nhưng phụ thuộc ngôn ngữ lập trình. Dataset: 947 mẫu.
+    \item \textbf{FP (Function Points):} Đo chức năng phần mềm độc lập với ngôn ngữ. Chuẩn ISO/IEC 20926. Dataset: 24 mẫu.
+    \item \textbf{UCP (Use Case Points):} Đo dựa trên các use case, phù hợp phát triển hướng đối tượng (OOP/UML). Dataset: phụ thuộc nguồn thu thập.
+  \end{itemize}
+
+  \textbf{Lý do nghiên cứu cả ba:}
+  Mỗi tổ chức/dự án sử dụng metric khác nhau. Việc hỗ trợ cả ba giúp hệ thống \textit{Insightimate} phục vụ được nhiều loại dự án thực tế, đồng thời cho phép so sánh hiệu quả mô hình ML trên các schema khác nhau.
+}
+
+\Q{Vì sao số lượng mẫu FP (24 mẫu) và UCP ít hơn LOC (947 mẫu) nhiều?}{%
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item \textbf{LOC} dễ đo tự động từ mã nguồn, nên dữ liệu LOC-based phong phú hơn trong các repository công khai.
+    \item \textbf{FP} yêu cầu chuyên gia đếm thủ công theo chuẩn IFPUG hoặc NESMA -- tốn thời gian, ít tổ chức chia sẻ công khai.
+    \item \textbf{UCP} gắn liền với tài liệu use case nội bộ -- thường không công bố.
+  \end{itemize}
+  Đây cũng là lý do nhóm sử dụng \textbf{Random Forest} thay vì Deep Learning: RF hoạt động tốt với bộ dữ liệu nhỏ, không cần hàng nghìn mẫu.
+}
+
+% =========================================================
+\section{NHÓM 2 -- Thu thập dữ liệu}
+
+\Q{Nhóm thu thập dữ liệu từ đâu? Tiêu chí tìm kiếm như thế nào?}{%
+  \textbf{Nguồn học thuật chính:}
+  IEEE Xplore, ACM Digital Library, ScienceDirect, Springer Link, Scopus, Google Scholar, ResearchGate, arXiv.
+
+  \textbf{Từ khóa chính:} \textit{``COCOMO II'', ``software effort estimation'', ``cost estimation model'', ``software project estimation''}
+
+  \textbf{Từ khóa phụ:} \textit{``machine learning'', ``agile'', ``DevOps'', ``calibration'', ``Monte Carlo'', ``risk analysis''}
+
+  \textbf{Kết hợp ví dụ:} \textit{``COCOMO II AND machine learning''}, \textit{``COCOMO II AND agile''}
+
+  Ngoài ra nhóm tham chiếu các dataset benchmark nổi tiếng: ISBSG, Desharnais, Maxwell, Albrecht, Kemerer.
+}
+
+\Q{Làm sao nhóm đảm bảo chất lượng dữ liệu thu thập?}{%
+  Nhóm áp dụng bộ tiêu chí sàng lọc:
+  \begin{enumerate}[leftmargin=2em, topsep=2pt]
+    \item \textbf{Kiểm tra trường quan trọng:} Mỗi mẫu phải có đủ ít nhất metric kích thước (LOC/FP/UCP) và Effort.
+    \item \textbf{Kiểm tra đơn vị đo:} Chỉ giữ các mẫu xác định rõ đơn vị (ví dụ: Effort = person-month, LOC = KLOC).
+    \item \textbf{Loại bỏ trùng lặp:} Dùng \texttt{df.drop\_duplicates()} trên các trường định danh.
+    \item \textbf{Ghi nhận nguồn:} Thêm cột \texttt{source} để truy vết và kiểm định sau.
+  \end{enumerate}
+}
+
+% =========================================================
+\section{NHÓM 3 -- Tiền xử lý \& Chuẩn hóa Dữ liệu}
+
+\Q{Nhóm xử lý dữ liệu không đồng nhất như thế nào? Tại sao cần chuẩn hóa?}{%
+  Dữ liệu từ nhiều nguồn thường không đồng nhất về:
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item \textbf{Đơn vị đo:} LOC vs KLOC; Effort tính bằng giờ, ngày, tháng, người-tháng.
+    \item \textbf{Tên cột:} \texttt{effort}, \texttt{Effort\_PM}, \texttt{actual\_effort}...
+    \item \textbf{Thiếu giá trị} (missing values).
+    \item \textbf{Giá trị ngoại lai} (outliers).
+  \end{itemize}
+
+  \textbf{Quy trình chuẩn hóa 7 bước:}
+  \begin{enumerate}[leftmargin=2em, topsep=2pt]
+    \item Phân loại schema (LOC / FP / UCP)
+    \item Chuẩn hóa đơn vị đo
+    \item Xử lý missing values
+    \item Xử lý outliers bằng IQR
+    \item Log-transform các biến lệch phân phối
+    \item Scaling (MinMaxScaler / StandardScaler)
+    \item Encoding biến phân loại
+  \end{enumerate}
+}
+
+\Q{Tại sao phân loại dữ liệu theo ba schema riêng biệt?}{%
+  Mỗi schema có:
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Phân phối đặc trưng riêng (LOC phân phối lệch phải mạnh hơn FP).
+    \item Mối quan hệ Effort--Size khác nhau (hệ số $E$ trong COCOMO II khác nhau).
+    \item Phạm vi giá trị khác nhau.
+  \end{itemize}
+  Việc trộn các schema sẽ làm sai lệch mô hình. Ba file output: \texttt{loc\_based.csv}, \texttt{fp\_based.csv}, \texttt{ucp\_based.csv}.
+}
+
+\Q{Nhóm chuẩn hóa đơn vị đo như thế nào?}{%
+  \begin{tabular}{@{}llll@{}}
+    \toprule
+    \textbf{Trường} & \textbf{Nguồn gốc} & \textbf{Đơn vị chuẩn} & \textbf{Quy đổi} \\
+    \midrule
+    LOC & 7000 LOC hoặc 7 KLOC & KLOC & Chia 1000 nếu cần \\
+    Effort & 160 giờ / 20 ngày / 3 tháng & Người-tháng & 1 tháng = 160 giờ = 20 ngày \\
+    Time & Tuần, ngày & Tháng & 1 tháng $\approx$ 4.3 tuần = 20 ngày \\
+    Developers & Số nguyên & Người & Giữ nguyên \\
+    \bottomrule
+  \end{tabular}
+
+  Nếu không xác định rõ đơn vị, dòng đó bị loại bỏ để tránh sai lệch.
+}
+
+\Q{Phương pháp IQR xử lý outliers hoạt động như thế nào? Tại sao dùng IQR thay vì Z-score?}{%
+  \textbf{Công thức IQR:}
+  \begin{align*}
+    Q_1 &= \text{quantile}(0.25) \quad \text{(phân vị thứ 25\%)} \\
+    Q_3 &= \text{quantile}(0.75) \quad \text{(phân vị thứ 75\%)} \\
+    IQR &= Q_3 - Q_1 \\
+    \text{Lower bound} &= Q_1 - 1.5 \times IQR \\
+    \text{Upper bound} &= Q_3 + 1.5 \times IQR
+  \end{align*}
+
+  \textbf{Chiến lược:} Dùng \texttt{clip(lower, upper)} thay vì xóa dòng -- giữ nguyên số lượng mẫu, chỉ ``kẹp'' giá trị về ngưỡng cho phép.
+
+  \textbf{Lý do chọn IQR hơn Z-score:}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Z-score giả định phân phối chuẩn (normal) -- dữ liệu effort thường lệch phải (right-skewed), không thỏa mãn.
+    \item IQR không giả định phân phối, robust với dữ liệu phi tuyến.
+    \item Phù hợp với dataset nhỏ (FP: 24 mẫu, UCP: vài chục mẫu).
+  \end{itemize}
+}
+
+\Q{Log-transform (log1p) là gì? Tại sao cần thiết cho bài toán này?}{%
+  \textbf{Định nghĩa:} $\text{log1p}(x) = \ln(x + 1)$, áp dụng cho các biến có phân phối lệch (skewed) như LOC, Effort, FP, UCP.
+
+  \textbf{Tại sao dùng log1p thay vì log?}
+  $\log(0)$ không xác định; log1p đảm bảo an toàn khi $x = 0$.
+
+  \textbf{Lợi ích:}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Chuyển phân phối lệch phải thành gần phân phối chuẩn hơn -- cải thiện hiệu quả của các thuật toán ML.
+    \item Phù hợp với bản chất COCOMO: $\text{Effort} = A \times \text{Size}^E$ tương đương $\ln(\text{Effort}) = \ln(A) + E \cdot \ln(\text{Size})$ -- mô hình mũ trở thành tuyến tính trong không gian log.
+    \item Giảm ảnh hưởng của outliers còn sót lại sau IQR.
+  \end{itemize}
+
+  \textbf{So sánh trước/sau:} Hệ số tương quan KLOC--Effort thường tăng từ $\sim$0.65 lên $\sim$0.82 sau log-transform, xác nhận mối quan hệ log-linear.
+}
+
+\Q{Correlation analysis (phân tích tương quan) cho kết quả gì? Nhóm rút ra điều gì?}{%
+  \textbf{Phương pháp:} Tính ma trận tương quan Pearson, trực quan hóa bằng heatmap (seaborn).
+
+  \textbf{Kết quả điển hình (schema LOC):}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item $r(\text{KLOC}, \text{Effort}) \approx 0.70$--$0.85$ (sau log-transform).
+    \item $r(\text{Developers}, \text{Effort}) \approx 0.55$--$0.70$.
+    \item $r(\text{Time}, \text{Effort}) \approx 0.60$--$0.75$.
+  \end{itemize}
+
+  \textbf{Ý nghĩa:}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Tương quan dương: Kích thước code tăng $\to$ nỗ lực tăng (xác nhận giả thuyết COCOMO).
+    \item Hệ số $> 0.7$ cho thấy mối quan hệ mạnh, đủ cơ sở huấn luyện mô hình.
+    \item Scatter plot xác nhận mối quan hệ \textbf{phi tuyến} (mũ) hơn tuyến tính -- Random Forest phù hợp hơn Linear Regression.
+  \end{itemize}
+}
+
+% =========================================================
+\section{NHÓM 4 -- Mô hình Machine Learning}
+
+\Q{Nhóm đã thử nghiệm những thuật toán ML nào? Kết quả so sánh?}{%
+  Ba thuật toán được huấn luyện và so sánh:
+  \begin{enumerate}[leftmargin=2em, topsep=2pt]
+    \item \textbf{Linear Regression} -- baseline, đơn giản nhất, giả định quan hệ tuyến tính.
+    \item \textbf{Decision Tree Regressor} -- học phi tuyến, dễ giải thích, dễ overfitting.
+    \item \textbf{Random Forest Regressor} -- ensemble (tập hợp nhiều cây), robust, ít overfitting nhất.
+  \end{enumerate}
+
+  \textbf{Metric đánh giá:} MAE (Mean Absolute Error), RMSE (Root Mean Squared Error), $R^2$ (coefficient of determination), MMRE (Mean Magnitude of Relative Error).
+
+  \textbf{Kết quả:} Random Forest đạt $R^2$ cao nhất và MMRE thấp nhất trên cả ba schema, đặc biệt với dataset nhỏ như FP và UCP.
+}
+
+\Q{Tại sao không dùng Deep Learning (Neural Network) mà dùng Random Forest?}{%
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Tiêu chí} & \textbf{Deep Learning} & \textbf{Random Forest} \\
+    \midrule
+    Yêu cầu dữ liệu & $>$10,000 mẫu & Tốt với $<$1,000 mẫu \\
+    Kích thước dataset FP & Không đủ (24 mẫu) & Phù hợp \\
+    Khả năng giải thích & Khó (``black box'') & Có feature importance \\
+    Thời gian training & Dài & Nhanh \\
+    Overfitting & Cao khi ít dữ liệu & Thấp (bagging) \\
+    \bottomrule
+  \end{tabular}
+
+  \textbf{Kết luận:} Với bộ dữ liệu nhỏ và yêu cầu giải thích được (interpretability), Random Forest là lựa chọn tối ưu. Deep Learning sẽ được xem xét trong giai đoạn thu thập thêm dữ liệu (LSTM, transfer learning -- hướng tương lai).
+}
+
+\Q{Random Forest hoạt động như thế nào? Tại sao nó giảm overfitting?}{%
+  Random Forest là thuật toán \textbf{ensemble} dựa trên \textbf{Bagging} (Bootstrap Aggregating):
+  \begin{enumerate}[leftmargin=2em, topsep=2pt]
+    \item Tạo $n$ tập bootstrap từ training data (lấy mẫu có thay thế).
+    \item Huấn luyện $n$ Decision Tree độc lập, mỗi cây chỉ dùng một tập con ngẫu nhiên của features.
+    \item Dự đoán cuối = trung bình (regression) của $n$ cây.
+  \end{enumerate}
+  \textbf{Giảm overfitting:} Vì mỗi cây học trên subset khác nhau, lỗi của các cây không tương quan -- khi lấy trung bình, noise bị triệt tiêu.
+
+  \textbf{Feature importance:} RF cung cấp điểm quan trọng của từng feature (Gini importance), giúp xác định KLOC, FP, UCP có ảnh hưởng lớn nhất đến Effort.
+}
+
+\Q{Nhóm dùng phương pháp đánh giá (cross-validation) nào? Tại sao?}{%
+  Với dataset nhỏ (đặc biệt FP: 24 mẫu), nhóm sử dụng:
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item \textbf{$k$-fold cross-validation} ($k=5$ hoặc $k=10$): Chia data thành $k$ phần, luân phiên train/test.
+    \item \textbf{LOSO (Leave-One-Source-Out):} Loại bỏ một nguồn dữ liệu ra test -- đánh giá khả năng tổng quát hóa sang dự án mới.
+  \end{itemize}
+  \textbf{Lý do không dùng simple train/test split:} Với 24 mẫu FP, split 80/20 chỉ còn $\sim$5 mẫu test -- không đại diện, kết quả không ổn định.
+}
+
+\Q{MMRE là gì? Nhóm dùng metric nào để so sánh các mô hình?}{%
+  \textbf{MMRE (Mean Magnitude of Relative Error):}
+  \[
+    MMRE = \frac{1}{n} \sum_{i=1}^{n} \frac{|E_{\text{actual},i} - E_{\text{predicted},i}|}{E_{\text{actual},i}}
+  \]
+  MMRE $<$ 0.25 được coi là ``tốt'' trong nghiên cứu ước lượng nỗ lực phần mềm (theo Conte et al.).
+
+  \textbf{Bộ metric đầy đủ nhóm dùng:}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item \textbf{MAE:} Sai số tuyệt đối trung bình (dễ hiểu, đơn vị = người-tháng).
+    \item \textbf{RMSE:} Phạt nặng hơn cho sai số lớn.
+    \item \textbf{$R^2$:} Mức độ giải thích phương sai ($R^2 = 1$ là hoàn hảo).
+    \item \textbf{MMRE:} Sai số tương đối, phổ biến trong SE estimation research.
+    \item \textbf{PRED(25):} Tỷ lệ dự đoán có $MRE < 0.25$ -- chỉ số thực tiễn.
+  \end{itemize}
+}
+
+% =========================================================
+\section{NHÓM 5 -- Kiến trúc hệ thống \& AI Module}
+
+\Q{Kiến trúc tổng thể của hệ thống Insightimate là gì?}{%
+  Hệ thống gồm ba lớp chính:
+  \begin{enumerate}[leftmargin=2em, topsep=2pt]
+    \item \textbf{Data Layer:} Thu thập, tiền xử lý, chuẩn hóa $\to$ ba file CSV (LOC/FP/UCP).
+    \item \textbf{AI/ML Layer:} Huấn luyện 3 mô hình (một cho mỗi schema) $\to$ lưu model file (.pkl).
+    \item \textbf{API Layer:} REST API nhận đầu vào từ user (LOC/FP/UCP + các tham số) $\to$ trả về Effort, Schedule, Team Size ước lượng.
+  \end{enumerate}
+  Frontend (web app) tích hợp với API Layer, cho phép user chọn schema và nhập thông số dự án.
+}
+
+\Q{Hệ thống tích hợp role-based như thế nào? Static roles và dynamic roles khác nhau gì?}{%
+  \textbf{Static roles (4 role cố định -- train trực tiếp):}
+  Được định nghĩa cứng trong hệ thống, mỗi role có hệ số nhân effort (effort multiplier) khác nhau. Ví dụ: Project Manager, Senior Developer, Junior Developer, QA Engineer.
+
+  \textbf{Dynamic roles (5 người dùng -- không phụ thuộc cố định):}
+  User có thể tự khai báo vai trò và kinh nghiệm; hệ thống tính toán hệ số effort dựa trên input thực tế thay vì tra bảng cố định.
+
+  \textbf{Ý nghĩa:} Static roles phù hợp với dự án có cơ cấu nhân sự rõ ràng; dynamic roles linh hoạt hơn cho startup và nhóm Agile nhỏ.
+}
+
+\Q{Hệ thống hỗ trợ Agile estimation (story points) như thế nào?}{%
+  Đây là \textbf{hướng mở rộng} trong tương lai:
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Thu thập dữ liệu story points từ các dự án Agile (Jira export, GitHub Issues).
+    \item Xây dựng mô hình mapping: Story Points $\to$ Effort (person-hours).
+    \item Tích hợp vào pipeline hiện có như schema thứ 4 (SP-based).
+    \item Kết hợp với COCOMO II calibration cho Agile: sử dụng Sprint Velocity làm hệ số điều chỉnh.
+  \end{itemize}
+}
+
+\Q{MCP (Model Context Protocol) được tích hợp như thế nào trong hệ thống?}{%
+  \textbf{MCP} là giao thức kết nối AI assistant với các nguồn dữ liệu và tool bên ngoài.
+
+  \textbf{Ứng dụng trong Insightimate:}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item MCP tổng hợp dữ liệu thực tế từ nguồn ngoài (GitHub, Jira, Redmine) kết hợp với dữ liệu đã train.
+    \item Cho phép AI assistant trả lời câu hỏi về dự án cụ thể dựa trên dữ liệu lịch sử.
+    \item Hướng tích hợp: Database của tổ chức (historical project data) $\leftrightarrow$ MCP $\leftrightarrow$ ML Model $\to$ Prediction.
+  \end{itemize}
+}
+
+\Q{Metric OO (hướng đối tượng) như WMC, DIT, CBO... liên quan gì đến đề tài?}{%
+  Các metric OO (Chidamber \& Kemerer metrics) có thể được dùng như \textbf{feature bổ sung} trong schema LOC:
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item \textbf{WMC} (Weighted Methods per Class): Đo độ phức tạp của lớp.
+    \item \textbf{DIT} (Depth of Inheritance Tree): Độ phức tạp kế thừa.
+    \item \textbf{CBO} (Coupling Between Objects): Độ kết hợp giữa các lớp.
+    \item \textbf{LCOM} (Lack of Cohesion in Methods): Đo sự gắn kết.
+    \item \textbf{bug}: Số lỗi thực tế -- có thể dùng làm output thứ hai (bug prediction).
+  \end{itemize}
+  Các metric này giúp mô hình học được đặc điểm \textit{chất lượng thiết kế} chứ không chỉ kích thước -- là hướng mở rộng của nhóm.
+}
+
+% =========================================================
+\section{NHÓM 6 -- Đóng góp \& Hướng tương lai}
+
+\Q{Đóng góp khoa học chính của đề tài là gì?}{%
+  \begin{enumerate}[leftmargin=2em, topsep=2pt]
+    \item \textbf{Pipeline tích hợp đa schema:} Quy trình thu thập $\to$ tiền xử lý $\to$ huấn luyện $\to$ API cho cả ba schema LOC/FP/UCP trong một hệ thống duy nhất.
+    \item \textbf{Chuẩn hóa dữ liệu đa nguồn:} Phương pháp luận chuẩn hóa đơn vị, xử lý outlier (IQR), log-transform có thể tái sử dụng cho nghiên cứu tương lai.
+    \item \textbf{So sánh thực nghiệm:} Đánh giá 3 thuật toán ML (LR, DT, RF) trên 3 schema với cùng bộ metric -- cung cấp baseline cho nghiên cứu tiếp theo.
+    \item \textbf{Hệ thống thực tiễn:} Insightimate là web application có thể deploy thực tế, không chỉ là nghiên cứu lý thuyết.
+  \end{enumerate}
+}
+
+\Q{Hạn chế của đề tài là gì? Nhóm sẽ cải thiện như thế nào?}{%
+  \textbf{Hạn chế hiện tại:}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Dataset FP (24 mẫu) và UCP còn nhỏ -- ảnh hưởng độ tin cậy mô hình.
+    \item Chưa xử lý yếu tố con người (năng suất cá nhân, kinh nghiệm team).
+    \item Chưa tích hợp risk analysis và Monte Carlo simulation.
+    \item Chưa hỗ trợ Agile story points.
+  \end{itemize}
+
+  \textbf{Hướng cải thiện:}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Thu thập thêm dữ liệu FP/UCP từ ISBSG, cộng đồng học thuật.
+    \item Tích hợp thêm LSTM cho dữ liệu time-series (effort theo sprint).
+    \item Transfer learning: Dùng mô hình LOC (nhiều dữ liệu) để khởi tạo trọng số cho FP/UCP.
+    \item Mở rộng schema thứ 4: Story Points (Agile).
+    \item Tích hợp Monte Carlo simulation cho khoảng tin cậy ước lượng.
+  \end{itemize}
+}
+
+\Q{Tại sao đề tài có giá trị thực tiễn cho doanh nghiệp Việt Nam?}{%
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item \textbf{Thiếu công cụ ước lượng Việt hóa:} Hầu hết công cụ COCOMO II hiện có là tiếng Anh, không phù hợp với quy trình quản lý dự án Việt Nam.
+    \item \textbf{SME phổ biến:} 90\% doanh nghiệp IT Việt Nam là SME (Small-Medium Enterprise) -- không có đủ nguồn lực thuê chuyên gia ước lượng chi phí.
+    \item \textbf{Tiết kiệm chi phí overrun:} Theo Standish Chaos Report, 52\% dự án phần mềm vượt ngân sách -- công cụ ước lượng tốt hơn giảm rủi ro này.
+    \item \textbf{Ba schema đa dạng:} Hỗ trợ cả dự án truyền thống (LOC, FP) lẫn OOP/UML (UCP) -- phù hợp nhiều loại dự án.
+  \end{itemize}
+}
+
+\Q{Nếu dataset FP chỉ có 24 mẫu, kết quả mô hình có đáng tin không?}{%
+  Đây là \textbf{câu hỏi quan trọng và trung thực}:
+
+  \textbf{Trả lời thành thật:}
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Với 24 mẫu, kết quả có \textit{giá trị tham khảo} chứ chưa đạt mức \textit{sản xuất}.
+    \item Nhóm sử dụng Leave-One-Out (LOO) cross-validation thay vì split thông thường để tận dụng tối đa dữ liệu.
+    \item Confidence interval của các metric khá rộng -- nhóm trình bày cả khoảng dao động, không chỉ điểm trung bình.
+    \item Kết quả vẫn có giá trị khoa học: thiết lập \textbf{baseline} để các nghiên cứu sau cải thiện khi có thêm dữ liệu.
+  \end{itemize}
+
+  \begin{notebox}
+    \textbf{Lưu ý:} Đây là câu hỏi mà hội đồng gần như chắc chắn sẽ hỏi. Hãy trả lời thẳng thắn và tự tin, không né tránh.
+  \end{notebox}
+}
+
+\Q{Tại sao dùng log1p mà không dùng Box-Cox transform hay Yeo-Johnson?}{%
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    \textbf{Transform} & \textbf{Ưu điểm} & \textbf{Nhược điểm} \\
+    \midrule
+    \textbf{log1p} & Đơn giản, $x \geq 0$ OK, liên kết trực tiếp COCOMO & Cố định tham số \\
+    Box-Cox & Tối ưu tham số $\lambda$ & Yêu cầu $x > 0$, phức tạp hơn \\
+    Yeo-Johnson & Hỗ trợ cả $x < 0$ & Phức tạp, khó giải thích \\
+    \bottomrule
+  \end{tabular}
+
+  \textbf{Lý do chọn log1p:} Giá trị LOC, Effort, FP, UCP luôn $\geq 0$; log1p an toàn với $x=0$; kết nối trực tiếp với lý thuyết COCOMO II ($\text{Effort} = A \cdot \text{Size}^E$) -- giải thích được về mặt lý thuyết.
+}
+
+% =========================================================
+\section{NHÓM 7 -- Câu hỏi khó / Bẫy từ hội đồng}
+
+\Q{Mô hình của nhóm có tốt hơn COCOMO II thuần không? Bằng chứng?}{%
+  \textbf{Câu trả lời có cấu trúc:}
+  \begin{enumerate}[leftmargin=2em, topsep=2pt]
+    \item Mô hình COCOMO II thuần sử dụng hệ số $A$ và $E$ cố định từ dữ liệu lịch sử toàn cầu -- không hiệu chỉnh theo tổ chức/domain cụ thể.
+    \item ML model của nhóm \textbf{học} từ dữ liệu thực tế -- tự hiệu chỉnh tham số.
+    \item Theo nghiên cứu (Jørgensen \& Shepperd, 2007): ML-based models thường giảm MMRE 15--30\% so với COCOMO II thuần trên cùng dataset.
+    \item Nhóm so sánh trực tiếp: chạy COCOMO II với tham số mặc định và RF model trên cùng test set -- RF đạt MMRE thấp hơn.
+  \end{enumerate}
+}
+
+\Q{Nếu dữ liệu train và test đến từ cùng một nguồn, kết quả có bị overfitting không?}{%
+  \textbf{Rủi ro có thật.} Nhóm giảm thiểu bằng:
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Thêm cột \texttt{source} và thực hiện \textbf{LOSO cross-validation} (Leave-One-Source-Out): model train trên tất cả nguồn trừ một, test trên nguồn còn lại.
+    \item LOSO kiểm tra khả năng tổng quát hóa sang dữ liệu từ tổ chức hoàn toàn mới.
+    \item Kết quả LOSO so sánh với $k$-fold để phát hiện nếu có data leakage.
+  \end{itemize}
+}
+
+\Q{Scatter plot cho thấy mối quan hệ phi tuyến -- tại sao Linear Regression vẫn được giữ?}{%
+  Linear Regression được giữ làm \textbf{baseline} (điểm chuẩn):
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Cung cấp kết quả so sánh ``tối thiểu'' -- nếu RF không tốt hơn LR, có vấn đề trong quy trình.
+    \item Trong không gian log-log, quan hệ Effort--Size trở thành tuyến tính $\to$ LR trên log-transformed data là xấp xỉ COCOMO tuyến tính.
+    \item LR interpretable hoàn toàn: hệ số hồi quy tương ứng trực tiếp với tham số COCOMO $A$ và $E$.
+  \end{itemize}
+}
+
+\Q{Làm sao đảm bảo hệ thống không bị ``garbage in, garbage out'' khi user nhập sai?}{%
+  Nhóm xây dựng \textbf{validation layer} ở API:
+  \begin{itemize}[leftmargin=1.5em, topsep=2pt]
+    \item Kiểm tra kiểu dữ liệu và range hợp lệ (LOC $>$ 0, Effort $>$ 0).
+    \item Cảnh báo nếu giá trị đầu vào nằm ngoài phạm vi training data (extrapolation warning).
+    \item Yêu cầu chọn schema rõ ràng trước khi dự đoán.
+    \item Log đầu vào để audit và cải thiện mô hình theo thời gian.
+  \end{itemize}
+}
+
+% =========================================================
+\vspace{10pt}
+\hrule
+\vspace{6pt}
+
+\begin{center}
+  \begin{mdframed}[backgroundcolor=bgNote, linecolor=notecolor, linewidth=1pt]
+    \centering
+    \textbf{\color{notecolor} TÓM TẮT CÁC ĐIỂM CẦN NHỚ KHI BẢO VỆ}\\[6pt]
+    \begin{tabular}{@{}ll@{}}
+      $\checkmark$ & COCOMO II: $\text{Effort} = A \times \text{Size}^E \times \prod EM_i$ \\
+      $\checkmark$ & Ba schema: LOC (947 mẫu), FP (24 mẫu), UCP \\
+      $\checkmark$ & IQR: clip(Q1-1.5*IQR, Q3+1.5*IQR) -- giữ số lượng mẫu \\
+      $\checkmark$ & log1p vì: an toàn với 0, liên kết COCOMO lý thuyết \\
+      $\checkmark$ & Random Forest $>$ Deep Learning: dataset nhỏ, cần interpretability \\
+      $\checkmark$ & LOSO CV để kiểm tra tổng quát hóa qua nguồn dữ liệu \\
+      $\checkmark$ & FP ít mẫu $\to$ kết quả tham khảo, trình bày confidence interval \\
+      $\checkmark$ & Hướng tương lai: Story Points, LSTM, Transfer Learning, MCP \\
+    \end{tabular}
+  \end{mdframed}
+\end{center}
+
+\end{document}

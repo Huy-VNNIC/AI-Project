@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Analysis Results · AI Test Case Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #f6f3ee;
+  --bg-soft: #faf7f2;
+  --card: #ffffff;
+  --border: #ece7df;
+  --border-strong: #d9d2c5;
+  --text: #1c1c1f;
+  --text-muted: #7d7a73;
+  --text-dim: #a8a39a;
+  --accent: #e0533d;
+  --accent-soft: #fbe9e4;
+  --accent-hover: #c9402c;
+  --success: #28a76f;
+  --success-soft: #d8f1e3;
+  --danger: #d94a4a;
+  --danger-soft: #fadcdc;
+  --warning: #e8a93c;
+  --warning-soft: #fdecd0;
+  --info: #4f7fb3;
+  --info-soft: #dde9f6;
+  --purple: #8b6bd9;
+  --purple-soft: #e9e1f9;
+  --shadow-sm: 0 1px 2px rgba(28, 28, 31, 0.04), 0 1px 1px rgba(28, 28, 31, 0.02);
+  --shadow: 0 4px 14px rgba(28, 28, 31, 0.05), 0 1px 2px rgba(28, 28, 31, 0.03);
+  --shadow-lg: 0 12px 32px rgba(28, 28, 31, 0.08);
+  --radius: 16px;
+  --radius-lg: 20px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; font-size: 14px; }
+
+/* ─── Sticky top header ────────────────────────────── */
+.app-header {
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(8px);
+  background: rgba(246, 243, 238, 0.85);
+  border-bottom: 1px solid var(--border);
+}
+.app-header-inner {
+  max-width: 1480px; margin: 0 auto;
+  padding: 22px 32px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 24px;
+}
+.app-title { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+.app-title .crumb { color: var(--text-muted); font-weight: 500; font-size: 13px; display: block; margin-bottom: 2px; }
+.header-actions { display: flex; gap: 10px; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border-radius: 12px;
+  font-weight: 600; font-size: 13.5px;
+  transition: all 160ms ease;
+  border: 1px solid transparent;
+}
+.btn i { font-size: 15px; }
+.btn-ghost { background: var(--card); border-color: var(--border); color: var(--text); box-shadow: var(--shadow-sm); }
+.btn-ghost:hover { border-color: var(--border-strong); }
+.btn-primary { background: var(--accent); color: white; box-shadow: 0 4px 12px rgba(224, 83, 61, 0.25); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-icon { padding: 8px 10px; border-radius: 10px; }
+
+/* ─── Tab navigation ───────────────────────────────── */
+.tabs {
+  max-width: 1480px; margin: 0 auto;
+  padding: 0 32px;
+  display: flex; gap: 6px; align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  padding: 12px 14px; font-size: 13.5px; font-weight: 500;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  display: inline-flex; align-items: center; gap: 7px;
+  margin-bottom: -1px;
+  transition: color 140ms;
+}
+.tab i { font-size: 15px; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.tab-count {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 11px; padding: 1px 7px; border-radius: 999px;
+  font-weight: 600; color: var(--text-muted);
+}
+.tab.active .tab-count { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+
+/* ─── Layout container ─────────────────────────────── */
+.app-main {
+  max-width: 1480px; margin: 0 auto;
+  padding: 24px 32px 64px;
+}
+
+/* ─── KPI cards ────────────────────────────────────── */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.kpi-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 160ms, box-shadow 160ms;
+}
+.kpi-card:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.kpi-value { font-size: 36px; font-weight: 700; color: var(--accent); letter-spacing: -0.02em; line-height: 1.05; }
+.kpi-label { font-size: 12.5px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
+.kpi-trend { font-size: 11.5px; margin-top: 8px; color: var(--success); font-weight: 600; }
+.kpi-trend.muted { color: var(--text-dim); }
+
+/* ─── Two-column workspace ─────────────────────────── */
+.workspace { display: grid; grid-template-columns: 1fr 1.25fr; gap: 18px; align-items: start; }
+
+/* ─── Cards ───────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.card-header h3 { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.card-header .meta { font-size: 12px; color: var(--text-muted); }
+.card-body { padding: 16px 20px; }
+
+/* ─── Filter bar (sticky) ──────────────────────────── */
+.filter-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.search-input {
+  flex: 1; min-width: 220px; position: relative;
+}
+.search-input i {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--text-dim); font-size: 14px;
+}
+.search-input input {
+  width: 100%; padding: 9px 12px 9px 36px;
+  border: 1px solid var(--border);
+  border-radius: 10px; outline: none;
+  background: var(--bg-soft);
+  transition: border-color 140ms, background 140ms;
+}
+.search-input input:focus { border-color: var(--accent); background: white; }
+.filter-select {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 12px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg-soft);
+  font-size: 13px; color: var(--text); cursor: pointer;
+  font-weight: 500;
+}
+.filter-select select {
+  border: none; background: transparent; font-weight: 600;
+  outline: none; cursor: pointer; padding-right: 6px;
+}
+.density-toggle {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 11px; border-radius: 10px; border: 1px solid var(--border);
+  font-size: 12.5px; font-weight: 500; color: var(--text-muted);
+}
+.density-toggle:hover { border-color: var(--border-strong); color: var(--text); }
+.density-toggle.active { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+/* ─── Requirements accordion ───────────────────────── */
+.req-list { display: flex; flex-direction: column; gap: 8px; }
+.req-list > .req-row { flex: 0 0 auto; }
+.req-row {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: border-color 140ms, box-shadow 140ms;
+  overflow: hidden;
+}
+.req-row:hover { border-color: var(--border-strong); }
+.req-row.expanded { box-shadow: var(--shadow); border-color: var(--accent); }
+.req-row-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  align-items: start;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.req-row-main {
+  display: flex; flex-direction: column; gap: 6px; min-width: 0;
+}
+.req-row-top {
+  display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; min-width: 0;
+  overflow: hidden;
+}
+.req-id {
+  font-size: 11.5px; font-weight: 700;
+  color: var(--text-muted); letter-spacing: 0.02em;
+  font-family: 'Inter', monospace;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.req-title-block { min-width: 0; flex: 1 1 0; overflow: hidden; }
+.req-title {
+  display: block;
+  font-size: 13.5px; font-weight: 500; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  min-width: 0; max-width: 100%;
+}
+.req-meta {
+  font-size: 11.5px; color: var(--text-muted);
+  display: flex; gap: 18px; flex-wrap: wrap;
+  padding-left: 0;
+}
+.req-meta span { white-space: nowrap; }
+.req-meta span strong { color: var(--text); font-weight: 600; }
+.req-coverage { display: flex; align-items: center; gap: 8px; min-width: 110px; }
+.progress {
+  width: 80px; height: 6px;
+  background: var(--bg); border-radius: 999px; overflow: hidden;
+  position: relative;
+}
+.progress-bar { height: 100%; border-radius: 999px; background: var(--success); transition: width 240ms; }
+.progress-pct { font-size: 11px; font-weight: 600; color: var(--text-muted); min-width: 32px; }
+
+.priority-badge {
+  display: inline-block; padding: 3px 9px;
+  font-size: 10.5px; font-weight: 700;
+  border-radius: 999px; text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.priority-critical { background: var(--danger-soft); color: var(--danger); }
+.priority-high     { background: var(--warning-soft); color: #b27418; }
+.priority-medium   { background: var(--info-soft); color: var(--info); }
+.priority-low      { background: var(--bg); color: var(--text-muted); }
+
+.req-row-detail {
+  display: none;
+  border-top: 1px solid var(--border);
+  background: var(--bg-soft);
+  padding: 14px 18px;
+}
+.req-row.expanded .req-row-detail { display: block; }
+.req-row-detail h4 { font-size: 12px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.06em; }
+
+.tc-mini-list { display: flex; flex-direction: column; gap: 6px; }
+.tc-mini {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+.tc-mini:hover { border-color: var(--accent); background: white; }
+.tc-mini-id { font-weight: 600; color: var(--text-muted); font-size: 11.5px; min-width: 90px; }
+.tc-mini-title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ─── Status pills (test types) ────────────────────── */
+.pill {
+  display: inline-block; padding: 3px 10px;
+  font-size: 11px; font-weight: 600;
+  border-radius: 999px;
+}
+.pill-happy_path  { background: var(--success-soft); color: var(--success); }
+.pill-negative    { background: var(--danger-soft);  color: var(--danger); }
+.pill-boundary    { background: var(--warning-soft); color: #b27418; }
+.pill-security    { background: var(--purple-soft);  color: var(--purple); }
+.pill-performance { background: var(--info-soft);    color: var(--info); }
+.pill-integration { background: #e2efe2; color: #35795a; }
+.pill-data_integrity { background: #f0e8d8; color: #8a6c1f; }
+.pill-edge_case   { background: #f3e5dc; color: #a3553f; }
+.pill-others      { background: var(--bg); color: var(--text-muted); }
+
+/* ─── Right column widgets ─────────────────────────── */
+.widget-row { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.donut-wrap { display: flex; align-items: center; gap: 14px; }
+.donut-wrap canvas { max-width: 130px; max-height: 130px; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.donut-legend-row {
+  display: grid; grid-template-columns: 14px 1fr auto; gap: 10px;
+  align-items: center; font-size: 12.5px;
+}
+.donut-legend-row .dot { width: 10px; height: 10px; border-radius: 50%; }
+.donut-legend-row .name { color: var(--text); font-weight: 500; }
+.donut-legend-row .val { color: var(--text-muted); font-weight: 600; font-size: 12px; }
+.donut-center-stat {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.donut-center-stat .num { font-size: 22px; font-weight: 700; }
+.donut-center-stat .lbl { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.donut-host { position: relative; width: 130px; height: 130px; }
+
+.priority-rank { display: flex; flex-direction: column; gap: 10px; }
+.priority-rank-row {
+  display: grid; grid-template-columns: 12px 1fr auto auto; gap: 10px;
+  align-items: center; font-size: 12.5px;
+}
+.priority-rank-row .dot { width: 9px; height: 9px; border-radius: 50%; }
+.priority-rank-row .pct { font-weight: 600; color: var(--text); }
+.priority-rank-row .cnt { color: var(--text-muted); font-size: 11.5px; min-width: 38px; text-align: right; }
+
+/* ─── Recent test cases data table ─────────────────── */
+.tc-table-wrap { overflow-x: auto; }
+table.tc-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.tc-table thead th {
+  text-align: left; padding: 10px 14px;
+  font-size: 11px; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 600; letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+table.tc-table tbody td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+table.tc-table tbody tr { transition: background 100ms; }
+table.tc-table tbody tr:hover { background: var(--bg-soft); cursor: pointer; }
+table.tc-table tbody tr:last-child td { border-bottom: none; }
+.tc-id-cell { font-family: 'Inter', monospace; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.tc-conf-cell {
+  display: inline-flex; align-items: center; gap: 6px; font-weight: 600;
+}
+.tc-conf-bar {
+  width: 38px; height: 4px; background: var(--bg);
+  border-radius: 999px; overflow: hidden;
+}
+.tc-conf-bar-fill { height: 100%; background: var(--success); border-radius: 999px; }
+
+/* ─── Coverage matrix heatmap ──────────────────────── */
+.heatmap { width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 12px; }
+.heatmap th, .heatmap td {
+  text-align: center; padding: 8px 6px;
+  border-radius: 8px;
+}
+.heatmap thead th {
+  font-size: 11px; color: var(--text-muted); font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  background: transparent; padding: 4px 6px 8px;
+}
+.heatmap tbody th { font-weight: 600; color: var(--text-muted); text-align: left; padding-left: 0; }
+.heat-cell { font-weight: 600; transition: transform 120ms; }
+.heat-cell:hover { transform: scale(1.07); cursor: pointer; }
+.heat-0 { background: var(--bg); color: var(--text-dim); }
+.heat-1 { background: #fdecd0; color: #b27418; }
+.heat-2 { background: #fadcdc; color: var(--danger); }
+.heat-3 { background: #d8f1e3; color: var(--success); }
+
+/* ─── Confidence bar chart wrap ────────────────────── */
+.chart-host { position: relative; height: 200px; }
+
+/* ─── Slide-over detail panel ──────────────────────── */
+.slideover-backdrop {
+  position: fixed; inset: 0; background: rgba(28,28,31,0.32);
+  opacity: 0; pointer-events: none; transition: opacity 200ms;
+  z-index: 80;
+}
+.slideover {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 540px; max-width: 96vw;
+  background: var(--card);
+  box-shadow: -16px 0 40px rgba(28,28,31,0.18);
+  transform: translateX(100%);
+  transition: transform 240ms cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 90;
+  display: flex; flex-direction: column;
+}
+.slideover.open { transform: translateX(0); }
+.slideover-backdrop.open { opacity: 1; pointer-events: all; }
+.slideover-header {
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 14px;
+}
+.slideover-header h3 { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.slideover-header .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.slideover-body { padding: 20px 22px; overflow-y: auto; flex: 1; }
+.slideover-body section { margin-bottom: 22px; }
+.slideover-body h4 { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px; }
+.slideover-body .step {
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 12px; margin-bottom: 8px; font-size: 13px;
+  background: var(--bg-soft);
+}
+.slideover-body .step .num { font-weight: 700; color: var(--accent); margin-right: 6px; }
+.slideover-body .step .expected { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+.slideover-close {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+}
+.slideover-close:hover { background: var(--bg-soft); color: var(--text); }
+
+/* ─── Empty / loading / upload zone ────────────────── */
+.upload-zone {
+  background: var(--card); border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-lg); padding: 40px 32px;
+  text-align: center; max-width: 720px; margin: 32px auto;
+}
+.upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: var(--accent-soft); }
+.upload-zone i { font-size: 38px; color: var(--accent); margin-bottom: 10px; }
+.upload-zone h2 { font-size: 18px; margin-bottom: 8px; font-weight: 700; }
+.upload-zone p { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+.upload-zone input[type=file] { display: none; }
+
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid var(--accent-soft); border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 800ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  padding: 10px 16px; border-radius: 10px;
+  background: var(--text); color: white; font-size: 13px;
+  box-shadow: var(--shadow-lg);
+  opacity: 0; transition: opacity 200ms, transform 200ms;
+  z-index: 100;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+/* ─── Help tooltip badge ───────────────────────── */
+.help-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px;
+  font-size: 10px; font-weight: 700;
+  border-radius: 50%;
+  background: var(--bg); color: var(--text-muted);
+  border: 1px solid var(--border);
+  margin-left: 6px; cursor: help;
+  position: relative;
+}
+.help-badge:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.help-badge:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 6px); right: -8px;
+  width: 280px; padding: 10px 12px; border-radius: 10px;
+  background: var(--text); color: white;
+  font-size: 11.5px; font-weight: 400; line-height: 1.5;
+  white-space: normal; text-align: left;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+}
+
+
+.virtual-list-host {
+  max-height: 540px;
+  overflow-y: auto;
+}
+
+/* ─── Hover preview tooltip ────────────────────────── */
+.hover-preview {
+  position: fixed;
+  background: var(--text); color: white;
+  font-size: 12px; line-height: 1.55;
+  padding: 10px 12px; border-radius: 10px;
+  max-width: 320px;
+  pointer-events: none;
+  opacity: 0; transform: translateY(4px);
+  transition: opacity 140ms, transform 140ms;
+  z-index: 60;
+  box-shadow: var(--shadow-lg);
+}
+.hover-preview.show { opacity: 0.96; transform: translateY(0); }
+.hover-preview .ttl { font-weight: 600; margin-bottom: 4px; }
+.hover-preview .desc { opacity: 0.85; }
+
+/* ─── Compact density mode ─────────────────────────── */
+body.density-compact .req-row-summary { padding: 7px 12px; }
+body.density-compact .req-meta { font-size: 11px; gap: 10px; }
+body.density-compact table.tc-table tbody td { padding: 6px 12px; font-size: 12.5px; }
+body.density-compact .kpi-card { padding: 14px 16px; }
+body.density-compact .kpi-value { font-size: 28px; }
+body.density-compact .card-body { padding: 12px 16px; }
+
+/* ─── Responsive ───────────────────────────────────── */
+@media (max-width: 1180px) {
+  .workspace { grid-template-columns: 1fr; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .widget-row { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .app-header-inner, .tabs, .app-main { padding-left: 16px; padding-right: 16px; }
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .req-row-summary { grid-template-columns: minmax(0, 1fr); }
+  .req-row-summary .req-coverage { justify-content: flex-end; padding-top: 4px; }
+}
+
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ════════ Sticky header ═══════════════════════════ -->
+<header class="app-header">
+  <div class="app-header-inner">
+    <div>
+      <span class="app-title crumb">AI Test Case Workspace</span>
+      <h1 class="app-title">Analysis Results</h1>
+    </div>
+    <div class="header-actions">
+      <div style="position: relative;">
+        <button class="btn btn-ghost" id="exportBtn">
+          <i class="bi bi-download"></i> Export <i class="bi bi-chevron-down" style="font-size: 10px;"></i>
+        </button>
+        <div id="exportMenu" hidden style="position:absolute; right:0; top: calc(100% + 6px); background: var(--card); border:1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-lg); min-width: 200px; padding: 6px; z-index: 30;">
+          <button class="export-opt" data-fmt="json" style="width:100%; text-align:left; padding: 9px 12px; border-radius: 8px; font-size:13px; display:flex; gap:8px; align-items:center;"><i class="bi bi-filetype-json"></i> JSON</button>
+          <button class="export-opt" data-fmt="csv"  style="width:100%; text-align:left; padding: 9px 12px; border-radius: 8px; font-size:13px; display:flex; gap:8px; align-items:center;"><i class="bi bi-filetype-csv"></i> CSV</button>
+          <button class="export-opt" data-fmt="pdf"  style="width:100%; text-align:left; padding: 9px 12px; border-radius: 8px; font-size:13px; display:flex; gap:8px; align-items:center;"><i class="bi bi-filetype-pdf"></i> PDF Report</button>
+        </div>
+      </div>
+      <button class="btn btn-primary" id="newAnalysisBtn">
+        <i class="bi bi-stars"></i> New Analysis
+      </button>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="overview"><i class="bi bi-grid-1x2"></i> Overview</button>
+    <button class="tab" data-tab="testcases"><i class="bi bi-card-checklist"></i> Test Cases <span class="tab-count" id="tabCountTC">0</span></button>
+    <button class="tab" data-tab="requirements"><i class="bi bi-list-ul"></i> Requirements <span class="tab-count" id="tabCountREQ">0</span></button>
+    <button class="tab" data-tab="coverage"><i class="bi bi-bullseye"></i> Coverage</button>
+    <button class="tab" data-tab="analytics"><i class="bi bi-graph-up"></i> Analytics</button>
+  </nav>
+</header>
+
+<main class="app-main">
+
+  <!-- ════════ Empty state / upload ══════════════════ -->
+  <section id="emptyState">
+    <div class="upload-zone" id="uploadZone">
+      <i class="bi bi-cloud-arrow-up"></i>
+      <h2>Drop a requirements file to start</h2>
+      <p>Supports TXT, CSV, MD, DOCX. Vietnamese and English are both detected automatically.</p>
+      <input type="file" id="fileInput" accept=".txt,.csv,.md,.markdown,.docx">
+      <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+        <i class="bi bi-folder2-open"></i> Choose file
+      </button>
+      <p style="margin-top: 16px; font-size:12px;">
+        Or paste raw requirements:
+      </p>
+      <textarea id="pasteInput" placeholder="One requirement per line…"
+        style="width:100%; margin-top:10px; min-height:120px; padding:12px; border:1px solid var(--border); border-radius:12px; outline:none; resize:vertical; background: var(--bg-soft); font-family: inherit;"></textarea>
+      <button class="btn btn-ghost" id="pasteSubmit" style="margin-top:10px;">
+        <i class="bi bi-magic"></i> Analyze pasted text
+      </button>
+    </div>
+  </section>
+
+  <!-- ════════ Loading state ════════════════════════ -->
+  <section id="loadingState" hidden style="text-align:center; padding: 80px 0;">
+    <div class="spinner" style="margin: 0 auto 16px;"></div>
+    <div style="color: var(--text-muted); font-weight: 500;">Analyzing requirements with NLP pipeline…</div>
+  </section>
+
+  <!-- ════════ Dashboard ═══════════════════════════ -->
+  <section id="dashboard" hidden>
+
+    <!-- KPI row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpiReq">0</div>
+        <div class="kpi-label">Requirements Analyzed</div>
+        <div class="kpi-trend muted" id="kpiReqTrend">From uploaded file</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpiTC">0</div>
+        <div class="kpi-label">Test Cases Generated</div>
+        <div class="kpi-trend" id="kpiTCTrend">+0 happy · +0 negative</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpiConf">0%</div>
+        <div class="kpi-label">Avg NLP Confidence</div>
+        <div class="kpi-trend muted" id="kpiConfTrend">spaCy + rule-based</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-value" id="kpiEffort">0h</div>
+        <div class="kpi-label">Total Estimated Effort</div>
+        <div class="kpi-trend muted" id="kpiEffortTrend">Manual execution</div>
+      </div>
+    </div>
+
+    <!-- ═══ Two-column workspace ═══ -->
+    <div class="workspace">
+
+      <!-- ══ LEFT — Requirements panel ══ -->
+      <div>
+        <div class="filter-bar">
+          <div class="search-input">
+            <i class="bi bi-search"></i>
+            <input type="text" id="searchInput" placeholder="Search requirements or test cases…">
+          </div>
+          <div class="filter-select">
+            <span style="color: var(--text-muted); font-size:12px;">Priority:</span>
+            <select id="filterPriority">
+              <option value="">All</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="filter-select">
+            <span style="color: var(--text-muted); font-size:12px;">Confidence:</span>
+            <select id="filterConfidence">
+              <option value="">All</option>
+              <option value="80">≥ 80%</option>
+              <option value="60">≥ 60%</option>
+              <option value="40">≥ 40%</option>
+              <option value="0-40">&lt; 40%</option>
+            </select>
+          </div>
+          <div class="filter-select">
+            <span style="color: var(--text-muted); font-size:12px;">Type:</span>
+            <select id="filterType">
+              <option value="">All</option>
+              <option value="happy_path">Happy Path</option>
+              <option value="negative">Negative</option>
+              <option value="boundary">Boundary</option>
+              <option value="security">Security</option>
+              <option value="performance">Performance</option>
+              <option value="integration">Integration</option>
+              <option value="data_integrity">Data Integrity</option>
+              <option value="edge_case">Edge Case</option>
+            </select>
+          </div>
+          <button class="density-toggle" id="densityToggle" title="Compact density">
+            <i class="bi bi-arrows-collapse"></i> Compact
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Requirements <span style="color: var(--text-muted); font-weight: 500;" id="reqCountLabel">(0)</span></h3>
+            <div class="meta">
+              <span style="color: var(--text-muted); font-size: 12px;">Sort by:</span>
+              <select id="sortBy" style="border:none; outline:none; background: transparent; font-weight: 600; font-size: 12.5px; color: var(--text); cursor: pointer;">
+                <option value="priority">Priority</option>
+                <option value="confidence">Confidence</option>
+                <option value="testcount">Test count</option>
+                <option value="id">ID</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 14px 16px;">
+            <div id="reqList" class="req-list virtual-list-host"></div>
+            <div id="reqEmpty" hidden style="text-align:center; padding: 24px; color: var(--text-muted); font-size: 13px;">
+              <i class="bi bi-search" style="font-size: 22px;"></i><br>No requirements match the current filters.
+            </div>
+            <div id="loadMoreWrap" style="text-align:center; padding-top: 10px;">
+              <button class="btn btn-ghost" id="loadMoreBtn" hidden>
+                <i class="bi bi-arrow-down-circle"></i> View all <span id="loadMoreCount"></span> requirements →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ RIGHT — Analytics + preview ══ -->
+      <div>
+
+        <!-- Top widgets row -->
+        <div class="widget-row">
+          <div class="card">
+            <div class="card-header">
+              <h3>Test Case Summary</h3>
+              <span class="meta" id="summaryTotal">0 total</span>
+            </div>
+            <div class="card-body">
+              <div class="donut-wrap">
+                <div class="donut-host">
+                  <canvas id="donutChart"></canvas>
+                  <div class="donut-center-stat">
+                    <div class="num" id="donutCenter">0</div>
+                    <div class="lbl">Total</div>
+                  </div>
+                </div>
+                <div class="donut-legend" id="donutLegend"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Execution Priority</h3>
+              <span class="meta" id="priorityMeta">By risk</span>
+            </div>
+            <div class="card-body">
+              <div class="priority-rank" id="priorityRank"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent test cases table -->
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="card-header">
+            <h3>Recent Test Cases</h3>
+            <a href="#" class="meta" id="viewAllTC" style="color: var(--accent); font-weight:600; text-decoration:none;">View all test cases →</a>
+          </div>
+          <div class="tc-table-wrap">
+            <table class="tc-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Test Case</th>
+                  <th>Requirement</th>
+                  <th>Type</th>
+                  <th>Priority</th>
+                  <th>Confidence</th>
+                </tr>
+              </thead>
+              <tbody id="recentTCBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bottom: coverage matrix + confidence chart -->
+        <div class="widget-row">
+          <div class="card">
+            <div class="card-header">
+            <h3>Coverage Matrix
+              <span class="help-badge" data-tip="Heatmap of test cases per requirement × type. Coverage % = 0.6·(types_covered/4) + 0.3·min(total/5,1) + 0.1·avg_confidence. Showing 10 weakest requirements first so you can prioritize gaps.">?</span>
+            </h3>
+            <span class="meta">Per requirement × type</span>
+          </div>
+            <div class="card-body" style="overflow-x:auto;">
+              <table class="heatmap" id="coverageMatrix"></table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+            <h3>Confidence Distribution
+              <span class="help-badge" data-tip="Histogram of test cases grouped by AI confidence band. Cases in the 0–40% bands likely need manual review; 60–100% are safe to automate. Helps QA prioritise human verification effort.">?</span>
+            </h3>
+            <span class="meta">Test cases per band</span>
+          </div>
+            <div class="card-body">
+              <div class="chart-host">
+                <canvas id="confChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ All Test Cases panel ═══════════════════ -->
+  <section id="allTcPanel" hidden style="margin-top: 24px;">
+    <div class="card">
+      <div class="card-header" style="position: sticky; top: 0; background: var(--card); z-index: 5;">
+        <h3>All Test Cases <span style="color: var(--text-muted); font-weight:500;" id="allTcTotal">(0)</span></h3>
+        <div style="display:flex; gap: 10px; align-items: center;">
+          <div class="search-input" style="flex: 0 0 240px;">
+            <i class="bi bi-search"></i>
+            <input id="allTcSearch" type="text" placeholder="Search test cases…" style="width:100%; padding: 7px 10px 7px 32px; border:1px solid var(--border); border-radius: 8px; background: var(--bg-soft); outline:none; font-size:13px;">
+          </div>
+          <button class="btn btn-ghost" id="allTcClose"><i class="bi bi-arrow-left"></i> Back to Overview</button>
+        </div>
+      </div>
+      <div class="tc-table-wrap" style="max-height: 70vh; overflow-y: auto;">
+        <table class="tc-table">
+          <thead style="position: sticky; top: 0; z-index: 2; background: var(--bg-soft);">
+            <tr>
+              <th style="width:130px;">Test Case ID</th>
+              <th>Title</th>
+              <th style="width:110px;">Requirement</th>
+              <th style="width:140px;">Type</th>
+              <th style="width:100px;">Priority</th>
+              <th style="width:110px;">Confidence</th>
+            </tr>
+          </thead>
+          <tbody id="allTcBody"></tbody>
+        </table>
+      </div>
+      <div style="padding: 12px 18px; display:flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border);">
+        <span style="font-size:12.5px; color: var(--text-muted);" id="allTcPageInfo">—</span>
+        <div style="display:flex; gap:6px;">
+          <button class="btn btn-ghost" id="allTcPrev"><i class="bi bi-chevron-left"></i> Prev</button>
+          <button class="btn btn-ghost" id="allTcNext">Next <i class="bi bi-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ════════ Slide-over: TC details ═══════════════════ -->
+<div class="slideover-backdrop" id="slBackdrop"></div>
+<aside class="slideover" id="slideover" aria-hidden="true">
+  <div class="slideover-header">
+    <div>
+      <h3 id="slTitle">Test Case</h3>
+      <div class="sub" id="slSub"></div>
+    </div>
+    <button class="slideover-close" id="slClose" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <div class="slideover-body" id="slBody"></div>
+</aside>
+
+<!-- Hover preview tooltip -->
+<div class="hover-preview" id="hoverPreview"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  State
+// ═══════════════════════════════════════════════════════
+const state = {
+  data: null,                  // raw API response
+  lastFile: null,              // File object reused for PDF export
+  filteredReqs: [],            // requirements after search/filter
+  filters: { search: '', priority: '', confidence: '', type: '' },
+  sortBy: 'priority',
+  expanded: new Set(),
+  reqLimit: 5,                 // initially shown rows; "View all" reveals rest
+  showAllReq: false,
+  density: 'comfortable',
+  donutChart: null,
+  confChart: null,
+};
+
+const TYPE_COLORS = {
+  happy_path:     '#28a76f',
+  negative:       '#d94a4a',
+  boundary:       '#e8a93c',
+  security:       '#8b6bd9',
+  performance:    '#4f7fb3',
+  integration:    '#35795a',
+  data_integrity: '#8a6c1f',
+  edge_case:      '#a3553f',
+  others:         '#a8a39a',
+};
+const TYPE_LABELS = {
+  happy_path: 'Happy Path',
+  negative: 'Negative',
+  boundary: 'Boundary',
+  security: 'Security',
+  performance: 'Performance',
+  integration: 'Integration',
+  data_integrity: 'Data Integrity',
+  edge_case: 'Edge Case',
+  others: 'Others',
+};
+const PRIORITY_RANK = { critical: 0, high: 1, medium: 2, low: 3 };
+const PRIORITY_LABELS = { critical: 'P0 · Critical', high: 'P1 · High', medium: 'P2 · Medium', low: 'P3 · Low' };
+const PRIORITY_COLORS = { critical: '#d94a4a', high: '#e8a93c', medium: '#4f7fb3', low: '#a8a39a' };
+
+// ═══════════════════════════════════════════════════════
+//  Boot
+// ═══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  bindUI();
+  bindAllTC();
+  // If sessionStorage has cached results, render directly
+  const cached = sessionStorage.getItem('analysisResults');
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      // Drop stale caches that still carry the generator's REQ-GEN-001 IDs
+      const firstId = (parsed?.detailed?.[0]?.requirement_id) || '';
+      if (/^REQ-GEN-/i.test(firstId)) {
+        sessionStorage.removeItem('analysisResults');
+      } else {
+        ingest(parsed);
+      }
+    } catch (e) { console.warn(e); }
+  }
+});
+
+function bindUI() {
+  // Upload zone
+  const zone = document.getElementById('uploadZone');
+  const file = document.getElementById('fileInput');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag');
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+  });
+  file.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+  document.getElementById('pasteSubmit').addEventListener('click', () => {
+    const text = document.getElementById('pasteInput').value.trim();
+    if (!text) return toast('Paste at least one requirement first');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const f = new File([blob], 'pasted-requirements.txt', { type: 'text/plain' });
+    handleFile(f);
+  });
+
+  // Header actions
+  document.getElementById('newAnalysisBtn').addEventListener('click', resetView);
+  document.getElementById('exportBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('exportMenu').toggleAttribute('hidden');
+  });
+  document.addEventListener('click', () => document.getElementById('exportMenu').setAttribute('hidden', ''));
+  document.querySelectorAll('.export-opt').forEach(b => b.addEventListener('click', e => doExport(e.currentTarget.dataset.fmt)));
+
+  // Tabs
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+  // Filters
+  ['searchInput', 'filterPriority', 'filterConfidence', 'filterType', 'sortBy'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', () => {
+      state.filters.search     = document.getElementById('searchInput').value.toLowerCase();
+      state.filters.priority   = document.getElementById('filterPriority').value;
+      state.filters.confidence = document.getElementById('filterConfidence').value;
+      state.filters.type       = document.getElementById('filterType').value;
+      state.sortBy             = document.getElementById('sortBy').value;
+      renderRequirements();
+      renderRecentTC();
+    });
+  });
+
+  // Density
+  document.getElementById('densityToggle').addEventListener('click', () => {
+    state.density = state.density === 'compact' ? 'comfortable' : 'compact';
+    document.body.classList.toggle('density-compact', state.density === 'compact');
+    document.getElementById('densityToggle').classList.toggle('active', state.density === 'compact');
+  });
+
+  // Slide-over close
+  document.getElementById('slClose').addEventListener('click', closeSlideover);
+  document.getElementById('slBackdrop').addEventListener('click', closeSlideover);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSlideover(); });
+
+  // View all
+  document.getElementById('loadMoreBtn').addEventListener('click', () => {
+    state.showAllReq = true;
+    renderRequirements();
+  });
+  document.getElementById('viewAllTC').addEventListener('click', e => {
+    e.preventDefault();
+    switchTab('testcases');
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  Upload + analyze
+// ═══════════════════════════════════════════════════════
+async function handleFile(file) {
+  state.lastFile = file;
+  document.getElementById('emptyState').hidden = true;
+  document.getElementById('dashboard').hidden = true;
+  document.getElementById('loadingState').hidden = false;
+
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const res = await fetch('/api/v3/test-generation/analyze-file-detailed', { method: 'POST', body: fd });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.status !== 'success') throw new Error(data.message || 'Generation failed');
+    sessionStorage.setItem('analysisResults', JSON.stringify(data));
+    ingest(data);
+  } catch (err) {
+    document.getElementById('loadingState').hidden = true;
+    document.getElementById('emptyState').hidden = false;
+    toast('Analysis failed: ' + err.message);
+  }
+}
+
+function resetView() {
+  sessionStorage.removeItem('analysisResults');
+  state.data = null;
+  state.expanded.clear();
+  state.showAllReq = false;
+  document.getElementById('dashboard').hidden = true;
+  document.getElementById('loadingState').hidden = true;
+  document.getElementById('emptyState').hidden = false;
+  document.getElementById('pasteInput').value = '';
+  document.getElementById('fileInput').value = '';
+}
+
+// ═══════════════════════════════════════════════════════
+//  Ingest API payload → render
+// ═══════════════════════════════════════════════════════
+function ingest(data) {
+  state.data = data;
+  document.getElementById('emptyState').hidden = true;
+  document.getElementById('loadingState').hidden = true;
+  document.getElementById('dashboard').hidden = false;
+
+  // Derive test types per requirement (priority best-of)
+  data.detailed.forEach(req => {
+    req._priority = derivePriority(req);
+    req._allTC = req.test_cases || [];
+  });
+
+  renderKPI();
+  renderRequirements();
+  renderTestSummary();
+  renderPriorityRank();
+  renderRecentTC();
+  renderCoverageMatrix();
+  renderConfidenceChart();
+
+  document.getElementById('tabCountTC').textContent  = data.total_test_cases_generated || 0;
+  document.getElementById('tabCountREQ').textContent = data.total_requirements_analyzed || 0;
+  document.getElementById('reqCountLabel').textContent = `(${data.total_requirements_analyzed || 0})`;
+}
+
+// ─── Priority derivation ─────────────────────────────
+function derivePriority(req) {
+  // Use highest priority among test cases, default to req confidence-based
+  const order = ['critical', 'high', 'medium', 'low'];
+  let best = 'low';
+  for (const tc of req.test_cases || []) {
+    const p = (tc.priority || 'low').toLowerCase();
+    if (order.indexOf(p) >= 0 && order.indexOf(p) < order.indexOf(best)) best = p;
+  }
+  if ((req.test_cases || []).length === 0) {
+    const c = req.nlp_confidence || 0;
+    if (c >= 0.75) best = 'critical';
+    else if (c >= 0.65) best = 'high';
+    else if (c >= 0.5) best = 'medium';
+    else best = 'low';
+  }
+  return best;
+}
+
+// ═══════════════════════════════════════════════════════
+//  KPI
+// ═══════════════════════════════════════════════════════
+function renderKPI() {
+  const d = state.data;
+  document.getElementById('kpiReq').textContent  = d.total_requirements_analyzed || 0;
+  document.getElementById('kpiTC').textContent   = d.total_test_cases_generated || 0;
+  document.getElementById('kpiConf').textContent = ((d.avg_nlp_confidence || 0) * 100).toFixed(1) + '%';
+
+  // Effort = 15min/test default
+  const effort = ((d.total_test_cases_generated || 0) * 0.25).toFixed(1);
+  document.getElementById('kpiEffort').textContent = effort + 'h';
+
+  const types = d.quality_metrics?.test_cases_by_type || {};
+  document.getElementById('kpiTCTrend').textContent =
+    `${types.happy_path || 0} happy · ${types.negative || 0} negative · ${types.boundary || 0} boundary`;
+  document.getElementById('kpiReqTrend').textContent =
+    d.filename ? `From ${d.filename}` : 'From uploaded file';
+  document.getElementById('kpiConfTrend').textContent =
+    d.quality_metrics?.nlp_engine || 'spaCy + rule-based';
+  document.getElementById('kpiEffortTrend').textContent =
+    `~15 min × ${d.total_test_cases_generated || 0} cases`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  Requirements list
+// ═══════════════════════════════════════════════════════
+function renderRequirements() {
+  const list = document.getElementById('reqList');
+  const empty = document.getElementById('reqEmpty');
+  list.innerHTML = '';
+
+  let reqs = state.data.detailed.slice();
+  // Filter
+  reqs = reqs.filter(r => {
+    if (state.filters.search) {
+      const q = state.filters.search;
+      const hay = (r.requirement + ' ' + r.requirement_id + ' ' +
+                   (r.test_cases || []).map(t => t.title).join(' ')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (state.filters.priority && r._priority !== state.filters.priority) return false;
+    if (state.filters.confidence) {
+      const c = (r.nlp_confidence || 0) * 100;
+      if (state.filters.confidence === '0-40') { if (c >= 40) return false; }
+      else { if (c < parseInt(state.filters.confidence, 10)) return false; }
+    }
+    if (state.filters.type) {
+      const has = (r.test_cases || []).some(t => t.type === state.filters.type);
+      if (!has) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  reqs.sort((a, b) => {
+    switch (state.sortBy) {
+      case 'priority':   return PRIORITY_RANK[a._priority] - PRIORITY_RANK[b._priority];
+      case 'confidence': return (b.nlp_confidence || 0) - (a.nlp_confidence || 0);
+      case 'testcount':  return (b.test_cases_count || 0) - (a.test_cases_count || 0);
+      default:           return (a.requirement_id || '').localeCompare(b.requirement_id || '');
+    }
+  });
+
+  state.filteredReqs = reqs;
+  empty.hidden = reqs.length > 0;
+
+  // Pagination
+  const limit = state.showAllReq ? reqs.length : Math.min(state.reqLimit, reqs.length);
+  const moreBtn = document.getElementById('loadMoreBtn');
+  if (reqs.length > state.reqLimit && !state.showAllReq) {
+    moreBtn.hidden = false;
+    document.getElementById('loadMoreCount').textContent = reqs.length;
+  } else {
+    moreBtn.hidden = true;
+  }
+
+  for (let i = 0; i < limit; i++) {
+    list.appendChild(buildReqRow(reqs[i]));
+  }
+}
+
+function buildReqRow(req) {
+  const row = document.createElement('div');
+  row.className = 'req-row' + (state.expanded.has(req.requirement_id) ? ' expanded' : '');
+  row.dataset.reqId = req.requirement_id;
+  const conf = ((req.nlp_confidence || 0) * 100).toFixed(1);
+  const tcCount = req.test_cases_count || (req.test_cases ? req.test_cases.length : 0);
+  const coverage = computeCoverage(req);
+  const reqText = (req.requirement || '').trim() || '(no description)';
+  const reqId   = req.requirement_id || `REQ-${req.index || '?'}`;
+
+  row.innerHTML = `
+    <div class="req-row-summary">
+      <div class="req-row-main">
+        <div class="req-row-top">
+          <span class="req-id">${escapeHtml(reqId)}</span>
+          <span class="priority-badge priority-${req._priority}">${req._priority}</span>
+          <span class="req-title-block">
+            <span class="req-title" title="${escapeHtml(reqText)}">${escapeHtml(reqText)}</span>
+          </span>
+        </div>
+        <div class="req-meta">
+          <span>NLP Confidence: <strong>${conf}%</strong></span>
+          <span>Test Cases: <strong>${tcCount}</strong></span>
+          <span>Words: <strong>${req.word_count || 0}</strong></span>
+          <span>Chars: <strong>${req.character_count || 0}</strong></span>
+        </div>
+      </div>
+      <div class="req-coverage">
+        <div class="progress"><div class="progress-bar" style="width:${coverage}%"></div></div>
+        <div class="progress-pct">${coverage}%</div>
+        <i class="bi bi-chevron-down chev" style="color:var(--text-dim); font-size:13px; margin-left:6px; transition: transform 160ms;"></i>
+      </div>
+    </div>
+    <div class="req-row-detail">
+      <h4>Test cases (${(req.test_cases || []).length})</h4>
+      <div class="tc-mini-list"></div>
+    </div>
+  `;
+
+  const cont = row.querySelector('.tc-mini-list');
+  (req.test_cases || []).forEach(tc => {
+    const mini = document.createElement('div');
+    mini.className = 'tc-mini';
+    mini.innerHTML = `
+      <div class="tc-mini-id">${escapeHtml(tc.id || '')}</div>
+      <div class="tc-mini-title">${escapeHtml(tc.title || '')}</div>
+      <span class="pill pill-${tc.type || 'others'}">${TYPE_LABELS[tc.type] || tc.type}</span>
+      <span class="priority-badge priority-${(tc.priority || 'medium').toLowerCase()}" style="font-size:10px;">${tc.priority || ''}</span>
+    `;
+    mini.addEventListener('click', e => { e.stopPropagation(); openSlideover(tc, req); });
+    mini.addEventListener('mouseenter', e => showHover(e, tc));
+    mini.addEventListener('mouseleave', hideHover);
+    cont.appendChild(mini);
+  });
+
+  // Toggle in-place — no full re-render so scroll position is preserved
+  row.querySelector('.req-row-summary').addEventListener('click', () => {
+    const id = req.requirement_id;
+    if (state.expanded.has(id)) state.expanded.delete(id);
+    else state.expanded.add(id);
+    row.classList.toggle('expanded');
+    const chev = row.querySelector('.chev');
+    chev.style.transform = row.classList.contains('expanded') ? 'rotate(180deg)' : '';
+  });
+  if (state.expanded.has(req.requirement_id)) {
+    row.querySelector('.chev').style.transform = 'rotate(180deg)';
+  }
+  return row;
+}
+
+// ═══════════════════════════════════════════════════════
+//  Right-side widgets
+// ═══════════════════════════════════════════════════════
+function renderTestSummary() {
+  const types = state.data.quality_metrics?.test_cases_by_type || {};
+  // Group rare types into "others"
+  const top = ['happy_path', 'negative', 'boundary'];
+  const grouped = { happy_path: 0, negative: 0, boundary: 0, others: 0 };
+  for (const [k, v] of Object.entries(types)) {
+    if (top.includes(k)) grouped[k] = v;
+    else grouped.others += v;
+  }
+  const total = Object.values(grouped).reduce((a, b) => a + b, 0);
+  document.getElementById('summaryTotal').textContent = total + ' total';
+  document.getElementById('donutCenter').textContent = total;
+
+  // Donut chart
+  const ctx = document.getElementById('donutChart');
+  if (state.donutChart) state.donutChart.destroy();
+  const labels = Object.keys(grouped).filter(k => grouped[k] > 0);
+  state.donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: labels.map(k => grouped[k]),
+        backgroundColor: labels.map(k => TYPE_COLORS[k]),
+        borderWidth: 0,
+      }],
+    },
+    options: {
+      cutout: '72%',
+      plugins: { legend: { display: false }, tooltip: { enabled: true } },
+      maintainAspectRatio: false,
+    },
+  });
+
+  // Legend
+  const legend = document.getElementById('donutLegend');
+  legend.innerHTML = '';
+  labels.forEach(k => {
+    const v = grouped[k];
+    const pct = total ? ((v / total) * 100).toFixed(1) : '0.0';
+    const el = document.createElement('div');
+    el.className = 'donut-legend-row';
+    el.innerHTML = `
+      <span class="dot" style="background:${TYPE_COLORS[k]}"></span>
+      <span class="name">${TYPE_LABELS[k]}</span>
+      <span class="val">${v} (${pct}%)</span>`;
+    legend.appendChild(el);
+  });
+}
+
+function renderPriorityRank() {
+  const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+  let total = 0;
+  state.data.detailed.forEach(req => {
+    (req.test_cases || []).forEach(tc => {
+      const p = (tc.priority || 'medium').toLowerCase();
+      if (counts.hasOwnProperty(p)) counts[p]++;
+      total++;
+    });
+  });
+  const cont = document.getElementById('priorityRank');
+  cont.innerHTML = '';
+  ['critical', 'high', 'medium', 'low'].forEach(p => {
+    const v = counts[p];
+    const pct = total ? ((v / total) * 100).toFixed(1) : '0.0';
+    const row = document.createElement('div');
+    row.className = 'priority-rank-row';
+    row.innerHTML = `
+      <span class="dot" style="background:${PRIORITY_COLORS[p]}"></span>
+      <span style="color: var(--text); font-weight: 500;">${PRIORITY_LABELS[p]}</span>
+      <span class="pct">${v}</span>
+      <span class="cnt">(${pct}%)</span>`;
+    cont.appendChild(row);
+  });
+}
+
+function renderRecentTC() {
+  const tbody = document.getElementById('recentTCBody');
+  tbody.innerHTML = '';
+  // Flatten + sort by confidence desc, take top 8
+  const all = [];
+  state.data.detailed.forEach(req => {
+    (req.test_cases || []).forEach(tc => all.push({ ...tc, _req: req }));
+  });
+  // Apply same filters as left panel
+  const filtered = all.filter(tc => {
+    if (state.filters.type && tc.type !== state.filters.type) return false;
+    if (state.filters.priority && (tc.priority || '').toLowerCase() !== state.filters.priority) return false;
+    if (state.filters.confidence) {
+      const c = (tc.confidence || 0) * 100;
+      if (state.filters.confidence === '0-40') { if (c >= 40) return false; }
+      else { if (c < parseInt(state.filters.confidence, 10)) return false; }
+    }
+    if (state.filters.search) {
+      const q = state.filters.search;
+      const hay = (tc.title + ' ' + tc.id + ' ' + tc._req.requirement).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  filtered.sort((a, b) => (b.confidence || 0) - (a.confidence || 0));
+  filtered.slice(0, 8).forEach(tc => {
+    const conf = ((tc.confidence || 0) * 100).toFixed(0);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="tc-id-cell">${escapeHtml(tc.id || '')}</td>
+      <td>${escapeHtml(tc.title || '')}</td>
+      <td class="tc-id-cell">${escapeHtml(tc._req.requirement_id || '')}</td>
+      <td><span class="pill pill-${tc.type || 'others'}">${TYPE_LABELS[tc.type] || tc.type}</span></td>
+      <td><span class="priority-badge priority-${(tc.priority || 'medium').toLowerCase()}">${tc.priority || ''}</span></td>
+      <td>
+        <span class="tc-conf-cell">
+          <span class="tc-conf-bar"><span class="tc-conf-bar-fill" style="width:${conf}%"></span></span>
+          ${conf}%
+        </span>
+      </td>`;
+    tr.addEventListener('click', () => openSlideover(tc, tc._req));
+    tr.addEventListener('mouseenter', e => showHover(e, tc));
+    tr.addEventListener('mouseleave', hideHover);
+    tbody.appendChild(tr);
+  });
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 24px; color: var(--text-muted);">No matching test cases</td></tr>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  Coverage matrix heatmap
+// ═══════════════════════════════════════════════════════
+// Weighted coverage score:
+//   60% — type diversity  (how many of the 4 test categories are present)
+//   30% — volume          (total TC count vs target of 5)
+//   10% — average NLP confidence of the test cases
+// This formula rewards balanced test design, not just bulk count.
+function computeCoverage(req) {
+  const tcs = req.test_cases || [];
+  if (tcs.length === 0) return 0;
+  const types = new Set();
+  let confSum = 0;
+  tcs.forEach(tc => {
+    const t = (tc.type || 'others').toLowerCase();
+    if (['happy_path', 'negative', 'boundary'].includes(t)) types.add(t);
+    else types.add('others');
+    confSum += (tc.confidence || 0);
+  });
+  const diversity = types.size / 4;                       // 0..1
+  const volume    = Math.min(tcs.length / 5, 1);          // 0..1
+  const avgConf   = confSum / tcs.length;                 // 0..1
+  const score = 0.6 * diversity + 0.3 * volume + 0.1 * avgConf;
+  return Math.round(score * 100);
+}
+
+function renderCoverageMatrix() {
+  const cols = ['happy_path', 'negative', 'boundary', 'others'];
+  const colLabels = ['Happy Path', 'Negative', 'Boundary', 'Others'];
+  const tbl = document.getElementById('coverageMatrix');
+  let html = '<thead><tr><th></th>';
+  colLabels.forEach(c => html += `<th>${c}</th>`);
+  html += `<th>Total</th><th>Coverage</th></tr></thead><tbody>`;
+
+  const reqs = state.data.detailed.slice().sort((a, b) => computeCoverage(a) - computeCoverage(b)).slice(0, 10);
+  reqs.forEach(req => {
+    const counts = { happy_path: 0, negative: 0, boundary: 0, others: 0 };
+    (req.test_cases || []).forEach(tc => {
+      if (cols.slice(0, 3).includes(tc.type)) counts[tc.type]++;
+      else counts.others++;
+    });
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    const cov = computeCoverage(req);
+    html += `<tr><th>${escapeHtml(req.requirement_id || '')}</th>`;
+    cols.forEach(c => {
+      const v = counts[c];
+      const heat = v === 0 ? 'heat-0' : (v === 1 ? 'heat-1' : (v === 2 ? 'heat-2' : 'heat-3'));
+      html += `<td class="heat-cell ${heat}">${v}</td>`;
+    });
+    html += `<td style="font-weight:600;">${total}</td>
+             <td><div style="display:flex; align-items:center; gap:6px; justify-content:center;">
+               <div class="progress" style="width:50px;"><div class="progress-bar" style="width:${cov}%"></div></div>
+               <span style="font-size:11px; color:var(--text-muted); font-weight:600;">${cov}%</span>
+             </div></td></tr>`;
+  });
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════
+//  Confidence distribution
+// ═══════════════════════════════════════════════════════
+function renderConfidenceChart() {
+  const buckets = [0, 0, 0, 0, 0]; // 0-20, 20-40, 40-60, 60-80, 80-100
+  state.data.detailed.forEach(req => {
+    (req.test_cases || []).forEach(tc => {
+      const c = (tc.confidence || 0) * 100;
+      const idx = Math.min(4, Math.floor(c / 20));
+      buckets[idx]++;
+    });
+  });
+  const ctx = document.getElementById('confChart');
+  if (state.confChart) state.confChart.destroy();
+  state.confChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['0–20%', '20–40%', '40–60%', '60–80%', '80–100%'],
+      datasets: [{
+        data: buckets,
+        backgroundColor: ['#d94a4a', '#e8a93c', '#f1c150', '#7fc59c', '#28a76f'],
+        borderRadius: 6,
+        borderSkipped: false,
+        barThickness: 26,
+      }],
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#7d7a73', font: { size: 11 } } },
+        y: { beginAtZero: true, grid: { color: '#ece7df' }, ticks: { color: '#7d7a73', font: { size: 11 }, precision: 0 } },
+      },
+    },
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  Slide-over
+// ═══════════════════════════════════════════════════════
+function openSlideover(tc, req) {
+  document.getElementById('slTitle').textContent = tc.title || tc.id;
+  document.getElementById('slSub').innerHTML =
+    `<span class="tc-id-cell">${escapeHtml(tc.id || '')}</span> · ${escapeHtml(req.requirement_id || '')} · ` +
+    `<span class="pill pill-${tc.type}">${TYPE_LABELS[tc.type] || tc.type}</span> · ` +
+    `<span class="priority-badge priority-${(tc.priority || 'medium').toLowerCase()}">${tc.priority || ''}</span>`;
+
+  const body = document.getElementById('slBody');
+  let h = '';
+  h += `<section><h4>Description</h4><div style="font-size:13px; line-height:1.6;">${escapeHtml(tc.description || '—')}</div></section>`;
+
+  if (tc.preconditions && tc.preconditions.length) {
+    h += `<section><h4>Preconditions</h4><ul style="padding-left:18px; font-size:13px; line-height:1.7;">`;
+    tc.preconditions.forEach(p => h += `<li>${escapeHtml(p)}</li>`);
+    h += `</ul></section>`;
+  }
+
+  if (tc.test_data && Object.keys(tc.test_data).length) {
+    h += `<section><h4>Test data</h4><pre style="font-family: 'JetBrains Mono', monospace; font-size:12px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; padding: 10px; overflow-x:auto;">${escapeHtml(JSON.stringify(tc.test_data, null, 2))}</pre></section>`;
+  }
+
+  h += `<section><h4>Steps (${(tc.steps || []).length})</h4>`;
+  (tc.steps || []).forEach((s, i) => {
+    h += `<div class="step"><span class="num">${s.order || i+1}.</span>${escapeHtml(s.action || '')}<div class="expected">↳ ${escapeHtml(s.expected_result || '')}</div></div>`;
+  });
+  h += `</section>`;
+
+  h += `<section><h4>Expected result</h4><div style="font-size:13px; line-height:1.6; padding: 10px 12px; background: var(--success-soft); border-radius: 10px; color: #1f6147;">${escapeHtml(tc.expected_result || '—')}</div></section>`;
+
+  if (tc.why_generated) {
+    h += `<section><h4>Why generated</h4><div style="font-size:13px; color: var(--text-muted); line-height: 1.6;">${escapeHtml(tc.why_generated)}</div></section>`;
+  }
+
+  body.innerHTML = h;
+  document.getElementById('slBackdrop').classList.add('open');
+  document.getElementById('slideover').classList.add('open');
+  document.getElementById('slideover').setAttribute('aria-hidden', 'false');
+}
+function closeSlideover() {
+  document.getElementById('slBackdrop').classList.remove('open');
+  document.getElementById('slideover').classList.remove('open');
+  document.getElementById('slideover').setAttribute('aria-hidden', 'true');
+}
+
+// ═══════════════════════════════════════════════════════
+//  Hover preview
+// ═══════════════════════════════════════════════════════
+let hoverTimer = null;
+function showHover(e, tc) {
+  clearTimeout(hoverTimer);
+  hoverTimer = setTimeout(() => {
+    const el = document.getElementById('hoverPreview');
+    el.innerHTML = `
+      <div class="ttl">${escapeHtml(tc.title || tc.id || '')}</div>
+      <div class="desc">${escapeHtml((tc.description || '').slice(0, 200))}${(tc.description || '').length > 200 ? '…' : ''}</div>`;
+    el.style.left = Math.min(window.innerWidth - 340, e.clientX + 14) + 'px';
+    el.style.top  = Math.min(window.innerHeight - 120, e.clientY + 14) + 'px';
+    el.classList.add('show');
+  }, 220);
+}
+function hideHover() {
+  clearTimeout(hoverTimer);
+  document.getElementById('hoverPreview').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════
+//  Tabs (in-page filter shortcuts)
+// ═══════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  const allTc = document.getElementById('allTcPanel');
+  const dash  = document.getElementById('dashboard');
+  if (name === 'testcases')   { dash.hidden = true;  allTc.hidden = false; renderAllTC(); window.scrollTo({top:0, behavior:'smooth'}); return; }
+  // any other tab: ensure dashboard is shown
+  dash.hidden = false; allTc.hidden = true;
+  if (name === 'requirements'){ state.showAllReq = true; renderRequirements(); document.getElementById('reqList').scrollIntoView({behavior:'smooth', block:'start'}); }
+  if (name === 'coverage')    { document.getElementById('coverageMatrix').scrollIntoView({behavior:'smooth', block:'center'}); }
+  if (name === 'analytics')   { document.getElementById('confChart').scrollIntoView({behavior:'smooth', block:'center'}); }
+  if (name === 'overview')    { window.scrollTo({top:0, behavior:'smooth'}); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  All Test Cases panel
+// ═══════════════════════════════════════════════════════
+const ALL_TC_PAGE_SIZE = 25;
+let allTcPage = 1;
+let allTcSearch = '';
+
+function bindAllTC() {
+  document.getElementById('allTcClose').addEventListener('click', () => switchTab('overview'));
+  document.getElementById('allTcSearch').addEventListener('input', e => {
+    allTcSearch = e.target.value.toLowerCase();
+    allTcPage = 1;
+    renderAllTC();
+  });
+  document.getElementById('allTcPrev').addEventListener('click', () => {
+    if (allTcPage > 1) { allTcPage--; renderAllTC(); }
+  });
+  document.getElementById('allTcNext').addEventListener('click', () => {
+    allTcPage++; renderAllTC();
+  });
+}
+
+function renderAllTC() {
+  if (!state.data) return;
+  const all = [];
+  state.data.detailed.forEach(req => {
+    (req.test_cases || []).forEach(tc => all.push({ ...tc, _req: req }));
+  });
+  // Apply filters from main bar + own search
+  const filtered = all.filter(tc => {
+    if (state.filters.type && tc.type !== state.filters.type) return false;
+    if (state.filters.priority && (tc.priority || '').toLowerCase() !== state.filters.priority) return false;
+    if (state.filters.confidence) {
+      const c = (tc.confidence || 0) * 100;
+      if (state.filters.confidence === '0-40') { if (c >= 40) return false; }
+      else { if (c < parseInt(state.filters.confidence, 10)) return false; }
+    }
+    const q = allTcSearch || state.filters.search;
+    if (q) {
+      const hay = (tc.title + ' ' + tc.id + ' ' + tc._req.requirement_id + ' ' + tc._req.requirement).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / ALL_TC_PAGE_SIZE));
+  if (allTcPage > totalPages) allTcPage = totalPages;
+  const start = (allTcPage - 1) * ALL_TC_PAGE_SIZE;
+  const slice = filtered.slice(start, start + ALL_TC_PAGE_SIZE);
+
+  document.getElementById('allTcTotal').textContent = `(${total})`;
+  document.getElementById('allTcPageInfo').textContent =
+    total === 0 ? 'No matches' : `Showing ${start + 1}–${Math.min(start + ALL_TC_PAGE_SIZE, total)} of ${total}`;
+  document.getElementById('allTcPrev').disabled = allTcPage <= 1;
+  document.getElementById('allTcNext').disabled = allTcPage >= totalPages;
+
+  const body = document.getElementById('allTcBody');
+  body.innerHTML = '';
+  if (slice.length === 0) {
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:32px; color: var(--text-muted);">No matching test cases. Try clearing filters.</td></tr>`;
+    return;
+  }
+  slice.forEach(tc => {
+    const conf = ((tc.confidence || 0) * 100).toFixed(0);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="tc-id-cell">${escapeHtml(tc.id || '')}</td>
+      <td>${escapeHtml(tc.title || '')}</td>
+      <td class="tc-id-cell">${escapeHtml(tc._req.requirement_id || '')}</td>
+      <td><span class="pill pill-${tc.type || 'others'}">${TYPE_LABELS[tc.type] || tc.type}</span></td>
+      <td><span class="priority-badge priority-${(tc.priority || 'medium').toLowerCase()}">${tc.priority || ''}</span></td>
+      <td>
+        <span class="tc-conf-cell">
+          <span class="tc-conf-bar"><span class="tc-conf-bar-fill" style="width:${conf}%"></span></span>
+          ${conf}%
+        </span>
+      </td>`;
+    tr.addEventListener('click', () => openSlideover(tc, tc._req));
+    tr.addEventListener('mouseenter', e => showHover(e, tc));
+    tr.addEventListener('mouseleave', hideHover);
+    body.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  Export
+// ═══════════════════════════════════════════════════════
+async function doExport(fmt) {
+  if (!state.data) return toast('Nothing to export yet');
+  document.getElementById('exportMenu').setAttribute('hidden', '');
+
+  if (fmt === 'json') {
+    download(JSON.stringify(state.data, null, 2), 'analysis.json', 'application/json');
+    return;
+  }
+  if (fmt === 'csv') {
+    const rows = [['TestCaseID','RequirementID','Title','Type','Priority','Confidence']];
+    state.data.detailed.forEach(req => (req.test_cases||[]).forEach(tc => {
+      rows.push([tc.id, req.requirement_id, '"' + (tc.title || '').replace(/"/g, '""') + '"', tc.type, tc.priority, tc.confidence]);
+    }));
+    download(rows.map(r => r.join(',')).join('\n'), 'test_cases.csv', 'text/csv');
+    return;
+  }
+  if (fmt === 'pdf') {
+    if (!state.lastFile) {
+      toast('PDF export requires re-uploading the source file in this session');
+      return;
+    }
+    toast('Generating PDF…');
+    try {
+      const fd = new FormData();
+      fd.append('file', state.lastFile);
+      const res = await fetch('/api/v3/test-generation/export-pdf-report', {
+        method: 'POST',
+        body: fd,
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'analysis_report.pdf'; a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      toast('PDF export failed: ' + e.message);
+    }
+  }
+}
+function download(text, name, mime) {
+  const blob = new Blob([text], { type: mime });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  Helpers
+// ═══════════════════════════════════════════════════════
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,695 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[vietnamese]{babel}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{tikz}
+
+\geometry{
+    margin=1in,
+    headheight=15pt,
+    headsep=0.3in,
+    footskip=0.3in
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Phân Tích Test Case}
+\lhead{Hệ Thống Quản Lý Khách Sạn}
+\cfoot{\thepage}
+
+\title{\textbf{BÁO CÁO PHÂN TÍCH NGHIỆP VỤ VÀ SINH THÀNH TEST CASE}\\
+\large{Hệ Thống Quản Lý Khách Sạn Toàn Diện}}
+\author{AI Test Case Generator v3}
+\date{\today}
+
+\definecolor{darkblue}{rgb}{0.0, 0.2, 0.4}
+\definecolor{lightblue}{rgb}{0.8, 0.9, 1.0}
+\definecolor{lightgreen}{rgb}{0.8, 1.0, 0.8}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+% ============================================================================
+\section{TỔNG QUAN HỆ THỐNG}
+% ============================================================================
+
+\subsection{Giới Thiệu}
+
+Báo cáo này trình bày chi tiết quá trình phân tích 48 yêu cầu nghiệp vụ và sinh thành 294 test case để kiểm thử hệ thống quản lý khách sạn. Hệ thống sử dụng \textbf{AI Test Case Generator v3} kết hợp với phân tích NLP (Natural Language Processing) để tự động tạo các test case chất lượng cao.
+
+\subsection{Kết Quả Tổng Quan}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Chỉ Số} & \textbf{Giá Trị} \\
+\hline
+Số Yêu Cầu Được Phân Tích & 48 \\
+Tổng Test Case Sinh Thành & 294 \\
+Độ Tin Cậy NLP Trung Bình & 89.9\% \\
+Test Case Trung Bình / Yêu Cầu & 6.1 \\
+Loại Test Case & 5 \\
+Mức Độ Ưu Tiên & 3 \\
+\hline
+\end{tabular}
+\caption{Thống kê tổng hợp}
+\end{table}
+
+\newpage
+
+% ============================================================================
+\section{QUY TRÌNH PHÂN TÍCH YÊUÊU CẦU}
+% ============================================================================
+
+\subsection{Bước 1: Đọc Và Phân Tích Yêu Cầu}
+
+Hệ thống bắt đầu bằng việc đọc các yêu cầu từ tệp nhập (TXT, CSV, MD, hoặc DOCX).
+
+\textbf{Ví dụ Yêu Cầu 1:}
+\begin{quote}
+\textit{``Hệ thống phải cho phép đặt phòng mới với các thông tin: loại phòng, ngày check-in, ngày check-out, thông tin khách hàng''}
+\end{quote}
+
+\subsection{Bước 2: Phân Tích NLP}
+
+Hệ thống sử dụng mô hình NLP để:
+\begin{itemize}
+    \item \textbf{Trích xuất Thực thể (Entity Extraction)}: Xác định các thành phần chính
+    \begin{itemize}
+        \item Chủ thể: ``Hệ thống''
+        \item Hành động: ``cho phép đặt phòng''
+        \item Đối tượng: ``phòng mới''
+        \item Thông tin: ``loại phòng, ngày check-in, ngày check-out, khách hàng''
+    \end{itemize}
+    
+    \item \textbf{Xác định Độ Phức Tạp}: 
+    \begin{itemize}
+        \item Số từ: 22
+        \item Số ký tự: 119
+        \item Số thực thể: 3
+    \end{itemize}
+    
+    \item \textbf{Tính Độ Tin Cậy NLP}:
+    \begin{equation}
+    \text{Confidence}_{\text{NLP}} = \frac{\text{Entities Found}}{\text{Expected Entities}} \times 100\%
+    \end{equation}
+    Kết quả: \textbf{89.8\%}
+\end{itemize}
+
+\subsection{Bước 3: Phân Loại Yêu Cầu}
+
+Hệ thống phân loại yêu cầu theo:
+\begin{itemize}
+    \item \textbf{Loại Yêu Cầu}: Chức năng, Bảo mật, Hiệu suất, Tích hợp
+    \item \textbf{Lĩnh Vực}: Đặt phòng, Thanh toán, Báo cáo, Bảo mật
+    \item \textbf{Độ Phức Tạp}: Thấp, Trung bình, Cao
+\end{itemize}
+
+\newpage
+
+% ============================================================================
+\section{SINH THÀNH TEST CASE}
+% ============================================================================
+
+\subsection{Chiến Lược Sinh Thành Test Case}
+
+Hệ thống sử dụng \textbf{5 loại test case} được sinh thành tự động:
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.8}
+\begin{tabular}{|l|p{5cm}|c|c|}
+\hline
+\textbf{Loại} & \textbf{Mô Tả} & \textbf{Độ Ưu Tiên} & \textbf{\% Phân Bố} \\
+\hline
+Happy Path & Kịch bản thành công, luồng chính & CRITICAL & 20\% \\
+Negative & Kiểm thử lỗi, dữ liệu không hợp lệ & HIGH & 35\% \\
+Equivalence Partition & Phân vùng dữ liệu tương đương & MEDIUM & 35\% \\
+State Transition & Chuyển đổi trạng thái & HIGH & 5\% \\
+Boundary Value & Giá trị ranh giới & HIGH & 5\% \\
+\hline
+\end{tabular}
+\caption{Các loại test case}
+\end{table}
+
+\subsection{Ví Dụ Chi Tiết: Yêu Cầu 1}
+
+\textbf{Yêu Cầu Gốc:}
+\begin{quote}
+``Hệ thống phải cho phép đặt phòng mới với các thông tin: loại phòng, ngày check-in, ngày check-out, thông tin khách hàng''
+\end{quote}
+
+\subsubsection{Test Case 1: Happy Path (TC-GEN-HAPPY-001)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Thuộc Tính} & \textbf{Giá Trị} \\
+\hline
+ID & TC-GEN-HAPPY-001 \\
+Loại & Happy Path (Luồng Chính) \\
+Ưu Tiên & CRITICAL \\
+Độ Tin Cậy & 95.0\% \\
+Effort & 1.0 giờ \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Mục Tiêu:}
+Xác minh rằng khách hàng có thể thành công đặt phòng với tất cả thông tin bắt buộc.
+
+\textbf{Điều Kiện Tiên Quyết:}
+\begin{itemize}
+    \item Khách hàng đã đăng nhập
+    \item Khách hàng có quyền đặt phòng
+    \item Dữ liệu hợp lệ tồn tại
+    \item Không có xung đột dữ liệu
+\end{itemize}
+
+\textbf{Dữ Liệu Kiểm Thử:}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Khóa} & \textbf{Giá Trị} \\
+\hline
+Loại Phòng & Suite Hạng Sang \\
+Ngày Check-in & 2024-04-15 \\
+Ngày Check-out & 2024-04-18 \\
+Tên Khách & Nguyễn Văn A \\
+Email & nguyena@example.com \\
+Số Điện Thoại & 0909123456 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Các Bước Kiểm Thử:}
+\begin{enumerate}
+    \item Khách hàng truy cập giao diện đặt phòng
+    \item Chọn loại phòng từ danh sách
+    \item Nhập ngày check-in
+    \item Nhập ngày check-out
+    \item Nhập thông tin khách hàng (tên, email, SDT)
+    \item Nhấn nút ``Đặt Phòng''
+\end{enumerate}
+
+\textbf{Kết Quả Mong Đợi:}
+\begin{itemize}
+    \item ✓ Thông báo thành công hiển thị
+    \item ✓ Phòng xuất hiện trong danh sách đặt phòng
+    \item ✓ Dữ liệu lưu trong cơ sở dữ liệu
+    \item ✓ Ghi lại log kiểm toán
+\end{itemize}
+
+\subsubsection{Test Case 2: Negative - Missing Required Field (TC-GEN-NEG-001)}
+
+\textbf{Loại:} Negative (Kiểm Thử Lỗi)
+
+\textbf{Mục Tiêu:}
+Xác minh hệ thống xử lý lỗi khi thiếu trường bắt buộc.
+
+\textbf{Dữ Liệu:}
+\begin{itemize}
+    \item Loại Phòng: \textit{(trống)}
+    \item Ngày Check-in: 2024-04-15
+    \item Ngày Check-out: 2024-04-18
+    \item Thông tin Khách: Đầy đủ
+\end{itemize}
+
+\textbf{Kết Quả Mong Đợi:}
+\begin{itemize}
+    \item ✓ Thông báo lỗi: ``Vui lòng chọn loại phòng''
+    \item ✓ Trường Loại Phòng được highlight
+    \item ✓ Không thực hiện tạo đặt phòng
+\end{itemize}
+
+\subsubsection{Test Case 3: Equivalence Partition (TC-GEN-EQV-001)}
+
+\textbf{Loại:} Equivalence Partition (Phân Vùng Tương Đương)
+
+\textbf{Mục Tiêu:}
+Kiểm thử các vùng dữ liệu tương đương để tiết kiệm test case.
+
+\textbf{Phân Vùng Dữ Liệu:}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Vùng} & \textbf{Mô Tả} & \textbf{Ví Dụ} \\
+\hline
+Vùng A & Giá trị nhỏ & 1 đêm \\
+Vùng B & Giá trị trung bình & 5 đêm \\
+Vùng C & Giá trị lớn & 30 đêm \\
+\hline
+\end{tabular}
+\end{table}
+
+Dữ liệu kiểm thử từ Vùng A: 1 đêm (Ngày checkout - Check-in = 1 ngày)
+
+\newpage
+
+% ============================================================================
+\section{TÍNH TOÁN ĐỘ TIN CẬY - CÔNG THỨC WEIGHTED CONFIDENCE}
+% ============================================================================
+
+\subsection{Giới Thiệu}
+
+Độ tin cậy của mỗi yêu cầu được tính bằng \textbf{công thức bình phương có trọng số} dựa trên:
+\begin{itemize}
+    \item \textbf{Loại Test Case} (Type Weight)
+    \item \textbf{Mức Ưu Tiên} (Priority Weight)
+    \item \textbf{Phạm Vi Bảo Phủ} (Coverage Bonus)
+\end{itemize}
+
+\subsection{Công Thức Chính}
+
+\begin{equation}
+\boxed{\text{Confidence} = \frac{\sum (C_i \times W_{\text{type}} \times W_{\text{priority}})}{n} + \text{Coverage Bonus}}
+\end{equation}
+
+Trong đó:
+\begin{itemize}
+    \item $C_i$ = Confidence của test case thứ i
+    \item $W_{\text{type}}$ = Trọng số loại test case
+    \item $W_{\text{priority}}$ = Trọng số mức ưu tiên
+    \item $n$ = Số test case
+    \item Coverage Bonus = Phần thưởng bảo phủ
+\end{itemize}
+
+\subsection{Trọng Số Loại Test Case}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|p{6cm}|}
+\hline
+\textbf{Loại Test Case} & \textbf{Trọng Số} & \textbf{Giải Thích} \\
+\hline
+Happy Path & 1.0 & Luồng chính, độ tin cậy cao \\
+Boundary Value & 0.9 & Kiểm thử giá trị ranh giới \\
+State Transition & 0.85 & Chuyển đổi trạng thái \\
+Negative & 0.8 & Kiểm thử lỗi, tầm quan trọng khác \\
+Equivalence Partition & 0.7 & Phân vùng, độ tin cậy thấp hơn \\
+\hline
+\end{tabular}
+\caption{Trọng số loại test case}
+\end{table}
+
+\subsection{Trọng Số Mức Ưu Tiên}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|p{6cm}|}
+\hline
+\textbf{Mức Ưu Tiên} & \textbf{Trọng Số} & \textbf{Ý Nghĩa} \\
+\hline
+CRITICAL & 1.0 & Yêu cầu quan trọng, ảnh hưởng toàn hệ thống \\
+HIGH & 0.9 & Ảnh hưởng lớn đến tính năng \\
+MEDIUM & 0.8 & Ảnh hưởng trung bình \\
+LOW & 0.6 & Ảnh hưởng thấp \\
+\hline
+\end{tabular}
+\caption{Trọng số mức ưu tiên}
+\end{table}
+
+\subsection{Phần Thưởng Bảo Phủ}
+
+\begin{equation}
+\text{Coverage Bonus} = \min(5\%, \text{số test case} \times 1\%)
+\end{equation}
+
+Ví dụ:
+\begin{itemize}
+    \item 1 test case → 1\% bonus
+    \item 3 test case → 3\% bonus
+    \item 5 test case trở lên → 5\% bonus (tối đa)
+\end{itemize}
+
+\subsection{Ví Dụ Tính Toán Chi Tiết}
+
+\subsubsection{Yêu Cầu 1: Đặt Phòng}
+
+\textbf{Dữ Liệu Test Case:}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|c|c|c|}
+\hline
+\textbf{ID} & \textbf{Loại} & \textbf{Ưu Tiên} & \textbf{C} & \textbf{W\_type} \\
+\hline
+TC-001 & Happy Path & CRITICAL & 95\% & 1.0 \\
+TC-002 & Negative & HIGH & 91\% & 0.8 \\
+TC-003 & Negative & HIGH & 89\% & 0.8 \\
+TC-004 & Equivalence & MEDIUM & 88\% & 0.7 \\
+TC-005 & Equivalence & MEDIUM & 88\% & 0.7 \\
+TC-006 & Equivalence & MEDIUM & 88\% & 0.7 \\
+\hline
+\end{tabular}
+\end{table}
+
+\textbf{Tính Toán Từng Test Case:}
+
+\begin{align}
+\text{TC-001: } &0.95 \times 1.0 \times 1.0 = 0.950 \\
+\text{TC-002: } &0.91 \times 0.8 \times 0.9 = 0.656 \\
+\text{TC-003: } &0.89 \times 0.8 \times 0.9 = 0.643 \\
+\text{TC-004: } &0.88 \times 0.7 \times 0.8 = 0.493 \\
+\text{TC-005: } &0.88 \times 0.7 \times 0.8 = 0.493 \\
+\text{TC-006: } &0.88 \times 0.7 \times 0.8 = 0.493 \\
+\end{align}
+
+\textbf{Tính Toán Trung Bình:}
+
+\begin{equation}
+\text{Trung bình} = \frac{0.950 + 0.656 + 0.643 + 0.493 + 0.493 + 0.493}{6} = \frac{3.728}{6} = 0.6213 = 62.13\%
+\end{equation}
+
+\textbf{Thêm Coverage Bonus:}
+
+\begin{equation}
+\text{Coverage Bonus} = \min(5\%, 6 \times 1\%) = \min(5\%, 6\%) = 5\%
+\end{equation}
+
+\textbf{Độ Tin Cậy Cuối Cùng:}
+
+\begin{equation}
+\text{Confidence} = 62.13\% + 5\% = 67.13\%
+\end{equation}
+
+\textit{Kết quả thực tế báo cáo: 67.1\% ✓}
+
+\newpage
+
+% ============================================================================
+\section{NHÓM VÀ PHÂN LOẠI TEST CASE}
+% ============================================================================
+
+\subsection{Cấu Trúc Phân Nhóm}
+
+Test case được tổ chức theo \textbf{3 cấp độ}:
+
+\begin{enumerate}
+    \item \textbf{Cấp 1: Yêu Cầu (Requirements)}
+        \begin{itemize}
+            \item Mỗi yêu cầu tạo ra 4-7 test case
+            \item ID: REQ-GE-001, REQ-GE-002, v.v.
+        \end{itemize}
+    
+    \item \textbf{Cấp 2: Nhóm Test Case (Test Groups)}
+        \begin{itemize}
+            \item Happy Path (1 test case)
+            \item Negative (2 test case)
+            \item Equivalence (3 test case)
+            \item State Transition (khi cần)
+            \item Boundary Value (khi có giá trị ranh giới)
+        \end{itemize}
+    
+    \item \textbf{Cấp 3: Chi Tiết Test Case}
+        \begin{itemize}
+            \item ID, Type, Priority, Confidence
+            \item Preconditions, Test Steps, Expected Results
+        \end{itemize}
+\end{enumerate}
+
+\subsection{Phân Bố Test Case Theo Loại}
+
+\textbf{Phân bố 294 test case:}
+\begin{itemize}
+    \item Happy Path: 20\% (59 tests)
+    \item Negative: 35\% (103 tests)
+    \item Equivalence Partition: 35\% (103 tests)
+    \item State Transition: 5\% (15 tests)
+    \item Boundary Value: 5\% (14 tests)
+\end{itemize}
+
+\subsection{Phân Bố Theo Mức Độ Ưu Tiên}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Mức Ưu Tiên} & \textbf{Số Lượng} & \textbf{\%} \\
+\hline
+CRITICAL & 58 & 19.7\% \\
+HIGH & 118 & 40.1\% \\
+MEDIUM & 118 & 40.1\% \\
+LOW & 0 & 0\% \\
+\hline
+\textbf{TỔNG} & \textbf{294} & \textbf{100\%} \\
+\hline
+\end{tabular}
+\caption{Phân bố theo mức độ ưu tiên}
+\end{table}
+
+\subsection{Naming Convention (Quy Tắc Đặt Tên)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Loại} & \textbf{Tiền Tố} & \textbf{Ví Dụ} \\
+\hline
+Happy Path & HAPPY & TC-GEN-HAPPY-001 \\
+Negative & NEG & TC-GEN-NEG-001 \\
+Equivalence & EQV & TC-GEN-EQV-001 \\
+State Transition & STATE & TC-GEN-STATE-001 \\
+Boundary Value & BVA & TC-GEN-BVA-001 \\
+\hline
+\end{tabular}
+\caption{Quy tắc đặt tên test case}
+\end{table}
+
+\newpage
+
+% ============================================================================
+\section{PHÂN TÍCH CHI TIẾT CÁC YÊUÊU CẦU CHÍNH}
+% ============================================================================
+
+\subsection{Nhóm 1: Quản Lý Đặt Phòng (REQ-001 đến REQ-007)}
+
+Bao gồm 7 yêu cầu liên quan đến quy trình đặt phòng và quản lý phòng:
+\begin{itemize}
+    \item Đặt phòng mới
+    \item Kiểm tra tính khả dụng
+    \item Đặt phòng trực tuyến/quầy lễ tân
+    \item Gửi email xác nhận
+    \item Theo dõi trạng thái phòng
+    \item Bảo trì và dọn dẹp
+    \item Lập lịch dọn phòng
+\end{itemize}
+
+\textbf{Đặc Điểm:}
+\begin{itemize}
+    \item Majority là Happy Path và Negative tests
+    \item Độ tin cậy cao (89.8\% - 90.3\%)
+    \item Ưu tiên CRITICAL cho chức năng chính
+\end{itemize}
+
+\subsection{Nhóm 2: Quản Lý Khách Hàng (REQ-008, REQ-009, REQ-010, REQ-011)}
+
+\begin{itemize}
+    \item Lưu trữ thông tin khách
+    \item Theo dõi lịch sử lưu trú
+    \item Chương trình khách thân thiết
+    \item Email marketing
+\end{itemize}
+
+\textbf{Đặc Biệt:}
+\begin{itemize}
+    \item REQ-008 có Test Type: \textbf{State Transition} (lưu trữ → lưu trữ)
+    \item Độ tin cậy cao do liên quan đến dữ liệu cá nhân
+\end{itemize}
+
+\subsection{Nhóm 3: Quản Lý Dịch Vụ (REQ-014 đến REQ-017)}
+
+\begin{itemize}
+    \item Đặt/hủy dịch vụ
+    \item Tính phí dịch vụ
+    \item Theo dõi tồn kho
+    \item Báo cáo sử dụng dịch vụ
+\end{itemize}
+
+\subsection{Nhóm 4: Thanh Toán (REQ-019 đến REQ-023)}
+
+\begin{itemize}
+    \item Hỗ trợ nhiều phương thức thanh toán
+    \item Tính thuế và phí
+    \item Thanh toán một phần/đặt cọc
+    \item Lưu trữ lịch sử thanh toán
+    \item Xuất hóa đơn điện tử
+\end{itemize}
+
+\textbf{Tầm Quan Trọng:} CRITICAL - Yêu cầu xử lý tiền tệ cần độ chính xác cao
+
+\subsection{Nhóm 5: Báo Cáo và Phân Tích (REQ-024 đến REQ-029)}
+
+\begin{itemize}
+    \item Tạo báo cáo doanh thu
+    \item Phân tích tỷ lệ lấp đầy
+    \item Báo cáo theo nguồn đặt phòng
+    \item Phân tích xu hướng
+    \item Bảng điều khiển KPI
+    \item Xuất báo cáo đa định dạng
+\end{itemize}
+
+\subsection{Nhóm 6: Bảo Mật và Quyền Truy Cập (REQ-030 đến REQ-037)}
+
+\begin{itemize}
+    \item Phân quyền chi tiết
+    \item Ghi nhật ký hoạt động
+    \item Áp dụng biện pháp bảo mật
+    \item Mã hóa dữ liệu SSL/TLS
+    \item Lưu trữ mật khẩu băm
+    \item Giao diện người dùng trực quan
+    \item Hỗ trợ đa ngôn ngữ
+\end{itemize}
+
+\newpage
+
+% ============================================================================
+\section{PHÂN TÍCH THỐNG KÊ}
+% ============================================================================
+
+\subsection{Phân Bố Độ Tin Cậy NLP}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Khoảng Confidence} & \textbf{Số Yêu Cầu} & \textbf{\%} \\
+\hline
+88.0\% - 89.0\% & 40 & 83.3\% \\
+89.0\% - 90.0\% & 6 & 12.5\% \\
+90.0\% - 91.0\% & 2 & 4.2\% \\
+\hline
+\end{tabular}
+\caption{Phân bố độ tin cậy NLP}
+\end{table}
+
+\textbf{Nhận xét:}
+Phần lớn yêu cầu (83.3\%) đạt độ tin cậy 89.8-89.9\%, cho thấy độ nhất quán cao trong việc phân tích.
+
+\subsection{Phân Tích Effort (Nỗ Lực Kiểm Thử)}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Loại Test Case} & \textbf{Effort Trung Bình} \\
+\hline
+Happy Path & 1.0 giờ \\
+Negative & 1.0 giờ \\
+Equivalence Partition & 1.0 giờ \\
+State Transition & 1.0 giờ \\
+Boundary Value & 1.0 giờ \\
+\hline
+\end{tabular}
+\caption{Effort mỗi loại test case}
+\end{table}
+
+\textbf{Tổng Effort:}
+\begin{equation}
+\text{Total Effort} = 294 \text{ test cases} \times 1.0 \text{ giờ} = 294 \text{ giờ}
+\end{equation}
+
+\textit{Tương đương: 36-40 ngày làm việc (8 giờ/ngày) cho một tester}
+
+\subsection{Phân Tích Phức Tạp Yêu Cầu}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Yêu Cầu} & \textbf{Từ} & \textbf{Ký Tự} & \textbf{Độ Phức Tạp} \\
+\hline
+REQ-001 & 22 & 119 & Cao \\
+REQ-002 & 14 & 64 & Trung \\
+REQ-008 & 20 & 95 & Cao \\
+REQ-052 & 12 & 53 & Trung \\
+\hline
+\end{tabular}
+\caption{Độ phức tạp yêu cầu}
+\end{table}
+
+\newpage
+
+% ============================================================================
+\section{KHUYẾN NGHỊ VÀ KẾT LUẬN}
+% ============================================================================
+
+\subsection{Điểm Mạnh}
+
+\begin{itemize}
+    \item \textbf{Bao Phủ Toàn Diện}: 294 test case bao phủ 48 yêu cầu
+    \item \textbf{Đa Dạng Loại Test}: Happy Path, Negative, Equivalence, State, Boundary
+    \item \textbf{Độ Tin Cậy Cao}: NLP confidence 89.9\% chứng tỏ phân tích chính xác
+    \item \textbf{Ưu Tiên Rõ Ràng}: CRITICAL/HIGH tests cho chức năng quan trọng
+    \item \textbf{Effort Ước Tính}: 294 giờ cho việc thực thi hết tất cả test
+\end{itemize}
+
+\subsection{Lĩnh Vực Cần Chú Ý}
+
+\begin{itemize}
+    \item \textbf{Bảo Mật}: 8 yêu cầu (REQ-030-037) - cần kiểm thử kỹ càng
+    \item \textbf{Thanh Toán}: 5 yêu cầu (REQ-019-023) - liên quan tiền tệ, độ chính xác cao
+    \item \textbf{Hiệu Suất}: REQ-052 (xử lý 100 giao dịch) - cần load testing
+    \item \textbf{Tích Hợp}: REQ-040-043 (OTA, khóa điện tử, API) - dependencies ngoài
+\end{itemize}
+
+\subsection{Chiến Lược Kiểm Thử Đề Xuất}
+
+\begin{enumerate}
+    \item \textbf{Phase 1 (2 tuần)}: Happy Path tests (58 tests)
+    \begin{itemize}
+        \item Xác minh chức năng cơ bản
+        \item Build confidence về hệ thống
+    \end{itemize}
+    
+    \item \textbf{Phase 2 (3 tuần)}: Negative + Equivalence (236 tests)
+    \begin{itemize}
+        \item Kiểm thử xử lý lỗi
+        \item Phân vùng và ranh giới
+    \end{itemize}
+    
+    \item \textbf{Phase 3 (1 tuần)}: State + Boundary + Integration
+    \begin{itemize}
+        \item Chuyển đổi trạng thái
+        \item Kiểm thử tích hợp
+        \item Performance testing
+    \end{itemize}
+    
+    \item \textbf{Phase 4 (1 tuần)}: UAT + Regression
+    \begin{itemize}
+        \item Kiểm thử chấp nhận người dùng
+        \item Kiểm thử lặp lại
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Kết Luận}
+
+Báo cáo này cung cấp:
+\begin{itemize}
+    \item \textbf{294 test case} chất lượng cao, tự động sinh thành
+    \item \textbf{Công thức Weighted Confidence} khoa học để tính độ tin cậy
+    \item \textbf{Phân loại rõ ràng} theo loại, ưu tiên, độ phức tạp
+    \item \textbf{Effort ước tính} ~36-40 ngày để thực thi toàn bộ
+    \item \textbf{Chiến lược 4 phase} phù hợp với vòng đời phát triển
+\end{itemize}
+
+Hệ thống \textbf{AI Test Case Generator v3} đã thành công trong việc phân tích yêu cầu và sinh thành các test case đa dạng, bác bỏ được độ tin cậy cao (89.9\%).
+
+\end{document}

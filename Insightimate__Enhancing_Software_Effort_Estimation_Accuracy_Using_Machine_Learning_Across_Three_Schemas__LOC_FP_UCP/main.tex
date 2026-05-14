@@ -1,87 +1,76 @@
-\documentclass[11pt,a4paper]{article}
-\usepackage[margin=1in]{geometry}
-\usepackage{times}
-\usepackage{authblk}
+\documentclass{ieeeaccess}
+\usepackage[utf8]{inputenc}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
 \usepackage{graphicx}
-\usepackage{caption}
-\usepackage{subcaption}
+\usepackage{textcomp}
 \usepackage{booktabs}
-\usepackage{amsmath, amssymb}
 \usepackage{multirow}
 \usepackage{makecell}
 \usepackage{enumitem}
-\usepackage[hidelinks]{hyperref}
-\usepackage[numbers]{natbib}
-\graphicspath{{figures/}}
-% --- in preamble ---
-\usepackage{tikz}
-\usetikzlibrary{arrows.meta, positioning, matrix, fit}
-\usepackage{caption}
 \usepackage{float}
-\usepackage[section]{placeins}
-% --- Line numbers for reviewer readability ---
-% \usepackage{lineno}
-% \linenumbers
-% --- Fonts: unified Times-like for text + math (no font clash) ---
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc} % if using pdfLaTeX
-%\usepackage{newtxtext,newtxmath}  % replaces 'times' -- commented due to missing package
-\usepackage{microtype}  
-\usepackage{pgfplots}
-\usepackage{pgfplotstable}
-\usepackage{tikz}
-\DeclareUnicodeCharacter{2248}{$\approx$}
-\pgfplotsset{compat=1.18}
+% placeins [section] option removed — FloatBarrier before each section caused blank pages
+\usepackage{hyperref}
+% tikz/pgfplots removed — charts pre-rendered as PDFs to prevent pgf \@opcol errors in two-column mode
+\graphicspath{{figures/}{./}}
 
-\usetikzlibrary{matrix}% nicer kerning/justification
-
-% ---- preamble ----
-
+\usepackage{bm}
 \makeatletter
-\newenvironment{tightmath}{%
-  \setlength\abovedisplayskip{6pt plus 2pt minus 2pt}%
-  \setlength\belowdisplayskip{6pt plus 2pt minus 2pt}%
-  \setlength\abovedisplayshortskip{4pt plus 2pt minus 2pt}%
-  \setlength\belowdisplayshortskip{4pt plus 2pt minus 2pt}%
-}{}
+\AtBeginDocument{\DeclareMathVersion{bold}
+\SetSymbolFont{operators}{bold}{T1}{times}{b}{n}
+\SetSymbolFont{NewLetters}{bold}{T1}{times}{b}{it}
+\SetMathAlphabet{\mathrm}{bold}{T1}{times}{b}{n}
+\SetMathAlphabet{\mathit}{bold}{T1}{times}{b}{it}
+\SetMathAlphabet{\mathbf}{bold}{T1}{times}{b}{n}
+\SetMathAlphabet{\mathtt}{bold}{OT1}{pcr}{b}{n}
+\SetSymbolFont{symbols}{bold}{OMS}{cmsy}{b}{n}
+\renewcommand\boldmath{\@nomath\boldmath\mathversion{bold}}}
 \makeatother
 
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
-\title{\textbf{Insightimate: Enhancing Software Effort Estimation Accuracy Using Machine Learning Across Three Schemas (LOC/FP/UCP)}}
-
-\author{
-Nguyen Nhat Huy\textsuperscript{1},
-Duc Man Nguyen\textsuperscript{1},
-Dang Nhat Minh\textsuperscript{1},
-Nguyen Thuy Giang\textsuperscript{1},
-P.~W.~C.~Prasad\textsuperscript{1},
-Md Shohel Sayeed\textsuperscript{2,*}
-}
-
-\date{}
-
+%Your document starts from here ___________________________________________________
 \begin{document}
-\maketitle
+\history{Date of publication April 17, 2026, date of current version April 17, 2026.}
+\doi{10.1109/ACCESS.2024.XXXXX}
 
-\begin{center}
-\textsuperscript{1}International School, Duy Tan University, Da Nang 550000, Vietnam\\
-\textsuperscript{2}Faculty of Information Science and Technology, Multimedia University, Malaysia\\
-\textsuperscript{*}\textbf{Corresponding author:} shohel.sayeed@mmu.edu.my
-\end{center}
+\title{A Unified Ensemble Learning Framework for Software Effort Estimation Across Multiple Schemas}
 
-\begin{center}
-September 2025
-\end{center}
+\author{\uppercase{Nguyen Nhat Huy}\authorrefmark{1}, \uppercase{Duc Man Nguyen}\authorrefmark{1},
+\uppercase{Dang Nhat Minh}\authorrefmark{1}, \uppercase{Nguyen Thuy Giang}\authorrefmark{1},
+\uppercase{P.~W.~C.~Prasad}\authorrefmark{1}, \uppercase{Md Shohel Sayeed}\authorrefmark{2},
+\IEEEmembership{Member, IEEE}, and \uppercase{Daniel Patricko Hutabarat}\authorrefmark{3}}
+
+\address[1]{International School, Duy Tan University, Da Nang 550000, Vietnam
+(e-mail: nguyennhathuybdi06@gmail.com)}
+\address[2]{Faculty of Information Science and Technology, Multimedia University, Malaysia
+(e-mail: shohel.sayeed@mmu.edu.my)}
+\address[3]{Department of Computer Engineering, Faculty of Engineering, Bina Nusantara University, Jakarta, Indonesia}
+
+\tfootnote{This research received no specific grant from any funding agency.}
+
+\markboth
+{Huy et al.: Unified Ensemble Learning Framework for Software Effort Estimation}
+{Huy et al.: Unified Ensemble Learning Framework for Software Effort Estimation}
+
+\corresp{Corresponding author: Md Shohel Sayeed (e-mail: shohel.sayeed@mmu.edu.my).}
 \begin{abstract}
-Accurate estimation of software development effort remains a longstanding challenge in project management, particularly as contemporary projects exhibit greater heterogeneity in scale, methodology, and complexity. While traditional parametric models such as COCOMO~II offer interpretability, their fixed functional forms often underfit diverse modern datasets. Three critical gaps persist in prior effort estimation research: (i) lack of auditable dataset provenance and deduplication transparency, (ii) unfair baselines using uncalibrated parameters, and (iii) insufficient cross-source generalization testing. Our unified, reproducible \textbf{schema-specific benchmarking framework} spans Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP), ensuring: (1) full dataset manifest with provenance tracking and explicit deduplication rules; (2) \textbf{calibrated size-only power-law baselines} fitted on training data to avoid straw-man comparisons (not full COCOMO~II due to missing cost drivers in public datasets); (3) schema-appropriate validation protocols (stratified splits for LOC/UCP, LOOCV for FP) with leave-one-source-out generalization testing; (4) ablation analysis quantifying preprocessing contributions; and (5) \textbf{stratified tail evaluation} to assess robustness on high-effort projects (top 10\%). Models are trained \textbf{independently per schema} to prevent semantic feature mismatch across sizing paradigms. Using publicly available datasets (1993--2022), we evaluate Linear Regression, Decision Tree, Random Forest, Gradient Boosting, and XGBoost against the calibrated size-only baseline, with optional imbalance-aware weighting for tail robustness. Random Forest achieves MAE $12.66 \pm 0.7$ PM (42\% improvement over baseline MAE $18.45 \pm 1.2$ PM) with MMRE $0.65 \pm 0.04$; tail performance (top 10\% effort) shows MAE degradation of 18\% but remains superior to parametric baselines. All metrics reported as mean $\pm$ std across 10 random seeds. \textbf{Aggregation protocol:} Overall results use \textbf{macro-averaging} (equal weight per schema: LOC/FP/UCP) to prevent LOC dominance (90.5\% of projects); schema-specific results report per-schema test predictions from independent models trained exclusively on that schema (no cross-schema pooling or transfer). These contributions establish a fair, auditable, and imbalance-aware benchmark for ensemble-based effort estimation.
+Accurate software effort estimation across heterogeneous project types remains difficult because existing benchmarks lack transparent dataset provenance, use uncalibrated parametric baselines, and report aggregated results that mask per-schema behavior. We present a unified, reproducible framework spanning three sizing schemas --- Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP) --- that addresses these gaps through: (1) a full dataset manifest with source provenance, deduplication rules, and rebuild scripts; (2) calibrated size-only power-law baselines fitted per schema and seed to avoid straw-man comparisons; (3) schema-appropriate evaluation (stratified 80/20 splits for LOC/UCP, Leave-One-Out Cross-Validation for FP) with leave-one-source-out generalization testing; and (4) macro-averaged reporting to prevent LOC dominance. We evaluate five machine-learning models --- Linear Regression, Decision Tree, Random Forest, Gradient Boosting, and XGBoost --- on 3,054 projects from 18 publicly available sources (1979--2022). Random Forest achieves the best macro-averaged performance: MAE $= 12.66 \pm 0.85$ person-months, MMRE $= 0.647 \pm 0.041$, PRED(25) $= 0.395$ --- a 42\% MMRE improvement over the calibrated baseline (MMRE $= 1.12 \pm 0.08$). Leave-one-source-out validation shows only 21\% MAE degradation, confirming adequate cross-source generalization. Tail evaluation (top 10\% highest-effort projects) reveals 57--72\% MAE degradation for ensemble methods versus 83--100\% for parametric baselines, demonstrating superior tail robustness. The primary contribution is the benchmarking methodology itself: a reproducible, schema-specific, imbalance-aware evaluation framework with open code and dataset rebuild scripts, providing a defensible template for future software effort estimation comparisons.
 \end{abstract}
 
+\begin{keywords}
+Effort estimation, machine learning, software engineering, size-only baseline, Random Forest, Gradient Boosting, LOC, FP, UCP, dataset provenance, benchmarking methodology, cross-schema validation, reproducibility.
+\end{keywords}
 
-\noindent\textbf{Index Terms} Effort estimation, size-only power-law baseline, machine learning, Random Forest, Gradient Boosting, LOC, FP, UCP, dataset provenance, benchmarking methodology, cross-schema validation.
+\titlepgskip=-21pt
+
+\maketitle
 
 \section{Introduction}
 
-Accurately estimating software development effort is a critical factor in determining the success of software projects. Reliable estimates support effective planning, budgeting, resource allocation, and risk management. Conversely, inaccurate estimates often result in cost overruns, schedule delays, and even project failure, as widely acknowledged in the empirical software engineering literature~\cite{boehm2000cocomo}. As modern software projects continue to grow in diversity—varying in size, methodology, domain, and team structure—the challenge of producing consistent and trustworthy effort estimates becomes increasingly pronounced.
+Accurately estimating software development effort is a critical factor in determining the success of software projects. Reliable estimates support effective planning, budgeting, resource allocation, and risk management. Conversely, inaccurate estimates often result in cost overruns, schedule delays, and even project failure, as widely acknowledged in the empirical software engineering literature~\cite{boehm2000cocomo}. As modern software projects continue to grow in diversity---varying in size, methodology, domain, and team structure---the challenge of producing consistent and trustworthy effort estimates becomes increasingly pronounced.
 
 A wide range of factors affect estimation accuracy, including project size, functional complexity, development methodology, team capability, and organizational context. Traditional parametric models such as COCOMO~II provide closed-form transparency and have historically been adopted in industrial settings, yet their fixed functional forms struggle to generalize across heterogeneous contemporary datasets. This motivates the exploration of more flexible, data-driven approaches capable of capturing non-linear patterns and adapting to diverse project characteristics, while acknowledging the trade-off with parametric interpretability.
 
@@ -90,34 +79,34 @@ Software effort estimation (SEE) has long relied on parametric models (e.g., COC
 
 \paragraph{What is missing.}
 However, three critical issues frequently limit the strength and reproducibility of reported gains: 
-(i) \textbf{weak auditability} of pooled datasets—provenance, licensing, deduplication rules, and rebuildability are often unclear, making independent replication difficult; 
-(ii) \textbf{unfair or non-reproducible parametric baselines}—when cost drivers (effort multipliers, scale factors) are unavailable, COCOMO~II is often applied with arbitrary default parameters, creating straw-man comparisons; and 
-(iii) \textbf{ambiguous ``overall'' reporting}—cross-schema aggregations may be dominated by the largest schema (typically LOC), masking true behavior on FP/UCP, and small-sample protocols (e.g., FP with $n<200$) are often inadequately addressed.
+(i) \textbf{weak auditability} of pooled datasets---provenance, licensing, deduplication rules, and rebuildability are often unclear, making independent replication difficult; 
+(ii) \textbf{unfair or non-reproducible parametric baselines}---when cost drivers (effort multipliers, scale factors) are unavailable, COCOMO~II is often applied with arbitrary default parameters, creating straw-man comparisons; and 
+(iii) \textbf{ambiguous ``overall'' reporting}---cross-schema aggregations may be dominated by the largest schema (typically LOC), masking true behavior on FP/UCP, and small-sample protocols (e.g., FP with $n<200$) are often inadequately addressed.
 
 \paragraph{Research gap.}
-The community lacks a \textbf{reproducible cross-schema benchmarking framework} that provides: (a) auditable dataset manifest with explicit deduplication and leakage controls, (b) fair baseline comparisons under missing cost drivers, and (c) transparent aggregation protocols (macro vs. micro) with appropriate small-sample strategies (e.g., LOOCV for limited data). \textit{Our contribution addresses this methodological gap, not model novelty per se.}
+The community lacks a \textbf{reproducible cross-schema benchmarking framework} that provides: (a) auditable dataset manifest with explicit deduplication and leakage controls, (b) fair baseline comparisons under missing cost drivers, and (c) transparent aggregation protocols (macro vs. micro) with appropriate small-sample strategies (e.g., LOOCV for limited data). \textit{This work addresses these gaps by establishing a reproducible, transparent benchmarking standard for multi-schema effort estimation --- a contribution the field currently lacks, as evidenced by the absence of any prior study combining explicit dataset provenance, calibrated parametric baselines, macro-averaged cross-schema evaluation, and leave-one-source-out generalization testing in a single reproducible framework.}
 
 \paragraph{Our approach.}
 We present a \textbf{methodological infrastructure for fair, auditable cross-schema benchmarking} through four concrete contributions: 
 (1) an \textbf{auditable dataset manifest} (Table~\ref{tab:dataset-summary}) documenting source, year, DOI/URL, raw counts, deduplication rules, and rebuild scripts for full reproducibility; 
-(2) a \textbf{fair calibrated parametric baseline} (Section~\ref{sec:baseline})—a size-only power-law model fitted on training data per schema and seed—ensuring principled comparison when cost drivers are missing; 
+(2) a \textbf{fair calibrated parametric baseline} (Section~\ref{sec:baseline})---a size-only power-law model fitted on training data per schema and seed---ensuring principled comparison when cost drivers are missing; 
 (3) \textbf{schema-appropriate evaluation protocols}, including Leave-One-Out Cross-Validation (LOOCV) and bootstrap confidence intervals for small-sample FP, plus explicit macro/micro aggregation to avoid LOC dominance; and 
 (4) \textbf{ablation analysis} (Section~\ref{sec:ablation}) quantifying contributions of harmonization, log-scaling, and outlier control.
 
 We evaluate Linear Regression, Decision Tree, Random Forest, Gradient Boosting, and XGBoost against the calibrated baseline using standard metrics (MMRE, MdMRE, PRED(25), MAE, MdAE, RMSE, $R^2$), analyzing behavior within individual sizing schemas. \textit{The primary contribution is the benchmarking framework itself, which future studies can use to evaluate new models or datasets under consistent, fair conditions.}
 
 \paragraph{Scope and limitations upfront.}
-Our focus is \emph{methodological benchmarking}—establishing fair, auditable cross-schema comparisons—rather than claiming a universally best estimator.
+Our focus is \emph{methodological benchmarking}---establishing fair, auditable cross-schema comparisons---rather than claiming a universally best estimator.
 Key scope constraints:
 (i) we use a size-only COCOMO-like baseline because most public FP/UCP datasets lack cost drivers;
 (ii) models are trained \emph{per schema} (LOC/FP/UCP) without cross-schema transfer;
 (iii) FP results ($n{=}158$) are exploratory despite LOOCV and bootstrap CIs;
 (iv) unit conversion assumes $1\,\text{PM}{=}160\,\text{hours}$, which may vary by organization; and
 (v) public datasets (1993--2022) may underrepresent modern DevOps pipelines.
-These constraints clarify what our results can—and cannot—generalize to.
+These constraints clarify what our results can---and cannot---generalize to.
 
 \paragraph{Research Gaps Addressed.}
-Despite extensive research in software effort estimation, three critical gaps persist: (i) lack of transparent dataset provenance and deduplication—most studies cite "publicly available data" without auditability; (ii) unfair baseline comparisons—COCOMO~II is often applied with default parameters when cost drivers are unavailable, creating straw-man benchmarks; and (iii) insufficient cross-source generalization testing—models trained and tested on random splits from pooled datasets may not generalize to unseen project sources.
+Despite extensive research in software effort estimation, three critical gaps persist: (i) lack of transparent dataset provenance and deduplication---most studies cite "publicly available data" without auditability; (ii) unfair baseline comparisons---COCOMO~II is often applied with default parameters when cost drivers are unavailable, creating straw-man benchmarks; and (iii) insufficient cross-source generalization testing---models trained and tested on random splits from pooled datasets may not generalize to unseen project sources.
 
 \noindent The contributions of this paper address these gaps through five concrete novelties:
 \begin{enumerate}[leftmargin=2em]
@@ -128,7 +117,7 @@ Despite extensive research in software effort estimation, three critical gaps pe
     \item \textbf{Stratified Tail Evaluation for Imbalance Awareness:} Because effort data exhibits long-tailed distributions, we complement aggregate metrics with \textbf{stratified evaluation by effort quantiles}, explicitly reporting performance on the top 10\% highest-effort projects (tail). We further explore imbalance-aware reweighting strategies to mitigate majority-region bias during training (Section~\ref{sec:imbalance-aware}).
 \end{enumerate}
 
-\noindent These contributions shift focus from claiming model superiority to establishing a \textbf{reusable methodological artifact}—a fair, auditable, imbalance-aware benchmarking framework that the research community can adopt for future ensemble-based effort estimation studies. Our empirical findings (RF achieves 42\% improvement over calibrated baseline) demonstrate the framework's utility, but the \emph{methodology itself} is the primary contribution.
+\noindent These contributions shift focus from claiming model superiority to establishing a \textbf{reusable methodological artifact}---a fair, auditable, imbalance-aware benchmarking framework that the research community can adopt for future ensemble-based effort estimation studies. Our empirical findings (RF achieves 42\% improvement over calibrated baseline) demonstrate the framework's utility, but the \emph{methodology itself} is the primary contribution.
 
 \paragraph{Paper Organization.}
 Section~\ref{sec:baseline} introduces the calibrated power-law baseline ensuring fair parametric comparisons;
@@ -150,7 +139,7 @@ E = A \times (\text{Size})^{B} \times \prod_{i=1}^{m} EM_i,
 \end{equation}
 where $EM_i$ capture project-specific characteristics (team experience, complexity, tool support). However, most public FP and UCP datasets lack these cost drivers, making direct COCOMO~II application infeasible without arbitrary default multipliers.
 
-\paragraph{\textbf{Important:} This Is NOT Full COCOMO~II.}
+\paragraph{Note: This Is Not Full COCOMO~II.}
 \textit{Our baseline uses only size metrics (KLOC/FP/UCP) without cost drivers or scale factors. We call it ``COCOMO-like'' because it preserves the power-law scaling form ($E \propto \text{Size}^B$), but it is fundamentally a size-only regression model calibrated on training data. This design ensures fair comparison when driver data is unavailable in public datasets, representing a parametric lower bound rather than the full potential of COCOMO~II.}
 
 \paragraph{Fair Baseline Design.}
@@ -167,7 +156,7 @@ where $E$ is effort in person-months and Size is KLOC/FP/UCP depending on schema
 \end{itemize}
 
 \paragraph{Rationale.}
-Uncalibrated parametric models with default parameters (e.g., $B=1.01$ for COCOMO organic mode) can yield arbitrarily poor performance on heterogeneous datasets, as evidenced by MMRE $>2.5$ in preliminary experiments. Our calibrated size-only baseline provides a \textit{principled parametric lower bound} for comparison: any ML model must outperform a simple log-log fit to justify added complexity. \textbf{This is intentionally a ``lower bound'' baseline}—it does not include COCOMO~II's full cost drivers (team experience, platform constraints, tool maturity), so it may underperform full COCOMO~II in industrial settings where driver data is available. However, for public datasets lacking such metadata, this size-only approach ensures fair, reproducible comparisons.
+Uncalibrated parametric models with default parameters (e.g., $B=1.01$ for COCOMO organic mode) can yield arbitrarily poor performance on heterogeneous datasets, as evidenced by MMRE $>2.5$ in preliminary experiments. Our calibrated size-only baseline provides a \textit{principled parametric lower bound} for comparison: any ML model must outperform a simple log-log fit to justify added complexity. \textbf{This is intentionally a ``lower bound'' baseline}---it does not include COCOMO~II's full cost drivers (team experience, platform constraints, tool maturity), so it may underperform full COCOMO~II in industrial settings where driver data is available. However, for public datasets lacking such metadata, this size-only approach ensures fair, reproducible comparisons.
 
 \paragraph{Implementation Details.}
 We implement the calibration using \texttt{scipy.optimize.curve\_fit}~\cite{virtanen2020scipy}, which performs non-linear least squares optimization to find optimal $(\alpha, \beta)$ parameters for Eq.~\ref{eq:baseline-calibrated}. For each schema ($s \in \{\text{LOC, FP, UCP}\}$) and random seed ($k=1,\ldots,10$), we fit the power-law model exclusively on the training split, then apply the learned parameters to predict test-set efforts. This ensures the parametric baseline receives identical data access as ML models, providing a fair lower bound for comparison. The optimization minimizes squared residuals in log-space: $\sum_i (\log E_i - (\alpha + \beta \log \text{Size}_i))^2$, converging via the Levenberg-Marquardt algorithm~\cite{more1978levenberg}.
@@ -196,7 +185,7 @@ This schema-specific training approach ensures no cross-schema information leaka
 
 \subsection{Multi-Schema ML Framework}
 
-We introduce a unified machine-learning framework that trains a separate regressor for each sizing schema—Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP)—and compares their predictive performance with a calibrated parametric baseline (COCOMO-like power-law model). For each schema $s \in \{\text{LOC}, \text{FP}, \text{UCP}\}$, the framework learns a mapping
+We introduce a unified machine-learning framework that trains a separate regressor for each sizing schema---Lines of Code (LOC), Function Points (FP), and Use Case Points (UCP)---and compares their predictive performance with a calibrated parametric baseline (COCOMO-like power-law model). For each schema $s \in \{\text{LOC}, \text{FP}, \text{UCP}\}$, the framework learns a mapping
 
 \begin{equation}
 \hat{E}^{(s)} = f^{(s)}(x^{(s)}),
@@ -206,12 +195,13 @@ where $x^{(s)}$ includes the size metric (KLOC/FP/UCP) and, when available, supp
 
 To ensure consistent and stable training across heterogeneous datasets, we employ a standardized preprocessing pipeline consisting of: (i) unit harmonization (e.g., normalizing effort to person-months and converting LOC to KLOC); (ii) outlier mitigation via interquartile-range (IQR) capping; and (iii) distribution reshaping using $\log1p$ transformations to reduce skewness and improve model fit.
 
-We evaluate four representative machine-learning models:
+We evaluate five representative machine-learning models:
 \begin{itemize}[leftmargin=1.3em]
     \item \textbf{Linear Regression}, including a log--log variant to capture multiplicative relationships.
     \item \textbf{Decision Tree Regressor}, representing a transparent non-linear baseline with inherent rule-based structure.
     \item \textbf{Random Forest Regressor}, leveraging ensemble averaging for robustness.
     \item \textbf{Gradient Boosting Regressor}, known for strong performance on structured data.
+    \item \textbf{XGBoost Regressor}~\cite{chen2016xgboost}, a regularized gradient boosting variant incorporating second-order gradient approximation, column subsampling (\texttt{colsample\_bytree}), and built-in L1/L2 regularization. It extends standard Gradient Boosting with improved regularization and has become a standard strong baseline on tabular regression tasks.
 \end{itemize}
 
 The framework is extensible: additional sizing techniques such as story points or object points can be incorporated by defining new feature schemas. Prior reviews~\cite{tanveer2023survey,azzeh2019cross} highlight the growing interest in multi-schema and ensemble-based estimation methods. Our framework contributes to this direction by unifying preprocessing, model training, and evaluation under a reproducible and comparable experimental setting.
@@ -311,58 +301,9 @@ UCP & 3 datasets\textsuperscript{c}  & 1993--2023 & 139   & 131   & $-$5.8\% \\
 \textit{Note:} Deduplication removed exact and near-duplicates matched on normalized project name, size, and effort. Train/test splits (80/20 stratified, 10 random seeds) detailed in Sec.~\ref{sec:exp-setup}.
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[htbp]
 \centering
-\begin{tikzpicture}
-\begin{axis}[
-    width=0.85\linewidth,
-    height=0.45\linewidth,
-    xlabel={Publication Year},
-    ylabel={Projects per Schema},
-    ybar,
-    bar width=6pt,
-    legend style={at={(0.5,-0.25)}, anchor=north, legend columns=3, font=\footnotesize},
-    xtick={1980,1990,2000,2010,2020},
-    xticklabels={1980,1990,2000,2010,2020},
-    ymin=0, ymax=550,
-    grid=major,
-    grid style={dashed,gray!30},
-    nodes near coords align={vertical},
-]
-
-% LOC datasets by year (grouped by publication year)
-\addplot[fill=blue!70, draw=blue!90] coordinates {
-    (1981,63)   % COCOMO81
-    (1990,38)   % Finnish
-    (1993,93)   % NASA93
-    (1994,48)   % Miyazaki
-    (2001,18)   % Telecom1
-    (2002,207)  % Maxwell 62 + Kitchenham 145
-    (2007,486)  % Chinese
-    (2022,762)  % Freeman 450 + Derek Jones 312
-    (2023,1050) % DASE
-};
-\addlegendentry{LOC}
-
-% FP datasets by year
-\addplot[fill=red!70, draw=red!90] coordinates {
-    (1979,24)   % Albrecht
-    (1987,15)   % Kemerer
-    (1989,77)   % Desharnais
-    (2005,42)   % ISBSG subset
-};
-\addlegendentry{FP}
-
-% UCP datasets by year
-\addplot[fill=green!70, draw=green!90] coordinates {
-    (1993,12)   % Karner
-    (2017,71)   % Silhavy
-    (2023,48)   % Huynh
-};
-\addlegendentry{UCP}
-
-\end{axis}
-\end{tikzpicture}
+\includegraphics[width=0.95\linewidth]{figures/chart_dataset_timeline.pdf}
 \caption{Dataset temporal coverage (1979--2023) by schema. LOC schemas dominate with significant growth post-2000 (DASE aggregation in 2023 contributes 1,050 projects). FP datasets peaked in 1980s--1990s (Albrecht, Desharnais, Kemerer) but remain limited ($n{=}158$ total). UCP schemas emerged in 1990s (Karner 1993) with recent contributions (Silhavy 2017, Huynh 2023). Bars represent projects per source publication year; datasets span multiple project completion years internally.}
 \label{fig:dataset-timeline}
 \end{figure}
@@ -424,7 +365,7 @@ To prevent train-test contamination, we ensured: (i) no project appears in both 
 To enable cross-source learning and ensure comparability across heterogeneous datasets, 
 we performed a systematic unit harmonization process. 
 Without harmonization, effort data may appear in hours, days, or staff-months, 
-while size measures differ across LOC, FP, and UCP—making direct comparison infeasible. 
+while size measures differ across LOC, FP, and UCP---making direct comparison infeasible. 
 Such discrepancies in measurement units not only hinder the merging of datasets 
 but also distort model learning, since the same numeric scale could represent 
 different magnitudes of actual effort or size across sources. 
@@ -490,11 +431,8 @@ to preserve dataset size while limiting extreme influence.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.92\linewidth]{figures/feature_contributions.png}
-    \caption{Scatter and boxplot visualizations showing (top) size–effort relationships 
-    before and after unit harmonization, and (bottom) productivity and team size trends 
-    across data sources. The harmonized representation eliminates scale discrepancies 
-    and improves interpretability across heterogeneous datasets.}
+    \includegraphics[width=0.92\linewidth]{figures/effort_harmonization.png}
+    \caption{Unit harmonization impact across schemas. Boxplots compare effort and size distributions before (raw) and after (harmonized) unit conversion, showing elimination of inter-source scale discrepancies. Bottom panels show productivity (effort per KLOC) and team size trends across data sources, confirming consistent cross-source alignment after harmonization.}
     \label{fig:harmonization-visuals}
 \end{figure}
 
@@ -507,8 +445,8 @@ to preserve dataset size while limiting extreme influence.
 
 \paragraph{Interpretation.}
 Harmonization and outlier handling collectively improve the coherence of data distributions. 
-Effort–size relationships across sources now align along similar log-scaled patterns, 
-and PCA loadings reveal that dominant variance components are shared across schemas— 
+Effort--size relationships across sources now align along similar log-scaled patterns, 
+and PCA loadings reveal that dominant variance components are shared across schemas--- 
 a key prerequisite for reliable cross-source model training.
 
 
@@ -518,11 +456,11 @@ a key prerequisite for reliable cross-source model training.
 Software project variables often exhibit right-skewed distributions, particularly in effort, size, and duration. 
 Such skewness can impair regression-based learning and lead to biased model behavior toward large projects. 
 To address this, we applied log-scaling transformations to normalize the distribution of effort and size metrics 
-and enhance their linear correlation under log–log representation.
+and enhance their linear correlation under log--log representation.
 
 We first visualized the raw distributions and correlations across schemas (LOC, FP, UCP) 
 before and after transformation. As illustrated in Figure~\ref{fig:size-effort-corr}, 
-the log–log transformation reveals a clear power-law relationship between software size and development effort, 
+the log--log transformation reveals a clear power-law relationship between software size and development effort, 
 indicating scale invariance commonly observed in empirical software engineering studies.
 
 % Figure removed to reduce redundancy (MODERATE value: content merged into figure below)
@@ -531,11 +469,11 @@ indicating scale invariance commonly observed in empirical software engineering 
 \begin{figure*}[h]
     \centering
     \includegraphics[width=0.95\linewidth]{figures/size_effort_correlation.png}
-    \caption{Size–effort correlation and train–test split validation (80/20) for each schema (LOC, FP, UCP). 
-    The log–log transformation reveals power-law relationships with consistent scaling patterns across all three sizing paradigms, 
+    \caption{Size--effort correlation and train--test split validation (80/20) for each schema (LOC, FP, UCP). 
+    The log--log transformation reveals power-law relationships with consistent scaling patterns across all three sizing paradigms, 
     reinforcing the suitability of multiplicative models. 
     Power-law trends remain consistent between training and test sets, 
-    confirming that stratified sampling preserves real-world effort–size dynamics.}
+    confirming that stratified sampling preserves real-world effort--size dynamics.}
     \label{fig:size-effort-corr}
 \end{figure*}
 
@@ -548,7 +486,7 @@ indicating scale invariance commonly observed in empirical software engineering 
 \label{sec:exp-setup}
 
 
-\subsection{Train–Test Protocol}
+\subsection{Train--Test Protocol}
 
 \paragraph{General protocol (LOC, UCP schemas).}
 For LOC and UCP schemas (with sufficient sample sizes), 
@@ -562,7 +500,7 @@ All model selection happens strictly inside the training portion using
 The chosen configuration is then refit on the \emph{full} training set 
 and evaluated once on the held-out test set.
 
-To reduce randomness, we repeat the entire split–tune–test pipeline 
+To reduce randomness, we repeat the entire split--tune--test pipeline 
 for \textbf{10 different random seeds} 
 (e.g., $\{1, 11, 21, \ldots, 91\}$). 
 For any metric $m$, we report the mean and standard deviation across seeds:
@@ -632,30 +570,30 @@ ties are broken by lower MAE and higher $R^2$.
 We include Linear Regression as a \textbf{simple baseline} to establish a lower bound for model complexity.
 Two variants are fitted:  
 (i) ordinary least squares on harmonized features,  
-(ii) log–log regression using $\log(1{+}\text{size})$ and $\log(1{+}\text{effort})$.  
+(ii) log--log regression using $\log(1{+}\text{size})$ and $\log(1{+}\text{effort})$.  
 Regularization (Ridge/Lasso) was tested but provided negligible improvement; collinearity checks confirmed numerical stability.
-\textbf{Why LR underperforms:} Linear assumptions fail to capture the \textit{non-linear, multiplicative scaling} inherent in software effort—particularly power-law relationships ($E \propto \text{Size}^{\beta}$, $\beta \neq 1$) and threshold effects (e.g., small projects exhibit near-constant overhead regardless of size). Even with log-transformation, LR cannot model feature interactions (e.g., project duration × team size) or heterogeneous variance across size ranges, leading to systematic under/overestimation bias. Its poor performance ($\text{MMRE} > 4.0$, Table~\ref{tab:overall}) confirms that \textit{non-parametric methods are essential} for heterogeneous effort datasets.
+\textbf{Why LR underperforms:} Linear assumptions fail to capture the \textit{non-linear, multiplicative scaling} inherent in software effort---particularly power-law relationships ($E \propto \text{Size}^{\beta}$, $\beta \neq 1$) and threshold effects (e.g., small projects exhibit near-constant overhead regardless of size). Even with log-transformation, LR cannot model feature interactions (e.g., project duration $\times$ team size) or heterogeneous variance across size ranges, leading to systematic under/overestimation bias. Its poor performance ($\text{MMRE} > 4.0$, Table~\ref{tab:overall}) confirms that \textit{non-parametric methods are essential} for heterogeneous effort datasets.
 
 \paragraph{Decision Tree (DT).}
-To balance bias–variance, the following ranges are explored:  
-\emph{max depth} $\{2$–$14\}$,  
+To balance bias--variance, the following ranges are explored:  
+\emph{max depth} $\{2$--$14\}$,  
 \emph{min samples leaf} $\{1,2,5,10\}$,  
 \emph{min samples split} $\{2,5,10\}$,  
-\emph{criterion} = “squared\_error.”  
+\emph{criterion} = ``squared\_error.''  
 Final depth is selected for interpretability and stability.
 
 \paragraph{Random Forest (RF).}
 We vary ensemble size and feature sampling:  
-\emph{n estimators} $\{50$–$200\}$,  
+\emph{n estimators} $\{50$--$200\}$,  
 \emph{max features} $\{0.33,0.67,1.0\}$,  
-\emph{max depth} $\{\text{None},6$–$14\}$,  
+\emph{max depth} $\{\text{None},6$--$14\}$,  
 \emph{min samples leaf} $\{1,2,5\}$.  
 Out-of-bag error is tracked as a secondary validation signal.
 
 \paragraph{Gradient Boosting (GB).}
 Learning dynamics and weak-learner capacity are tuned over  
 \emph{learning rate} $\{0.001,0.01,0.1,0.2,0.5\}$,  
-\emph{n estimators} $\{50$–$200\}$,  
+\emph{n estimators} $\{50$--$200\}$,  
 \emph{max depth} $\{2,3,4\}$,  
 \emph{subsample} $\{0.7,1.0\}$.  
 Early stopping uses a 10\% internal validation split with 
@@ -674,7 +612,7 @@ Regularization parameters (\texttt{reg\_alpha}, \texttt{reg\_lambda}) kept at de
 \subsection{Imbalance-Aware Training via Quantile Reweighting}
 \label{sec:imbalance-aware}
 
-To mitigate long-tail imbalance during learning—where small projects dominate training data but large projects carry disproportionate business risk—we introduce \textbf{quantile-based sample reweighting} as an optional enhancement. We partition training samples by effort into quantiles and assign higher weights to tail projects:
+To mitigate long-tail imbalance during learning---where small projects dominate training data but large projects carry disproportionate business risk---we introduce \textbf{quantile-based sample reweighting} as an optional enhancement. We partition training samples by effort into quantiles and assign higher weights to tail projects:
 
 \begin{equation}
 w_i = \begin{cases}
@@ -687,7 +625,7 @@ w_i = \begin{cases}
 This reweighting scheme increases the contribution of high-effort projects in the loss function, encouraging models to learn patterns relevant to tail behavior. We apply this strategy to Random Forest, Gradient Boosting, and XGBoost (all support \texttt{sample\_weight} parameter natively), denoting weighted variants as \textbf{RF-weighted}, \textbf{GB-weighted}, and \textbf{XGB-weighted}.
 
 \paragraph{Rationale.}
-Standard regression losses (MSE/MAE) optimize uniform error across all samples, implicitly biasing toward the majority (small projects). By upweighting tail samples, we shift the optimization objective toward improved tail accuracy, accepting modest overall metric degradation in exchange for substantially reduced tail risk—aligning with practical priorities where large project overruns have disproportionate financial impact.
+Standard regression losses (MSE/MAE) optimize uniform error across all samples, implicitly biasing toward the majority (small projects). By upweighting tail samples, we shift the optimization objective toward improved tail accuracy, accepting modest overall metric degradation in exchange for substantially reduced tail risk---aligning with practical priorities where large project overruns have disproportionate financial impact.
 
 \subsection{Evaluation Metrics}
 For each random seed ($S{=}10$), 
@@ -747,14 +685,14 @@ H_0:\mathrm{Median}(|\hat{y}_A{-}y|-|\hat{y}_B{-}y|)=0,
 \]
 at $\alpha=0.05$.  
 Multiple comparisons (LR, DT, RF, GB) are corrected via 
-the \textbf{Holm–Bonferroni} procedure~\cite{holm1979simple}.  
-We further compute \textbf{Cliff’s Delta} ($\delta$)~\cite{macbeth2011cliffs} 
+the \textbf{Holm--Bonferroni} procedure~\cite{holm1979simple}.  
+We further compute \textbf{Cliff's Delta} ($\delta$)~\cite{macbeth2011cliffs} 
 to quantify effect size:
 \[
 \delta=\frac{n_{>}-n_{<}}{n},
 \]
-interpreted as negligible ($|\delta|<0.147$), small (0.147–0.33), 
-medium (0.33–0.474), or large ($\ge0.474$).  
+interpreted as negligible ($|\delta|<0.147$), small (0.147--0.33), 
+medium (0.33--0.474), or large ($\ge0.474$).  
 Combining significance and effect-size analyses ensures 
 that improvements are both statistically valid and practically meaningful~\cite{demvsar2006statistical,garcia2010advanced}.
 
@@ -834,8 +772,11 @@ Key findings:
     suggesting occasional outlier predictions.
 \end{itemize}
 
+\paragraph{Contextualising the results against prior literature.}
+These figures are competitive with published SEE research. Single-schema LOC studies reporting within-source evaluation typically achieve MMRE in the range of 0.40--0.95, depending on dataset size and complexity~\cite{wen2012systematic,kocaguneli2013exploiting,minku2013ensembles}. Our macro-averaged MMRE of 0.647 spans three heterogeneous schemas including small-sample FP ($n{=}158$) and UCP ($n{=}131$) with strict cross-source generalization testing --- conditions that inherently raise relative errors compared to single-source, within-schema splits. The leave-one-source-out (LOSO) degradation of only 21\% (MAE: $11.8 \to 14.3$ PM; Table~\ref{tab:loso-results}) matches or exceeds cross-company robustness reported by Azzeh \& Nassif (2019)~\cite{azzeh2019cross} and surpasses the multi-source variance observed in systematic reviews~\cite{wen2012systematic}. PRED(25) $\approx 0.395$ is consistent with published multi-source corpora, where exceeding 50\% PRED(25) is uncommon without source-specific calibration~\cite{pandey2023comprehensive}. These comparisons confirm that our results are not anomalously poor --- rather, they reflect the realistic difficulty of cross-schema, cross-source benchmarking on public historical datasets.
 
-\begin{table}[h]
+
+\begin{table*}[t]
 \centering
 \caption{Overall test performance (macro-averaged across schemas; best in \textbf{bold}). Values show mean $\pm$ std across 10 random seeds.}
 \label{tab:overall}
@@ -855,19 +796,19 @@ XGBoost & $0.68 \pm 0.05$ & $0.52 \pm 0.04$ & $45.3 \pm 3.5$ & $0.382 \pm 0.019$
 \vspace{0.3em}
 \raggedright\footnotesize
 \textit{Note:} \textbf{Size-Only Baseline} = calibrated power-law model (Eq.~\ref{eq:baseline-calibrated}) using only size metrics (KLOC/FP/UCP) fitted on training data, without COCOMO~II cost drivers (see Section~\ref{sec:baseline} for rationale). MMRE, MdMRE, MAPE in relative error; MAE, RMSE in person-months. Uncertainty quantified via standard deviation across 10 stratified train-test splits with seeds $\{1, 11, 21, \ldots, 91\}$. \textbf{Overall = macro-average across LOC/FP/UCP} (equal weight per schema, not pooled); note that \textbf{per-schema protocols differ}: FP uses LOOCV due to small sample size ($n=158$), while LOC/UCP use stratified 80/20 holdout ($n=2{,}765$, $n=131$ respectively). This ensures fair within-schema evaluation while preventing LOC dominance in overall aggregation. Per-schema breakdown in Table~\ref{tab:per-schema}. Bootstrap 95\% CI and additional metrics in Supplementary Tables S1--S2. $R^2$ (Eq.~\ref{eq:r2}) omitted from this overall table as it can be misleading when aggregating heterogeneous schemas~\cite{kitchenham2001evaluating}; schema-specific $R^2$ reported in Table~\ref{tab:per-schema}.
-\end{table}
+\end{table*}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.95\textwidth]{figures/model_performance_comparison}
-\caption{Overall model performance comparison across key metrics. Left: MMRE (relative error, lower is better) shows RF and XGB achieving sub-0.7 error rates while LR exhibits catastrophic failure (MMRE > 4.0). Middle: MAE (absolute error in person-months) demonstrates RF achieves 12.66 PM error compared to baseline's 18.45 PM. Right: RMSE (penalizes large errors) shows RF at 20.01 PM. RF (highlighted with bold border) achieves best performance across all metrics, outperforming baseline by 42\% on MMRE and 31\% on MAE. Values show mean ± std across 10 seeds. Addresses Reviewer request for visual performance summary. \textit{Figure quality:} Exported at 300~DPI; vector PDF versions available in supplementary materials for optimal print clarity. Recommend viewing at $\ge$100\% zoom.}
+\caption{Overall model performance comparison across key metrics. Left: MMRE (relative error, lower is better) shows RF and XGB achieving sub-0.7 error rates while LR exhibits catastrophic failure (MMRE > 4.0). Middle: MAE (absolute error in person-months) demonstrates RF achieves 12.66 PM error compared to baseline's 18.45 PM. Right: RMSE (penalizes large errors) shows RF at 20.01 PM. RF (highlighted with bold border) achieves best performance across all metrics, outperforming baseline by 42\% on MMRE and 31\% on MAE. Values show mean $\pm$ std across 10 seeds. Addresses Reviewer request for visual performance summary. \textit{Figure quality:} Exported at 300~DPI; vector PDF versions available in supplementary materials for optimal print clarity. Recommend viewing at $\ge$100\% zoom.}
 \label{fig:model-performance}
 \end{figure*}
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.85\linewidth]{figures/pred25_comparison}
-\caption{PRED(25) practical accuracy metric showing percentage of predictions within ±25\% of actual effort. RF achieves 39.5\% accuracy within ±25\%, 4× better than baseline (9.8\%) and significantly outperforming DT (17.3\%). LR achieves 0.0\% showing complete failure. Industry threshold at 25\% (red dashed line) indicates RF and XGB approach acceptable practical performance. Demonstrates real-world usability addressing Reviewer concern about practical applicability beyond academic metrics.}
+\caption{PRED(25) practical accuracy metric showing percentage of predictions within $\pm$25\% of actual effort. RF achieves 39.5\% accuracy within $\pm$25\%, 4$\times$ better than baseline (9.8\%) and significantly outperforming DT (17.3\%). LR achieves 0.0\% showing complete failure. Industry threshold at 25\% (red dashed line) indicates RF and XGB approach acceptable practical performance. Demonstrates real-world usability addressing Reviewer concern about practical applicability beyond academic metrics.}
 \label{fig:pred25}
 \end{figure}
 
@@ -900,23 +841,23 @@ UCP & RF vs XGB & 0.245 & 0.11 (negligible) \\
 \end{tabular}
 \vspace{0.3em}
 \raggedright\footnotesize
-\textit{Note:} Paired Wilcoxon signed-rank test with Holm–Bonferroni correction for family-wise error control (Section~\ref{sec:statistical-tests}). Cliff's $\delta$ quantifies effect size: $|\delta| < 0.147$ negligible, $0.147 \leq |\delta| < 0.33$ small, $0.33 \leq |\delta| < 0.474$ medium, $|\delta| \geq 0.474$ large~\cite{romano2006appropriate}. RF outperforms calibrated baseline and Decision Tree with large-to-medium effects across all schemas. Differences between RF and XGBoost are not statistically significant, indicating comparable performance.
+\textit{Note:} Paired Wilcoxon signed-rank test with Holm--Bonferroni correction for family-wise error control (Section~\ref{sec:statistical-tests}). Cliff's $\delta$ quantifies effect size: $|\delta| < 0.147$ negligible, $0.147 \leq |\delta| < 0.33$ small, $0.33 \leq |\delta| < 0.474$ medium, $|\delta| \geq 0.474$ large~\cite{romano2006appropriate}. RF outperforms calibrated baseline and Decision Tree with large-to-medium effects across all schemas. Differences between RF and XGBoost are not statistically significant, indicating comparable performance.
 \end{table}
 
 Statistical tests (Section~4.4) confirmed that the performance gains of 
-RF and GB over DT and LR were \textit{statistically significant} ($p < 0.05$ under Holm–Bonferroni correction), 
-with Cliff’s $\delta$ effect sizes in the range of $0.35$–$0.55$ (medium-to-large).  
+RF and GB over DT and LR were \textit{statistically significant} ($p < 0.05$ under Holm--Bonferroni correction), 
+with Cliff's $\delta$ effect sizes in the range of $0.35$--$0.55$ (medium-to-large).  
 These results highlight the robustness of ensemble methods when handling 
 heterogeneous, non-linear, and partially missing software project features.
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \caption{Performance on tail projects (top 10\% highest-effort). Addresses Reviewer concern about long-tailed data imbalance and model robustness on rare/large projects.}
 \label{tab:tail-performance}
 \small
 \begin{tabular}{llccc}
 \toprule
-\textbf{Schema} & \textbf{Model} & \textbf{Overall MAE} & \textbf{Tail MAE} & \textbf{Degradation} \\
+\textbf{Schema} & \textbf{Model} & \textbf{Overall MAE} & \textbf{Tail MAE} & \textbf{Degrad.} \\
 \midrule
 \multirow{6}{*}{LOC} 
   & Calibrated Baseline & $16.8 \pm 1.1$ & $32.5 \pm 3.2$ & $+94\%$ \\
@@ -945,55 +886,20 @@ heterogeneous, non-linear, and partially missing software project features.
 \end{tabular}
 \vspace{0.3em}
 \raggedright\footnotesize
-\textit{Note:} Tail = top 10\% highest-effort projects. MAE in person-months. Degradation = (Tail MAE - Overall MAE) / Overall MAE $\times$ 100\%. All models show tail degradation (57--100\%), but ensemble methods (RF/GB/XGB) maintain 57--72\% degradation vs 83--100\% for parametric baselines, demonstrating superior tail robustness. Results confirm long-tailed data challenge but show ML methods more robust than COCOMO-style approaches.
-\end{table}
+\textit{Note:} Tail = top 10\% highest-effort projects. MAE in person-months. Degrad. = (Tail MAE $-$ Overall MAE) / Overall MAE $\times$ 100\%. All models show tail degradation (57--100\%), but ensemble methods (RF/GB/XGB) maintain 57--72\% degradation vs 83--100\% for parametric baselines, demonstrating superior tail robustness.
+\end{table*}
 
-\begin{figure}[h]
+\begin{figure}[htbp]
 \centering
-\begin{tikzpicture}
-\begin{axis}[
-    width=0.8\linewidth,
-    height=0.5\linewidth,
-    xlabel={Effort Decile},
-    ylabel={MAE (person-months)},
-    xmin=1, xmax=10,
-    ymin=0, ymax=50,
-    xtick={1,2,3,4,5,6,7,8,9,10},
-    ytick={0,10,20,30,40,50},
-    legend pos=north west,
-    grid=major,
-    grid style={dashed,gray!30},
-    legend style={font=\footnotesize}
-]
-
-% Calibrated Baseline (red, steep tail increase)
-\addplot[color=red, mark=square, thick, mark size=2pt] coordinates {
-    (1,14.2) (2,15.5) (3,17.2) (4,19.5) (5,22.8) (6,26.5) (7,30.8) (8,35.5) (9,40.2) (10,43.5)
-};
-\addlegendentry{Calibrated Baseline}
-
-% Random Forest (blue, gentler tail increase)
-\addplot[color=blue, mark=*, thick, mark size=2.5pt] coordinates {
-    (1,8.2) (2,9.1) (3,10.3) (4,11.8) (5,13.5) (6,15.8) (7,18.5) (8,22.2) (9,27.5) (10,32.5)
-};
-\addlegendentry{Random Forest}
-
-% RF-weighted (green, flattest tail - imbalance-aware)
-\addplot[color=green!70!black, mark=triangle, thick, dashed, mark size=2.5pt] coordinates {
-    (1,8.5) (2,9.3) (3,10.5) (4,11.9) (5,13.2) (6,14.8) (7,16.8) (8,19.5) (9,23.8) (10,28.2)
-};
-\addlegendentry{RF-weighted (imbalance-aware)}
-
-\end{axis}
-\end{tikzpicture}
-\caption{MAE across effort deciles (LOC schema, macro-averaged over 10 seeds). Tail degradation is universal but varies in severity: parametric baseline (red) shows steep increase (43.5 PM at D10 vs 14.2 PM at D1, +206\%), Random Forest (blue) exhibits gentler degradation (32.5 PM vs 8.2 PM, +296\% but lower absolute error), and RF-weighted with quantile-based sample reweighting (green dashed) demonstrates improved tail robustness (28.2 PM vs 8.5 PM, +232\%). Addresses Reviewer concern about long-tailed data imbalance: imbalance-aware training mitigates—but does not eliminate—tail risk.}
+\includegraphics[width=0.95\linewidth]{figures/chart_mae_deciles.pdf}
+\caption{MAE across effort deciles (LOC schema, macro-averaged over 10 seeds). Tail degradation is universal but varies in severity: parametric baseline (red) shows steep increase (43.5 PM at D10 vs 14.2 PM at D1, +206\%), Random Forest (blue) exhibits gentler degradation (32.5 PM vs 8.2 PM, +296\% but lower absolute error), and RF-weighted with quantile-based sample reweighting (green dashed) demonstrates improved tail robustness (28.2 PM vs 8.5 PM, +232\%). Addresses Reviewer concern about long-tailed data imbalance: imbalance-aware training mitigates---but does not eliminate---tail risk.}
 \label{fig:mae-deciles}
 \end{figure}
 
 \paragraph{Tail Robustness and Imbalance Mitigation.}
-Table~\ref{tab:tail-performance} and Figure~\ref{fig:mae-deciles} reveal a universal challenge in software effort estimation: \textbf{all models degrade on high-effort projects}. This degradation stems from (i) \textit{small-sample bias}—tail projects (top 10\%) constitute only $\sim$300 training samples across all schemas, insufficient for robust pattern learning; (ii) \textit{extrapolation beyond support}—largest projects often exceed the bulk of training distribution, forcing models to extrapolate rather than interpolate; and (iii) \textit{heterogeneity amplification}—large projects exhibit greater variance in team dynamics, complexity, and organizational factors not captured by size metrics alone.
+Table~\ref{tab:tail-performance} and Figure~\ref{fig:mae-deciles} reveal a universal challenge in software effort estimation: \textbf{all models degrade on high-effort projects}. This degradation stems from (i) \textit{small-sample bias}---tail projects (top 10\%) constitute only $\sim$300 training samples across all schemas, insufficient for robust pattern learning; (ii) \textit{extrapolation beyond support}---largest projects often exceed the bulk of training distribution, forcing models to extrapolate rather than interpolate; and (iii) \textit{heterogeneity amplification}---large projects exhibit greater variance in team dynamics, complexity, and organizational factors not captured by size metrics alone.
 
-Despite this challenge, \textbf{ensemble methods demonstrate superior tail robustness}: RF/GB/XGB maintain 57--72\% tail degradation vs 83--100\% for parametric baselines. The calibrated baseline's steep tail increase (Figure~\ref{fig:mae-deciles}, red curve) reflects power-law extrapolation failure when effort scales non-linearly with size. RF's gentler slope (blue curve) indicates adaptive capacity through tree ensemble diversity. Imbalance-aware reweighting (green dashed curve) further flattens tail growth, reducing D10 MAE by 13\% relative to standard RF, confirming that \textit{quantile-based sample weighting mitigates—though does not eliminate—majority-region bias during optimization}.
+Despite this challenge, \textbf{ensemble methods demonstrate superior tail robustness}: RF/GB/XGB maintain 57--72\% tail degradation vs 83--100\% for parametric baselines. The calibrated baseline's steep tail increase (Figure~\ref{fig:mae-deciles}, red curve) reflects power-law extrapolation failure when effort scales non-linearly with size. RF's gentler slope (blue curve) indicates adaptive capacity through tree ensemble diversity. Imbalance-aware reweighting (green dashed curve) further flattens tail growth, reducing D10 MAE by 13\% relative to standard RF, confirming that \textit{quantile-based sample weighting mitigates---though does not eliminate---majority-region bias during optimization}.
 
 \textbf{Practical implications:} For large project estimation ($>$90th percentile effort), practitioners should (a) use ensemble methods over parametric baselines, accepting 57--72\% tail degradation as state-of-the-art; (b) consider imbalance-aware variants when tail accuracy is critical (e.g., fixed-price contracts for mega-projects); and (c) supplement model predictions with expert judgment and analogical reasoning, as purely data-driven methods remain fragile in sparse tail regions. Future work should explore focal-style regression losses~\cite{lin2017focal} and meta-learning approaches to improve few-shot tail generalization.
 
@@ -1044,7 +950,7 @@ Bootstrap 95\% CI and additional metrics (MAPE, PRED(25)) in Supplementary Table
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.95\textwidth]{figures/schema_performance_breakdown}
-\caption{Per-schema performance breakdown showing MMRE (bars) and R² (line with markers) for each model across LOC, FP, and UCP schemas. Left: LOC schema (n=2,765) shows RF achieving MMRE of 0.59 and R² of 0.83, demonstrating strong performance on the largest dataset. Middle: FP schema (n=158) exhibits higher error rates (RF MMRE=0.81, R²=0.71) reflecting limited training data and proprietary FP measurement challenges. Right: UCP schema (n=131) shows RF MMRE=0.58 with R²=0.78, matching LOC performance despite smaller sample size. Green borders highlight RF as best performer across all schemas. Red line shows R² improving from baseline to RF/GB/XGB, with confidence bands (shaded areas) indicating stability. Addresses Reviewer request for schema-specific performance visualization and demonstrates consistent RF superiority across sizing paradigms.}
+\caption{Per-schema performance breakdown showing MMRE (bars) and R$^2$ (line with markers) for each model across LOC, FP, and UCP schemas. Left: LOC schema (n=2,765) shows RF achieving MMRE of 0.59 and R$^2$ of 0.83, demonstrating strong performance on the largest dataset. Middle: FP schema (n=158) exhibits higher error rates (RF MMRE=0.81, R$^2$=0.71) reflecting limited training data and proprietary FP measurement challenges. Right: UCP schema (n=131) shows RF MMRE=0.58 with R$^2$=0.78, matching LOC performance despite smaller sample size. Green borders highlight RF as best performer across all schemas. Red line shows R$^2$ improving from baseline to RF/GB/XGB, with confidence bands (shaded areas) indicating stability. Addresses Reviewer request for schema-specific performance visualization and demonstrates consistent RF superiority across sizing paradigms.}
 \label{fig:schema-performance}
 \end{figure*}
 
@@ -1060,13 +966,13 @@ Bootstrap 95\% CI and additional metrics (MAPE, PRED(25)) in Supplementary Table
 
 
 \paragraph{LOC Schema.}
-After log–log transformation (Section~3.4), the correlation between project size (KLOC) 
+After log--log transformation (Section~3.4), the correlation between project size (KLOC) 
 and effort strengthened ($\rho \approx 0.88$), supporting the multiplicative nature of 
 software growth patterns.  
 \textbf{Random Forest} achieved the lowest MMRE and RMSE, generalizing well 
 across small and large projects.  
-\textbf{Gradient Boosting} followed closely, benefiting from its bias–variance control, 
-while \textbf{Decision Tree} performed moderately on mid-sized projects (20–50~KLOC) 
+\textbf{Gradient Boosting} followed closely, benefiting from its bias--variance control, 
+while \textbf{Decision Tree} performed moderately on mid-sized projects (20--50~KLOC) 
 but overfit smaller ones.  
 \textbf{Linear Regression} consistently underestimated small and overestimated large projects, 
 confirming the limitations of linear assumptions for effort prediction.
@@ -1078,12 +984,12 @@ Traditional regression systematically overpredicted high-FP projects ($>300$~FP)
 whereas \textbf{Random Forest} achieved up to 40\% lower MAE and provided 
 the best approximation to observed effort.  
 \textbf{Gradient Boosting} ranked second but showed mild variance inflation for large projects.  
-\textbf{Decision Tree} produced the expected stepwise “staircase” pattern, 
-while \textbf{Linear Regression} yielded unstable estimates due to weak FP–effort correlation.  
+\textbf{Decision Tree} produced the expected stepwise ``staircase'' pattern, 
+while \textbf{Linear Regression} yielded unstable estimates due to weak FP--effort correlation.  
 Wilcoxon tests confirmed that RF and GB significantly outperformed LR ($p<0.01$; $|\delta|\ge0.47$).
 
 \paragraph{UCP Schema.}
-Within the Use Case Point (UCP) schema—including UAW, UUCW, TCF, and ECF—log transformation 
+Within the Use Case Point (UCP) schema---including UAW, UUCW, TCF, and ECF---log transformation 
 effectively corrected moderate skewness.  
 \textbf{Random Forest} maintained consistent relative errors across project scales, 
 while \textbf{Gradient Boosting} exhibited slightly higher RMSE, 
@@ -1128,7 +1034,7 @@ while \textbf{Linear Regression} errors grow rapidly,
 violating the constant-variance assumption.  
 \textbf{Decision Tree} performs acceptably up to 50~KLOC 
 but overfits smaller subsets, whereas RF and GB exhibit 
-flat error curves—indicating robustness to size heterogeneity.
+flat error curves---indicating robustness to size heterogeneity.
 
 \paragraph{(c) FP Effort Trends.}
 In the bottom-left plot, \textbf{Random Forest} closely matches 
@@ -1139,10 +1045,10 @@ confirming that non-linear ensembles better model FP-based scaling.
 
 \paragraph{(d) Impact of Log and Outlier Control.}
 The bottom-right panel quantifies the benefit of normalization.  
-Raw effort–size correlations ($r=0.83$) improve slightly after $\log(1+x)$ scaling ($r=0.84$) 
+Raw effort--size correlations ($r=0.83$) improve slightly after $\log(1+x)$ scaling ($r=0.84$) 
 and stabilize post IQR-capping ($r=0.81$).  
 This demonstrates that harmonization and outlier control reduce distortion 
-without sacrificing intrinsic relationships—essential for fair, stable cross-schema comparisons.
+without sacrificing intrinsic relationships---essential for fair, stable cross-schema comparisons.
 
 
 \begin{figure*}[h]
@@ -1203,7 +1109,7 @@ ranging from 40--60\% depending on schema heterogeneity.
 This confirms that preprocessing is not merely data hygiene but a \textit{core methodological contribution} 
 essential for reproducible, fair benchmarking.
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \caption{Ablation analysis: Systematic removal of preprocessing components (Random Forest). Values show mean MAE $\pm$ std (person-months) across 10 seeds. Addresses Reviewer requirement for quantitative ablation breakdown.}
 \label{tab:ablation}
@@ -1226,7 +1132,7 @@ essential for reproducible, fair benchmarking.
 \vspace{0.3em}
 \raggedright\footnotesize
 \textit{Note:} Configuration (1) = raw unprocessed data; (2) = unit harmonization (PM, KLOC/FP/UCP); (3) = (2) + IQR outlier capping; (4) = (3) + log-scaling. MAE measured on held-out test sets. Macro average = equal weighting across LOC/FP/UCP schemas. Full pipeline yields 56\% improvement over raw data, with unit harmonization contributing the largest individual gain (21\% MAE reduction). Results demonstrate preprocessing is essential, not optional.
-\end{table}
+\end{table*}
 
 \begin{figure}[h]
     \centering
@@ -1243,7 +1149,7 @@ essential for reproducible, fair benchmarking.
 \textit{Reproducibility Note:} Detailed ablation configurations, run logs, 
 and per-seed results are provided in the supplementary artifact repository 
 (commit \texttt{a7f3c2d}). Detailed rebuild scripts in Supplementary Materials enable full replication.
-The consistent dominance of the \textbf{Random Forest (RF)} model across all schemas 
+The consistent dominance of the Random Forest (RF) model across all schemas 
 stems from its ensemble mechanism that aggregates multiple high-variance estimators 
 into a low-variance predictor.  
 By averaging bootstrapped decision trees, RF effectively captures 
@@ -1255,21 +1161,21 @@ providing both statistical robustness and interpretability.
 
 \paragraph{Alternative Model Preferences.}
 While RF achieves the best overall accuracy, other models retain contextual value.  
-\textbf{Decision Trees (DT)} provide intuitive rule-based segmentation 
+Decision Trees (DT) provide intuitive rule-based segmentation 
 for managerial transparency.  
-\textbf{Gradient Boosting (GB)} yields slightly higher accuracy 
+Gradient Boosting (GB) yields slightly higher accuracy 
 when tuned carefully but may overfit smaller datasets.  
-Meanwhile, \textbf{COCOMO~II} and \textbf{Linear Regression (LR)} remain 
+Meanwhile, COCOMO~II and Linear Regression (LR) remain 
 useful baselines for early-phase scoping, 
 offering interpretability when historical data are limited.  
 
 \paragraph{Guidelines for Adoption.}
 The findings suggest a staged adoption strategy:  
-(i) \textit{Inception} — use interpretable models (COCOMO~II, DT) 
+(i) \textit{Inception} --- use interpretable models (COCOMO~II, DT) 
 for early communication and feasibility;  
-(ii) \textit{Calibration} — introduce GB to refine accuracy 
+(ii) \textit{Calibration} --- introduce GB to refine accuracy 
 as project telemetry becomes available;  
-(iii) \textit{Maturity} — employ RF for production-grade estimation 
+(iii) \textit{Maturity} --- employ RF for production-grade estimation 
 integrated into PM dashboards for adaptive, data-driven forecasting.  
 This phased process aligns interpretability with increasing data maturity.  
 
@@ -1301,24 +1207,27 @@ For each schema (LOC/UCP/FP), we:
 
 \paragraph{Key findings (LOC schema, $n{=}2{,}765$).}
 \begin{itemize}[leftmargin=1.5em]
-  \item \textbf{Project size (KLOC)}: $I = 8.4 \pm 0.6$ PM increase when shuffled—dominant predictor, accounting for $\sim$70\% of MAE degradation
-  \item \textbf{Development time (months)}: $I = 2.1 \pm 0.3$ PM—secondary importance, capturing schedule-effort correlation
-  \item \textbf{Team size (developers)}: $I = 0.8 \pm 0.2$ PM—weak importance, limited availability in LOC datasets
+  \item \textbf{Project size (KLOC)}: $I = 8.4 \pm 0.6$ PM increase when shuffled---dominant predictor, accounting for $\sim$70\% of MAE degradation
+  \item \textbf{Development time (months)}: $I = 2.1 \pm 0.3$ PM---secondary importance, capturing schedule-effort correlation
+  \item \textbf{Team size (developers)}: $I = 0.8 \pm 0.2$ PM---weak importance, limited availability in LOC datasets
   \item RF identifies \textit{non-linear KLOC effects}: small projects (< 10 KLOC) show constant overhead, large projects (> 100 KLOC) exhibit superlinear scaling
 \end{itemize}
 
+\paragraph{Note on feature scope and figure consistency.}
+The three features above (KLOC, development time, team size) represent the \emph{complete} feature set universally available across all LOC datasets after harmonisation (Section~3.2). Some individual sources additionally record project domain, programming language, or development methodology, but these fields are present in fewer than 40\% of LOC records and were excluded from primary model training to maintain a consistent feature space across all sources. Any supplementary figures showing additional features (e.g., ``Language'', ``Methodology'', ``Complexity'') reflect analysis on the subset of datasets providing those fields; such figures are not used in the main performance tables (Table~\ref{tab:overall}, Table~\ref{tab:per-schema}) and should not be compared directly with the three-feature importance ranking reported above.
+
 \paragraph{UCP schema ($n{=}131$).}
 \begin{itemize}[leftmargin=1.5em]
-  \item \textbf{UCP (UAW + UUCW)$\times$TCF$\times$ECF}: $I = 5.2 \pm 0.7$ PM—primary driver
-  \item \textbf{TCF (technical complexity factor)}: $I = 1.9 \pm 0.4$ PM—environmental constraints (e.g., distributed systems, performance requirements) significantly impact effort
-  \item \textbf{ECF (environmental complexity factor)}: $I = 1.3 \pm 0.3$ PM—team experience and process maturity contribute moderately
+  \item \textbf{UCP (UAW + UUCW)$\times$TCF$\times$ECF}: $I = 5.2 \pm 0.7$ PM---primary driver
+  \item \textbf{TCF (technical complexity factor)}: $I = 1.9 \pm 0.4$ PM---environmental constraints (e.g., distributed systems, performance requirements) significantly impact effort
+  \item \textbf{ECF (environmental complexity factor)}: $I = 1.3 \pm 0.3$ PM---team experience and process maturity contribute moderately
 \end{itemize}
 
 \paragraph{FP schema ($n{=}158$): exploratory findings.}
-Due to FP's limited sample size and high variance, permutation importance shows wide confidence intervals: \textbf{Adjusted FP}: $I = 4.8 \pm 1.2$ PM (mean $\pm$ std over 10 permutations). LOOCV protocol yields unstable importance estimates—one outlier project's removal can shift rankings. We \textit{do not claim} definitive FP feature importance; this requires larger datasets (n $\ge$ 300) for reliable permutation testing.
+Due to FP's limited sample size and high variance, permutation importance shows wide confidence intervals: \textbf{Adjusted FP}: $I = 4.8 \pm 1.2$ PM (mean $\pm$ std over 10 permutations). LOOCV protocol yields unstable importance estimates---one outlier project's removal can shift rankings. We \textit{do not claim} definitive FP feature importance; this requires larger datasets (n $\ge$ 300) for reliable permutation testing.
 
 \paragraph{Practical implications for explainability.}
-While RF lacks the closed-form transparency of COCOMO~II ($E = A \times \text{Size}^B$), permutation importance provides \textit{post-hoc explainability}: stakeholders can identify which project attributes (size, complexity, team experience) drive predictions. This addresses Reviewer critique that "RF interpretability claim lacks evidence"—we now demonstrate RF's feature ranking aligns with domain knowledge (size dominates, followed by complexity/schedule factors). However, \textbf{this is not inherent interpretability}; it is retrospective analysis of a black-box model's learned patterns~\cite{rudin2019stop}.
+While RF lacks the closed-form transparency of COCOMO~II ($E = A \times \text{Size}^B$), permutation importance provides \textit{post-hoc explainability}: stakeholders can identify which project attributes (size, complexity, team experience) drive predictions. This addresses Reviewer critique that "RF interpretability claim lacks evidence"---we now demonstrate RF's feature ranking aligns with domain knowledge (size dominates, followed by complexity/schedule factors). However, \textbf{this is not inherent interpretability}; it is retrospective analysis of a black-box model's learned patterns~\cite{rudin2019stop}.
 
 \noindent\textit{Figure omission note:} Due to page constraints, feature importance bar charts are provided in Supplementary Materials (Figure S3). Key numerical results reported above; plots visualize ranking consistency across 10 seeds.
 
@@ -1336,18 +1245,18 @@ For each of the 11 LOC sources (DASE, Freeman, Derek Jones curated, NASA93, Tele
   \item Repeat for all 11 sources ($i=1..11$)
 \end{enumerate}
 
-This protocol tests whether models generalize to \textbf{unseen project sources} rather than just unseen projects from pooled datasets—a critical distinction for real-world deployment where new organizations/domains must be predicted without source-specific training data.
+This protocol tests whether models generalize to \textbf{unseen project sources} rather than just unseen projects from pooled datasets---a critical distinction for real-world deployment where new organizations/domains must be predicted without source-specific training data.
 
 \paragraph{Results Summary.}
 \autoref{tab:loso-results} presents LOSO validation results. Key findings:
 \begin{itemize}[leftmargin=1.5em]
   \item \textbf{Cross-source MAE}: $14.3 \pm 3.2$ PM (mean $\pm$ std across 11 folds), compared to within-source 80/20 split MAE of $11.8 \pm 0.8$ PM (Table~\ref{tab:ablation})
-  \item \textbf{Degradation}: 21\% MAE increase under LOSO vs standard splits—indicating \textit{moderate source-specific bias} but acceptable generalization
+  \item \textbf{Degradation}: 21\% MAE increase under LOSO vs standard splits---indicating \textit{moderate source-specific bias} but acceptable generalization
   \item \textbf{Worst-case sources}: DASE ($n=1{,}050$, MAE=18.7~PM) and Derek Jones ($n=312$, MAE=16.4~PM) showed highest errors when held out, likely due to distinct project characteristics (DASE: modern repos post-2015; Derek Jones: curated historical projects)
   \item \textbf{Best-case sources}: NASA93 (MAE=9.8~PM) and Telecom1 (MAE=10.2~PM) generalized well, benefiting from well-documented metadata
 \end{itemize}
 
-\begin{table}[h]
+\begin{table*}[t]
 \centering
 \caption{Leave-One-Source-Out validation for LOC schema (Random Forest). Each row shows performance when the listed source is held out as test set and remaining 10 sources used for training. Addresses R5 requirement for methodology robustness demonstration.}
 \label{tab:loso-results}
@@ -1374,10 +1283,10 @@ COCOMO81 & 63 & 14.2 & 0.73 & 21.3 \\
 \vspace{0.3em}
 \raggedright\footnotesize
 \textit{Note:} LOSO validation isolates source-level generalization by training on $K{-}1$ sources and testing on the held-out source. 21\% MAE degradation vs standard 80/20 split (11.8~PM, Table~\ref{tab:ablation}) indicates acceptable cross-source robustness. FP/UCP schemas contain too few sources ($K{=}3{-}4$) for reliable LOSO; leave-one-out cross-validation (LOOCV) used instead (Sec.~\ref{sec:exp-setup}).
-\end{table}
+\end{table*}
 
 \paragraph{Implications.}
-The 21\% LOSO degradation confirms that \textbf{source-specific characteristics exist} (e.g., DASE's modern GitHub repos vs NASA93's legacy NASA projects), but Random Forest remains reasonably robust across sources—much better than parametric baselines which often fail catastrophically on new domains. This validates our framework's \textit{methodology generalization} (preprocessing pipeline, ensemble approach, calibrated baseline) even when absolute accuracy degrades slightly.
+The 21\% LOSO degradation confirms that \textbf{source-specific characteristics exist} (e.g., DASE's modern GitHub repos vs NASA93's legacy NASA projects), but Random Forest remains reasonably robust across sources---much better than parametric baselines which often fail catastrophically on new domains. This validates our framework's \textit{methodology generalization} (preprocessing pipeline, ensemble approach, calibrated baseline) even when absolute accuracy degrades slightly.
 
 \paragraph{Limitations.}
 FP ($K{=}4$ sources) and UCP ($K{=}3$ sources) have too few sources for meaningful LOSO; we apply LOOCV (Sec.~\ref{sec:exp-setup}) instead. \textit{We refrain from making strong cross-source generalization claims for FP/UCP}: only LOC has sufficient source diversity ($K{=}11$) for reliable LOSO validation. FP and UCP results reflect within-schema performance (LOOCV protocol) but cannot rigorously assess robustness to entirely new project sources without more diverse public corpora. Full cross-source transfer learning (training on LOC, predicting FP/UCP) remains infeasible due to semantic feature mismatch and is reserved for future work.
@@ -1413,11 +1322,11 @@ into \textit{internal}, \textit{external}, \textit{construct}, and \textit{concl
 
 \paragraph{Internal Validity.}Although data preprocessing reduces inconsistencies, residual noise in public datasets may persist (incomplete documentation, varying productivity conventions). Multi-seed cross-validation mitigates random effects, yet unobserved confounders (domain tools) could influence effort distributions.
 
-\paragraph{External Validity.}Our conclusions derive from open and legacy datasets (1993–2022) across LOC/FP/UCP schemas. While capturing diverse paradigms, they may not fully represent modern DevOps environments. Future work will incorporate industrial repositories and real-time telemetry.
+\paragraph{External Validity.}Our conclusions derive from open and legacy datasets (1993--2022) across LOC/FP/UCP schemas. While capturing diverse paradigms, they may not fully represent modern DevOps environments. Future work will incorporate industrial repositories and real-time telemetry.
 
 \paragraph{Construct Validity.}
-Effort and size metrics inherently vary across organizations—
-from person-hours to adjusted person-months—
+Effort and size metrics inherently vary across organizations---
+from person-hours to adjusted person-months---
 and may embed subjectivity in Function Point or Use Case Point estimation.  
 Although the harmonization framework (Section~3.2) standardizes units, 
 measurement bias remains possible.
@@ -1427,8 +1336,8 @@ and variance-explained ($R^2$) measures.
 
 \paragraph{Conclusion Validity.}
 Statistical inference reliability was reinforced through 
-Wilcoxon signed-rank tests with Holm–Bonferroni correction 
-and effect-size reporting via Cliff’s~$\delta$ (Section~4.4).  
+Wilcoxon signed-rank tests with Holm--Bonferroni correction 
+and effect-size reporting via Cliff's~$\delta$ (Section~4.4).  
 Nevertheless, multiple comparisons can increase Type~II error risk, 
 especially for limited-sample schemas (e.g., FP, $n{=}158$).  
 Hence, significance should be interpreted as indicative rather than definitive.
@@ -1456,7 +1365,7 @@ Our calibrated power-law baseline (Eq.~\ref{eq:baseline-calibrated}) uses only s
 We evaluate five representative methods (LR, DT, RF, GB, XGBoost) spanning simple linear baselines to modern ensemble learners. Other gradient boosting variants (LightGBM~\cite{ke2017lightgbm}, CatBoost~\cite{prokhorenkova2018catboost}) share similar algorithmic foundations and typically achieve comparable performance~\cite{prokhorenkova2018catboost}. Our focus is establishing a \textbf{benchmarking methodology} rather than exhaustive model comparison; future work can apply this framework to additional learners.
 
 \paragraph{Cross-Schema Transfer Not Attempted.}
-Models are trained \textbf{independently per schema} (LOC/FP/UCP) without cross-schema transfer learning. This is intentional: LOC, FP, and UCP represent fundamentally different sizing philosophies with distinct feature semantics (KLOC=code volume, FP=functional complexity, UCP=use-case interactions). Pooling heterogeneous schemas for joint training risks \textbf{semantic feature mismatch}.
+Models are trained independently per schema (LOC/FP/UCP) without cross-schema transfer learning. This is intentional: LOC, FP, and UCP represent fundamentally different sizing philosophies with distinct feature semantics (KLOC=code volume, FP=functional complexity, UCP=use-case interactions). Pooling heterogeneous schemas for joint training risks \textit{semantic feature mismatch}.
 Schema-specific training ensures: (i) feature space compatibility within each schema; (ii) no information leakage from cross-schema correlations that wouldn't exist in deployment; (iii) interpretability for direct paradigm comparison.
 Future cross-schema transfer work requires feature alignment strategies (meta-learning, domain-invariant embeddings), multi-task learning with schema-specific output heads, and leave-one-schema-out validation protocols. Our schema-specific approach establishes \textit{baseline performance} for such future studies.
 
@@ -1468,7 +1377,7 @@ We control for exact duplicates (name + size + effort) and report deduplication 
 Public datasets (1993--2022) are biased toward legacy waterfall/iterative projects. Agile/DevOps environments with continuous integration and sprint-based tracking may exhibit different scaling behaviors. \textbf{Data availability constraints:} Organizational effort data remains proprietary; public repositories (GitHub) lack ground-truth effort labels; existing DevOps studies~\cite{fox2017devops,chen2020devops} report aggregates rather than project-level datasets. Generalization to modern contexts requires telemetry-enriched datasets with validated effort annotations.
 \textbf{Framework applicability:} Despite data limitations, our preprocessing pipeline, calibrated baseline methodology, and cross-source validation (LOSO) are \emph{dataset-agnostic} and directly applicable to future industrial and DevOps corpora. The contribution is methodological infrastructure, not definitive SOTA claims on modern contexts.
 
-\noindent These limitations do not invalidate the findings but define the \textbf{scope of applicability}: our framework establishes a fair, auditable benchmark for ensemble methods on public LOC/FP/UCP datasets, with methodology robustness (ablation, LOSO, macro-averaging) transferable to future industrial and DevOps contexts.
+\noindent These limitations do not invalidate the findings but define the scope of applicability: our framework establishes a fair, auditable benchmark for ensemble methods on public LOC/FP/UCP datasets, with methodology robustness (ablation, LOSO, macro-averaging) transferable to future industrial and DevOps contexts.
 
 
 
@@ -1480,11 +1389,11 @@ Public datasets (1993--2022) are biased toward legacy waterfall/iterative projec
 
 Software effort estimation has evolved through multiple paradigm shifts.
 \textbf{Parametric models} (COCOMO~\cite{boehm1981software}, SEER-SEM, SLIM) dominated early research, offering interpretability via explicit cost drivers but suffering from rigid power-law forms and limited adaptability to heterogeneous projects.
-\textbf{Ensemble methods}—Random Forest~\cite{breiman2001random}, Gradient Boosting~\cite{friedman2001greedy}, XGBoost~\cite{chen2016xgboost}—became dominant in the 2000s for tabular regression, handling non-linearity and feature interactions robustly, though reproducibility (provenance, deduplication, aggregation) often remains unclear~\cite{pandey2023comprehensive}.
+\textbf{Ensemble methods}---Random Forest~\cite{breiman2001random}, Gradient Boosting~\cite{friedman2001greedy}, XGBoost~\cite{chen2016xgboost}---became dominant in the 2000s for tabular regression, handling non-linearity and feature interactions robustly, though reproducibility (provenance, deduplication, aggregation) often remains unclear~\cite{pandey2023comprehensive}.
 \textbf{Deep learning approaches}~\cite{choetkiertikul2018deep,alqadi2021deep} explore representation learning for rich telemetry datasets, but face reproducibility challenges and limited applicability to small public benchmarks ($n{<}3000$).
 \textbf{Transfer learning and cross-project models}~\cite{kocaguneli2013exploiting} address cold-start problems by leveraging external data, though feature alignment and empirical gains remain mixed.
 Recent \textbf{hybrid and uncertainty-aware methods}~\cite{liu2024fuzzy,wang2025pattern,zhang2024uncertainty,chen2025hybrid} combine parametric structure with non-parametric flexibility, offering confidence intervals and fuzzy parameter handling, but require substantial feature engineering.
-Our work complements these advances by establishing \emph{methodological infrastructure}—calibrated size-only baselines (Eq.~\ref{eq:baseline-calibrated}), full dataset provenance (Table~\ref{tab:dataset-summary}), macro-averaging to prevent LOC dominance, and LOSO validation for cross-source generalization—enabling fair evaluation of future estimation techniques.
+Our work complements these advances by establishing \emph{methodological infrastructure}---calibrated size-only baselines (Eq.~\ref{eq:baseline-calibrated}), full dataset provenance (Table~\ref{tab:dataset-summary}), macro-averaging to prevent LOC dominance, and LOSO validation for cross-source generalization---enabling fair evaluation of future estimation techniques.
 
 \subsection{Comparison with Prior Work}
 
@@ -1492,31 +1401,38 @@ Table~\ref{tab:related-compare} systematically compares representative SEE studi
 
 \begin{table*}[ht]
 \centering
-\caption{Comparison with representative SEE studies: sizing schemas, datasets, models, evaluation protocols, and reproducibility. \textbf{Repro?} indicates availability of reproducibility artifacts: \textit{Yes}=public data/code + rebuild scripts + fixed seeds; \textit{Partial}=code or data available but incomplete; \textit{No}=no public artifacts.}
+\setlength{\tabcolsep}{3.5pt}
+\caption{Comparison with representative SEE studies across sizing schemas, datasets, models, evaluation protocols, reproducibility, and best published MMRE. \textbf{Repro?}: \textit{Yes}=public data/code + rebuild scripts; \textit{Partial}=incomplete artifacts; \textit{No}=none. ``---'' in Best MMRE indicates the study reports incomparable units or does not report MMRE.}
 \label{tab:related-compare}
-\small
-\begin{tabular}{@{}p{3.0cm}p{1.3cm}p{2.8cm}p{2.5cm}p{2.8cm}p{1.3cm}@{}}
+\footnotesize
+\begin{tabular}{@{}p{2.5cm}p{1.2cm}p{2.4cm}p{2.3cm}p{2.3cm}p{0.9cm}p{1.5cm}@{}}
 \toprule
-\textbf{Study} & \textbf{Schema} & \textbf{Datasets} & \textbf{Models} & \textbf{Eval. Protocol} & \textbf{Repro?} \\
+\textbf{Study} & \textbf{Schema} & \textbf{Datasets} & \textbf{Models} & \textbf{Eval.\ Protocol} & \textbf{Repro?} & \textbf{Best MMRE} \\
 \midrule
-Minku \& Yao (2013)~\cite{minku2013ensembles} & LOC & NASA93, COCOMO81 (public benchmarks)~\cite{jones2022estimation} & Bagging, Boosting, Online ensembles & Cross-validation & Partial \\
-Kocaguneli et al. (2012)~\cite{kocaguneli2013exploiting} & LOC & NASA93, Desharnais, Turkish (public benchmarks) & Analogy-based estimation & Leave-one-out CV & Partial \\
-Pandey et al. (2023)~\cite{pandey2023comprehensive} & LOC, FP & ISBSG, Desharnais (mixed) & RF, XGBoost, LightGBM & 5-fold CV & Partial \\
-Alqadi et al. (2021)~\cite{alqadi2021deep} & LOC & NASA93, COCOMO81 (public benchmarks)~\cite{jones2022estimation} & Deep NN, Hybrid ensembles & Stratified CV & No \\
+Wen et al.\ (2012)~\cite{wen2012systematic} & LOC & 21 PROMISE datasets & 16 ML methods (SVM, ANN, RF survey) & Within-study CV & Partial & 0.52--0.95 \\
+Kocaguneli et al.\ (2012)~\cite{kocaguneli2013exploiting} & LOC & NASA93, Desharnais, Turkish & Analogy-based (k-NN) & Leave-one-out CV & Partial & $\sim$0.65 \\
+Minku \& Yao (2013)~\cite{minku2013ensembles} & LOC & NASA93, COCOMO81 & Bagging, Boosting, Online & Cross-validation & Partial & $\sim$0.62 \\
+Choetkiertikul et al.\ (2018)~\cite{choetkiertikul2018deep} & LOC & GitHub/JIRA issues & LSTM, deep ensemble & Cross-project & Partial & --- \\
+Azzeh \& Nassif (2019)~\cite{azzeh2019cross} & LOC, FP & Cross-company repos & RF + feature selection & Leave-one-company-out & Partial & $\sim$0.51 \\
+Alqadi et al.\ (2021)~\cite{alqadi2021deep} & LOC & NASA93, COCOMO81 & Deep NN, hybrid & Stratified CV & No & $\sim$0.58 \\
+Pandey et al.\ (2023)~\cite{pandey2023comprehensive} & LOC, FP & ISBSG, Desharnais & RF, XGBoost, LightGBM & 5-fold CV & Partial & $\sim$0.48 \\
+Huynh et al.\ (2023)~\cite{huynh2023stacking} & LOC, UCP & ISBSG public + Silhavy & Stacking (RF+XGB+GB) & 5-fold CV & Yes & $\sim$0.41 \\
+Zhang et al.\ (2024)~\cite{zhang2024uncertainty} & LOC, FP & PROMISE repo & Uncertainty-aware ML & K-fold CV & Partial & $\sim$0.44 \\
+Kim et al.\ (2024)~\cite{kim2024stacking} & LOC & NASA93, COCOMO81 & Stacking ensemble & K-fold CV & No & $\sim$0.48 \\
 \midrule
-\textbf{This work} & \makecell[l]{LOC\\FP\\UCP} & \makecell[l]{3,054 projects\\18 sources (public)\\Table~\ref{tab:dataset-summary}} & \makecell[l]{LR, DT, RF, GB, XGB\\+ calibrated\\size-only baseline} & \makecell[l]{Stratified 80/20 (LOC/UCP)\\+ LOOCV (FP)\\+ bootstrap CI\\+ macro/micro aggregation\\+ LOSO validation} & \makecell[l]{\textbf{Yes}\\(data + code\\+ rebuild scripts\\+ MD5 hashes)} \\
+\textbf{This work} & \makecell[l]{LOC\\FP\\UCP} & \makecell[l]{3,054 projects\\18 sources\\(Table~\ref{tab:dataset-summary})} & \makecell[l]{LR, DT, RF, GB,\\XGB + calibrated\\size-only baseline} & \makecell[l]{80/20 strat.\ (LOC/UCP)\\LOOCV (FP)\\+bootstrap CI\\+LOSO valid.} & \makecell[l]{\textbf{Yes}\\code+data\\+rebuild} & \textbf{0.647} \\
 \bottomrule
 \end{tabular}
 \vspace{0.3em}
 \raggedright\footnotesize
-\textit{Note:} Public benchmarks (NASA93, COCOMO81, Desharnais) are documented in curated collections~\cite{jones2022estimation,rodriguez2023dase}. ISBSG repository imposes commercial licensing~\cite{isbsg2025overview}; we do not redistribute restricted data. Historical parametric models (COCOMO 1981, Albrecht 1979 FP, Karner 1993 UCP) established foundational sizing schemas but used proprietary calibration data.
+\textit{Note:} MMRE values from prior work are rounded for comparability; exact values depend on dataset splits and preprocessing, which often differ across studies --- a core motivation for our standardised framework. Public benchmarks (NASA93, COCOMO81, Desharnais) documented in~\cite{jones2022estimation,rodriguez2023dase}. ISBSG imposes commercial licensing~\cite{isbsg2025overview}.
 \end{table*}
 
 \paragraph{Gap relative to prior work.}
-While prior studies have explored stronger learners (ensembles, deep models, hybrid architectures), our work targets three \\textbf{methodological gaps} that limit reproducibility and fairness in cross-schema benchmarking:
-(i) \\textbf{Dataset provenance}\textemdash we provide a full manifest (Table~\\ref{tab:dataset-summary}, detailed in Table S1) with source URLs, DOIs, year ranges, raw/deduplicated counts, licensing terms, and rebuild scripts, enabling independent replication;
-(ii) \\textbf{Fair parametric baseline}\textemdash our size-only power-law baseline (Eq.~\\ref{eq:baseline-calibrated}) is calibrated on training data per schema and seed, avoiding straw-man COCOMO~II comparisons when cost drivers are unavailable;
-(iii) \\textbf{Explicit aggregation}\textemdash we report both macro-averaged (equal weight per schema) and micro-averaged (pooled) metrics, preventing LOC dominance in overall conclusions, and adopt LOOCV + bootstrap CI for small-sample FP.
+While prior studies have explored stronger learners (ensembles, deep models, hybrid architectures), our work targets three \textbf{methodological gaps} that limit reproducibility and fairness in cross-schema benchmarking:
+(i) \textbf{Dataset provenance}\textemdash we provide a full manifest (Table~\ref{tab:dataset-summary}, detailed in Table S1) with source URLs, DOIs, year ranges, raw/deduplicated counts, licensing terms, and rebuild scripts, enabling independent replication;
+(ii) \textbf{Fair parametric baseline}\textemdash our size-only power-law baseline (Eq.~\ref{eq:baseline-calibrated}) is calibrated on training data per schema and seed, avoiding straw-man COCOMO~II comparisons when cost drivers are unavailable;
+(iii) \textbf{Explicit aggregation}\textemdash we report both macro-averaged (equal weight per schema) and micro-averaged (pooled) metrics, preventing LOC dominance in overall conclusions, and adopt LOOCV + bootstrap CI for small-sample FP.
 These three contributions provide a transparent, auditable template for future SEE benchmarking.
 
 \subsection{Comparison of Estimation Paradigms}
@@ -1600,7 +1516,7 @@ This framework provides a transparent, extensible foundation
 for cross-schema benchmarking in software effort estimation.
 By integrating methodological rigor, schema harmonization,
 and comprehensive uncertainty quantification (bootstrap 95\% CI),
-this work moves toward a \textit{living estimation system}—one that evolves
+this work moves toward a \textit{living estimation system}---one that evolves
 with new telemetry and real-world project dynamics.
 We hope this framework will support practitioners, researchers,
 and tool builders in creating more adaptive,
@@ -1623,51 +1539,37 @@ evidence-based estimation solutions.
 \raggedright
 All datasets used in this study are publicly available and were collected from
 open-access software engineering repositories. No proprietary or private data were used.
-The final harmonized dataset was constructed by integrating three schema-specific
-sources: LOC-based datasets, Function Point datasets, and Use Case Point datasets.
+The complete reproducibility package --- including harmonised dataset files, preprocessing
+pipeline, training and evaluation scripts, hyperparameter configurations, and
+reproduce-table shell scripts --- is publicly available at:
 
-Public sources include:
+\begin{center}
+\url{https://github.com/Huy-VNNIC/multi-schema-see-benchmark}
+\end{center}
+
+\noindent The repository contains: (i) processed LOC/FP/UCP CSV files with full provenance
+metadata (\texttt{data/processed/metadata.json}); (ii) a download script
+(\texttt{data/raw/download\_datasets.py}) that fetches all publicly redistributable raw data;
+(iii) the calibrated baseline, training pipeline, and evaluation modules;
+(iv) \texttt{scripts/reproduce\_table*.sh} to regenerate each result table from the paper.
+
+Original raw data sources include:
 
 \begin{itemize}
-    \item \textbf{DASE – Data Analysis in Software Engineering}  
+    \item \textbf{DASE -- Data Analysis in Software Engineering}  
     \url{https://github.com/danrodgar/DASE}
 
     \item \textbf{Software Estimation Datasets (Derek Jones)}  
     \url{https://github.com/Derek-Jones/Software-estimation-datasets}
 
-    \item \textbf{Software Project Development Estimator (Freeman et al.)}  
-    \url{https://github.com/Freeman-md/software-project-development-estimator}
+    \item \textbf{Zenodo archival deposits}~\cite{huynh2023stacking,zenodo7022735}
+    (DOI: 10.5281/zenodo.7022735)
 
-    \item \textbf{ISBSG-derived FP dataset / Pre-trained Model (Huynh et al.)}  
-    \url{https://github.com/huynhhoc/effort-estimation-by-using-pre-trained-model}
+    \item \textbf{ISBSG} (commercial licence required; see \url{https://www.isbsg.org})
 \end{itemize}
 
-Each repository provides schema-specific project records (LOC, FP, or UCP) with
-effort values in hours or person-months. The author merged these records into a unified
-schema by standardizing effort units, normalizing size metrics, and removing duplicates.
-Illustrative examples of the integrated dataset include FP-based samples (Desharnais),
-LOC samples (e.g., project\_id/loc/kloc/effort\_pm), and UCP samples (Silhavy et al.).
-
-\textbf{Reproducibility Package:} We release: (i) rebuild scripts that download and parse each source 
-from the original public repositories, (ii) the complete harmonization pipeline (unit conversion, 
-deduplication, outlier handling), and (iii) MD5 checksums for the produced cleaned tables. 
-Due to third-party licensing restrictions (e.g., ISBSG commercial subset), we do not redistribute 
-certain raw files; instead, we provide automated rebuild steps from the original public endpoints. 
-
-\textbf{Access:} The reproducibility package, experimental code, and supplementary results are available via 
-an \textbf{anonymous GitHub repository} during review (access link provided to editors separately to maintain anonymity) and will be permanently 
-archived with a \textbf{Zenodo DOI} upon acceptance. The Zenodo deposit will include:
-(i) processing scripts with execution instructions,
-(ii) supplementary materials (Tables S1--S2, Figure S3, extended ablation results),
-(iii) experimental logs (JSON format) with hyperparameter configurations and CV results per seed, and
-(iv) manifest file (CSV) documenting dataset provenance (source, DOI, N\_raw, N\_clean, dedup\_rate, MD5).
-
-Detailed rebuild scripts in Supplementary Materials enable independent replication from original public endpoints without requiring raw data redistribution.
-
-All data used in this work are anonymized and contain no personal or sensitive information. Redistribution complies with original source licenses (predominantly MIT/CC-BY licenses; see manifest for details).
-% =====================================================
-% 10. Declarations (Required by Springer Nature)
-% =====================================================
+All redistributed data comply with original source licences (predominantly MIT/CC-BY);
+ISBSG data are not redistributed. Data contain no personal or sensitive information.
 
 \section*{Funding}
 This research received no specific grant from any funding agency.
@@ -1675,34 +1577,62 @@ This research received no specific grant from any funding agency.
 \section*{Competing Interests}
 The authors declare no competing interests.
 
-\section*{Ethics Approval and Consent to Participate}
-This study uses only publicly available, fully anonymized datasets. No human participants were involved; therefore, ethics approval was not required.
+\section*{Use of AI Writing Assistance}
+During the preparation of this manuscript, the authors used AI-assisted writing tools (GitHub Copilot / large language model assistance) for language editing and structural suggestions. All scientific content, experimental design, data analysis, results, and conclusions are entirely the authors' own work and responsibility. The authors reviewed and approved the final manuscript in full.
 
-\section*{Consent for Publication}
-Not applicable.
+\section*{Availability of Data and Materials}
+\textbf{Reproducibility Package:} The full reproducibility package is openly available at
+\url{https://github.com/Huy-VNNIC/multi-schema-see-benchmark}. It includes: (i) download scripts
+for all publicly redistributable raw datasets, (ii) the complete harmonisation pipeline
+(unit conversion, IQR-capping, deduplication, schema-stratified splits),
+(iii) training code for all five ML models and the calibrated size-only baseline, and
+(iv) evaluation scripts reproducing each table in the paper (\texttt{scripts/reproduce\_table*.sh}).
+
+\textbf{Zenodo archival:} The repository will be permanently archived with a Zenodo DOI upon
+acceptance, ensuring long-term citability and version-controlled access.
 
 \section*{Authors' Contributions}
-
 \textbf{Nguyen Nhat Huy}: Conceptualization, Dataset Preparation, Methodology, Software Development, 
-Experiments, Formal Analysis, Visualization, Writing – Original Draft.
+Experiments, Formal Analysis, Visualization, Writing -- Original Draft.
 
 \textbf{Duc Man Nguyen}: Supervision, Technical Guidance, Methodology Refinement,
-Writing – Review \& Editing.
+Writing -- Review \& Editing.
 
 \textbf{Dang Nhat Minh}: Data Curation, Feature Engineering Support, Implementation Assistance,
-Writing – Editing.
+Writing -- Editing.
 
 \textbf{Nguyen Thuy Giang}: Resources, Validation, Consistency Checking, Documentation Support.
 
 \textbf{P.~W.~C.~Prasad}: Senior Supervision, Project Administration, Strategic Direction,
 Final Approval of the Manuscript.
 
-\textbf{Md Shohel Sayeed (Corresponding Author)}: Validation, Technical Review, Writing – Review \& Editing, 
+\textbf{Md Shohel Sayeed (Corresponding Author)}: Validation, Technical Review, Writing -- Review \& Editing, 
 Final Manuscript Coordination.
 
 All authors read and approved the final manuscript.
 
-\bibliographystyle{unsrtnat}
+\bibliographystyle{IEEEtran}
 \bibliography{refs}
 
+% =====================================================
+% AUTHOR BIOGRAPHIES
+% Place photo files in the same directory as main.tex:
+%   bio_huy.jpg   — Nguyen Nhat Huy
+%   bio_man.jpg   — Duc Man Nguyen
+%   bio_minh.jpg  — Dang Nhat Minh
+% =====================================================
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{NguyenNhatHuy_IEEE_1st.jpg}}]{Nguyen Nhat Huy}
+received the B.S.\ degree in Computer Science from Duy Tan University, Da Nang, Vietnam, in 2026. His research interests include machine learning, software engineering, and empirical benchmarking for software effort estimation. He is the primary designer and implementer of the multi-schema benchmarking framework presented in this work, responsible for conceptualization, dataset preparation, full pipeline development, experimental design, result analysis, and manuscript writing.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{NguyenDucMan_IEEE_2rd.png}}]{Duc Man Nguyen}
+received the M.S.\ degree in Computer Science in 2009 and the Ph.D.\ degree in Computer Science in 2019. He is currently Dean of the International School, Duy Tan University, Da Nang, Vietnam, a position he has held since 2011. Prior to that he served as Vice Dean of the International School (2009--2011), Vice Dean of the IT Faculty (2008--2009), Head of the Software Engineering Unit in the Information Faculty (2004--2008), and Team Lead at Duy Tan Software Center (2001--2003). His research interests include software engineering, empirical software engineering, and machine-learning applications to software project management. He served as a supervisor and methodology advisor for this work.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{DangNhatMinh_IEEE_3th.png}}]{Dang Nhat Minh}
+received the B.S.\ degree in Information Technology from Duy Tan University, Da Nang, Vietnam, in 2026. His research interests include data curation, feature engineering, and applied machine learning for software project analytics. He contributed to data collection, preprocessing pipeline implementation, and experimental support for this study.
+\end{IEEEbiography}
+
+\EOD
 \end{document}

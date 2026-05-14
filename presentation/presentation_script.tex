@@ -15,11 +15,11 @@
 \newcommand{\slide}[1]{\section*{\textcolor{slidenum}{Slide #1}}}
 \newcommand{\timing}[1]{\textcolor{timing}{\textit{[#1]}}}
 \newcommand{\keypoint}[1]{\textcolor{keypoint}{\textbf{#1}}}
-\newcommand{\pause}{\textit{[Pause]}}
+\newcommand{\pause}{\textit{[Tạm dừng]}}
 
-\title{\textbf{Presentation Script} \\ Multi-Schema Software Effort Estimation Using Machine Learning}
-\author{Phan Hoang Long}
-\date{December 15, 2025}
+\title{\textbf{Kịch Bản Thuyết Trình} \\ Ước Tính Công Sức Phát Triển Phần Mềm Đa Schema Sử Dụng Máy Học}
+\author{Phan Hoàng Long}
+\date{15 tháng 12 năm 2025}
 
 \begin{document}
 
@@ -28,574 +28,574 @@
 \newpage
 
 % ===============================================
-\slide{1: Title Slide}
-\timing{30 seconds}
+\slide{1: Slide Tiêu Đề}
+\timing{30 giây}
 
-Good morning/afternoon everyone. My name is Phan Hoang Long, and I'm from the Department of Computer Science at Chungbuk National University.
+Chào buổi sáng/chiều tất cả mọi người. Tên tôi là Phan Hoàng Long, đến từ Bộ môn Khoa học Máy tính tại Đại học Quốc gia Chungbuk.
 
-Today, I'll present my research on \keypoint{Multi-Schema Software Effort Estimation Using Machine Learning}, which proposes an enhanced COCOMO II approach with heterogeneous data integration.
+Hôm nay, tôi sẽ trình bày nghiên cứu của mình về \keypoint{Ước Tính Công Sức Phát Triển Phần Mềm Đa Schema Sử Dụng Máy Học}, đề xuất tiếp cận COCOMO II nâng cao với tích hợp dữ liệu không đồng nhất.
 
-\pause Let's begin.
-
-% ===============================================
-\slide{2: Motivation}
-\timing{2 minutes}
-
-First, let me explain \keypoint{why effort estimation matters}.
-
-\textbf{The Problem:}
-\begin{itemize}
-    \item Inaccurate effort estimation leads to budget overruns and project failures
-    \item Traditional COCOMO II has limited adaptability to modern diverse projects
-    \item Real-world data is heterogeneous and inconsistent across different organizations
-\end{itemize}
-
-\textbf{The Impact is significant:}
-\begin{itemize}
-    \item Studies show that 85\% of software projects face budget issues
-    \item 78\% experience schedule delays
-    \item And 42\% are at risk of complete failure
-\end{itemize}
-
-As you can see in the figure, current challenges in effort estimation are severe.
-
-\textbf{The Research Gap:} There is a lack of unified framework to handle heterogeneous project data across different sizing schemas like Lines of Code, Function Points, and Use Case Points.
-
-\pause This is the problem we're addressing today.
+\pause Chúng ta bắt đầu nào.
 
 % ===============================================
-\slide{3: Research Contributions}
-\timing{1.5 minutes}
+\slide{2: Động Lực}
+\timing{2 phút}
 
-Our research makes \keypoint{three main contributions}:
+Trước tiên, hãy để tôi giải thích \keypoint{tại sao ước tính công sức quan trọng}.
 
-\textbf{First - Data Integration:} We developed an automatic normalization pipeline for LOC, Function Points, and Use Case Points schemas. This allows us to integrate data from multiple sources seamlessly.
-
-\textbf{Second - Machine Learning Models:} We benchmarked COCOMO II against four ML models: Linear Regression, Decision Tree, Random Forest, and Gradient Boosting.
-
-\textbf{Third - Deployment:} We built a REST API for real-world usage, making the system practical and accessible.
-
-\textbf{Key Results:}
+\textbf{Vấn đề:}
 \begin{itemize}
-    \item We integrated over 320 projects from multiple sources
-    \item Our best model, Random Forest, achieves 38\% MMRE and 58\% PRED(25)
-    \item This reduces estimation error by 34\% compared to the COCOMO II baseline
+    \item Ước tính công sức không chính xác dẫn đến vượt ngân sách và thất bại dự án
+    \item COCOMO II truyền thống có khả năng thích ứng hạn chế với các dự án đa dạng hiện đại
+    \item Dữ liệu thực tế không đồng nhất và không nhất quán trên các tổ chức khác nhau
 \end{itemize}
 
-\pause These are significant improvements over traditional methods.
-
-% ===============================================
-\slide{4: COCOMO II Background}
-\timing{2 minutes}
-
-Let me briefly review the \keypoint{COCOMO II model} that serves as our baseline.
-
-As shown in the formula, COCOMO II estimates effort using three main components:
-
-\textbf{First:} A calibration constant A, which is 2.94
-\textbf{Second:} Size raised to an exponent E, which includes scale factors like precedentedness and flexibility
-\textbf{Third:} Product of effort multipliers - there are 17 cost drivers that affect the final estimate
-
-From effort, we can derive duration and team size using additional formulas.
-
-\textbf{However, the limitation} of traditional COCOMO II is that it assumes homogeneous data and requires manual calibration. This is not scalable for modern diverse projects with heterogeneous data sources.
-
-\pause This is why we need a machine learning approach.
-
-% ===============================================
-\slide{5: Dataset Overview}
-\timing{1.5 minutes}
-
-Now, let's look at our \keypoint{data sources}.
-
-We collected data from three different schemas:
+\textbf{Tác động là đáng kể:}
 \begin{itemize}
-    \item \textbf{LOC-based data:} 180 projects from NASA COCOMO and COC81 datasets
-    \item \textbf{Function Points:} 95 projects from Desharnais and Albrecht datasets
-    \item \textbf{Use Case Points:} 45 projects from various sources
+    \item Các nghiên cứu cho thấy 85\% dự án phần mềm gặp vấn đề ngân sách
+    \item 78\% gặp khó khăn về lịch trình
+    \item Và 42\% có nguy cơ thất bại hoàn toàn
 \end{itemize}
 
-In total, we have 320 projects with mixed metrics.
+Như bạn có thể thấy trong hình vẽ, các thách thức hiện tại trong ước tính công sức là rất nghiêm trọng.
 
-\textbf{The Key Challenge} is data heterogeneity:
-\begin{itemize}
-    \item Different size metrics across schemas
-    \item Inconsistent effort units - some in hours, others in person-months
-    \item Missing values and different contexts
-\end{itemize}
+\textbf{Khoảng cách nghiên cứu:} Thiếu một khuôn khổ thống nhất để xử lý dữ liệu dự án không đồng nhất trên các schema định kích thước khác nhau như Lines of Code, Function Points, và Use Case Points.
 
-\textbf{Our Solution:} We developed an automatic schema detection and unit normalization pipeline to handle this heterogeneity.
-
-\pause Let me show you how this works.
+\pause Đây là vấn đề mà chúng ta đang giải quyết hôm nay.
 
 % ===============================================
-\slide{6: Data Heterogeneity Visualization}
-\timing{1.5 minutes}
+\slide{3: Đóng Góp Nghiên Cứu}
+\timing{1.5 phút}
 
-This figure illustrates the \keypoint{challenge of data heterogeneity}.
+Nghiên cứu của chúng tôi tạo ra \keypoint{ba đóng góp chính}:
 
-\textbf{Before normalization:} You can see we have incompatible schemas - some projects measured in LOC, others in Function Points or Use Case Points. The units are inconsistent.
+\textbf{Thứ nhất - Tích Hợp Dữ Liệu:} Chúng tôi phát triển một đường dẫn chuẩn hóa tự động cho các schema LOC, Function Points, và Use Case Points. Điều này cho phép chúng tôi tích hợp dữ liệu từ nhiều nguồn một cách liền mạch.
 
-\textbf{After our unified normalization:} All data is standardized and ready for machine learning.
+\textbf{Thứ hai - Mô Hình Máy Học:} Chúng tôi so sánh COCOMO II với bốn mô hình ML: Linear Regression, Decision Tree, Random Forest, và Gradient Boosting.
 
-Our pipeline handles three key aspects:
+\textbf{Thứ ba - Triển Khai:} Chúng tôi xây dựng một REST API cho sử dụng thế giới thực, làm cho hệ thống thực tế và dễ tiếp cận.
+
+\textbf{Kết Quả Chính:}
+\begin{itemize}
+    \item Chúng tôi tích hợp hơn 320 dự án từ nhiều nguồn
+    \item Mô hình tốt nhất của chúng tôi, Random Forest, đạt 38\% MMRE và 58\% PRED(25)
+    \item Điều này giảm lỗi ước tính 34\% so với baseline COCOMO II
+\end{itemize}
+
+\pause Đây là những cải thiện đáng kể so với các phương pháp truyền thống.
+
+% ===============================================
+\slide{4: Nền Tảng COCOMO II}
+\timing{2 phút}
+
+Hãy để tôi tóm tắt lại \keypoint{mô hình COCOMO II} đóng vai trò là baseline của chúng tôi.
+
+Như shown trong công thức, COCOMO II ước tính công sức sử dụng ba thành phần chính:
+
+\textbf{Thứ nhất:} Hằng số hiệu chỉnh A, bằng 2.94
+\textbf{Thứ hai:} Kích thước được nâng lên lũy thừa E, bao gồm các yếu tố tỷ lệ như khả năng ưu tiên trước và tính linh hoạt
+\textbf{Thứ ba:} Tích của các bộ nhân công sức - có 17 trình điều khiển chi phí ảnh hưởng đến ước tính cuối cùng
+
+Từ công sức, chúng tôi có thể dẫn xuất thời lượng và quy mô nhóm sử dụng các công thức bổ sung.
+
+\textbf{Tuy nhiên, hạn chế} của COCOMO II truyền thống là nó giả định dữ liệu đồng nhất và yêu cầu hiệu chỉnh thủ công. Điều này không khả thi cho các dự án đa dạng hiện đại với các nguồn dữ liệu không đồng nhất.
+
+\pause Đây là lý do tại sao chúng ta cần một tiếp cận máy học.
+
+% ===============================================
+\slide{5: Tổng Quan Bộ Dữ Liệu}
+\timing{1.5 phút}
+
+Bây giờ, hãy xem \keypoint{các nguồn dữ liệu} của chúng tôi.
+
+Chúng tôi thu thập dữ liệu từ ba schema khác nhau:
+\begin{itemize}
+    \item \textbf{Dữ liệu dựa trên LOC:} 180 dự án từ các bộ dữ liệu NASA COCOMO và COC81
+    \item \textbf{Function Points:} 95 dự án từ các bộ dữ liệu Desharnais và Albrecht
+    \item \textbf{Use Case Points:} 45 dự án từ nhiều nguồn
+\end{itemize}
+
+Tổng cộng, chúng tôi có 320 dự án với các chỉ số hỗn hợp.
+
+\textbf{Thách thức chính} là không đồng nhất dữ liệu:
+\begin{itemize}
+    \item Các chỉ số kích thước khác nhau trên các schema
+    \item Các đơn vị công sức không nhất quán - một số tính bằng giờ, những cái khác tính bằng người-tháng
+    \item Giá trị bị thiếu và các bối cảnh khác nhau
+\end{itemize}
+
+\textbf{Giải pháp của chúng tôi:} Chúng tôi phát triển một đường dẫn phát hiện schema tự động và chuẩn hóa đơn vị để xử lý không đồng nhất này.
+
+\pause Hãy để tôi chỉ cho bạn cách nó hoạt động.
+
+% ===============================================
+\slide{6: Hình Dung Không Đồng Nhất Dữ Liệu}
+\timing{1.5 phút}
+
+Hình ảnh này minh họa \keypoint{thách thức của không đồng nhất dữ liệu}.
+
+\textbf{Trước chuẩn hóa:} Bạn có thể thấy chúng tôi có các schema không tương thích - một số dự án được đo lường bằng LOC, những cái khác là Function Points hoặc Use Case Points. Các đơn vị không nhất quán.
+
+\textbf{Sau chuẩn hóa thống nhất của chúng tôi:} Tất cả dữ liệu được tiêu chuẩn hóa và sẵn sàng cho máy học.
+
+Đường dẫn của chúng tôi xử lý ba khía cạnh chính:
 \begin{enumerate}
-    \item \textbf{Unit conversion:} Converting hours to person-months, LOC to KLOC
-    \item \textbf{Missing values:} Using IQR-based outlier detection and median imputation
-    \item \textbf{Schema tagging:} We preserve the origin information for schema-specific modeling
+    \item \textbf{Chuyển đổi đơn vị:} Chuyển đổi giờ thành người-tháng, LOC thành KLOC
+    \item \textbf{Giá trị bị thiếu:} Sử dụng phát hiện ngoại lệ dựa trên IQR và imputation trung vị
+    \item \textbf{Tag Schema:} Chúng tôi bảo toàn thông tin gốc để mô hình hóa dành riêng cho schema
 \end{enumerate}
 
-\pause This preprocessing is crucial for our multi-schema approach.
+\pause Tiền xử lý này rất quan trọng cho tiếp cận đa schema của chúng tôi.
 
 % ===============================================
-\slide{7: Preprocessing Pipeline}
-\timing{2 minutes}
+\slide{7: Đường Dẫn Tiền Xử Lý}
+\timing{2 phút}
 
-Here's our \keypoint{end-to-end automated preprocessing pipeline}.
+Đây là \keypoint{đường dẫn tiền xử lý tự động từ đầu đến cuối} của chúng tôi.
 
-The process follows six key steps:
+Quá trình tuân theo sáu bước chính:
 
-\textbf{Step 1:} Schema detection - automatically identify whether data is LOC, Function Points, or Use Case Points
+\textbf{Bước 1:} Phát hiện schema - tự động xác định liệu dữ liệu là LOC, Function Points, hay Use Case Points
 
-\textbf{Step 2:} Unit standardization - convert all measurements to common units
+\textbf{Bước 2:} Tiêu đề hóa đơn vị - chuyển đổi tất cả các phép đo sang đơn vị chung
 
-\textbf{Step 3:} Outlier handling using the IQR method to remove extreme values that would skew our models
+\textbf{Bước 3:} Xử lý ngoại lệ sử dụng phương pháp IQR để loại bỏ các giá trị cực trị sẽ làm sai lệch các mô hình của chúng tôi
 
-\textbf{Step 4:} log1p transformation for linearization - this helps normalize the skewed distribution of effort data
+\textbf{Bước 4:} Biến đổi log1p để tuyến tính hóa - giúp chuẩn hóa phân bố công sức bị nghiêng
 
-\textbf{Step 5:} Feature scaling and encoding - standardizing numerical features and encoding categorical ones
+\textbf{Bước 5:} Scaling và mã hóa tính năng - tiêu chuẩn hóa các tính năng số và mã hóa những cái phân loại
 
-\textbf{Step 6:} Export ML-ready data that can be directly fed into our models
+\textbf{Bước 6:} Xuất dữ liệu sẵn sàng cho ML có thể được trực tiếp đưa vào các mô hình của chúng tôi
 
-\pause This pipeline is fully automated and can process new data without manual intervention.
+\pause Đường dẫn này hoàn toàn tự động và có thể xử lý dữ liệu mới mà không cần can thiệp thủ công.
 
 % ===============================================
-\slide{8: Experimental Setup}
-\timing{2 minutes}
+\slide{8: Thiết Lập Thử Nghiệm}
+\timing{2 phút}
 
-Now let's discuss our \keypoint{experimental setup}.
+Bây giờ hãy thảo luận về \keypoint{thiết lập thử nghiệm} của chúng tôi.
 
-\textbf{Models Evaluated:}
-We compared five approaches:
+\textbf{Mô Hình Được Đánh Giá:}
+Chúng tôi so sánh năm cách tiếp cận:
 \begin{itemize}
-    \item COCOMO II as our analytical baseline
+    \item COCOMO II như baseline phân tích của chúng tôi
     \item Linear Regression
     \item Decision Tree
     \item Random Forest
     \item Gradient Boosting
 \end{itemize}
 
-\textbf{Training Strategy:}
+\textbf{Chiến Lược Huấn Luyện:}
 \begin{itemize}
-    \item 80/20 train-test split
-    \item GridSearchCV for hyperparameter optimization
-    \item 5-fold cross-validation to ensure robustness
+    \item Chia tách 80/20 train-test
+    \item GridSearchCV cho tối ưu hóa siêu tham số
+    \item Xác thực chéo 5-fold để đảm bảo tính mạnh mẽ
 \end{itemize}
 
-\textbf{Evaluation Metrics:}
-We use five standard metrics:
+\textbf{Chỉ Số Đánh Giá:}
+Chúng tôi sử dụng năm chỉ số tiêu chuẩn:
 \begin{itemize}
-    \item MAE and RMSE - lower is better
-    \item MMRE - Mean Magnitude Relative Error, lower is better
-    \item PRED(25) - percentage of predictions within 25\% of actual, higher is better
-    \item R-squared for goodness of fit
+    \item MAE và RMSE - thấp hơn là tốt hơn
+    \item MMRE - Mean Magnitude Relative Error, thấp hơn là tốt hơn
+    \item PRED(25) - tỷ lệ phần trăm dự đoán trong 25\% thực tế, cao hơn là tốt hơn
+    \item R-squared cho độ phù hợp
 \end{itemize}
 
-According to Conte et al., industry considers MMRE less than 0.25 and PRED(25) greater than 0.75 as acceptable performance.
+Theo Conte et al., công nghiệp coi MMRE nhỏ hơn 0,25 và PRED(25) lớn hơn 0,75 là hiệu suất chấp nhận được.
 
-\pause Let's see our results.
+\pause Hãy xem kết quả của chúng tôi.
 
 % ===============================================
-\slide{9: Overall Results}
-\timing{2 minutes}
+\slide{9: Kết Quả Tổng Thể}
+\timing{2 phút}
 
-Here are our \keypoint{main results}.
+Đây là \keypoint{kết quả chính} của chúng tôi.
 
-As you can see from the charts, \textbf{Random Forest achieves the best performance across all metrics}.
+Như bạn có thể thấy từ các biểu đồ, \textbf{Random Forest đạt hiệu suất tốt nhất trên tất cả các chỉ số}.
 
-\textbf{Key Findings:}
+\textbf{Các Phát Hiện Chính:}
 \begin{itemize}
-    \item Random Forest reduces MMRE by 34\% - from 0.58 in COCOMO II down to 0.38
-    \item PRED(25) improves to 58\% - meaning 58\% of our predictions are within 25\% of actual effort
-    \item Ensemble methods - Random Forest and Gradient Boosting - are clearly superior to simpler baselines
+    \item Random Forest giảm MMRE 34\% - từ 0,58 trong COCOMO II xuống 0,38
+    \item PRED(25) cải thiện thành 58\% - có nghĩa là 58\% dự đoán của chúng tôi nằm trong 25\% công sức thực tế
+    \item Các phương pháp ensemble - Random Forest và Gradient Boosting - rõ ràng vượt trội hơn các baseline đơn giản
 \end{itemize}
 
-The improvement is consistent across all four metrics: MAE, RMSE, MMRE, and PRED(25).
+Cải thiện là nhất quán trên tất cả bốn chỉ số: MAE, RMSE, MMRE, và PRED(25).
 
-While we don't reach the ideal thresholds yet, this represents \textbf{significant progress} over traditional COCOMO II, especially considering the heterogeneous nature of our dataset.
+Mặc dù chúng tôi chưa đạt được các ngưỡng lý tưởng, nhưng điều này đại diện cho \textbf{tiến bộ đáng kể} so với COCOMO II truyền thống, đặc biệt là xét đến tính không đồng nhất của bộ dữ liệu của chúng tôi.
 
-\pause Now let's look at schema-specific performance.
+\pause Bây giờ hãy nhìn vào hiệu suất dành riêng cho schema.
 
 % ===============================================
-\slide{10: Schema-Specific Performance}
-\timing{1.5 minutes}
+\slide{10: Hiệu Suất Dành Riêng Cho Schema}
+\timing{1.5 phút}
 
-This chart shows \keypoint{performance varies by schema} due to data availability.
+Biểu đồ này cho thấy \keypoint{hiệu suất thay đổi theo schema} do tính sẵn có dữ liệu.
 
-\textbf{LOC Schema - shown in green:}
+\textbf{LOC Schema - hiển thị bằng màu xanh lá:}
 \begin{itemize}
-    \item 180 samples available
-    \item Provides stable and reliable predictions
-    \item This is our best-performing schema
+    \item 180 mẫu có sẵn
+    \item Cung cấp dự đoán ổn định và đáng tin cậy
+    \item Đây là schema hoạt động tốt nhất của chúng tôi
 \end{itemize}
 
-\textbf{Function Points Schema - shown in blue:}
+\textbf{Function Points Schema - hiển thị bằng màu xanh dương:}
 \begin{itemize}
-    \item 95 samples
-    \item Achieves moderate accuracy
-    \item Still good but slightly less reliable than LOC
+    \item 95 mẫu
+    \item Đạt độ chính xác vừa phải
+    \item Vẫn tốt nhưng đáng tin cậy hơn một chút so với LOC
 \end{itemize}
 
-\textbf{Use Case Points Schema - shown in orange:}
+\textbf{Use Case Points Schema - hiển thị bằng màu cam:}
 \begin{itemize}
-    \item Only 45 samples
-    \item Shows higher uncertainty
-    \item This needs more data collection in future work
+    \item Chỉ 45 mẫu
+    \item Hiển thị độ không chắc chắn cao hơn
+    \item Điều này cần thu thập dữ liệu thêm trong công việc tương lai
 \end{itemize}
 
-The key insight here is that \textbf{data quantity matters}. Schemas with more training examples perform better, which is expected in machine learning.
+Insight chính ở đây là \textbf{số lượng dữ liệu quan trọng}. Các schema có nhiều ví dụ huấn luyện hơn hoạt động tốt hơn, đó là điều mong đợi trong máy học.
 
-\pause But our multi-schema approach still works across all three types.
+\pause Nhưng tiếp cận đa schema của chúng tôi vẫn hoạt động trên cả ba loại.
 
 % ===============================================
-\slide{11: Error Analysis}
-\timing{2 minutes}
+\slide{11: Phân Tích Lỗi}
+\timing{2 phút}
 
-Let's examine \keypoint{error analysis and model interpretability}.
+Hãy xem xét \keypoint{phân tích lỗi và khả năng giải thích mô hình}.
 
-\textbf{Left plot - Actual vs Predicted:}
+\textbf{Biểu đồ bên trái - Thực Tế so với Dự Đoán:}
 \begin{itemize}
-    \item Points close to the diagonal line indicate accurate predictions
-    \item Our Random Forest model performs well across all project sizes
-    \item There's no systematic bias - we're not consistently over or under-estimating
+    \item Các điểm gần đường chéo chỉ ra dự đoán chính xác
+    \item Mô hình Random Forest của chúng tôi hoạt động tốt trên tất cả các kích thước dự án
+    \item Không có sự thiên vị hệ thống - chúng tôi không ước tính quá nhiều hoặc dưới
 \end{itemize}
 
-\textbf{Right plot - Feature Importance:}
-This shows which features contribute most to predictions:
+\textbf{Biểu đồ bên phải - Tầm Quan Trọng Tính Năng:}
+Điều này cho thấy những tính năng nào góp phần nhiều nhất vào dự đoán:
 \begin{itemize}
-    \item \textbf{Size metric} is the dominant predictor at 38\% importance - this makes intuitive sense
-    \item \textbf{Schema type} contributes 22\% - this justifies our multi-schema approach
-    \item Other COCOMO II cost drivers also contribute significantly
+    \item \textbf{Chỉ số kích thước} là yếu tố dự đoán chính đạt 38\% tầm quan trọng - điều này có ý nghĩa trực quan
+    \item \textbf{Loại schema} góp phần 22\% - điều này chứng minh tiếp cận đa schema của chúng tôi
+    \item Các trình điều khiển chi phí COCOMO II khác cũng góp phần đáng kể
 \end{itemize}
 
-The fact that schema type has 22\% importance confirms that \textbf{different schemas carry different information}, and our unified approach successfully leverages this.
+Thực tế là loại schema có 22\% tầm quan trọng xác nhận rằng \textbf{các schema khác nhau mang thông tin khác nhau}, và tiếp cận thống nhất của chúng tôi thành công tận dụng được điều này.
 
-\pause This validates our design decisions.
+\pause Điều này xác thực các quyết định thiết kế của chúng tôi.
 
 % ===============================================
-\slide{12: Residual Analysis}
-\timing{1.5 minutes}
+\slide{12: Phân Tích Phần Dư}
+\timing{1.5 phút}
 
-For \keypoint{model diagnostics}, we performed residual analysis.
+Đối với \keypoint{chẩn đoán mô hình}, chúng tôi thực hiện phân tích phần dư.
 
-The plots show three important validations:
+Các biểu đồ cho thấy ba xác thực quan trọng:
 
-\textbf{Left - Residual Scatter Plot:}
+\textbf{Bên trái - Biểu Đồ Tan Phần Dư:}
 \begin{itemize}
-    \item Random scatter around zero - no systematic bias
-    \item Homoscedastic pattern - constant variance across prediction range
-    \item This indicates our model assumptions are valid
+    \item Phân tán ngẫu nhiên quanh 0 - không có thiên vị hệ thống
+    \item Mẫu đồng phương sai - phương sai không đổi trên phạm vi dự đoán
+    \item Điều này chỉ ra các giả định mô hình của chúng tôi là hợp lệ
 \end{itemize}
 
-\textbf{Right - Residual Distribution:}
+\textbf{Bên phải - Phân Bố Phần Dư:}
 \begin{itemize}
-    \item Near-normal distribution
-    \item This allows us to compute reliable confidence intervals
-    \item Small standard deviation indicates consistent predictions
+    \item Phân bố gần với bình thường
+    \item Điều này cho phép chúng tôi tính toán các khoảng tin cậy đáng tin cậy
+    \item Độ lệch chuẩn nhỏ chỉ ra dự đoán nhất quán
 \end{itemize}
 
-These diagnostics confirm that our Random Forest model is \textbf{statistically sound} and not overfitting or underfitting the data.
+Các chẩn đoán này xác nhận rằng mô hình Random Forest của chúng tôi là \textbf{về mặt thống kê hợp lệ} và không overfitting hoặc underfitting dữ liệu.
 
-\pause Now let's move to the practical deployment.
+\pause Bây giờ hãy chuyển sang triển khai thực tế.
 
 % ===============================================
-\slide{13: Deployment Architecture}
-\timing{2 minutes}
+\slide{13: Kiến Trúc Triển Khai}
+\timing{2 phút}
 
-We deployed our solution as a \keypoint{REST API for production use}.
+Chúng tôi triển khai giải pháp của chúng tôi như một \keypoint{REST API cho sử dụng sản xuất}.
 
-The architecture has four key components:
+Kiến trúc có bốn thành phần chính:
 
-\textbf{1. Schema-aware Routing:}
+\textbf{1. Định Tuyến Nhận Thức Schema:}
 \begin{itemize}
-    \item Automatically detects whether input is LOC, Function Points, or Use Case Points
-    \item Routes to the appropriate preprocessing pipeline
+    \item Tự động phát hiện liệu đầu vào là LOC, Function Points, hay Use Case Points
+    \item Định tuyến đến đường dẫn tiền xử lý thích hợp
 \end{itemize}
 
-\textbf{2. Model Registry:}
+\textbf{2. Bộ Đăng Ký Mô Hình:}
 \begin{itemize}
-    \item Maintains separate trained models for each schema
-    \item Ensures optimal performance per schema type
+    \item Duy trì các mô hình được huấn luyện riêng biệt cho mỗi schema
+    \item Đảm bảo hiệu suất tối ưu cho từng loại schema
 \end{itemize}
 
-\textbf{3. Traceability:}
+\textbf{3. Khả Năng Truy Cập:}
 \begin{itemize}
-    \item Preserves data source information
-    \item Provides confidence scores with each prediction
+    \item Bảo toàn thông tin nguồn dữ liệu
+    \item Cung cấp điểm số tin cậy với mỗi dự đoán
 \end{itemize}
 
-\textbf{4. Extensibility:}
+\textbf{4. Khả Năng Mở Rộng:}
 \begin{itemize}
-    \item Ready for integration with requirement analysis tools
-    \item Can connect to Jira for automated estimation
+    \item Sẵn sàng để tích hợp với các công cụ phân tích yêu cầu
+    \item Có thể kết nối với Jira để ước tính tự động
 \end{itemize}
 
-The API accepts project metrics as input and returns effort, duration, and team size estimates along with confidence intervals.
+API chấp nhận các chỉ số dự án làm đầu vào và trả lại các ước tính nỗ lực, thời lượng và kích thước nhóm cùng với các khoảng tin cậy.
 
-\pause This makes our research practically useful.
+\pause Điều này làm cho nghiên cứu của chúng tôi thực tế hữu ích.
 
 % ===============================================
-\slide{14: Practical Applications}
-\timing{2 minutes}
+\slide{14: Ứng Dụng Thực Tế}
+\timing{2 phút}
 
-Let me highlight the \keypoint{practical applications and use cases}.
+Hãy để tôi làm nổi bật \keypoint{các ứng dụng thực tế và trường hợp sử dụng}.
 
-\textbf{Current Deployment:}
+\textbf{Triển Khai Hiện Tại:}
 \begin{itemize}
-    \item We have an API endpoint at /api/estimate
-    \item Input: Project requirements or metrics
-    \item Output: Effort, Duration, Team Size plus confidence scores
+    \item Chúng tôi có điểm cuối API tại /api/estimate
+    \item Đầu vào: Yêu cầu hoặc chỉ số dự án
+    \item Đầu ra: Công sức, Thời lượng, Kích thước Nhóm cộng với điểm số tin cậy
 \end{itemize}
 
-\textbf{Supported Modes:}
-The system works in four modes:
+\textbf{Các Chế Độ Được Hỗ Trợ:}
+Hệ thống hoạt động ở bốn chế độ:
 \begin{enumerate}
-    \item LOC-based estimation
-    \item Function Point estimation
-    \item Use Case Point estimation
-    \item Mixed mode with automatic detection
+    \item Ước tính dựa trên LOC
+    \item Ước tính Function Point
+    \item Ước tính Use Case Point
+    \item Chế độ hỗn hợp với phát hiện tự động
 \end{enumerate}
 
-\textbf{Future Extensions we're planning:}
+\textbf{Các Tiện Ích Mở Rộng trong Tương Lai mà chúng tôi đang lên kế hoạch:}
 \begin{itemize}
-    \item \textbf{NLP Integration:} Extract metrics automatically from requirement documents
-    \item \textbf{Story Point Mapping:} Support for Agile projects
-    \item \textbf{Jira Plugin:} Real-time estimation in issue tracking systems
-    \item \textbf{Continuous Learning:} Feedback loop for ongoing model improvement
+    \item \textbf{Tích Hợp NLP:} Trích xuất chỉ số tự động từ các tài liệu yêu cầu
+    \item \textbf{Ánh Xạ Điểm Câu Chuyện:} Hỗ trợ cho các dự án Agile
+    \item \textbf{Plugin Jira:} Ước tính thời gian thực trong các hệ thống theo dõi vấn đề
+    \item \textbf{Học Tập Liên Tục:} Vòng phản hồi để cải thiện mô hình liên tục
 \end{itemize}
 
-\textbf{Impact:} Our system reduces manual estimation time by 70\% while improving accuracy by 34\%.
+\textbf{Tác Động:} Hệ thống của chúng tôi giảm thời gian ước tính thủ công 70\% trong khi cải thiện độ chính xác 34\%.
 
-\pause This demonstrates real business value.
+\pause Điều này chứng minh giá trị kinh doanh thực tế.
 
 % ===============================================
-\slide{15: Limitations \& Future Work}
-\timing{2 minutes}
+\slide{15: Hạn Chế \& Công Việc Tương Lai}
+\timing{2 phút}
 
-Now, let me be honest about our \keypoint{current limitations}.
+Bây giờ, hãy để tôi thật thà về \keypoint{các hạn chế hiện tại của chúng tôi}.
 
-\textbf{Three main limitations exist:}
+\textbf{Ba hạn chế chính tồn tại:}
 
-\textbf{First - Data scarcity in UCP schema:}
+\textbf{Thứ nhất - Thiếu Dữ Liệu trong Schema UCP:}
 \begin{itemize}
-    \item Only 45 samples lead to higher uncertainty
-    \item We need more Use Case Point projects
+    \item Chỉ 45 mẫu dẫn đến độ không chắc chắn cao hơn
+    \item Chúng tôi cần thêm các dự án Use Case Point
 \end{itemize}
 
-\textbf{Second - Context factors not fully captured:}
+\textbf{Thứ hai - Các Yếu Tố Bối Cảnh Không Được Nắm Bắt Đầy Đủ:}
 \begin{itemize}
-    \item Domain-specific calibration may still be needed
-    \item Industry context affects estimation but isn't fully modeled
+    \item Có thể vẫn cần hiệu chỉnh dành riêng cho miền
+    \item Bối cảnh ngành ảnh hưởng đến ước tính nhưng không được mô hình hóa đầy đủ
 \end{itemize}
 
-\textbf{Third - Static models require periodic retraining:}
+\textbf{Thứ ba - Các Mô Hình Tĩnh Cần Đào Tạo Lại Định Kỳ:}
 \begin{itemize}
-    \item Technology evolution isn't automatically tracked
-    \item Models can become outdated over time
+    \item Tiến hóa công nghệ không được theo dõi tự động
+    \item Các mô hình có thể trở nên lỗi thời theo thời gian
 \end{itemize}
 
-\textbf{Honest assessment:} Our model works best for similar project types. Extreme outliers are still challenging.
+\textbf{Đánh giá Thành Thật:} Mô hình của chúng tôi hoạt động tốt nhất cho các loại dự án tương tự. Các ngoại lệ cực kỳ vẫn còn thách thức.
 
-\textbf{Future Roadmap:}
+\textbf{Lộ Trình Tương Lai:}
 \begin{enumerate}
-    \item \textbf{Data Augmentation:} Collect more UCP projects, possibly use synthetic data
-    \item \textbf{Deep Learning:} Neural networks for complex non-linear relationships
-    \item \textbf{Online Learning:} Incremental updates from project feedback
-    \item \textbf{Multi-modal Input:} Combine metrics, text requirements, and historical data
-    \item \textbf{Uncertainty Quantification:} Probabilistic predictions with confidence intervals
+    \item \textbf{Tăng Cường Dữ Liệu:} Thu thập thêm các dự án UCP, có thể sử dụng dữ liệu tổng hợp
+    \item \textbf{Học Sâu:} Mạng nơ-ron để các mối quan hệ phi tuyến tính phức tạp
+    \item \textbf{Học Trực Tuyến:} Cập nhật tăng dần từ phản hồi dự án
+    \item \textbf{Đầu Vào Đa Phương Thức:} Kết hợp các chỉ số, yêu cầu văn bản và dữ liệu lịch sử
+    \item \textbf{Định Lượng Độ Không Chắc Chắn:} Dự đoán xác suất với các khoảng tin cậy
 \end{enumerate}
 
-\pause These improvements will make the system even more robust.
+\pause Những cải thiện này sẽ làm cho hệ thống thậm chí còn mạnh mẽ hơn.
 
 % ===============================================
-\slide{16: Conclusion}
-\timing{1.5 minutes}
+\slide{16: Kết Luận}
+\timing{1.5 phút}
 
-Let me conclude with a \keypoint{summary of our contributions}.
+Hãy để tôi kết luận bằng \keypoint{tóm tắt các đóng góp của chúng tôi}.
 
-\textbf{We delivered three main contributions:}
+\textbf{Chúng tôi cung cấp ba đóng góp chính:}
 \begin{enumerate}
-    \item \textbf{Unified Pipeline:} Automatic normalization for LOC, Function Points, and Use Case Points data
-    \item \textbf{Validation:} Random Forest reduces MMRE by 34\% compared to COCOMO II
-    \item \textbf{Deployment:} REST API for real-world practical usage
+    \item \textbf{Đường Dẫn Thống Nhất:} Chuẩn hóa tự động cho dữ liệu LOC, Function Points, và Use Case Points
+    \item \textbf{Xác Thực:} Random Forest giảm MMRE 34\% so với COCOMO II
+    \item \textbf{Triển Khai:} REST API cho sử dụng thực tế
 \end{enumerate}
 
-\textbf{Key Takeaways:}
+\textbf{Các Điểm Chính:}
 \begin{itemize}
-    \item Data integration is crucial for modern software estimation
-    \item Ensemble machine learning methods are superior to traditional approaches
-    \item Schema-aware modeling handles heterogeneous data effectively
+    \item Tích hợp dữ liệu là rất quan trọng cho ước tính phần mềm hiện đại
+    \item Các phương pháp máy học ensemble vượt trội hơn các tiếp cận truyền thống
+    \item Mô hình nhận thức schema xử lý dữ liệu không đồng nhất một cách hiệu quả
 \end{itemize}
 
-\textbf{Impact:}
+\textbf{Tác Động:}
 \begin{itemize}
-    \item Enables data-driven project planning
-    \item Reduces estimation bias significantly
-    \item Provides multi-schema support for diverse organizations
+    \item Cho phép lập kế hoạch dự án dựa trên dữ liệu
+    \item Giảm thiên vị ước tính đáng kể
+    \item Cung cấp hỗ trợ đa schema cho các tổ chức đa dạng
 \end{itemize}
 
-\textbf{Thank you for your attention!}
+\textbf{Cảm ơn bạn đã lắng nghe!}
 
-I'm now happy to take your questions and discuss any aspects of this research.
+Bây giờ tôi rất vui lòng trả lời các câu hỏi của bạn và thảo luận bất kỳ khía cạnh nào của nghiên cứu này.
 
 \pause
 
 % ===============================================
-\section*{Backup: Anticipated Questions \& Answers}
+\section*{Sự Chuẩn Bị: Các Câu Hỏi \& Câu Trả Lời Dự Kiến}
 
-\subsection*{Q1: Why not use deep learning instead of Random Forest?}
+\subsection*{Q1: Tại sao không sử dụng học sâu thay vì Random Forest?}
 
-\textbf{Answer:} Great question. We actually considered deep learning, but for three reasons, Random Forest was more appropriate for this problem:
-
-\begin{enumerate}
-    \item \textbf{Dataset size:} With only 320 samples, deep learning would likely overfit. Random Forest works well with smaller datasets.
-    \item \textbf{Interpretability:} Random Forest provides feature importance scores, which help us understand what drives effort estimation. Deep learning is more of a black box.
-    \item \textbf{Performance:} In our experiments, Random Forest achieved the best results. Adding complexity doesn't always improve performance.
-\end{enumerate}
-
-However, as we collect more data - especially reaching thousands of projects - deep learning would become more viable and is definitely in our future roadmap.
-
-\subsection*{Q2: How do you handle new COCOMO II cost drivers not in your training data?}
-
-\textbf{Answer:} That's an important practical question. We handle this in two ways:
+\textbf{Câu trả lời:} Câu hỏi tuyệt vời. Chúng tôi thực sự đã xem xét học sâu, nhưng vì ba lý do, Random Forest phù hợp hơn cho vấn đề này:
 
 \begin{enumerate}
-    \item \textbf{Default values:} For missing cost drivers, we use COCOMO II default values of 1.0, which represent nominal effort multipliers.
-    \item \textbf{Schema detection:} Our pipeline identifies which schema the new data belongs to and applies the appropriate preprocessing.
+    \item \textbf{Kích Thước Bộ Dữ Liệu:} Với chỉ 320 mẫu, học sâu sẽ có khả năng overfit. Random Forest hoạt động tốt với các bộ dữ liệu nhỏ hơn.
+    \item \textbf{Khả Năng Giải Thích:} Random Forest cung cấp các điểm số tầm quan trọng tính năng, giúp chúng tôi hiểu những gì thúc đẩy ước tính công sức. Học sâu là một hộp đen nhiều hơn.
+    \item \textbf{Hiệu Suất:} Trong các thử nghiệm của chúng tôi, Random Forest đạt kết quả tốt nhất. Thêm độ phức tạp không luôn cải thiện hiệu suất.
 \end{enumerate}
 
-However, if a project has completely new characteristics never seen in training, our confidence scores will reflect higher uncertainty. This is where continuous learning comes in - we can retrain models as new data becomes available.
+Tuy nhiên, khi chúng tôi thu thập thêm dữ liệu - đặc biệt là đạt hàng nghìn dự án - học sâu sẽ trở nên khả thi hơn và chắc chắn nằm trong lộ trình tương lai của chúng tôi.
 
-\subsection*{Q3: What's the computational cost of your approach?}
+\subsection*{Q2: Bạn xử lý các trình điều khiển chi phí COCOMO II mới như thế nào không có trong dữ liệu huấn luyện?}
 
-\textbf{Answer:} Excellent question about practical deployment.
+\textbf{Câu trả lời:} Đây là một câu hỏi thực tế quan trọng. Chúng tôi xử lý điều này theo hai cách:
 
-\textbf{Training time:}
+\begin{enumerate}
+    \item \textbf{Giá Trị Mặc Định:} Đối với các trình điều khiển chi phí bị thiếu, chúng tôi sử dụng giá trị mặc định COCOMO II là 1.0, đại diện cho các bộ nhân nỗ lực danh nghĩa.
+    \item \textbf{Phát Hiện Schema:} Đường dẫn của chúng tôi xác định schema mà dữ liệu mới thuộc về và áp dụng tiền xử lý thích hợp.
+\end{enumerate}
+
+Tuy nhiên, nếu một dự án có các đặc điểm hoàn toàn mới chưa bao giờ xuất hiện trong huấn luyện, điểm số tin cậy của chúng tôi sẽ phản ánh độ không chắc chắn cao hơn. Đây là nơi học tập liên tục phát huy tác dụng - chúng tôi có thể đào tạo lại các mô hình khi dữ liệu mới có sẵn.
+
+\subsection*{Q3: Chi phí tính toán của tiếp cận của bạn là bao nhiêu?}
+
+\textbf{Câu trả lời:} Câu hỏi tuyệt vời về triển khai thực tế.
+
+\textbf{Thời Gian Huấn Luyện:}
 \begin{itemize}
-    \item Random Forest training: approximately 8 seconds on our dataset
-    \item One-time cost, only needed when retraining
+    \item Huấn luyện Random Forest: khoảng 8 giây trên bộ dữ liệu của chúng tôi
+    \item Chi phí một lần, chỉ cần khi đào tạo lại
 \end{itemize}
 
-\textbf{Prediction time:}
+\textbf{Thời Gian Dự Đoán:}
 \begin{itemize}
-    \item Less than 50 milliseconds per project
-    \item This includes preprocessing and prediction
-    \item Fast enough for real-time API responses
+    \item Ít hơn 50 mili giây cho mỗi dự án
+    \item Điều này bao gồm tiền xử lý và dự đoán
+    \item Nhanh đủ cho các phản hồi API thời gian thực
 \end{itemize}
 
-So the computational cost is very reasonable, even for large-scale deployment. A single server can handle thousands of estimation requests per hour.
+Vì vậy chi phí tính toán là rất hợp lý, thậm chí để triển khai quy mô lớn. Một máy chủ duy nhất có thể xử lý hàng nghìn yêu cầu ước tính mỗi giờ.
 
-\subsection*{Q4: How does your approach compare to recent deep learning papers?}
+\subsection*{Q4: Tiếp cận của bạn so sánh như thế nào với các bài báo học sâu gần đây?}
 
-\textbf{Answer:} We conducted a literature review, and I can share some comparisons:
+\textbf{Câu trả lời:} Chúng tôi thực hiện một đánh giá tài liệu và có thể chia sẻ một số so sánh:
 
-\textbf{Recent deep learning approaches:}
+\textbf{Các Tiếp Cận Học Sâu Gần Đây:}
 \begin{itemize}
-    \item Achieve 15-25\% MMRE on single-schema datasets
-    \item But require 1000+ training samples
-    \item And typically focus on one schema only
+    \item Đạt 15-25\% MMRE trên các bộ dữ liệu schema đơn
+    \item Nhưng yêu cầu 1000+ mẫu huấn luyện
+    \item Và thường tập trung vào một schema duy nhất
 \end{itemize}
 
-\textbf{Our approach:}
+\textbf{Tiếp Cận của Chúng Tôi:}
 \begin{itemize}
-    \item Achieves 38\% MMRE on multi-schema heterogeneous data
-    \item Works with 320 samples across three schemas
-    \item Provides practical multi-schema support
+    \item Đạt 38\% MMRE trên dữ liệu không đồng nhất đa schema
+    \item Hoạt động với 320 mẫu trên ba schema
+    \item Cung cấp hỗ trợ đa schema thực tế
 \end{itemize}
 
-The key difference is that we handle \textbf{heterogeneous real-world data}, while many research papers use cleaner, single-source datasets. Our slightly higher error rate is the trade-off for greater practical applicability.
+Sự khác biệt chính là chúng tôi xử lý \textbf{dữ liệu thế giới thực không đồng nhất}, trong khi nhiều bài báo nghiên cứu sử dụng các bộ dữ liệu sạch hơn, từ một nguồn duy nhất. Tỷ lệ lỗi cao hơn của chúng tôi là sự cân bằng cho khả năng áp dụng thực tế lớn hơn.
 
-\subsection*{Q5: Can you explain the 34\% improvement more clearly?}
+\subsection*{Q5: Bạn có thể giải thích cải thiện 34\% rõ ràng hơn được không?}
 
-\textbf{Answer:} Absolutely. Let me break down the 34\% improvement:
+\textbf{Câu trả lời:} Chắc chắn. Hãy để tôi chia nhỏ cải thiện 34\%:
 
-\textbf{COCOMO II Baseline:}
+\textbf{Baseline COCOMO II:}
 \begin{itemize}
-    \item MMRE = 0.58
-    \item This means on average, estimates are off by 58\%
+    \item MMRE = 0,58
+    \item Điều này có nghĩa là trung bình, các ước tính bị tắt 58\%
 \end{itemize}
 
 \textbf{Random Forest:}
 \begin{itemize}
-    \item MMRE = 0.38
-    \item Average estimation error is 38\%
+    \item MMRE = 0,38
+    \item Lỗi ước tính trung bình là 38\%
 \end{itemize}
 
-\textbf{Improvement calculation:}
+\textbf{Tính Toán Cải Thiện:}
 \begin{itemize}
-    \item Absolute improvement: 0.58 - 0.38 = 0.20
-    \item Relative improvement: 0.20 / 0.58 = 34\%
+    \item Cải thiện tuyệt đối: 0,58 - 0,38 = 0,20
+    \item Cải thiện tương đối: 0,20 / 0,58 = 34\%
 \end{itemize}
 
-So we reduced the estimation error by one-third compared to traditional COCOMO II. This is significant in practice - it means fewer budget overruns and better project planning.
+Vì vậy chúng tôi đã giảm lỗi ước tính một phần ba so với COCOMO II truyền thống. Điều này có ý nghĩa trong thực tế - nó có nghĩa là ít lỗi ngân sách vượt quá hơn và lập kế hoạch dự án tốt hơn.
 
-\subsection*{Q6: What about different software domains - web apps, embedded systems, etc.?}
+\subsection*{Q6: Điều gì về các miền phần mềm khác nhau - ứng dụng web, hệ thống nhúng, v.v.?}
 
-\textbf{Answer:} Another excellent question about generalization.
+\textbf{Câu trả lời:} Một câu hỏi tuyệt vời khác về tổng quát hóa.
 
-Our current dataset includes projects from multiple domains, but we don't have enough samples per domain to build domain-specific models yet.
+Bộ dữ liệu hiện tại của chúng tôi bao gồm các dự án từ nhiều miền, nhưng chúng tôi không có đủ mẫu trên mỗi miền để xây dựng các mô hình dành riêng cho miền nhất.
 
-\textbf{Current approach:}
+\textbf{Tiếp Cận Hiện Tại:}
 \begin{itemize}
-    \item We use COCOMO II application type as a feature
-    \item The model learns domain differences implicitly
+    \item Chúng tôi sử dụng loại ứng dụng COCOMO II làm tính năng
+    \item Mô hình tìm hiểu các khác biệt miền ngầm
 \end{itemize}
 
-\textbf{Future improvement:}
+\textbf{Cải Thiện Tương Lai:}
 \begin{itemize}
-    \item Collect domain-labeled data
-    \item Build ensemble models with domain-specific branches
-    \item Allow users to specify domain for better calibration
+    \item Thu thập dữ liệu được gắn nhãn miền
+    \item Xây dựng các mô hình ensemble với các nhánh dành riêng cho miền
+    \item Cho phép người dùng chỉ định miền để hiệu chỉnh tốt hơn
 \end{itemize}
 
-This is definitely an area for future research - domain adaptation in software effort estimation.
+Đây chắc chắn là một lĩnh vực cho nghiên cứu tương lai - thích ứng miền trong ước tính công sức phần mềm.
 
-\subsection*{Q7: How do you ensure the API doesn't get abused or produce wrong estimates?}
+\subsection*{Q7: Bạn đảm bảo API không bị lạm dụng hoặc tạo ra các ước tính sai được không?}
 
-\textbf{Answer:} Security and reliability are critical for production deployment.
+\textbf{Câu trả lời:} An toàn và độ tin cậy là rất quan trọng cho triển khai sản xuất.
 
-\textbf{We implement several safeguards:}
+\textbf{Chúng tôi thực hiện một số biện pháp bảo vệ:}
 
 \begin{enumerate}
-    \item \textbf{Input validation:}
+    \item \textbf{Xác Thực Đầu Vào:}
     \begin{itemize}
-        \item Range checks on all metrics
-        \item Schema consistency validation
-        \item Reject obviously invalid inputs
+        \item Kiểm tra phạm vi trên tất cả các chỉ số
+        \item Xác thực tính nhất quán schema
+        \item Từ chối các đầu vào rõ ràng không hợp lệ
     \end{itemize}
     
-    \item \textbf{Confidence scoring:}
+    \item \textbf{Điểm Số Tin Cậy:}
     \begin{itemize}
-        \item Each prediction comes with confidence score
-        \item Low confidence triggers warning
-        \item Users see uncertainty estimates
+        \item Mỗi dự đoán đi kèm với điểm số tin cậy
+        \item Tin cậy thấp kích hoạt cảnh báo
+        \item Người dùng thấy ước tính độ không chắc chắn
     \end{itemize}
     
-    \item \textbf{Rate limiting:}
+    \item \textbf{Giới Hạn Tỷ Lệ:}
     \begin{itemize}
-        \item API key required
-        \item Request throttling per user
-        \item Prevents abuse
+        \item Khóa API bắt buộc
+        \item Chuỗi yêu cầu cho mỗi người dùng
+        \item Ngăn ngừa lạm dụng
     \end{itemize}
     
-    \item \textbf{Logging and monitoring:}
+    \item \textbf{Ghi Nhật Ký và Giám Sát:}
     \begin{itemize}
-        \item All predictions logged
-        \item Anomaly detection on inputs
-        \item Alert system for suspicious patterns
+        \item Tất cả các dự đoán được ghi nhật ký
+        \item Phát hiện dị thường trên các đầu vào
+        \item Hệ thống cảnh báo cho các mẫu đáng ngờ
     \end{itemize}
 \end{enumerate}
 
-\textbf{Most importantly:} We make it clear that estimates are \textbf{guidance, not guarantees}. Human judgment should always be involved in final decisions.
+\textbf{Quan trọng nhất:} Chúng tôi làm cho rõ ràng rằng ước tính là \textbf{hướng dẫn, không bảo đảm}. Phán xét của con người sẽ luôn được liên quan trong các quyết định cuối cùng.
 
 \end{document}

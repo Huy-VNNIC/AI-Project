@@ -254,7 +254,11 @@ function displayResults(data) {
 
     // Update individual model estimates
     const modelEstimates = estimation.model_estimates || data.model_estimates;
-    if (modelEstimates) {
+    console.log('Model estimates:', modelEstimates);
+    console.log('Model estimates type:', typeof modelEstimates);
+    console.log('Model estimates keys:', modelEstimates ? Object.keys(modelEstimates) : 'none');
+    
+    if (modelEstimates && Object.keys(modelEstimates).length > 0) {
         const estimates = modelEstimates;
         
         // Update specific model cards if they exist
@@ -277,8 +281,15 @@ function displayResults(data) {
             locValue.textContent = locEstimate.effort.toFixed(2);
         }
 
-        // Update chart if it exists
+        // Update chart - ALWAYS call this to show comparison
+        console.log('Calling updateChart with estimates');
         updateChart(estimates);
+        
+        // Update model details section
+        updateModelDetailsTable(estimates);
+    } else {
+        console.error('❌ No model_estimates found in response!');
+        console.log('Full data object:', data);
     }
 
     // Update project details
@@ -289,16 +300,151 @@ function displayResults(data) {
             projectSizeElement.textContent = projectSize.toFixed(1) + ' KLOC';
         }
     }
+    
+    // Update analysis details if available
+    if (data.ml_features || data.analysis) {
+        updateAnalysisDetails(data.ml_features || data.analysis);
+    }
+}
+
+function updateModelDetailsTable(estimates) {
+    const detailsContent = document.getElementById('modelDetailsContent');
+    if (!detailsContent) return;
+    
+    let tableHTML = `
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Model</th>
+                        <th>Effort (PM)</th>
+                        <th>Duration (Months)</th>
+                        <th>Team Size</th>
+                        <th>Confidence (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    Object.entries(estimates).forEach(([key, value]) => {
+        if (value && value.effort !== undefined) {
+            // Use descriptive name
+            let name = value.name || key;
+            
+            // Better names for ML models
+            if (key.startsWith('ml_')) {
+                const modelType = key.replace('ml_', '').replace(/_/g, ' ');
+                name = `ML: ${modelType}`;
+            }
+            
+            tableHTML += `
+                <tr>
+                    <td><strong>${name}</strong></td>
+                    <td>${value.effort.toFixed(2)}</td>
+                    <td>${value.duration ? value.duration.toFixed(1) : '-'}</td>
+                    <td>${value.team_size ? Math.ceil(value.team_size) : '-'}</td>
+                    <td>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar ${getProgressBarClass(value.confidence || 0)}" 
+                                 role="progressbar" 
+                                 style="width: ${value.confidence || 0}%"
+                                 aria-valuenow="${value.confidence || 0}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                                ${value.confidence || 0}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+    });
+    
+    tableHTML += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    detailsContent.innerHTML = tableHTML;
+}
+
+function getProgressBarClass(confidence) {
+    if (confidence >= 80) return 'bg-success';
+    if (confidence >= 60) return 'bg-warning';
+    return 'bg-danger';
+}
+
+function updateAnalysisDetails(analysis) {
+    const analysisContent = document.getElementById('analysisDetailsContent');
+    if (!analysisContent) return;
+    
+    let detailsHTML = '<div class="row">';
+    
+    if (analysis.size) {
+        detailsHTML += `
+            <div class="col-md-4 mb-3">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-file-code"></i> Project Size</h6>
+                        <p class="card-text h4">${analysis.size.toFixed(2)} KLOC</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (analysis.complexity) {
+        detailsHTML += `
+            <div class="col-md-4 mb-3">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-gear"></i> Complexity</h6>
+                        <p class="card-text h4">${analysis.complexity}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (analysis.requirements_count !== undefined) {
+        detailsHTML += `
+            <div class="col-md-4 mb-3">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-list-check"></i> Requirements</h6>
+                        <p class="card-text h4">${analysis.requirements_count}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    detailsHTML += '</div>';
+    
+    analysisContent.innerHTML = detailsHTML;
 }
 
 function updateChart(estimates) {
-    const chartCanvas = document.getElementById('estimationChart');
-    if (!chartCanvas) return;
+    console.log('=== updateChart called ===');
+    console.log('Estimates received:', estimates);
+    console.log('Chart.js available?', typeof Chart !== 'undefined');
+    
+    const chartCanvas = document.getElementById('modelsChart');
+    console.log('Canvas element found:', chartCanvas);
+    
+    if (!chartCanvas) {
+        console.error('❌ modelsChart canvas not found in DOM!');
+        console.log('Available canvas elements:', document.querySelectorAll('canvas'));
+        return;
+    }
 
     const ctx = chartCanvas.getContext('2d');
+    console.log('Canvas context:', ctx);
     
     // Destroy existing chart
     if (currentEstimationChart) {
+        console.log('Destroying existing chart');
         currentEstimationChart.destroy();
     }
 
@@ -317,53 +463,151 @@ function updateChart(estimates) {
         'rgba(255, 99, 255, 0.8)'
     ];
 
+    console.log('Processing estimates...');
     Object.entries(estimates).forEach(([key, value], index) => {
-        if (value && value.effort && value.name) {
-            modelNames.push(value.name);
+        console.log(`Processing ${key}:`, value);
+        if (value && value.effort !== undefined) {
+            // Use descriptive name, fall back to key
+            let name = value.name || key;
+            
+            // Better names for ML models
+            if (key.startsWith('ml_')) {
+                const modelType = key.replace('ml_', '').replace(/_/g, ' ');
+                name = `ML: ${modelType}`;
+            }
+            
+            console.log(`✓ Adding ${name}: effort=${value.effort}`);
+            modelNames.push(name);
             effortValues.push(value.effort);
             confidenceValues.push(value.confidence || 0);
+        } else {
+            console.log(`✗ Skipping ${key}: invalid data`);
         }
     });
 
-    currentEstimationChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: modelNames,
-            datasets: [
-                {
-                    label: 'Effort (Person-months)',
-                    data: effortValues,
-                    backgroundColor: colors.slice(0, modelNames.length),
-                    borderColor: colors.slice(0, modelNames.length).map(color => color.replace('0.8', '1')),
-                    borderWidth: 1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Effort (Person-months)'
+    console.log('Final chart data:', { modelNames, effortValues, confidenceValues });
+    
+    if (modelNames.length === 0) {
+        console.error('❌ No valid model data to display!');
+        return;
+    }
+
+    console.log('Final chart data:', { modelNames, effortValues, confidenceValues });
+    
+    if (modelNames.length === 0) {
+        console.error('❌ No valid model data to display!');
+        return;
+    }
+
+    // Get scale preference (default to logarithmic)
+    const isLogarithmic = true; // Default to logarithmic scale
+
+    console.log('Creating Chart.js instance...');
+    try {
+        currentEstimationChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: modelNames,
+                datasets: [
+                    {
+                        label: 'Effort (Person-months)',
+                        data: effortValues,
+                        backgroundColor: colors.slice(0, modelNames.length),
+                        borderColor: colors.slice(0, modelNames.length).map(color => color.replace('0.8', '1')),
+                        borderWidth: 2
                     }
-                }
+                ]
             },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        type: isLogarithmic ? 'logarithmic' : 'linear',
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Effort (Person-months)',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            callback: function(value, index, values) {
+                                return value.toFixed(2);
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Models',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        }
+                    }
                 },
-                tooltip: {
-                    callbacks: {
-                        afterLabel: function(context) {
-                            const index = context.dataIndex;
-                            return `Confidence: ${confidenceValues[index]}%`;
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Effort: ${context.parsed.y.toFixed(2)} person-months`;
+                            },
+                            afterLabel: function(context) {
+                                const index = context.dataIndex;
+                                const confidence = confidenceValues[index];
+                                return confidence ? `Confidence: ${confidence}%` : '';
+                            }
                         }
                     }
                 }
             }
+        });
+
+        console.log('✅ Chart created successfully!');
+        console.log('Chart instance:', currentEstimationChart);
+        
+        // Setup scale toggle buttons
+        setupScaleToggle();
+    } catch (error) {
+        console.error('❌ Error creating chart:', error);
+        console.error('Error stack:', error.stack);
+    }
+}
+
+function setupScaleToggle() {
+    const logButton = document.getElementById('logScale');
+    const linearButton = document.getElementById('linearScale');
+    
+    if (!logButton || !linearButton) return;
+    
+    logButton.addEventListener('click', function() {
+        if (currentEstimationChart) {
+            currentEstimationChart.options.scales.y.type = 'logarithmic';
+            currentEstimationChart.update();
+            logButton.classList.add('active');
+            linearButton.classList.remove('active');
+        }
+    });
+    
+    linearButton.addEventListener('click', function() {
+        if (currentEstimationChart) {
+            currentEstimationChart.options.scales.y.type = 'linear';
+            currentEstimationChart.update();
+            linearButton.classList.add('active');
+            logButton.classList.remove('active');
         }
     });
 }

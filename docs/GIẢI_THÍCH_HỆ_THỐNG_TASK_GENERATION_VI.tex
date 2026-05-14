@@ -1,0 +1,1011 @@
+\documentclass[12pt, a4paper]{report}
+\usepackage[utf-8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usepackage{tcolorbox}
+\usepackage{array}
+\usepackage{booktabs}
+
+\geometry{margin=2.5cm}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    columns=fullflexible,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    language=Python
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\thepage}
+\lhead{Task Generation System}
+
+\title{\textbf{GIẢI THÍCH CHI TIẾT HỆ THỐNG TASK GENERATION}\\
+\Large AI-Powered Requirement Analysis \& Task Generator}
+
+\author{AI Project - Requirement Analyzer}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\chapter{GIỚI THIỆU HỆ THỐNG}
+
+\section{Task Generation System là gì?}
+
+\textbf{Task Generation System} là một hệ thống AI powerpoint được xây dựng để tự động **chuyển đổi tài liệu yêu cầu (Requirements Document) thành các Task/User Story có cấu trúc**.
+
+\begin{tcolorbox}[colback=blue!5, colframe=blue!50]
+\textbf{Mục đích chính:}
+\begin{itemize}
+    \item 🎯 Tự động phân tích tài liệu yêu cầu
+    \item 🎯 Tách yêu cầu từ tài liệu thô
+    \item 🎯 Tạo Task/User Story theo chuẩn Agile
+    \item 🎯 Phân loại, ước tính Story Points
+    \item 🎯 Sẵn sàng upload lên Jira
+\end{itemize}
+\end{tcolorbox}
+
+\section{Quy Trình Xử Lý - Pipeline}
+
+Hệ thống hoạt động theo một pipeline 5 bước:
+
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!50]
+\begin{verbatim}
+[RAW DOCUMENT]
+       │
+       ↓
+[STAGE 1: SEGMENTATION]
+Tách tài liệu thành các câu/đoạn
+       │
+       ↓
+[STAGE 2: REQUIREMENT DETECTION]
+Phát hiện câu nào là yêu cầu thực tế
+       │
+       ↓
+[STAGE 3: ENRICHMENT]
+Phân loại: Type, Priority, Domain, Role
+       │
+       ↓
+[STAGE 4: TASK GENERATION]
+Tạo Task/User Story chi tiết
+       │
+       ↓
+[STAGE 5: POST-PROCESSING]
+Loại bỏ trùng lặp, định dạng lại
+       │
+       ↓
+[STRUCTURED TASKS OUTPUT]
+(JSON - Ready for Jira)
+\end{verbatim}
+\end{tcolorbox}
+
+\newpage
+
+\chapter{CÁC STAGE CHI TIẾT}
+
+\section{Stage 1: Segmentation (Tách Tài Liệu)}
+
+\subsection{Mục Đích}
+
+Chia tài liệu yêu cầu thành các đơn vị xử lý nhỏ (câu, đoạn).
+
+\subsection{Đầu Vào \& Đầu Ra}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{3cm}|p{6cm}|}
+\hline
+\textbf{Input} & \textbf{Output} \\
+\hline
+Raw document (TXT, MD, DOCX, PDF) & 
+List of Sentences with metadata:
+\begin{itemize}
+\item Text content
+\item Line number
+\item Doc offset
+\item Section header
+\end{itemize} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Ví Dụ}
+
+\begin{tcolorbox}[colback=cyan!5]
+\textbf{Input Document:}
+\begin{lstlisting}
+Requirements for Hotel Management System:
+
+1. The system must allow customers 
+   to search for available rooms.
+2. Check-in and check-out dates 
+   are required.
+\end{lstlisting}
+
+\textbf{Output (Segmented):}
+\begin{lstlisting}
+Sentences:
+[0] "The system must allow customers 
+     to search for available rooms."
+    - line: 3
+    - section: "Requirements for Hotel 
+                Management System"
+    
+[1] "Check-in and check-out dates 
+    are required."
+    - line: 5
+    - section: "Requirements for Hotel 
+                Management System"
+\end{lstlisting}
+\end{tcolorbox}
+
+\section{Stage 2: Requirement Detection (Phát Hiện)}
+
+\subsection{Mục Đích}
+
+Phát hiện **which sentences are actual requirements** và **filter out noise** (tiêu đề, giải thích, v.v.).
+
+\subsection{Cách Hoạt Động}
+
+Sử dụng **trained ML classifier** để dự đoán xác suất một câu là yêu cầu:
+
+\begin{tcolorbox}[colback=orange!5]
+\textbf{Requirement Detector Model:}
+\begin{itemize}
+    \item \textbf{Input:} Câu text
+    \item \textbf{Feature Extraction:} TF-IDF vectorization
+    \item \textbf{Model:} Logistic Regression / SVM
+    \item \textbf{Output:} Probability [0-1]
+    \item \textbf{Threshold:} > 0.5 = Yêu cầu (tunable)
+\end{itemize}
+
+\textbf{Ví dụ dự đoán:}
+\begin{lstlisting}
+"The system must allow customers to search" 
+→ Probability: 0.92 ✓ (IS Requirement)
+
+"Hotel Management System" 
+→ Probability: 0.15 ✗ (NOT Requirement)
+
+"Customers can modify their bookings" 
+→ Probability: 0.87 ✓ (IS Requirement)
+\end{lstlisting}
+\end{tcolorbox}
+
+\section{Stage 3: Enrichment (Phân Loại)}
+
+\subsection{Mục Đích}
+
+Gắn **metadata vào mỗi requirement**: Type, Priority, Domain, Role.
+
+\subsection{Multi-Class Classifiers}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|p{2.5cm}|p{4cm}|p{3cm}|}
+\hline
+\textbf{Label} & \textbf{Classes} & \textbf{Ví Dụ} \\
+\hline
+\textbf{Type} & Functional, Security, Interface, Data, Performance & "User can login" → Functional \\
+\hline
+\textbf{Priority} & Critical, High, Medium, Low & "Must encrypt data" → Critical \\
+\hline
+\textbf{Domain} & ecommerce, iot, healthcare, finance, general & "Payment processing" → Finance \\
+\hline
+\textbf{Role} & Backend, Frontend, QA, DevOps, BA, Security & "Database setup" → DevOps \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Ví Dụ Enrichment}
+
+\begin{tcolorbox}[colback=green!5]
+\textbf{Input (Requirement):}
+\begin{lstlisting}
+"The system must encrypt customer 
+payment information in transit and at rest"
+\end{lstlisting}
+
+\textbf{Output (Enriched):}
+\begin{lstlisting}
+GeneratedTask {
+    title: "Encrypt customer payment data",
+    type: "security",           ← Classifier 1
+    priority: "Critical",       ← Classifier 2
+    domain: "finance",          ← Classifier 3
+    role: "Backend",            ← Classifier 4
+    ...
+}
+\end{lstlisting}
+\end{tcolorbox}
+
+\section{Stage 4: Task Generation (Tạo Task)}
+
+\subsection{3 Modes Tạo Task}
+
+Hệ thống hỗ trợ **3 cách khác nhau** để tạo task:
+
+\subsubsection{Mode 1: Template-Based (Nhanh \& Consistent)}
+
+\begin{tcolorbox}[colback=red!5, colframe=red!50]
+\textbf{Đặc điểm:}
+\begin{itemize}
+    \item ⚡ Nhanh nhất (miliseconds)
+    \item 📋 Sử dụng templates cố định
+    \item 🎯 Output consistent
+    \item 💾 Không cần API
+\end{itemize}
+
+\textbf{Cách hoạt động:}
+\begin{lstlisting}
+1. Extract entities từ requirement 
+   (subject, action, object, condition)
+   
+2. Match với template tương ứng
+   
+3. Fill-in template với entities
+
+Template ví dụ (Functional):
+Title: "Implement {action} for {object}"
+Description: "The system needs to {action} 
+              {object} {condition}."
+AC: - User can {action} {object}
+    - System validates input
+    - Error handling
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Mode 2: LLM-Based (Linh Hoạt \& Natural)}
+
+\begin{tcolorbox}[colback=purple!5, colframe=purple!50]
+\textbf{Đặc điểm:}
+\begin{itemize}
+    \item 🤖 Sử dụng OpenAI/Anthropic API
+    \item 📝 Natural language output
+    \item 🎯 Context-aware (hiểu ngữ cảnh)
+    \item 💰 Tốn chi phí API
+    \item ⏱️ Chậm hơn template
+\end{itemize}
+
+\textbf{Cách hoạt động:}
+\begin{lstlisting}
+LLMTaskGenerator
+   ↓
+1. Gửi requirement đến LLM (GPT-4, Claude)
+   với prompt structured
+   
+2. LLM tạo task output theo schema JSON
+   
+3. Validate response
+   
+4. Return GeneratedTask
+
+Prompt ví dụ:
+"Given this requirement: {requirement}
+Generate a Jira-like task with:
+- Title (action-oriented)
+- Description
+- 3-5 Acceptance Criteria
+Output as JSON matching this schema: {...}"
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsubsection{Mode 3: Model-Based (Production - No APIs)}
+
+\begin{tcolorbox}[colback=teal!5, colframe=teal!50]
+\textbf{Đặc điểm:}
+\begin{itemize}
+    \item 🚀 Production ready
+    \item 💾 Không cần API keys
+    \item ⚡ Nhanh \& offline
+    \item 🎯 Trained on project data
+    \item 🔒 Data privacy (on-device)
+\end{itemize}
+
+\textbf{Cách hoạt động:}
+\begin{lstlisting}
+ModelBasedTaskGenerator
+   ↓
+1. Load trained ML models
+   (requirement detector, enrichers)
+   
+2. Extract entities using spaCy NLP
+   
+3. Apply generation patterns
+   (NOT hardcoded templates)
+   
+4. Generate natural variations
+   using trained models
+   
+5. Return GeneratedTask
+
+Models trained on:
+- Project requirements dataset
+- Historical tasks
+- Requirement patterns
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{So Sánh 3 Modes}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Aspect} & \textbf{Template} & \textbf{LLM} & \textbf{Model} \\
+\hline
+Speed & ⚡⚡⚡ & ⚡ & ⚡⚡⚡ \\
+Flexibility & ⭐⭐ & ⭐⭐⭐ & ⭐⭐⭐ \\
+Cost & Free & \$\$\$ & Free \\
+API needed & No & Yes & No \\
+Training data & Hardcoded & In-context & External \\
+Natural output & ⭐⭐ & ⭐⭐⭐ & ⭐⭐⭐ \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Stage 5: Post-Processing}
+
+\subsection{Các Bước}
+
+\begin{enumerate}
+    \item \textbf{Deduplication:} Loại bỏ task trùng lặp
+    \item \textbf{Validation:} Kiểm tra required fields
+    \item \textbf{Normalization:} Chuẩn hóa format
+    \item \textbf{Filtering:} Loại bỏ low-confidence tasks
+    \item \textbf{Sorting:} Sắp xếp theo priority
+\end{enumerate}
+
+\newpage
+
+\chapter{TASK SCHEMA - CỬ TRÚC DỮ LIỆU}
+
+\section{GeneratedTask Model}
+
+Mỗi task sinh ra có cấu trúc Pydantic schema như sau:
+
+\begin{tcolorbox}[colback=gray!5]
+\begin{lstlisting}
+class GeneratedTask(BaseModel):
+    # ID & Identifiers
+    task_id: str = UUID
+    epic: Optional[str]
+    module: Optional[str]
+    
+    # Core Content
+    title: str                    # "Implement user login"
+    description: str              # Detailed paragraph
+    acceptance_criteria: List[str] # 3-5 AC items
+    
+    # Classification Labels
+    type: str          # functional, security, interface...
+    priority: str      # Critical, High, Medium, Low
+    domain: str        # ecommerce, healthcare, finance...
+    role: str          # Backend, Frontend, QA, DevOps...
+    labels: List[str]  # Additional tags
+    
+    # Estimation
+    story_points: Optional[int]    # 1, 2, 3, 5, 8, 13, 21
+    estimated_hours: Optional[float]
+    confidence: float              # [0.0 - 1.0]
+    complexity: Optional[str]      # Simple, Medium, Complex
+    
+    # Source Tracking
+    source: Optional[TaskSource]
+    - sentence: str        # Original requirement
+    - section: Optional[str]
+    - doc_offset: [start, end]
+    - line_number: int
+    
+    # Dependencies
+    dependencies: List[str] # task IDs this depends on
+    
+    # Metadata
+    generated_at: datetime
+    generator_version: str
+\end{lstlisting}
+\end{tcolorbox}
+
+\newpage
+
+\chapter{PIPELINE CODE - HOW IT WORKS}
+
+\section{Main Pipeline Class}
+
+\begin{tcolorbox}[colback=blue!5]
+\begin{lstlisting}
+class TaskGenerationPipeline:
+    """
+    Main orchestrator combining all stages
+    """
+    
+    def __init__(
+        self,
+        generator_mode: str = "template",
+        # "template" (fast)
+        # "llm" (flexible, needs API)
+        # "model" (production, trained)
+        llm_provider: Optional[str] = None,
+        llm_model: Optional[str] = None,
+        llm_api_key: Optional[str] = None
+    ):
+        self.mode = generator_mode
+        
+        # Initialize components
+        self.segmenter = get_segmenter()
+        self.detector = get_detector()    # Req detection
+        self.enricher = get_enrichment_pipeline()
+        
+        # Choose generator based on mode
+        if mode == "template":
+            self.generator = TemplateTaskGenerator()
+        elif mode == "llm":
+            self.generator = LLMTaskGenerator(
+                provider=llm_provider,
+                model=llm_model,
+                api_key=llm_api_key
+            )
+        elif mode == "model":
+            self.generator = ModelBasedTaskGenerator()
+    
+    def generate_tasks(
+        self,
+        document: str,
+        max_tasks: int = 100,
+        min_confidence: float = 0.5
+    ) -> TaskGenerationResponse:
+        """Main execution method"""
+        
+        # Stage 1: Segment
+        sentences = self.segmenter.segment(document)
+        logger.info(f"✓ Segmented into {len(sentences)} sentences")
+        
+        # Stage 2: Detect requirements
+        requirements = []
+        for sent in sentences:
+            prob = self.detector.predict_proba(sent.text)
+            if prob > min_confidence:
+                requirements.append(sent)
+        logger.info(f"✓ Detected {len(requirements)} requirements")
+        
+        # Stage 3: Enrich
+        enriched = []
+        for req in requirements:
+            enriched_req = self.enricher.enrich(req)
+            enriched.append(enriched_req)
+        logger.info(f"✓ Enriched with metadata")
+        
+        # Stage 4: Generate tasks
+        tasks = []
+        for req in enriched[:max_tasks]:
+            task = self.generator.generate(req)
+            tasks.append(task)
+        logger.info(f"✓ Generated {len(tasks)} tasks")
+        
+        # Stage 5: Post-process
+        tasks = self.postprocessor.process(tasks)
+        logger.info(f"✓ Post-processed to {len(tasks)} tasks")
+        
+        return TaskGenerationResponse(
+            tasks=tasks,
+            total_count=len(tasks),
+            processing_time_ms=...
+        )
+\end{lstlisting}
+\end{tcolorbox}
+
+\section{Usage Example}
+
+\begin{tcolorbox}[colback=green!5]
+\begin{lstlisting}
+from requirement_analyzer.task_gen import get_pipeline
+
+# Initialize with different modes
+pipeline_fast = get_pipeline(mode="template")
+pipeline_flex = get_pipeline(
+    mode="llm",
+    llm_provider="openai",
+    llm_model="gpt-4o-mini"
+)
+pipeline_prod = get_pipeline(mode="model")
+
+# Use pipeline
+document = """
+Hotel Management System Requirements:
+
+1. The system must allow customers to search
+   for available rooms by date range.
+2. Customers can view room details including
+   price, amenities, and availability.
+3. System must send confirmation email
+   after booking is confirmed.
+4. Payment must be encrypted using SSL/TLS.
+"""
+
+# Generate tasks
+result = pipeline_fast.generate_tasks(
+    document,
+    max_tasks=20,
+    min_confidence=0.6
+)
+
+# Access results
+print(f"Generated {result.total_count} tasks")
+for task in result.tasks:
+    print(f"\n{task.title}")
+    print(f"  Priority: {task.priority}")
+    print(f"  Story Points: {task.story_points}")
+    print(f"  Type: {task.type}")
+    print(f"  Role: {task.role}")
+    print(f"  Confidence: {task.confidence:.2%}")
+    print(f"  AC: {len(task.acceptance_criteria)}")
+
+# Export to Jira or JSON
+result.export_to_jira(project_key="HMS")
+result.export_to_json("generated_tasks.json")
+\end{lstlisting}
+\end{tcolorbox}
+
+\newpage
+
+\chapter{USER STORIES VÀ TASKS TRONG HỆ THỐNG}
+
+\section{Task Generation Feature - User Stories}
+
+\subsection{US1: Tạo Requirement Document}
+
+\begin{tcolorbox}[colback=cyan!5, colframe=cyan!50]
+\begin{lstlisting}
+Title: Upload requirement document
+
+As a Project Manager
+I want to upload requirement documents
+So that I can generate tasks automatically
+
+Acceptance Criteria:
+✓ User can upload TXT, MD, DOCX, PDF files
+✓ System validates file format
+✓ Shows upload progress
+✓ Displays file content preview
+✓ Error handling for invalid files
+
+Type: Functional
+Priority: High
+Story Points: 3
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{US2: Generate Tasks from Requirements}
+
+\begin{tcolorbox}[colback=orange!5, colframe=orange!50]
+\begin{lstlisting}
+Title: Generate tasks with multiple modes
+
+As a Project Manager
+I want to generate tasks using multiple 
+generation modes (Template/LLM/Model)
+So that I can choose best approach for 
+my project needs
+
+Acceptance Criteria:
+
+Scenario 1: Template Mode
+✓ Select "Fast Template Generation"
+✓ System uses predefined templates
+✓ Tasks generated within 2 seconds
+✓ Output is consistent across runs
+
+Scenario 2: LLM Mode
+✓ Select "Flexible LLM Generation"
+✓ Configure LLM provider (OpenAI/Anthropic)
+✓ System generates natural task descriptions
+✓ Request/response logged for audit
+
+Scenario 3: Model Mode
+✓ Select "Production Model"
+✓ System uses locally trained models
+✓ No API keys required
+✓ Fast processing without internet
+
+Type: Functional
+Priority: High
+Story Points: 8
+Complexity: Complex
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{US3: Review \& Edit Generated Tasks}
+
+\begin{tcolorbox}[colback=yellow!5, colframe=yellow!50]
+\begin{lstlisting}
+Title: Review and edit generated tasks
+
+As a Project Manager
+I want to review, edit, or delete 
+generated tasks
+So that I can ensure quality before 
+importing to Jira
+
+Acceptance Criteria:
+✓ Display tasks in table/list view
+✓ Can edit title, description, AC
+✓ Can change priority/type/story points
+✓ Can delete unwanted tasks
+✓ Show confidence score for each task
+✓ Bulk operations (select multiple)
+✓ Changes saved to local storage
+
+Type: Interface
+Priority: High
+Story Points: 5
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{US4: Export Tasks to Jira}
+
+\begin{tcolorbox}[colback=purple!5, colframe=purple!50]
+\begin{lstlisting}
+Title: Export generated tasks to Jira
+
+As a Project Manager
+I want to export tasks to Jira directly
+So that I can quickly populate project board
+
+Acceptance Criteria:
+✓ Authenticate with Jira API
+✓ Select target Jira project
+✓ Map task fields to Jira fields
+✓ Support custom fields
+✓ Show import progress
+✓ Handle duplicate prevention
+✓ Create tasks in batches
+✓ Error logging for failed imports
+
+Type: Integration
+Priority: High
+Story Points: 8
+Dependencies: [US3, Jira API setup]
+\end{lstlisting}
+\end{tcolorbox}
+
+\section{Related Backend Tasks}
+
+\subsection{Task: Implement Requirement Detector ML Model}
+
+\begin{tcolorbox}[colback=red!5]
+\begin{lstlisting}
+Title: Train requirement detection classifier
+
+Description:
+Develop and train ML model to classify
+whether a sentence is an actual requirement
+
+Technical Details:
+- Model type: Logistic Regression / SVM
+- Features: TF-IDF vectors
+- Training data: 1000+ labeled sentences
+- Classes: [Requirement, Non-requirement]
+- Target accuracy: >90%
+
+Acceptance Criteria:
+✓ Model trained on dataset
+✓ Cross-validation accuracy >90%
+✓ Model exported and serialized
+✓ Inference time <10ms per sentence
+✓ Model integrated with pipeline
+✓ Unit tests passing
+
+Type: Data/ML
+Priority: Critical
+Story Points: 13
+Complexity: Complex
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{Task: Implement Enrichment Classifiers}
+
+\begin{tcolorbox}[colback=magenta!5]
+\begin{lstlisting}
+Title: Train multi-class enrichment classifiers
+
+Description:
+Build 4 separate classifiers for:
+1. Type classifier (7 classes)
+   functional, security, interface, data, 
+   performance, integration, documentation
+   
+2. Priority classifier (4 classes)
+   Critical, High, Medium, Low
+   
+3. Domain classifier (6 classes)
+   ecommerce, iot, healthcare, finance, 
+   education, general
+   
+4. Role classifier (6 classes)
+   Backend, Frontend, QA, DevOps, BA, Security
+
+Acceptance Criteria:
+✓ Each classifier accuracy >85%
+✓ Fast inference (<100ms per sentence)
+✓ Models serialized and versioned
+✓ Integrated in enrichment pipeline
+✓ Fallback to defaults if confidence low
+✓ Pipeline tests passing
+
+Type: Data/ML
+Priority: High
+Story Points: 21
+Complexity: Very Complex
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{Task: Implement LLM Integration}
+
+\begin{tcolorbox}[colback=blue!5]
+\begin{lstlisting}
+Title: Integrate with LLM API (OpenAI/Anthropic)
+
+Description:
+Implement LLMTaskGenerator class to use
+external LLM APIs for task generation
+
+Technical Requirements:
+- Support OpenAI (GPT-4, GPT-4o-mini)
+- Support Anthropic (Claude-3-Haiku)
+- Structured JSON output
+- Streaming support
+- Error handling \& retries
+- Cost tracking (API usage)
+- Rate limiting
+
+Acceptance Criteria:
+✓ OpenAI integration working
+✓ Anthropic integration working
+✓ Structured prompt engineering
+✓ JSON validation
+✓ Caching implemented
+✓ Error messages clear
+✓ Cost calculation accurate
+✓ Integration tests passing
+
+Type: Integration
+Priority: High
+Story Points: 8
+\end{lstlisting}
+\end{tcolorbox}
+
+\subsection{Task: Implement Model-Based Generator}
+
+\begin{tcolorbox}[colback=green!5]
+\begin{lstlisting}
+Title: Implement production model-based generator
+
+Description:
+Build ModelBasedTaskGenerator using trained
+ML models for on-device task generation
+
+Technical Details:
+- Load trained models from disk
+- Extract entities with spaCy NLP
+- Generate task variations
+- No external API required
+
+Acceptance Criteria:
+✓ Models loaded correctly
+✓ Entity extraction working
+✓ Task generation deterministic
+✓ Performance >1000 tasks/min
+✓ Memory usage <500MB
+✓ All AC met
+✓ E2E tests passing
+✓ Documentation complete
+
+Type: Backend
+Priority: High
+Story Points: 13
+\end{lstlisting}
+\end{tcolorbox}
+
+\newpage
+
+\chapter{KIẾN TRÚC \& TECHNICAL DETAILS}
+
+\section{System Architecture}
+
+\begin{tcolorbox}[colback=gray!5]
+\begin{verbatim}
+┌─────────────────────────────────────────┐
+│  FastAPI Web Server                     │
+│  (routes/api endpoints)                 │
+└──────────────────┬──────────────────────┘
+                   │
+    ┌──────────────┴──────────────┐
+    │                             │
+┌───▼────────────────┐  ┌────────▼──────┐
+│ Task Gen Pipeline  │  │ File Upload   │
+│                    │  │ Processing    │
+└───┬────────────────┘  └────────▲──────┘
+    │                            │
+    ├─── Segmenter             
+    │    (sentence splitting)
+    │
+    ├─── Detector              
+    │    (ML classifier)
+    │    models/requirement_detector_model.joblib
+    │
+    ├─── Enricher              
+    │    (4 classifiers)
+    │    - type_classifier
+    │    - priority_classifier
+    │    - domain_classifier
+    │    - role_classifier
+    │
+    ├─── Generator (3 modes)       
+    │    ├─ TemplateGenerator (fast)
+    │    ├─ LLMGenerator (flexible)
+    │    └─ ModelGenerator (production)
+    │
+    └─── PostProcessor          
+         (dedup, validation)
+         │
+         └─── Output: JSON/Jira
+
+┌─────────────────────────────────────────┐
+│  Database (PostgreSQL)                  │
+│  - tasks table                          │
+│  - document_uploads                     │
+│  - enrichment_logs                      │
+└─────────────────────────────────────────┘
+\end{verbatim}
+\end{tcolorbox}
+
+\section{Component Dependencies}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{5cm}|p{3cm}|}
+\hline
+\textbf{Component} & \textbf{Dependencies} & \textbf{Purpose} \\
+\hline
+Segmenter & nltk, spaCy & Sentence tokenization \\
+\hline
+Detector & scikit-learn, joblib & ML classification \\
+\hline
+Enrichers & scikit-learn, joblib & Multi-class labeling \\
+\hline
+Template Gen & spaCy, regex & Pattern matching \\
+\hline
+LLM Gen & openai/anthropic & External API calls \\
+\hline
+Model Gen & spaCy, joblib & On-device inference \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Data Flow Example}
+
+\begin{tcolorbox}[colback=yellow!5]
+\begin{lstlisting}
+EXAMPLE: User uploads hotel_requirements.md
+
+1. UPLOAD STAGE
+   File: hotel_requirements.md
+   Size: 50 KB
+   Status: Uploaded ✓
+
+2. SEGMENTATION
+   Input: Raw text (1200 words)
+   Process: Split into sentences
+   Output: 98 sentences with metadata
+
+3. REQUIREMENT DETECTION
+   Processed: 98 sentences
+   Detected: 74 are requirements (>0.5 confidence)
+   Filtered out: 24 non-requirement sentences
+
+4. ENRICHMENT (74 requirements)
+   Type Distribution:
+   - Functional: 45 (60%)
+   - Security: 12 (16%)
+   - Data: 10 (13%)
+   - Performance: 5 (7%)
+   - Interface: 2 (3%)
+
+   Priority Distribution:
+   - Critical: 8
+   - High: 34
+   - Medium: 28
+   - Low: 4
+
+5. TASK GENERATION (Mode: Template)
+   Time: 280ms
+   Tasks generated: 74
+   Avg confidence: 0.85
+
+6. POST-PROCESSING
+   Removed duplicates: 3
+   Final tasks: 71
+   Ready for Jira export
+
+7. OUTPUT
+   Format: JSON
+   Size: 125 KB
+   Status: Ready for import
+\end{lstlisting}
+\end{tcolorbox}
+
+\newpage
+
+\chapter{CÓ GÌ VUI VẪN VỀ HỆ THỐNG}
+
+\section{Advantages}
+
+\begin{itemize}
+    \item ✅ \textbf{Tự động hóa:} Không cần tạo task thủ công
+    \item ✅ \textbf{Consistent:} Tất cả task cùng format, structure
+    \item ✅ \textbf{Flexible:} 3 generation modes với trade-offs khác nhau
+    \item ✅ \textbf{Smart:} ML classifiers learn từ dữ liệu
+    \item ✅ \textbf{Jira-ready:} Export directly to Jira/JSON
+    \item ✅ \textbf{Scalable:} Handle 1000+ requirements
+    \item ✅ \textbf{Traceable:} Track source sentence cho mỗi task
+\end{itemize}
+
+\section{Limitations \& Future Work}
+
+\begin{itemize}
+    \item ⚠️ Không perfect 100\% - cần human review
+    \item ⚠️ Language-specific - models trained for English
+    \item ⚠️ Requires clean input - garbage in = garbage out
+    \item ⚠️ ML models need retraining với new patterns
+    
+    \item 🔮 Future: Multi-language support
+    \item 🔮 Future: Custom model training per-project
+    \item 🔮 Future: Story point auto-estimation (ML)
+    \item 🔮 Future: Dependency detection between tasks
+    \item 🔮 Future: Real-time feedback \& refinement
+\end{itemize}
+
+\chapter{SUMMARY}
+
+\begin{tcolorbox}[colback=purple!5, colframe=purple!50]
+\textbf{Task Generation System} của bạn là một **production-grade AI system** sau:
+
+\begin{enumerate}
+    \item 📄 **Input:** Raw requirement documents (TXT, MD, DOCX, PDF)
+    \item 🔄 **Process:** 5-stage pipeline (Segment → Detect → Enrich → Generate → Post-process)
+    \item 🤖 **3 Generation Modes:}
+    \begin{itemize}
+        \item Template (fast, consistent, no API)
+        \item LLM (flexible, natural, needs API)
+        \item Model (production, trained, no API)
+    \end{itemize}
+    \item 📊 **Output:** Structured tasks (JSON/Jira)
+    \item 🎯 **Benefits:** Automation, consistency, scalability, quality
+\end{enumerate}
+
+\textbf{Cách sử dụng:}
+\begin{lstlisting}
+# Fast generation
+tasks = pipeline.generate_tasks(doc, mode="template")
+
+# Flexible generation  
+tasks = pipeline.generate_tasks(doc, mode="llm", 
+                                 provider="openai")
+
+# Production
+tasks = pipeline.generate_tasks(doc, mode="model")
+\end{lstlisting}
+\end{tcolorbox}
+
+\end{document}

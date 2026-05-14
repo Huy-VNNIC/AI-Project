@@ -618,35 +618,50 @@ class ReportGenerator:
             import subprocess
             
             # ==================== FONT REGISTRATION FOR VIETNAMESE SUPPORT ====================
-            # Try to register a Unicode font that supports Vietnamese
+            # Register a Unicode font that supports Vietnamese diacritics.
+            # Try several common font families across Linux/Mac/Windows. We register both
+            # regular + bold variants so headings/tables also render Vietnamese correctly.
             font_registered = False
-            supported_fonts = ['DejaVuSans', 'DejaVuSans-Bold', 'LiberationSans', 'NotoSans']
-            
-            for font_name in supported_fonts:
-                # Try common system font paths
-                font_paths = [
-                    f'/usr/share/fonts/truetype/dejavu/{font_name.lower()}.ttf',
-                    f'/usr/share/fonts/truetype/{font_name.lower()}.ttf',
-                    f'C:\\Windows\\Fonts\\{font_name}.ttf',
-                    f'/System/Library/Fonts/{font_name}.ttf',
-                ]
-                
-                for font_path in font_paths:
-                    if os.path.exists(font_path):
-                        try:
-                            pdfmetrics.registerFont(TTFont(font_name, font_path))
-                            font_registered = True
-                            break
-                        except:
-                            pass
-                
-                if font_registered:
+            default_font = 'Helvetica'
+            default_font_bold = 'Helvetica-Bold'
+
+            font_candidates = [
+                # (regular_name, bold_name, regular_path, bold_path)
+                ('DejaVuSans', 'DejaVuSans-Bold',
+                 '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+                 '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'),
+                ('NotoSans', 'NotoSans-Bold',
+                 '/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf',
+                 '/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf'),
+                ('LiberationSans', 'LiberationSans-Bold',
+                 '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
+                 '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf'),
+                ('LiberationSans2', 'LiberationSans2-Bold',
+                 '/usr/share/fonts/truetype/liberation2/LiberationSans-Regular.ttf',
+                 '/usr/share/fonts/truetype/liberation2/LiberationSans-Bold.ttf'),
+                ('ArialUnicode', 'ArialUnicode-Bold',
+                 'C:\\Windows\\Fonts\\arial.ttf',
+                 'C:\\Windows\\Fonts\\arialbd.ttf'),
+                ('AppleSystem', 'AppleSystem-Bold',
+                 '/System/Library/Fonts/Supplemental/Arial Unicode.ttf',
+                 '/System/Library/Fonts/Supplemental/Arial Unicode.ttf'),
+            ]
+
+            for reg_name, bold_name, reg_path, bold_path in font_candidates:
+                if not os.path.exists(reg_path):
+                    continue
+                try:
+                    pdfmetrics.registerFont(TTFont(reg_name, reg_path))
+                    if os.path.exists(bold_path):
+                        pdfmetrics.registerFont(TTFont(bold_name, bold_path))
+                    else:
+                        bold_name = reg_name  # fallback: use regular for bold
+                    default_font = reg_name
+                    default_font_bold = bold_name
+                    font_registered = True
                     break
-            
-            # Fallback: Use default fonts but ensure UTF-8 handling
-            # If font registration failed, we'll use a workaround
-            default_font = font_name if font_registered else 'Helvetica'
-            default_font_bold = f'{default_font}-Bold' if font_registered else 'Helvetica-Bold'
+                except Exception:
+                    continue
             
             # Create PDF buffer
             pdf_buffer = BytesIO()
@@ -655,6 +670,21 @@ class ReportGenerator:
                                    leftMargin=0.5*inch, rightMargin=0.5*inch)
             story = []
             styles = getSampleStyleSheet()
+
+            # Apply Unicode-capable font to ALL built-in styles so Vietnamese text in
+            # body paragraphs, headings, and table contents renders correctly (no boxes).
+            if font_registered:
+                for _style_name in ('Normal', 'BodyText', 'Italic',
+                                    'Heading1', 'Heading2', 'Heading3',
+                                    'Heading4', 'Heading5', 'Heading6',
+                                    'Title', 'Bullet', 'Definition', 'Code'):
+                    if _style_name in styles.byName:
+                        _s = styles.byName[_style_name]
+                        if _style_name in ('Heading1', 'Heading2', 'Heading3',
+                                           'Heading4', 'Heading5', 'Heading6', 'Title'):
+                            _s.fontName = default_font_bold
+                        else:
+                            _s.fontName = default_font
             
             # ==================== PAGE 1: TITLE & OVERVIEW ====================
             
@@ -694,6 +724,7 @@ class ReportGenerator:
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                 ('FONTNAME', (0, 0), (-1, 0), default_font_bold),
+                ('FONTNAME', (0, 1), (-1, -1), default_font),
                 ('FONTSIZE', (0, 0), (-1, 0), 12),
                 ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
                 ('GRID', (0, 0), (-1, -1), 1, colors.grey),
@@ -768,6 +799,7 @@ class ReportGenerator:
                         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                         ('FONTNAME', (0, 0), (-1, 0), default_font_bold),
+                        ('FONTNAME', (0, 1), (-1, -1), default_font),
                         ('FONTSIZE', (0, 0), (-1, -1), 8),
                         ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
                         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.lightcyan, colors.white])
@@ -795,6 +827,7 @@ class ReportGenerator:
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0369a1')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('FONTNAME', (0, 0), (-1, 0), default_font_bold),
+                ('FONTNAME', (0, 0), (-1, -1), default_font),
                 ('GRID', (0, 0), (-1, -1), 1, colors.grey),
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.lightgrey, colors.white])
             ]))

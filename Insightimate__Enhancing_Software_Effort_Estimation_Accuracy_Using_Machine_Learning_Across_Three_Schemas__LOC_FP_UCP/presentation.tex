@@ -11,765 +11,1141 @@
 \usepackage{multirow}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{colortbl}
 
 % Custom colors
 \definecolor{darkblue}{RGB}{0,51,102}
 \definecolor{lightblue}{RGB}{52,152,219}
 \definecolor{darkgreen}{RGB}{46,204,113}
 \definecolor{darkred}{RGB}{231,76,60}
+\definecolor{darkorange}{RGB}{230,126,34}
+\definecolor{lightyellow}{RGB}{255,255,180}
 
 \setbeamercolor{structure}{fg=darkblue}
 \setbeamercolor{frametitle}{bg=darkblue,fg=white}
 \setbeamercolor{title}{bg=darkblue,fg=white}
 
 % Title information
-\title[Insightimate]{Insightimate - Intelligent Platform for Effort Estimation}
-\subtitle{ML-based Approach Across LOC, FP, and UCP Schemas}
-\author[Huy, Minh, Hung, Vu]{\small Nguyen Nhat Huy (28217353352) \and Dang Nhat Minh (26211241958) \and \\ Nguyen Huu Hung (28210240332) \and Tran Van Vu (28219028290)}
-\institute[PTIT]{\normalsize Supervisor: Dr. Nguyen Duc Man \\ \small Deputy Dean of International Training, Head of Software Engineering Program \\ \vspace{0.2cm} Posts and Telecommunications Institute of Technology}
-\date{February 2026}
+\title[Insightimate]{A Unified Ensemble Learning Framework for\\Software Effort Estimation Across Multiple Schemas}
+\subtitle{Student Scientific Research Conference 2026}
+\author[Huy et al.]{%
+  \small Nguyen Nhat Huy \and Dang Nhat Minh \and Nguyen Huu Hung \and Tran Van Vu}
+\institute[DTU]{%
+  \normalsize Supervisor: Dr. Nguyen Duc Man \\
+  \small International School --- Duy Tan University, Da Nang}
+\date{April 2026}
 
 \begin{document}
 
-%--------------------------------------------------
-% TITLE SLIDE
-%--------------------------------------------------
+% ============================================================
+% SLIDE 1 — TITLE  (0.5 min)
+% ============================================================
 \begin{frame}
 \titlepage
 \end{frame}
 
-%--------------------------------------------------
-% OUTLINE
-%--------------------------------------------------
-\begin{frame}{Outline}
-\tableofcontents
-\end{frame}
+% ============================================================
+\section{Problem Statement}
+% ============================================================
 
-%--------------------------------------------------
-\section{Motivation \& Problem Statement}
-%--------------------------------------------------
-
-\begin{frame}{Software Effort Estimation: A Critical Challenge}
+% ---- SLIDE 2: THE PROBLEM & CURRENT STATE  (1 min) ----
+\begin{frame}{The Problem: Software Effort Estimation (SEE)}
 \begin{columns}[T]
 \column{0.5\textwidth}
 \textbf{Why It Matters:}
 \begin{itemize}
-    \item \textbf{70\%} of software projects exceed budget/schedule
-    \item Accurate estimation = better resource allocation
-    \item Poor estimates lead to project failures
-    \item Critical for project management success
+    \item Chaos Report (Standish Group): only \textbf{29\%} of projects succeed
+    \item \textbf{52\%} challenged (delayed/over-budget), \textbf{19\%} fail completely
+    \item Root cause: \textcolor{darkred}{\textbf{inaccurate effort estimation}}
 \end{itemize}
-
-\column{0.5\textwidth}
-\textbf{Industry Impact:}
-\begin{block}{Standish Group Report}
-\begin{itemize}
-    \item Only 29\% projects succeed
-    \item 52\% are challenged
-    \item 19\% fail completely
-\end{itemize}
-Main cause: \textcolor{darkred}{\textbf{Inaccurate effort estimation}}
-\end{block}
-\end{columns}
-\end{frame}
-
-\begin{frame}{Current State: Three Isolated Schemas}
-\begin{center}
-\includegraphics[width=0.85\textwidth]{dataset_distribution.pdf}
-\end{center}
-
-\vspace{-0.3cm}
-\begin{block}{The Problem}
-Existing research treats LOC, Function Points (FP), and Use Case Points (UCP) as \textbf{separate silos}. No unified framework exists!
-\end{block}
-\end{frame}
-
-\begin{frame}{Research Gaps in Current Literature}
-\begin{center}
-\includegraphics[width=0.95\textwidth]{gaps_solutions.pdf}
-\end{center}
-\end{frame}
-
-%--------------------------------------------------
-\section{Dataset \& Methodology}
-%--------------------------------------------------
-
-\begin{frame}{Comprehensive Dataset: 3,054 Projects}
-\begin{columns}[T]
-\column{0.5\textwidth}
-\textbf{Multi-Source Data Collection:}
-\begin{itemize}
-    \item \textbf{LOC Schema:} 2,765 projects
-    \begin{itemize}
-        \item 11 sources (1993-2022)
-        \item ISBSG, NASA, Promise, etc.
-    \end{itemize}
-    \item \textbf{FP Schema:} 158 projects
-    \begin{itemize}
-        \item 4 sources
-        \item ISBSG, Maxwell, Kemerer
-    \end{itemize}
-    \item \textbf{UCP Schema:} 131 projects
-    \begin{itemize}
-        \item 3 sources
-        \item Karner, Ochodek, Diev
-    \end{itemize}
-\end{itemize}
-
-\column{0.5\textwidth}
-\textbf{Data Quality Assurance:}
-\begin{block}{Rigorous Preprocessing}
-\begin{enumerate}
-    \item Missing value imputation (median/mode)
-    \item Outlier detection (IQR method)
-    \item Feature normalization (StandardScaler)
-    \item Duplicate removal
-    \item Cross-validation splits prepared
-\end{enumerate}
-\end{block}
 
 \vspace{0.3cm}
-\begin{alertblock}{Challenge}
-Highly imbalanced: LOC (90.5\%) vs. FP (5.2\%) vs. UCP (4.3\%)
+\textbf{Current Methods \& Limitations:}
+\begin{itemize}
+    \item \textbf{Parametric} (COCOMO~II): transparent but rigid on heterogeneous data
+    \item \textbf{ML} (RF, XGBoost): flexible but \emph{lacks a reproducible, fair evaluation framework}
+\end{itemize}
+
+\column{0.5\textwidth}
+\begin{block}{Three Sizing Schemas in Practice}
+\begin{itemize}
+    \item \textbf{LOC} (Lines of Code): 2,765 projects --- 90.5\%
+    \item \textbf{FP} (Function Points): 158 projects --- 5.2\%
+    \item \textbf{UCP} (Use Case Points): 131 projects --- 4.3\%
+\end{itemize}
+\end{block}
+
+\vspace{0.25cm}
+\begin{alertblock}{Core Problem}
+LOC, FP, and UCP are studied in \textbf{isolation}. No unified, fair, and reproducible cross-schema benchmarking framework exists.
 \end{alertblock}
 \end{columns}
 \end{frame}
 
-\begin{frame}{Integrated Methodology Architecture}
-\vspace{-0.3cm}
-\begin{center}
-\includegraphics[width=0.90\textwidth]{methodology_architecture.pdf}
-\end{center}
-\end{frame}
-
-\begin{frame}{Key Innovation: Macro-Averaging}
+% ---- SLIDE 3: RESEARCH GAPS  (1 min) ----
+\begin{frame}{Research Gaps \& Research Questions}
 \begin{columns}[T]
 \column{0.55\textwidth}
-\textbf{Problem:} Dataset imbalance (LOC dominates with 90.5\%)
+\textbf{Three Unresolved Research Gaps:}
 
-\vspace{0.5cm}
-\textbf{Solution:} Equal weight per schema
-\begin{equation}
-\boxed{m_{\text{macro}} = \frac{1}{3} \times (m_{\text{LOC}} + m_{\text{FP}} + m_{\text{UCP}})}
-\end{equation}
+\vspace{0.25cm}
+\begin{enumerate}
+    \item \textcolor{darkred}{\textbf{(G1) Weak Dataset Auditability:}}\\
+    Most studies cite ``public datasets'' without provenance, deduplication rules, or rebuild scripts.
 
-\vspace{0.5cm}
-\textbf{Why Macro-Averaging?}
-\begin{itemize}
-    \item Prevents LOC dominance
-    \item Equal schema contribution
-    \item Gold standard for imbalanced data
-    \item Fair performance assessment
-\end{itemize}
+    \vspace{0.2cm}
+    \item \textcolor{darkred}{\textbf{(G2) Unfair Parametric Baselines:}}\\
+    COCOMO~II applied with default parameters when cost drivers are missing $\Rightarrow$ \textit{straw-man comparisons}.
+
+    \vspace{0.2cm}
+    \item \textcolor{darkred}{\textbf{(G3) Ambiguous Aggregated Reporting:}}\\
+    Micro-averaging dominated by LOC (90.5\%), masking true FP/UCP behavior.
+\end{enumerate}
 
 \column{0.45\textwidth}
-\begin{block}{Traditional Approach (BAD)}
-$$m_{\text{micro}} = \frac{\sum_{i=1}^{n} |y_i - \hat{y}_i|}{n}$$
-\textcolor{darkred}{LOC dominates: (n=2,765 / 3,054 = 90.5\%)}
-\end{block}
+\begin{exampleblock}{Research Questions}
+\small\textbf{RQ1:} Do ensemble methods (RF, XGBoost) outperform a \emph{calibrated} baseline across LOC/FP/UCP?
 
-\vspace{0.3cm}
-\begin{exampleblock}{Our Approach (GOOD)}
-$$m_{\text{macro}} = \frac{1}{3}(m_{\text{LOC}} + m_{\text{FP}} + m_{\text{UCP}})$$
-\textcolor{darkgreen}{Each schema: 33.3\% weight}
+\vspace{0.1cm}
+\small\textbf{RQ2:} Does macro-averaging with LOSO provide a more honest evaluation than micro-averaging?
 \end{exampleblock}
+
+\vspace{0.15cm}
+\begin{block}{Primary Contribution}
+\small A \textbf{reproducible cross-schema benchmarking framework} for SEE --- a reusable methodological artifact for the community.
+\end{block}
 \end{columns}
 \end{frame}
 
-\begin{frame}{Validation Strategy: Ensuring Generalization}
+% ============================================================
+\section{Methodology}
+% ============================================================
+
+% ---- SLIDE 4: DATASET & MANIFEST  (0.75 min) ----
+\begin{frame}{Dataset: Auditable Manifest --- 18 Sources (1979--2022)}
 \begin{columns}[T]
-\column{0.48\textwidth}
-\textbf{Schema-Specific Validation:}
-
-\vspace{0.3cm}
-\begin{block}{LOC: LOSO Cross-Validation}
-\begin{itemize}
-    \item \textbf{Leave-One-Source-Out}
-    \item 11-fold (one per source)
-    \item Tests \textit{cross-source} generalization
-    \item Most rigorous validation
-\end{itemize}
-\end{block}
-
-\vspace{0.3cm}
-\begin{block}{FP: LOOCV}
-\begin{itemize}
-    \item Leave-One-Out Cross-Validation
-    \item Small sample (n=158)
-    \item 158-fold validation
-\end{itemize}
-\end{block}
-
-\column{0.48\textwidth}
-\begin{block}{UCP: 10-Fold CV}
-\begin{itemize}
-    \item Standard 10-fold cross-validation
-    \item Balanced approach (n=131)
-    \item Stratified splits
-\end{itemize}
-\end{block}
-
-\vspace{0.3cm}
-\begin{alertblock}{Imbalance-Aware Training}
-\textbf{Quantile Reweighting:}
-\begin{itemize}
-    \item Higher weight for extreme efforts
-    \item Prevents model bias toward median
-    \item Improves tail performance
-\end{itemize}
-\end{alertblock}
-
-\vspace{0.3cm}
-\textbf{Models Evaluated:}
-\begin{itemize}
-    \item Random Forest (RF)
-    \item XGBoost
-    \item Linear Regression
-    \item Calibrated Baseline
-\end{itemize}
-\end{columns}
-\end{frame}
-
-\begin{frame}{Calibrated Baseline: Rigorous Comparison}
-\begin{columns}[T]
-\column{0.5\textwidth}
-\textbf{Why Calibration Matters:}
-
-\vspace{0.3cm}
-\begin{itemize}
-    \item \textbf{WRONG:} Compare ML to uncalibrated COCOMO II
-    \begin{itemize}
-        \item Unfair comparison
-        \item Inflates ML improvements
-        \item Not scientifically valid
-    \end{itemize}
-    
-    \vspace{0.5cm}
-    \item \textbf{RIGHT:} Compare to \textit{calibrated} baseline
-    \begin{itemize}
-        \item Fair comparison
-        \item Shows true ML value
-        \item Scientifically rigorous
-    \end{itemize}
-\end{itemize}
-
-\column{0.5\textwidth}
-\textbf{Our Calibrated Baseline:}
-
-\begin{block}{Power-Law Model}
-$$\text{Effort} = a \times (\text{Size})^b$$
-Calibrated on same training data:
-\begin{itemize}
-    \item Parameters $(a, b)$ fitted per schema
-    \item Same validation strategy
-    \item Same data preprocessing
-\end{itemize}
-\end{block}
-
-\vspace{0.3cm}
-\begin{exampleblock}{Result}
-\textbf{Calibrated Baseline:}\\
-MAE = 18.45±1.2 PM
-
-\vspace{0.2cm}
-\textbf{Our RF Model:}\\
-MAE = 12.66±0.85 PM
-
-\vspace{0.2cm}
-\textcolor{darkgreen}{\textbf{$\rightarrow$ 42\% improvement}}
-\end{exampleblock}
-\end{columns}
-\end{frame}
-
-%--------------------------------------------------
-\section{Results \& Performance}
-%--------------------------------------------------
-
-\begin{frame}{Outstanding Performance: 42\% Improvement}
-\begin{center}
-\includegraphics[width=0.95\textwidth]{performance_comparison.pdf}
-\end{center}
-
-\vspace{-0.3cm}
-\begin{block}{Statistical Significance}
-Paired t-test: $p < 0.001$ $\rightarrow$ Improvement is \textbf{statistically significant}
-\end{block}
-\end{frame}
-
-\begin{frame}{Per-Schema Performance Analysis}
-\begin{center}
-\includegraphics[width=0.85\textwidth]{schema_comparison.pdf}
-\end{center}
-
-\vspace{-0.3cm}
-\begin{columns}[T]
-\column{0.33\textwidth}
-\begin{block}{LOC Schema}
-\centering
-\textbf{MAE: 11.2 PM}\\
-\small Best performance\\
-Large sample helps
-\end{block}
-
-\column{0.33\textwidth}
-\begin{block}{FP Schema}
-\centering
-\textbf{MAE: 15.8 PM}\\
-\small Exploratory due to\\
-small sample (n=158)
-\end{block}
-
-\column{0.33\textwidth}
-\begin{block}{UCP Schema}
-\centering
-\textbf{MAE: 11.0 PM}\\
-\small Excellent despite\\
-small sample
-\end{block}
-\end{columns}
-\end{frame}
-
-\begin{frame}{Comprehensive Model Comparison}
+\column{0.46\textwidth}
+\textbf{3,054 Projects from 18 Sources:}
+\vspace{0.1cm}
 \begin{table}
-\centering
-\caption{Performance Metrics Across All Models (Macro-Averaged)}
-\small
-\begin{tabular}{lcccccc}
+\tiny
+\begin{tabular}{lccc}
 \toprule
-\textbf{Model} & \textbf{MAE↓} & \textbf{MMRE↓} & \textbf{MdMRE↓} & \textbf{PRED(25)\%↑} & \textbf{R²↑} \\
+\textbf{Schema} & \textbf{Key Sources} & \textbf{Projects} & \textbf{Years} \\
 \midrule
-\textbf{Random Forest} & \textbf{12.66±0.85} & \textbf{0.647±0.041} & \textbf{0.512} & \textbf{58.3} & \textbf{0.812} \\
-XGBoost & 13.21±0.92 & 0.689±0.048 & 0.548 & 55.7 & 0.798 \\
-Linear Regression & 15.78±1.15 & 0.845±0.067 & 0.692 & 47.2 & 0.712 \\
+LOC & ISBSG, NASA93, China, \ldots & 2,765 & 1971--2022 \\
+FP  & ISBSG-FP, Maxwell, Albrecht  & 158   & 1974--2018 \\
+UCP & Ochodek, Diev, Karner        & 131   & 1993--2017 \\
 \midrule
-\textcolor{gray}{Calibrated Baseline} & \textcolor{gray}{18.45±1.20} & \textcolor{gray}{1.120±0.080} & \textcolor{gray}{0.891} & \textcolor{gray}{38.5} & \textcolor{gray}{0.621} \\
+\textbf{Total} & 18 sources & \textbf{3,054} & \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\vspace{0.3cm}
-\begin{columns}[T]
-\column{0.5\textwidth}
-\textbf{Key Findings:}
-\begin{itemize}
-    \item RF outperforms all models
-    \item 42\% better than baseline
-    \item Excellent generalization (R²=0.812)
+\vspace{0.1cm}
+\textbf{Data Quality Controls (G1):}
+\begin{itemize}\small
+    \item Provenance documented with DOI/URL
+    \item Cross-source deduplication rules
+    \item Rebuild scripts for full reproducibility
+    \item No test-set leakage
 \end{itemize}
 
-\column{0.5\textwidth}
-\textbf{Statistical Validation:}
-\begin{itemize}
-    \item Paired t-test: $p < 0.001$
-    \item Wilcoxon test: $p < 0.001$
-    \item Effect size: Cohen's $d = 1.23$ (large)
-\end{itemize}
+\column{0.54\textwidth}
+\textbf{Preprocessing Pipeline (4 steps):}
+\begin{enumerate}\small
+    \item \textbf{Unit harmonization:} Effort $\to$ PM; LOC $\to$ KLOC
+    \item \textbf{Missing values:} Median imputation (features only)
+    \item \textbf{Outlier mitigation:} IQR-based capping
+    \item \textbf{Distribution shaping:} $\log_{1p}$ transform
+\end{enumerate}
+
+\vspace{0.1cm}
+\begin{alertblock}{Contribution \#1}
+\small Full dataset manifest with rebuild scripts --- addresses \textbf{G1}.
+\end{alertblock}
 \end{columns}
 \end{frame}
 
-\begin{frame}{Error Distribution Analysis}
+% ---- SLIDE 5: ML FRAMEWORK & EVALUATION PROTOCOL  (1.25 min) ----
+\begin{frame}{Multi-Schema ML Framework \& Evaluation Protocols}
+\begin{columns}[T]
+\column{0.52\textwidth}
+\textbf{Architecture: Schema-Independent Training}
+
+$\hat{E}^{(s)} = f^{(s)}(x^{(s)})$, $\;s\in\{$LOC, FP, UCP$\}$
+
+\vspace{0.1cm}
+\textbf{Five Models Evaluated:}
+\begin{enumerate}\small
+    \item Linear Regression (log--log variant)
+    \item Decision Tree Regressor
+    \item \textbf{Random Forest} (bagging, 500 trees)
+    \item \textbf{Gradient Boosting} (300 estimators)
+    \item \textbf{XGBoost} (regularized boosting)
+\end{enumerate}
+
+\column{0.48\textwidth}
+\begin{block}{Schema-Specific Protocols (G3)}
+\small\textbf{LOC} ($n$=2,765):
+\begin{itemize}\small
+    \item 80/20 $\times$ 10 seeds + \textbf{LOSO} (11-fold)
+\end{itemize}
+\textbf{FP} ($n$=158, small sample):
+\begin{itemize}\small
+    \item \textbf{LOOCV} (158-fold) + Bootstrap CI
+\end{itemize}
+\textbf{UCP} ($n$=131):
+\begin{itemize}\small
+    \item 80/20 $\times$ 10 seeds + 5-fold CV
+\end{itemize}
+\end{block}
+
+\vspace{0.05cm}
+\begin{alertblock}{Contribution \#3}
+\small Schema-appropriate evaluation protocols.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---- SLIDE 6: TWO METHODOLOGICAL INNOVATIONS  (1 min) ----
+\begin{frame}{Two Core Methodological Innovations}
 \begin{columns}[T]
 \column{0.5\textwidth}
-\textbf{Performance Across Effort Ranges:}
+\textbf{Innovation \#1 --- Calibrated Baseline}\\{\small (addressing G2)}
+\vspace{0.05cm}
 
-\vspace{0.5cm}
-\begin{table}
+Instead of COCOMO~II with default parameters, fit a power-law model \textit{on training data}:
+\begin{equation}
+\log(E) = \alpha + \beta \cdot \log(\text{Size})
+\end{equation}
+\small $(\alpha, \beta)$ via \texttt{curve\_fit} (Levenberg-Marquardt), per-schema, per-seed.
+
+\vspace{0.1cm}
+$\Rightarrow$ \textbf{Fair lower bound:} ML must beat an already-optimized parametric model.
+
+\vspace{0.1cm}
+\textbf{Innovation \#3 --- Tail Evaluation}\\{\small Separate analysis of top 10\% highest-effort projects.}
+
+\column{0.5\textwidth}
+\textbf{Innovation \#2 --- Macro-Averaging}\\{\small (addressing G3)}
+\vspace{0.05cm}
+
+\begin{block}{Problem: Micro-averaging}
+\small LOC = 90.5\% $\Rightarrow$ overall metric dominated by LOC.
+\end{block}
+
+\begin{exampleblock}{Solution: Macro-averaging}
 \small
+\vspace{-0.1cm}
+\begin{equation}
+m_{\text{macro}} = \frac{1}{3}(m_{\text{LOC}} + m_{\text{FP}} + m_{\text{UCP}})
+\end{equation}
+\vspace{-0.2cm}
+Each schema contributes \textbf{33.3\%} regardless of $n$.
+\end{exampleblock}
+
+\vspace{0.1cm}
+\begin{alertblock}{Combined Effect}
+\small All three innovations together address G1--G3 and ensure fair, reproducible comparison.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{Experimental Results}
+% ============================================================
+
+% ---- SLIDE 7: OVERALL RESULTS  (1 min) ----
+\begin{frame}{Overall Results: Macro-Averaged Across 10 Seeds}
+\begin{columns}[T]
+\column{0.58\textwidth}
+\begin{table}
+\centering
+{\setlength{\tabcolsep}{3pt}\scriptsize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model} & \textbf{MAE↓} & \textbf{MMRE↓} & \textbf{PRED(25)↑} & $R^2$↑ \\
+\midrule
+\textbf{Rand. Forest}  & \textbf{12.66{\tiny$\pm$0.85}} & \textbf{0.647{\tiny$\pm$0.041}} & \textbf{0.395} & \textbf{0.812} \\
+XGBoost       & 13.21{\tiny$\pm$0.92} & 0.689 & 0.372 & 0.798 \\
+Grad. Boost   & 13.45{\tiny$\pm$0.98} & 0.701 & 0.361 & 0.789 \\
+Decision Tree & 15.12{\tiny$\pm$1.20} & 0.812 & 0.318 & 0.734 \\
+Lin. Regr.    & 15.78{\tiny$\pm$1.15} & 0.845 & 0.302 & 0.712 \\
+\midrule
+\textit{Calib. Baseline} & \textit{18.45{\tiny$\pm$1.20}} & \textit{1.12{\tiny$\pm$0.08}} & \textit{0.254} & \textit{0.621} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+{\tiny MAE: person-months; $\downarrow$=lower better; $\uparrow$=higher better}
+
+\column{0.42\textwidth}
+\begin{exampleblock}{Answer to RQ1}
+\footnotesize\textbf{RF vs. Baseline:}
+\begin{itemize}\footnotesize
+    \item MAE: $18.45\!\to\!12.66$ PM \textcolor{darkgreen}{\textbf{($\downarrow$31\%)}}
+    \item MMRE: $1.12\!\to\!0.647$ \textcolor{darkgreen}{\textbf{($\downarrow$42\%)}}
+    \item PRED(25): $0.254\!\to\!0.395$ \textcolor{darkgreen}{\textbf{($\uparrow$56\%)}}
+\end{itemize}
+\end{exampleblock}
+
+\vspace{0.1cm}
+\begin{alertblock}{Statistical Significance}
+\footnotesize Wilcoxon: $p < 0.001$\\
+$t{=}12.34$, $p{<}0.001$;~ $d{=}1.23$
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---- SLIDE 8: PER-SCHEMA & GENERALIZATION  (1 min) ----
+\begin{frame}{Per-Schema Results \& Cross-Source Generalization}
+
+\begin{table}
+\centering
+{\setlength{\tabcolsep}{6pt}\footnotesize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Schema} & \textbf{Model} & \textbf{MAE (PM)} & \textbf{MMRE} & \textbf{Improvement} \\
+\midrule
+\multirow{2}{*}{\textbf{LOC} ($n$=2,765)}
+  & Random Forest        & \textbf{11.2} & \textbf{0.589} & \multirow{2}{*}{\textcolor{darkgreen}{\textbf{$\downarrow$40\%}}} \\
+  & Calib. Baseline      & 16.8          & 1.024          & \\
+\midrule
+\multirow{2}{*}{\textbf{FP} ($n$=158)\textsuperscript{$\dagger$}}
+  & Random Forest        & \textbf{15.8} & \textbf{0.731} & \multirow{2}{*}{\textcolor{darkgreen}{\textbf{$\downarrow$38\%}}} \\
+  & Calib. Baseline      & 21.4          & 1.178          & \\
+\midrule
+\multirow{2}{*}{\textbf{UCP} ($n$=131)}
+  & Random Forest        & \textbf{11.0} & \textbf{0.621} & \multirow{2}{*}{\textcolor{darkgreen}{\textbf{$\downarrow$49\%}}} \\
+  & Calib. Baseline      & 17.2          & 1.216          & \\
+\bottomrule
+\end{tabular}}
+\end{table}
+{\tiny \textsuperscript{$\dagger$}FP results are exploratory (small $n$; LOOCV protocol).}
+
+\vspace{0.1cm}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{exampleblock}{LOSO Generalization (RQ2)}
+\small LOSO MAE degrades only \textbf{21\%} vs.~random split $\Rightarrow$ adequate cross-source generalization.
+\end{exampleblock}
+
+\column{0.5\textwidth}
+\begin{exampleblock}{Tail Evaluation (top 10\% effort)}
+\small RF: \textbf{57--72\%} MAE degradation\\
+Baseline: \textbf{83--100\%}\\
+$\Rightarrow$ Ensemble \textbf{superior} on long-tail.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+% ---- SLIDE 9: ABLATION & THREATS  (0.75 min) ----
+\begin{frame}{Ablation Study \& Threats to Validity}
+\begin{columns}[T]
+\column{0.52\textwidth}
+\textbf{Ablation: preprocessing contribution (RF, LOC)}
+\vspace{0.05cm}
+\begin{table}
+\scriptsize
 \begin{tabular}{lcc}
 \toprule
-\textbf{Effort Range} & \textbf{MAE} & \textbf{MMRE} \\
+\textbf{Configuration} & \textbf{MAE} & \textbf{MMRE} \\
 \midrule
-Bottom 25\% & 8.2 & 0.412 \\
-25-50\% & 10.5 & 0.538 \\
-50-75\% & 13.8 & 0.691 \\
-\textcolor{darkred}{Top 25\%} & \textcolor{darkred}{18.9} & \textcolor{darkred}{0.953} \\
+Full pipeline               & \textbf{11.2} & \textbf{0.589} \\
+w/o $\log_{1p}$ transform   & 13.4          & 0.712 \\
+w/o IQR capping             & 14.1          & 0.798 \\
+w/o unit harmonization      & 17.3          & 1.045 \\
+Raw (no preprocessing)      & 19.8          & 1.234 \\
 \bottomrule
 \end{tabular}
 \end{table}
+{\scriptsize $\Rightarrow$ Unit harmonization is the most critical step.}
 
-\vspace{0.3cm}
-\begin{alertblock}{Note}
-Moderate degradation on high-effort projects (18\% worse) is \textbf{acceptable} and common in ML models.
-\end{alertblock}
-
-\column{0.5\textwidth}
-\textbf{Why High Efforts Challenge Models:}
-
-\vspace{0.3cm}
-\begin{enumerate}
-    \item \textbf{Scarcity:} Few large projects in training
-    \item \textbf{Complexity:} Non-linear scaling factors
-    \item \textbf{Uncertainty:} More unknowns at scale
-    \item \textbf{Heterogeneity:} Diverse technologies/teams
-\end{enumerate}
-
-\vspace{0.5cm}
-\begin{exampleblock}{Mitigation Strategy}
-\begin{itemize}
-    \item Quantile reweighting applied
-    \item Balanced training emphasis
-    \item Still 42\% better than baseline
+\column{0.48\textwidth}
+\textbf{Threats to Validity:}
+\begin{itemize}\small
+    \item \textbf{FP} ($n$=158): exploratory only
+    \item \textbf{Units:} 1 PM = 160 hrs (org-dependent)
+    \item \textbf{Transfer:} no cross-schema sharing
+    \item \textbf{Scope:} 1979--2022 datasets
 \end{itemize}
-\end{exampleblock}
-\end{columns}
-\end{frame}
 
-%--------------------------------------------------
-\section{Key Contributions}
-%--------------------------------------------------
-
-\begin{frame}{Five Novel Contributions}
-\vspace{-0.2cm}
-\begin{center}
-\includegraphics[width=0.88\textwidth]{contributions.pdf}
-\end{center}
-\end{frame}
-
-\begin{frame}{Contribution Details}
-\begin{columns}[T]
-\column{0.5\textwidth}
-\textbf{Theoretical Contributions:}
 \vspace{0.1cm}
-\begin{enumerate}
-    \item \textbf{Integrated Framework}
-    \begin{itemize}
-        \item First to unify LOC/FP/UCP
-        \item Addresses schema isolation gap
-    \end{itemize}
-    \vspace{0.15cm}
-    \item \textbf{Macro-Averaging}
-    \begin{itemize}
-        \item Novel metric aggregation
-        \item Prevents sample-size bias
-    \end{itemize}
-    \vspace{0.15cm}
-    \item \textbf{Calibrated Baseline}
-    \begin{itemize}
-        \item Rigorous comparison standard
-        \item True improvement quantified
-    \end{itemize}
-\end{enumerate}
-
-\column{0.5\textwidth}
-\textbf{Methodological Contributions:}
-\vspace{0.1cm}
-\begin{enumerate}
-    \setcounter{enumi}{3}
-    \item \textbf{Cross-Source Validation}
-    \begin{itemize}
-        \item LOSO for LOC (11-fold)
-        \item Tests generalization
-    \end{itemize}
-    \vspace{0.15cm}
-    \item \textbf{Imbalance-Aware Training}
-    \begin{itemize}
-        \item Quantile reweighting
-        \item Improves tail performance
-    \end{itemize}
-\end{enumerate}
-
-\vspace{0.3cm}
-\begin{exampleblock}{Impact}
-\textbf{42\% improvement} demonstrates real-world value.
-\end{exampleblock}
+\begin{alertblock}{Validity Threats}
+\small\textbf{Construct:} MMRE bias (underestimation)\\
+\textbf{External:} N. America/EU skew\\
+\textbf{Internal:} Residual duplication risk
+\end{alertblock}
 \end{columns}
 \end{frame}
 
-%--------------------------------------------------
-\section{Limitations \& Future Work}
-%--------------------------------------------------
-
-\begin{frame}{Transparency: Limitations}
-\begin{columns}[T]
-\column{0.5\textwidth}
-\textbf{Acknowledged Limitations:}
-
-\vspace{0.3cm}
-\begin{enumerate}
-    \item \textbf{Sample Size Imbalance}
-    \begin{itemize}
-        \item LOC: n=2,765 (rich)
-        \item FP: n=158 (exploratory)
-        \item UCP: n=131 (moderate)
-        \item \textcolor{darkgreen}{\textit{Mitigated by macro-averaging}}
-    \end{itemize}
-    
-    \vspace{0.3cm}
-    \item \textbf{Tail Performance}
-    \begin{itemize}
-        \item 18\% degradation on top 25\%
-        \item Common in ML models
-        \item Still 42\% better than baseline
-    \end{itemize}
-    
-    \vspace{0.3cm}
-    \item \textbf{Feature Availability}
-    \begin{itemize}
-        \item Requires project attributes
-        \item Early-stage estimation limited
-    \end{itemize}
-\end{enumerate}
-
-\column{0.5\textwidth}
-\textbf{Future Research Directions:}
-
-\vspace{0.3cm}
-\begin{enumerate}
-    \item \textbf{Data Expansion}
-    \begin{itemize}
-        \item Collect more FP/UCP projects
-        \item Industry partnerships
-        \item Crowdsourced data collection
-    \end{itemize}
-    
-    \vspace{0.3cm}
-    \item \textbf{Deep Learning}
-    \begin{itemize}
-        \item Neural networks for sequences
-        \item Transformer architectures
-        \item Transfer learning across schemas
-    \end{itemize}
-    
-    \vspace{0.3cm}
-    \item \textbf{Uncertainty Quantification}
-    \begin{itemize}
-        \item Bayesian approaches
-        \item Confidence intervals
-        \item Risk-aware predictions
-    \end{itemize}
-    
-    \vspace{0.3cm}
-    \item \textbf{Real-Time Calibration}
-    \begin{itemize}
-        \item Online learning
-        \item Project-specific adaptation
-        \item Continuous improvement
-    \end{itemize}
-\end{enumerate}
-\end{columns}
-\end{frame}
-
-%--------------------------------------------------
+% ============================================================
 \section{Conclusion}
-%--------------------------------------------------
+% ============================================================
 
-\begin{frame}{Summary: Key Takeaways}
-\begin{block}{Research Problem}
-Software effort estimation suffers from \textbf{schema isolation}, \textbf{uncalibrated comparisons}, and \textbf{sample imbalance}.
-\end{block}
-
-\vspace{0.2cm}
-\begin{block}{Our Solution}
-\textbf{Insightimate:} First integrated ML framework with:
-\begin{itemize}
-    \item Unified approach across LOC, FP, and UCP (n=3,054)
-    \item Macro-averaging for fair representation
-    \item Calibrated baseline for rigorous comparison
-\end{itemize}
-\end{block}
-
-\vspace{0.2cm}
-\begin{exampleblock}{Outstanding Results}
-\begin{itemize}
-    \item \textbf{42\% improvement} over baseline (MAE: 18.45 → \textbf{12.66±0.85 PM})
-    \item MMRE: 1.12 → \textbf{0.647±0.041} | R²: 0.621 → \textbf{0.812}
-    \item \textbf{Statistically significant:} $p < 0.001$, Cohen's $d = 1.23$
-\end{itemize}
-\end{exampleblock}
-\end{frame}
-
-\begin{frame}{Impact \& Significance}
+% ---- SLIDE 10: CONCLUSION & FUTURE WORK  (0.5 min) ----
+\begin{frame}{Conclusion \& Future Work}
 \begin{columns}[T]
-\column{0.5\textwidth}
-\textbf{Academic Impact:}
+\column{0.54\textwidth}
+\textbf{Five Scientific Contributions:}
+\begin{enumerate}\small
+    \item \textbf{Dataset manifest} + rebuild scripts (18 sources, 3,054 projects)
+    \item \textbf{Calibrated baseline} --- no straw-man comparisons
+    \item \textbf{Schema protocols} --- LOSO/LOOCV/bootstrap CI
+    \item \textbf{Macro-averaging} --- prevents LOC dominance
+    \item \textbf{Tail evaluation} + LOSO generalization testing
+\end{enumerate}
+
 \vspace{0.1cm}
-\begin{itemize}
-    \item \textbf{First} integrated LOC/FP/UCP framework
-    \item Largest multi-schema study (3,054 projects)
-    \item Rigorous methodology (LOSO + macro-averaging)
-    \item Significant improvement (42\%)
-    \item Reproducible (all data/code available)
-\end{itemize}
-
-\vspace{0.2cm}
-\begin{alertblock}{Publication Ready}
-Submitted to \textbf{Discover AI} (Springer)
-\begin{itemize}
-    \item 51 reviewer comments addressed
-    \item 97-98\% acceptance probability
-\end{itemize}
-\end{alertblock}
-
-\column{0.5\textwidth}
-\textbf{Practical Impact:}
-\vspace{0.1cm}
-\begin{itemize}
-    \item \textbf{Industry:} Accurate planning
-    \item \textbf{Cost:} Better forecasting
-    \item \textbf{Time:} Improved estimation
-    \item \textbf{Risk:} Early warnings
-    \item \textbf{Tool:} Ready for deployment
-\end{itemize}
-
-\vspace{0.2cm}
-\begin{exampleblock}{Competitive Edge}
-\begin{itemize}
-    \item Stronger than published papers
-    \item 5 novel contributions
-    \item Comprehensive evaluation
-    \item Professional presentation
-\end{itemize}
+\begin{exampleblock}{Key Results}
+\small RF: \textbf{42\% MMRE improvement} ($p{<}0.001$);\\ LOSO: only \textbf{21\% MAE degradation}.
 \end{exampleblock}
+
+\column{0.46\textwidth}
+\textbf{Future Directions:}
+\begin{itemize}\small
+    \item Cross-schema transfer learning
+    \item LSTM/Transformer for time-series
+    \item Story points / DevOps metrics
+    \item Active learning for small-$n$ FP/UCP
+\end{itemize}
+
+\vspace{0.1cm}
+\begin{block}{Core Message}
+\small The \textbf{primary contribution is the benchmarking framework itself} --- reproducible, schema-specific, imbalance-aware; adoptable for future SEE comparisons.
+\end{block}
 \end{columns}
 \end{frame}
 
-\begin{frame}{Q\&A: Thank You!}
+% ---- Q&A ----
+\begin{frame}[plain]
 \begin{center}
-\Large
-\textbf{Questions?}
+\vspace{0.8cm}
+{\Huge \textcolor{darkblue}{\textbf{Thank You!}}}
+
+\vspace{0.4cm}
+{\large We welcome questions from the committee.}
+
+\vspace{0.7cm}
+\begin{columns}
+\column{0.6\textwidth}
+\begin{block}{Contact}
+\centering
+Nguyen Nhat Huy (corresponding author)\\
+\texttt{nguyennhathuybdi06@gmail.com}\\[0.1cm]
+{\small International School, Duy Tan University, Da Nang}
+\end{block}
+\end{columns}
 
 \vspace{0.5cm}
-\includegraphics[width=0.55\textwidth]{methodology_architecture.pdf}
-
-\vspace{0.5cm}
-\normalsize
-\textbf{Contact:} huynn.b22at353@stu.ptit.edu.vn
-
-\vspace{0.2cm}
-\textbf{Supervisor:} Dr. Nguyen Duc Man (mannd@ptit.edu.vn)
-
-\vspace{0.2cm}
-\textbf{Paper:} Submitted to Discover Artificial Intelligence
-
-\vspace{0.2cm}
-\textbf{Code \& Data:} Available upon request
+\begin{columns}
+\column{0.75\textwidth}
+\begin{alertblock}{\small Note on Demo}
+\centering
+\small This presentation does not include a live demo. Full source code, dataset rebuild scripts, and experimental logs are available upon request by the evaluation committee.
+\end{alertblock}
+\end{columns}
 \end{center}
 \end{frame}
 
-%--------------------------------------------------
+% ============================================================
 % BACKUP SLIDES
-%--------------------------------------------------
+% ============================================================
 \appendix
 \section{Backup Slides}
 
-\begin{frame}{Backup: Detailed Dataset Sources}
+\begin{frame}{[Backup] Complete Dataset Sources (18 Sources)}
 \begin{table}
 \tiny
-\caption{Complete Dataset Manifest (18 Sources)}
+\caption{Dataset Manifest --- 18 publicly available sources}
 \begin{tabular}{llccl}
 \toprule
-\textbf{Source} & \textbf{Schema} & \textbf{Projects} & \textbf{Year Range} & \textbf{Domain} \\
+\textbf{Source} & \textbf{Schema} & \textbf{Projects} & \textbf{Years} & \textbf{Domain} \\
 \midrule
-ISBSG R2020 & LOC & 1,245 & 1997-2020 & Multi-domain \\
-NASA93 & LOC & 93 & 1971-1987 & Aerospace \\
-Promise Cocomonasa & LOC & 60 & 1985-1987 & NASA projects \\
-Desharnais & LOC & 81 & 1989-1991 & Canadian \\
-COCOMO81 & LOC & 63 & 1964-1979 & Embedded \\
-Kemerer & LOC & 15 & 1980-1984 & Business \\
-Kitchenham & LOC & 145 & 1990-1995 & Commercial \\
-Albrecht & LOC & 24 & 1974-1979 & IBM \\
-Maxwell & LOC & 62 & 1993-1999 & Finnish \\
-Miyazaki94 & LOC & 48 & 1977-1991 & COBOL \\
-China & LOC & 929 & 1996-2022 & Chinese \\
+ISBSG R2020        & LOC & 1,245 & 1997--2020 & Multi-domain \\
+NASA93             & LOC & 93    & 1971--1987 & Aerospace \\
+Promise Cocomonasa & LOC & 60    & 1985--1987 & NASA \\
+Desharnais         & LOC & 81    & 1989--1991 & Canada \\
+COCOMO81           & LOC & 63    & 1964--1979 & Embedded \\
+Kemerer            & LOC & 15    & 1980--1984 & Business \\
+Kitchenham         & LOC & 145   & 1990--1995 & Commercial \\
+Albrecht           & LOC & 24    & 1974--1979 & IBM \\
+Maxwell            & LOC & 62    & 1993--1999 & Finland \\
+Miyazaki94         & LOC & 48    & 1977--1991 & COBOL \\
+China              & LOC & 929   & 1996--2022 & Chinese \\
 \midrule
-ISBSG FP subset & FP & 67 & 1997-2018 & Multi-domain \\
-Maxwell FP & FP & 41 & 1993-1999 & Finnish \\
-Kemerer FP & FP & 15 & 1980-1984 & Business \\
-Albrecht FP & FP & 35 & 1974-1979 & IBM \\
+ISBSG FP subset    & FP  & 67    & 1997--2018 & Multi-domain \\
+Maxwell FP         & FP  & 41    & 1993--1999 & Finland \\
+Kemerer FP         & FP  & 15    & 1980--1984 & Business \\
+Albrecht FP        & FP  & 35    & 1974--1979 & IBM \\
 \midrule
-Karner & UCP & 10 & 1993 & OO systems \\
-Ochodek & UCP & 71 & 2009-2013 & Academic \\
-Diev & UCP & 50 & 2012-2017 & Industrial \\
+Karner             & UCP & 10    & 1993       & OO systems \\
+Ochodek            & UCP & 71    & 2009--2013 & Academic \\
+Diev               & UCP & 50    & 2012--2017 & Industrial \\
 \bottomrule
 \end{tabular}
 \end{table}
 \end{frame}
 
-\begin{frame}{Backup: Hyperparameter Tuning}
+\begin{frame}{[Backup] Hyperparameter Configuration}
 \begin{columns}[T]
 \column{0.5\textwidth}
-\textbf{Random Forest Configuration:}
-\vspace{0.1cm}
+\textbf{Random Forest:}
 \begin{table}
 \small
 \begin{tabular}{ll}
 \toprule
 \textbf{Parameter} & \textbf{Value} \\
 \midrule
-n\_estimators & 500 \\
-max\_depth & 20 \\
-min\_samples\_split & 5 \\
-min\_samples\_leaf & 2 \\
-max\_features & sqrt \\
-bootstrap & True \\
-oob\_score & True \\
+n\_estimators       & 500 \\
+max\_depth          & 20  \\
+min\_samples\_split  & 5   \\
+min\_samples\_leaf   & 2   \\
+max\_features       & sqrt \\
+bootstrap           & True \\
+oob\_score          & True \\
 \bottomrule
 \end{tabular}
 \end{table}
-\vspace{0.2cm}
-\textbf{Grid Search:}
-\begin{itemize}
-    \item 3-fold CV on training
-    \item 1,280 configurations tested
-    \item Best selected by MAE
-\end{itemize}
+\vspace{0.1cm}
+Grid Search: 3-fold CV, 1,280 configurations, selected by lowest MAE.
 
 \column{0.5\textwidth}
-\textbf{XGBoost Configuration:}
-\vspace{0.1cm}
+\textbf{XGBoost:}
 \begin{table}
 \small
 \begin{tabular}{ll}
 \toprule
 \textbf{Parameter} & \textbf{Value} \\
 \midrule
-n\_estimators & 300 \\
-max\_depth & 8 \\
-learning\_rate & 0.05 \\
-subsample & 0.8 \\
-colsample\_bytree & 0.8 \\
-gamma & 0.1 \\
-reg\_alpha & 0.01 \\
-reg\_lambda & 1.0 \\
+n\_estimators      & 300  \\
+max\_depth         & 8    \\
+learning\_rate     & 0.05 \\
+subsample          & 0.8  \\
+colsample\_bytree  & 0.8  \\
+gamma              & 0.1  \\
+reg\_alpha         & 0.01 \\
+reg\_lambda        & 1.0  \\
 \bottomrule
 \end{tabular}
 \end{table}
-\vspace{0.2cm}
-\textbf{Early Stopping:}
-\begin{itemize}
-    \item 50 rounds patience
-    \item Validation MAE monitored
-\end{itemize}
+\vspace{0.1cm}
+Early stopping: 50 rounds patience, validation MAE.
 \end{columns}
 \end{frame}
 
-\begin{frame}{Backup: Statistical Tests Summary}
+\begin{frame}{[Backup] Statistical Tests --- Full Details}
 \begin{table}
-\caption{Comprehensive Statistical Validation}
 \small
+\caption{Comprehensive statistical validation results}
 \begin{tabular}{lccc}
 \toprule
-\textbf{Test} & \textbf{Statistic} & \textbf{p-value} & \textbf{Interpretation} \\
+\textbf{Test} & \textbf{Statistic} & \textbf{p-value} & \textbf{Conclusion} \\
 \midrule
-Paired t-test & $t = 12.34$ & $< 0.001$ & Significant difference \\
-Wilcoxon signed-rank & $z = 9.87$ & $< 0.001$ & Significant (non-parametric) \\
-Friedman test & $\chi^2 = 45.6$ & $< 0.001$ & Multiple model differences \\
-Nemenyi post-hoc & -- & $< 0.05$ & RF significantly better \\
+Paired $t$-test (RF vs. Baseline) & $t = 12.34$     & $< 0.001$ & Significant \\
+Wilcoxon signed-rank              & $z = 9.87$      & $< 0.001$ & Significant \\
+Friedman test (all models)        & $\chi^2 = 45.6$ & $< 0.001$ & Models differ \\
+Nemenyi post-hoc (RF vs. others)  & ---             & $< 0.05$  & RF significantly better \\
 \midrule
-Cohen's d (effect size) & 1.23 & -- & Large effect \\
-Cliff's Delta & 0.78 & -- & Large effect (non-parametric) \\
+Cohen's $d$ (RF vs. Baseline)     & 1.23            & ---       & Large effect \\
+Cliff's Delta                     & 0.78            & ---       & Large effect \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\vspace{0.5cm}
+\vspace{0.3cm}
 \textbf{Interpretation:}
 \begin{itemize}
-    \item All tests confirm RF significantly outperforms baseline
-    \item Both parametric and non-parametric tests agree
-    \item Large effect sizes indicate practical significance
-    \item Results are robust and reliable
+    \item Both parametric and non-parametric tests confirm RF significantly outperforms baseline
+    \item Effect sizes $d > 0.8$ indicate \textit{practical} significance, not just statistical
+    \item Results are consistent across all 10 independent random seeds
 \end{itemize}
+\end{frame}
+
+\begin{frame}{[Backup] Anticipated Q\&A}
+\footnotesize
+\begin{enumerate}
+    \item \textbf{Why Random Forest over Deep Learning?}\\
+    DL requires more data (FP: $n$=158 only). RF is interpretable and stable on small tabular datasets.
+
+    \item \textbf{How is overfitting controlled?}\\
+    LOOCV (FP), LOSO CV, 10 seeds, OOB score, IQR capping.
+
+    \item \textbf{Why report MMRE despite its bias?}\\
+    Supplementary metric for literature comparison; \textbf{MAE is primary}. Standard SEE practice (Shepperd \& Kadoda, 2001).
+
+    \item \textbf{Is dataset deduplication sufficient?}\\
+    Deduplication by project ID, effort range, and year. Residual risk noted in Threats to Validity.
+
+    \item \textbf{Why not use full COCOMO~II as baseline?}\\
+    Most FP/UCP datasets lack cost drivers --- default parameters create straw-man comparisons (gap G2).
+\end{enumerate}
+\end{frame}
+
+\end{document}
+
+% ============================================================
+\section{Đặt vấn đề}
+% ============================================================
+
+% ---- SLIDE 2: BÀI TOÁN & THỰC TRẠNG  (1 phút) ----
+\begin{frame}{Bài toán: Ước lượng Công sức Phần mềm (SEE)}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Tầm quan trọng:}
+\begin{itemize}
+    \item Chaos Report (Standish Group): chỉ \textbf{29\%} dự án thành công
+    \item \textbf{52\%} bị trễ tiến độ, \textbf{19\%} thất bại hoàn toàn
+    \item Nguyên nhân hàng đầu: \textcolor{darkred}{\textbf{ước lượng công sức sai}}
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Phương pháp hiện tại và hạn chế:}
+\begin{itemize}
+    \item \textbf{Tham số} (COCOMO~II): minh bạch nhưng kém linh hoạt với dữ liệu đa dạng
+    \item \textbf{Học máy} (RF, XGBoost): linh hoạt nhưng \emph{thiếu khung đánh giá chuẩn, tái lập được}
+\end{itemize}
+
+\column{0.5\textwidth}
+\begin{block}{Ba lược đồ định cỡ phổ biến}
+\begin{itemize}
+    \item \textbf{LOC} (Lines of Code): 2,765 dự án --- 90.5\%
+    \item \textbf{FP} (Function Points): 158 dự án --- 5.2\%
+    \item \textbf{UCP} (Use Case Points): 131 dự án --- 4.3\%
+\end{itemize}
+\end{block}
+
+\vspace{0.25cm}
+\begin{alertblock}{Vấn đề cốt lõi}
+Ba lược đồ LOC/FP/UCP được nghiên cứu \textbf{riêng lẻ}. Chưa có khung đánh giá thống nhất, công bằng và tái lập được.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---- SLIDE 3: KHOẢNG TRỐNG NGHIÊN CỨU  (1 phút) ----
+\begin{frame}{Khoảng trống Nghiên cứu (Research Gaps)}
+\begin{columns}[T]
+\column{0.55\textwidth}
+\textbf{Ba khoảng trống chưa được giải quyết:}
+
+\vspace{0.25cm}
+\begin{enumerate}
+    \item \textcolor{darkred}{\textbf{(G1) Thiếu kiểm toán dữ liệu:}}\\
+    Hầu hết bài báo chỉ trích ``dữ liệu công khai'' mà không có nguồn gốc, quy tắc lọc trùng lặp, hay rebuild scripts.
+
+    \vspace{0.2cm}
+    \item \textcolor{darkred}{\textbf{(G2) Baseline không công bằng:}}\\
+    COCOMO~II dùng tham số mặc định khi thiếu cost drivers $\Rightarrow$ so sánh kiểu \textit{straw-man} (người rơm).
+
+    \vspace{0.2cm}
+    \item \textcolor{darkred}{\textbf{(G3) Tổng hợp kết quả mơ hồ:}}\\
+    Micro-averaging bị chi phối bởi LOC (90.5\%), che khuất hiệu năng thực của FP/UCP.
+\end{enumerate}
+
+\column{0.45\textwidth}
+\begin{exampleblock}{Câu hỏi nghiên cứu}
+\textbf{RQ1:} Ensemble (RF, XGBoost) có vượt trội baseline \emph{đã hiệu chỉnh} qua cả ba lược đồ LOC/FP/UCP không?
+
+\vspace{0.2cm}
+\textbf{RQ2:} Macro-averaging và LOSO có cung cấp đánh giá trung thực hơn micro-averaging thông thường không?
+\end{exampleblock}
+
+\vspace{0.25cm}
+\begin{block}{Đóng góp cốt lõi}
+Xây dựng \textbf{khung benchmarking tái lập được} cho SEE đa lược đồ --- một \textit{artifact} khoa học mà cộng đồng có thể áp dụng.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{Phương pháp}
+% ============================================================
+
+% ---- SLIDE 4: TẬP DỮ LIỆU & KIỂM TOÁN  (0.75 phút) ----
+\begin{frame}{Tập dữ liệu: Dataset Manifest 18 nguồn (1979--2022)}
+\begin{columns}[T]
+\column{0.46\textwidth}
+\textbf{3,054 dự án, 18 nguồn:}
+\vspace{0.1cm}
+\begin{table}
+\tiny
+\begin{tabular}{lccc}
+\toprule
+\textbf{Lược đồ} & \textbf{Nguồn chính} & \textbf{Dự án} & \textbf{Năm} \\
+\midrule
+LOC & ISBSG, NASA93, China, \ldots & 2,765 & 1971--2022 \\
+FP  & ISBSG-FP, Maxwell, Albrecht  & 158   & 1974--2018 \\
+UCP & Ochodek, Diev, Karner        & 131   & 1993--2017 \\
+\midrule
+\textbf{Tổng} & 18 nguồn & \textbf{3,054} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.2cm}
+\textbf{Đảm bảo chất lượng (giải quyết G1):}
+\begin{itemize}
+    \item Tài liệu hóa nguồn gốc + DOI/URL từng tập
+    \item Quy tắc loại trùng lặp cross-source rõ ràng
+    \item Rebuild scripts để tái tạo hoàn toàn
+    \item Không rò rỉ thông tin test set
+\end{itemize}
+
+\column{0.54\textwidth}
+\textbf{Pipeline tiền xử lý (4 bước):}
+\begin{enumerate}
+    \item \textbf{Chuẩn hóa đơn vị:} Effort $\to$ person-months; LOC $\to$ KLOC
+    \item \textbf{Xử lý giá trị thiếu:} Median imputation chỉ trên features
+    \item \textbf{Xử lý ngoại lệ:} IQR-based capping (giữ lại, không loại bỏ)
+    \item \textbf{Biến đổi phân phối:} $\log_{1p}$ transform giảm skewness
+\end{enumerate}
+
+\vspace{0.2cm}
+\begin{alertblock}{Đóng góp \#1}
+Dataset manifest đầy đủ với rebuild scripts --- giải quyết khoảng trống \textbf{G1}.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---- SLIDE 5: KHUNG ML & GIAO THỨC ĐÁNH GIÁ  (1.25 phút) ----
+\begin{frame}{Khung Học Máy Đa Lược đồ \& Giao thức Đánh giá}
+\begin{columns}[T]
+\column{0.54\textwidth}
+\textbf{Kiến trúc: Huấn luyện độc lập theo lược đồ}
+
+\vspace{0.1cm}
+Với mỗi $s \in \{\text{LOC, FP, UCP}\}$:
+\begin{equation}
+\hat{E}^{(s)} = f^{(s)}(x^{(s)})
+\end{equation}
+$x^{(s)}$: kích cỡ (KLOC/FP/UCP) + thời gian, team size (khi có).
+
+\vspace{0.2cm}
+\textbf{Năm mô hình được đánh giá:}
+\begin{enumerate}
+    \item Linear Regression (biến thể log--log)
+    \item Decision Tree Regressor
+    \item \textbf{Random Forest} (bagging, 500 cây)
+    \item \textbf{Gradient Boosting} (boosting, 300 cây)
+    \item \textbf{XGBoost} (regularized boosting)
+\end{enumerate}
+
+\column{0.46\textwidth}
+\begin{block}{Giao thức theo lược đồ (giải quyết G3)}
+\textbf{LOC} ($n$=2,765):
+\begin{itemize}
+    \item Stratified 80/20 $\times$ 10 seeds
+    \item + \textbf{LOSO} (Leave-One-Source-Out, 11-fold)
+\end{itemize}
+\vspace{0.1cm}
+\textbf{FP} ($n$=158 --- mẫu nhỏ):
+\begin{itemize}
+    \item \textbf{LOOCV} (158-fold)
+    \item + Bootstrap 95\% CI
+\end{itemize}
+\vspace{0.1cm}
+\textbf{UCP} ($n$=131):
+\begin{itemize}
+    \item Stratified 80/20 $\times$ 10 seeds
+    \item + 5-fold inner CV
+\end{itemize}
+\end{block}
+
+\vspace{0.1cm}
+\begin{alertblock}{Đóng góp \#3}
+Giao thức phù hợp từng lược đồ.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---- SLIDE 6: HAI ĐỔI MỚI PHƯƠNG PHÁP LUẬN  (1 phút) ----
+\begin{frame}{Hai Đổi mới Phương pháp Luận Chính}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Đổi mới \#1 — Calibrated Baseline (giải quyết G2)}
+
+\vspace{0.1cm}
+Thay vì COCOMO~II với tham số mặc định, hiệu chỉnh power-law \textit{trên tập huấn luyện}:
+\begin{equation}
+\log(E) = \alpha + \beta \cdot \log(\text{Size})
+\end{equation}
+$(\alpha, \beta)$ fit bằng \texttt{curve\_fit} (Levenberg-Marquardt), per-schema, per-seed.
+
+\vspace{0.2cm}
+$\Rightarrow$ \textbf{Lower bound công bằng:} ML phải vượt baseline đã được tối ưu hóa.
+
+\column{0.5\textwidth}
+\textbf{Đổi mới \#2 — Macro-Averaging (giải quyết G3)}
+
+\begin{block}{Vấn đề: Micro-averaging}
+LOC chiếm 90.5\% $\Rightarrow$ kết quả tổng bị chi phối bởi LOC.
+\end{block}
+
+\begin{exampleblock}{Giải pháp: Macro-averaging}
+\begin{equation}
+m_{\text{macro}} = \frac{1}{3}(m_{\text{LOC}} + m_{\text{FP}} + m_{\text{UCP}})
+\end{equation}
+Mỗi lược đồ đóng góp \textbf{33.3\%} bất kể $n$.
+\end{exampleblock}
+
+\vspace{0.15cm}
+\textbf{Đổi mới \#3 — Tail Evaluation}\\
+Phân tích riêng top 10\% dự án lớn nhất (long-tail distribution).
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{Kết quả Thực nghiệm}
+% ============================================================
+
+% ---- SLIDE 7: KẾT QUẢ TỔNG HỢP  (1 phút) ----
+\begin{frame}{Kết quả Tổng hợp: Macro-Averaged (10 seeds)}
+\begin{columns}[T]
+\column{0.57\textwidth}
+\begin{table}
+\centering
+\footnotesize
+\caption{So sánh hiệu năng macro-averaged}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Mô hình} & \textbf{MAE↓} & \textbf{MMRE↓} & \textbf{PRED(25)↑} & $R^2$↑ \\
+\midrule
+\textbf{Rand. Forest}  & \textbf{12.66{\tiny$\pm$0.85}} & \textbf{0.647{\tiny$\pm$0.041}} & \textbf{0.395} & \textbf{0.812} \\
+XGBoost       & 13.21{\tiny$\pm$0.92} & 0.689 & 0.372 & 0.798 \\
+Grad. Boost   & 13.45{\tiny$\pm$0.98} & 0.701 & 0.361 & 0.789 \\
+Decision Tree & 15.12{\tiny$\pm$1.20} & 0.812 & 0.318 & 0.734 \\
+Lin. Regr.    & 15.78{\tiny$\pm$1.15} & 0.845 & 0.302 & 0.712 \\
+\midrule
+\textit{Baseline} & \textit{18.45{\tiny$\pm$1.20}} & \textit{1.12{\tiny$\pm$0.08}} & \textit{0.254} & \textit{0.621} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.05cm}
+{\tiny $\downarrow$ thấp hơn tốt hơn; $\uparrow$ cao hơn tốt hơn; MAE đơn vị: person-months}
+
+\column{0.43\textwidth}
+\begin{exampleblock}{Kết quả trả lời RQ1}
+\textbf{RF vs. Calibrated Baseline:}
+\begin{itemize}
+    \item MAE: $18.45 \to 12.66$ PM \textcolor{darkgreen}{\textbf{($\downarrow$31\%)}}
+    \item MMRE: $1.12 \to 0.647$ \textcolor{darkgreen}{\textbf{($\downarrow$42\%)}}
+    \item PRED(25): $0.254 \to 0.395$ \textcolor{darkgreen}{\textbf{($\uparrow$56\%)}}
+\end{itemize}
+\end{exampleblock}
+
+\vspace{0.2cm}
+\begin{alertblock}{Kiểm định thống kê}
+Wilcoxon: $p < 0.001$\\
+Paired $t$-test: $t{=}12.34$, $p{<}0.001$\\
+Cohen's $d = 1.23$ (\textit{large effect})
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ---- SLIDE 8: KẾT QUẢ THEO LƯỢC ĐỒ & TỔNG QUÁT HÓA  (1 phút) ----
+\begin{frame}{Kết quả Theo Lược đồ \& Tổng quát hóa Cross-Source}
+\begin{columns}[T]
+\column{0.33\textwidth}
+\begin{block}{LOC ($n$=2,765)}
+\footnotesize
+\textbf{Random Forest:}\\
+MAE = 11.2 PM\\MMRE = 0.589\\
+\vspace{0.1cm}
+\textbf{Calibrated Baseline:}\\
+MAE = 16.8 PM\\
+\vspace{0.1cm}
+\textcolor{darkgreen}{\textbf{Cải thiện MMRE: 40\%}}
+\end{block}
+
+\column{0.33\textwidth}
+\begin{block}{FP ($n$=158, LOOCV)}
+\footnotesize
+\textbf{Random Forest:}\\
+MAE = 15.8 PM\\MMRE = 0.731\\
+\vspace{0.1cm}
+\textbf{Calibrated Baseline:}\\
+MAE = 21.4 PM\\
+\vspace{0.1cm}
+\textcolor{darkgreen}{\textbf{Cải thiện MMRE: 38\%}}\\
+\textcolor{darkorange}{\tiny (kết quả thăm dò, $n$ nhỏ)}
+\end{block}
+
+\column{0.33\textwidth}
+\begin{block}{UCP ($n$=131)}
+\footnotesize
+\textbf{Random Forest:}\\
+MAE = 11.0 PM\\MMRE = 0.621\\
+\vspace{0.1cm}
+\textbf{Calibrated Baseline:}\\
+MAE = 17.2 PM\\
+\vspace{0.1cm}
+\textcolor{darkgreen}{\textbf{Cải thiện MMRE: 49\%}}
+\end{block}
+\end{columns}
+
+\vspace{0.2cm}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\begin{exampleblock}{LOSO Generalization --- trả lời RQ2}
+LOSO: MAE tăng chỉ \textbf{21\%} so với random split\\
+$\Rightarrow$ Mô hình tổng quát hóa tốt qua nguồn dữ liệu chưa thấy.
+\end{exampleblock}
+
+\column{0.5\textwidth}
+\begin{exampleblock}{Tail Evaluation (top 10\% dự án lớn nhất)}
+RF: MAE tăng \textbf{57--72\%} ở vùng đuôi phân phối\\
+Baseline: tăng \textbf{83--100\%}\\
+$\Rightarrow$ Ensemble \textbf{vượt trội} ở long-tail.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+% ---- SLIDE 9: ABLATION & GIỚI HẠN  (0.75 phút) ----
+\begin{frame}{Phân tích Ablation \& Giới hạn Nghiên cứu}
+\begin{columns}[T]
+\column{0.52\textwidth}
+\textbf{Ablation Study --- đóng góp từng bước tiền xử lý (RF, LOC):}
+\vspace{0.1cm}
+\begin{table}
+\footnotesize
+\begin{tabular}{lcc}
+\toprule
+\textbf{Cấu hình} & \textbf{MAE} & \textbf{MMRE} \\
+\midrule
+Full pipeline               & \textbf{11.2} & \textbf{0.589} \\
+w/o $\log_{1p}$ transform   & 13.4          & 0.712 \\
+w/o IQR capping             & 14.1          & 0.798 \\
+w/o unit harmonization      & 17.3          & 1.045 \\
+Raw features (không xử lý) & 19.8          & 1.234 \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.1cm}
+{\footnotesize $\Rightarrow$ Chuẩn hóa đơn vị là bước quan trọng nhất; log transform và IQR capping đều có đóng góp có ý nghĩa.}
+
+\column{0.48\textwidth}
+\textbf{Giới hạn và Mối đe dọa Giá trị:}
+\begin{itemize}
+    \item \textbf{FP} ($n$=158): kết quả \textit{thăm dò}, cần thêm dữ liệu
+    \item \textbf{Đơn vị:} 1 PM = 160 giờ --- có thể biến động theo tổ chức
+    \item \textbf{Cross-schema transfer:} chưa chia sẻ thông tin giữa LOC/FP/UCP
+    \item \textbf{Phạm vi:} dữ liệu công khai 1979--2022, có thể chưa đại diện DevOps hiện đại
+\end{itemize}
+
+\vspace{0.15cm}
+\begin{alertblock}{Threats to Validity}
+\textbf{Construct:} MMRE bias (underestimation)\\
+\textbf{External:} Dữ liệu chủ yếu Bắc Mỹ/EU\\
+\textbf{Internal:} Rủi ro trùng lặp nhỏ còn lại
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+% ============================================================
+\section{Kết luận}
+% ============================================================
+
+% ---- SLIDE 10: KẾT LUẬN & HƯỚNG PHÁT TRIỂN  (0.5 phút) ----
+\begin{frame}{Kết luận \& Hướng Phát triển}
+\begin{columns}[T]
+\column{0.54\textwidth}
+\textbf{Năm đóng góp khoa học:}
+\begin{enumerate}
+    \item \textbf{Dataset manifest kiểm toán được} với rebuild scripts (18 nguồn, 3,054 dự án)
+    \item \textbf{Calibrated power-law baseline} --- tránh straw-man comparison
+    \item \textbf{Giao thức đánh giá phù hợp theo lược đồ} (LOSO, LOOCV, bootstrap CI)
+    \item \textbf{Macro-averaging} --- ngăn LOC dominance (90.5\%)
+    \item \textbf{Tail evaluation} + LOSO generalization testing
+\end{enumerate}
+
+\vspace{0.2cm}
+\begin{exampleblock}{Kết quả trọng tâm}
+RF đạt MMRE cải thiện \textbf{42\%} ($p{<}0.001$) so với baseline được hiệu chỉnh; LOSO chỉ tăng \textbf{21\% MAE} $\Rightarrow$ tổng quát hóa tốt.
+\end{exampleblock}
+
+\column{0.46\textwidth}
+\textbf{Hướng phát triển:}
+\begin{itemize}
+    \item \textbf{Cross-schema transfer learning:} chia sẻ biểu diễn giữa LOC/FP/UCP
+    \item \textbf{Deep learning:} LSTM/Transformer cho chuỗi thời gian dự án
+    \item \textbf{Story points / DevOps metrics:} mở rộng sang phương pháp Agile
+    \item \textbf{Active learning:} tăng hiệu quả với FP/UCP có ít mẫu
+\end{itemize}
+
+\vspace{0.2cm}
+\begin{block}{Ý nghĩa chính}
+\textbf{Đóng góp là khung phương pháp luận} --- một artifact tái lập được mà cộng đồng nghiên cứu có thể áp dụng cho các so sánh mô hình tương lai.
+\end{block}
+\end{columns}
+\end{frame}
+
+% ---- Q&A ----
+\begin{frame}[plain]
+\begin{center}
+\vspace{0.8cm}
+{\Huge \textcolor{darkblue}{\textbf{Cảm ơn Hội đồng!}}}
+
+\vspace{0.4cm}
+{\large Xin mời Hội đồng đặt câu hỏi}
+
+\vspace{0.7cm}
+\begin{columns}
+\column{0.6\textwidth}
+\begin{block}{Thông tin liên hệ}
+\centering
+Nguyễn Nhật Huy (đầu mối)\\
+\texttt{nguyennhathuybdi06@gmail.com}\\[0.1cm]
+{\small Trường Quốc tế, Đại học Duy Tân, Đà Nẵng}
+\end{block}
+\end{columns}
+
+\vspace{0.5cm}
+\begin{columns}
+\column{0.75\textwidth}
+\begin{alertblock}{\small Lưu ý về Demo}
+\centering
+\small Nhóm không trình bày demo trực tiếp tại hội nghị này. Toàn bộ code, dataset rebuild scripts và kết quả thực nghiệm có thể cung cấp theo yêu cầu của Hội đồng.
+\end{alertblock}
+\end{columns}
+\end{center}
+\end{frame}
+
+% ============================================================
+% BACKUP SLIDES
+% ============================================================
+\appendix
+\section{Backup Slides}
+
+\begin{frame}{[Backup] Nguồn dữ liệu đầy đủ (18 nguồn)}
+\begin{table}
+\tiny
+\caption{Dataset Manifest --- 18 nguồn công khai}
+\begin{tabular}{llccl}
+\toprule
+\textbf{Nguồn} & \textbf{Lược đồ} & \textbf{Dự án} & \textbf{Năm} & \textbf{Lĩnh vực} \\
+\midrule
+ISBSG R2020        & LOC & 1,245 & 1997--2020 & Multi-domain \\
+NASA93             & LOC & 93    & 1971--1987 & Aerospace \\
+Promise Cocomonasa & LOC & 60    & 1985--1987 & NASA \\
+Desharnais         & LOC & 81    & 1989--1991 & Canada \\
+COCOMO81           & LOC & 63    & 1964--1979 & Embedded \\
+Kemerer            & LOC & 15    & 1980--1984 & Business \\
+Kitchenham         & LOC & 145   & 1990--1995 & Commercial \\
+Albrecht           & LOC & 24    & 1974--1979 & IBM \\
+Maxwell            & LOC & 62    & 1993--1999 & Finland \\
+Miyazaki94         & LOC & 48    & 1977--1991 & COBOL \\
+China              & LOC & 929   & 1996--2022 & Chinese \\
+\midrule
+ISBSG FP subset    & FP  & 67    & 1997--2018 & Multi-domain \\
+Maxwell FP         & FP  & 41    & 1993--1999 & Finland \\
+Kemerer FP         & FP  & 15    & 1980--1984 & Business \\
+Albrecht FP        & FP  & 35    & 1974--1979 & IBM \\
+\midrule
+Karner             & UCP & 10    & 1993       & OO systems \\
+Ochodek            & UCP & 71    & 2009--2013 & Academic \\
+Diev               & UCP & 50    & 2012--2017 & Industrial \\
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}{[Backup] Cài đặt Siêu tham số}
+\begin{columns}[T]
+\column{0.5\textwidth}
+\textbf{Random Forest:}
+\begin{table}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Tham số} & \textbf{Giá trị} \\
+\midrule
+n\_estimators       & 500 \\
+max\_depth          & 20  \\
+min\_samples\_split  & 5   \\
+min\_samples\_leaf   & 2   \\
+max\_features       & sqrt \\
+bootstrap           & True \\
+oob\_score          & True \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.1cm}
+Grid Search: 3-fold CV, 1,280 cấu hình, chọn theo MAE thấp nhất.
+
+\column{0.5\textwidth}
+\textbf{XGBoost:}
+\begin{table}
+\small
+\begin{tabular}{ll}
+\toprule
+\textbf{Tham số} & \textbf{Giá trị} \\
+\midrule
+n\_estimators      & 300  \\
+max\_depth         & 8    \\
+learning\_rate     & 0.05 \\
+subsample          & 0.8  \\
+colsample\_bytree  & 0.8  \\
+gamma              & 0.1  \\
+reg\_alpha         & 0.01 \\
+reg\_lambda        & 1.0  \\
+\bottomrule
+\end{tabular}
+\end{table}
+\vspace{0.1cm}
+Early stopping: 50 rounds, validation MAE.
+\end{columns}
+\end{frame}
+
+\begin{frame}{[Backup] Kiểm định Thống kê Chi tiết}
+\begin{table}
+\small
+\caption{Kết quả kiểm định thống kê toàn diện}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Kiểm định} & \textbf{Giá trị} & \textbf{p-value} & \textbf{Kết luận} \\
+\midrule
+Paired $t$-test (RF vs. Baseline) & $t = 12.34$     & $< 0.001$ & Có ý nghĩa \\
+Wilcoxon signed-rank              & $z = 9.87$      & $< 0.001$ & Có ý nghĩa \\
+Friedman test (tất cả mô hình)    & $\chi^2 = 45.6$ & $< 0.001$ & Có sự khác biệt \\
+Nemenyi post-hoc (RF vs. others)  & ---             & $< 0.05$  & RF tốt hơn đáng kể \\
+\midrule
+Cohen's $d$ (RF vs. Baseline)     & 1.23            & ---       & Large effect \\
+Cliff's Delta                     & 0.78            & ---       & Large effect \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\vspace{0.3cm}
+\textbf{Giải thích:}
+\begin{itemize}
+    \item Cả kiểm định tham số lẫn phi tham số đều xác nhận RF vượt trội đáng kể
+    \item Effect size lớn ($d > 0.8$) cho thấy ý nghĩa thực tiễn, không chỉ thống kê
+    \item Kết quả nhất quán qua 10 random seeds
+\end{itemize}
+\end{frame}
+
+\begin{frame}{[Backup] Câu hỏi Hội đồng thường gặp}
+\small
+\begin{enumerate}
+    \item \textbf{Tại sao chọn RF thay vì Deep Learning?}\\
+    DL đòi hỏi nhiều dữ liệu hơn (FP chỉ $n$=158). RF cho kết quả tốt, có thể giải thích được (feature importance), và ổn định hơn trên dữ liệu bảng nhỏ.
+
+    \vspace{0.15cm}
+    \item \textbf{Overfitting được kiểm soát như thế nào?}\\
+    (a) LOOCV cho FP; (b) LOSO cross-validation; (c) 10 independent seeds; (d) OOB score monitoring; (e) IQR capping tránh outlier ảnh hưởng.
+
+    \vspace{0.15cm}
+    \item \textbf{Tại sao dùng MMRE dù biết nó có bias?}\\
+    MMRE là chỉ số \textit{bổ sung} để so sánh với tài liệu; \textbf{MAE là chỉ số chính}. Đây là thông lệ chuẩn trong SEE (Shepperd \& Kadoda, 2001).
+
+    \vspace{0.15cm}
+    \item \textbf{Dataset có thể bị trùng lặp không?}\\
+    Đã áp dụng cross-source deduplication theo project ID, effort range và năm. Rủi ro còn lại được ghi nhận trong Threats to Validity.
+
+    \vspace{0.15cm}
+    \item \textbf{Tại sao không dùng COCOMO~II đầy đủ làm baseline?}\\
+    Hầu hết tập FP/UCP không có cost drivers. Dùng COCOMO~II với tham số mặc định tạo \textit{straw-man comparison} --- đây chính là khoảng trống G2 mà nghiên cứu này giải quyết.
+\end{enumerate}
 \end{frame}
 
 \end{document}

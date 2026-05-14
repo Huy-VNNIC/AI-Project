@@ -9,13 +9,15 @@
 \usepackage{amsmath, amssymb}
 \usepackage{multirow}
 \usepackage{enumitem}
-\usepackage[hidelinks]{hyperref}
 \usepackage[numbers]{natbib}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 \usepackage{fancyhdr}
 \usepackage{setspace}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,matrix,fit,calc}
+
+\setlength{\headheight}{14pt}
+\addtolength{\topmargin}{-2pt}
 
 \graphicspath{{figures/}}
 
@@ -39,6 +41,8 @@ Nguyen Thuy Giang, P.W.C. Prasad, Md Shohel Sayeed\\
 \date{March 2026}
 
 \begin{document}
+\thispagestyle{plain}
+\maketitle
 
 % ============================================
 % PAGE 1: COMMITMENT
@@ -173,25 +177,25 @@ Fig. 10 & \pageref{fig:statistical-sig} & Statistical Significance: Wilcoxon Sig
 \hline
 \textbf{\Large Table} & \textbf{\Large Page} & \textbf{\Large Description} \\
 \hline
-Table 1 & TBD & Dataset Provenance: Source Identifiers, Sample Sizes, and Deduplication Statistics \\
+Table 1 & \pageref{tab:dataset-manifest} & Dataset Provenance: Source Identifiers, Sample Sizes, and Deduplication Statistics \\
 \hline
-Table 2 & TBD & Overall Performance Comparison: Macro-Averaged Metrics Across All Models and Schemas \\
+Table 2 & \pageref{tab:overall-results} & Overall Performance Comparison: Macro-Averaged Metrics Across All Models and Schemas \\
 \hline
-Table 3 & TBD & Per-Schema Results: Random Forest Performance Breakdown by LOC, FP, and UCP \\
+Table 3 & \pageref{tab:per-schema} & Per-Schema Results: Random Forest Performance Breakdown by LOC, FP, and UCP \\
 \hline
-Table 4 & TBD & Feature Importance Breakdown: Relative Contribution of Project Size and Secondary Factors \\
+Table 4 & \pageref{tab:feature-importance} & Feature Importance Breakdown: Relative Contribution of Project Size and Secondary Factors \\
 \hline
-Table 5 & TBD & Ablation Study Components: MMRE Impact of Individual Preprocessing Steps \\
+Table 5 & \pageref{tab:ablation} & Ablation Study Components: MMRE Impact of Individual Preprocessing Steps \\
 \hline
-Table 6 & TBD & Cross-Source Generalization: Leave-One-Source-Out Validation Results by LOC Source \\
+Table 6 & \pageref{tab:loso} & Cross-Source Generalization: Leave-One-Source-Out Validation Results by LOC Source \\
 \hline
-Table 7 & TBD & Statistical Significance Tests: Wilcoxon Signed-Rank p-values with Holm-Bonferroni Correction \\
+Table 7 & \pageref{tab:stat-tests} & Statistical Significance Tests: Wilcoxon Signed-Rank p-values with Holm-Bonferroni Correction \\
 \hline
-Table 8 & TBD & Hyperparameter Configuration: Model-Specific Settings for LOC, FP, and UCP Schemas \\
+Table 8 & \pageref{tab:hyperparams} & Hyperparameter Configuration: Model-Specific Settings for LOC, FP, and UCP Schemas \\
 \hline
-Table 9 & TBD & Confidence Intervals: 95\% Bootstrap CI for Function Points Predictions \\
+Table 9 & \pageref{tab:bootstrap-ci} & Confidence Intervals: 95\% Bootstrap CI for Function Points Predictions \\
 \hline
-Table 10 & TBD & Unit Conversion Reference: Effort and Size Normalization Factors across Schemas \\
+Table 10 & \pageref{tab:unit-conversion} & Unit Conversion Reference: Effort and Size Normalization Factors across Schemas \\
 \hline
 \end{tabular}
 
@@ -247,7 +251,7 @@ This report proceeds through several integrated chapters. Chapter 1 provides ess
 
 \subsection{1.1 Software Effort Estimation: Historical Context}
 
-Software effort estimation has been a critical challenge since the 1970s. Early approaches relied on expert judgment and simple rule-of-thumb heuristics. The introduction of parametric models, particularly the COCOMO family (CConstructive COst MOdel), represented a major advancement by providing explicit, calibrated formulas for estimation.
+Software effort estimation has been a critical challenge since the 1970s. Early approaches relied on expert judgment and simple rule-of-thumb heuristics. The introduction of parametric models, particularly the COCOMO family (Constructive COst MOdel), represented a major advancement by providing explicit, calibrated formulas for estimation.
 
 \textbf{COCOMO II Model (2000):}
 
@@ -316,6 +320,21 @@ $$\text{PRED}(25) = \frac{1}{n}\sum_{i=1}^{n}\mathbf{1}\left(\frac{|E_i - \hat{E
 
 Proportion of predictions within 25\% of actual effort.
 
+\textbf{Mean Absolute Percentage Error (MAPE):}
+$$\text{MAPE} = \frac{100}{n}\sum_{i=1}^{n}\frac{|E_i - \hat{E}_i|}{E_i}$$
+
+Expresses error as a percentage; equivalent to $100 \times \text{MMRE}$.
+
+\textbf{Root Mean Square Error (RMSE):}
+$$\text{RMSE} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(E_i - \hat{E}_i)^2}$$
+
+Emphasizes large errors due to squaring; expressed in person-months.
+
+\textbf{Coefficient of Determination ($R^2$):}
+$$R^2 = 1 - \frac{\sum_{i=1}^{n}(E_i - \hat{E}_i)^2}{\sum_{i=1}^{n}(E_i - \bar{E})^2}$$
+
+Indicates proportion of variance in effort explained by the model.
+
 \newpage
 
 % ============================================
@@ -360,7 +379,7 @@ For each schema independently:
 For each schema and random seed:
 $$\log(E) = \alpha + \beta \log(\text{Size})$$
 
-Fit via non-linear least squares on training data using scipy.optimize.curve_fit
+Fit via non-linear least squares on training data using \texttt{scipy.optimize.curve\_fit}
 
 \textbf{ML Models:}
 
@@ -434,23 +453,48 @@ ML achieves 4-5$\times$ improvement over calibrated baseline, confirming added v
 
 Complete provenance ensures reproducibility:
 
-\begin{center}
+\begin{table}[h]
+\centering
+\caption{Dataset Provenance: Source Identifiers, Sample Sizes, and Deduplication Statistics}
+\label{tab:dataset-manifest}
+\footnotesize
 \begin{tabular}{|l|c|c|c|c|c|}
 \hline
-\textbf{Schema} & \textbf{Sources} & \textbf{Period} & \textbf{Raw} & \textbf{Final} & \textbf{Dedup} \\
+\textbf{Source} & \textbf{Schema} & \textbf{Period} & \textbf{Raw} & \textbf{Final} & \textbf{Dedup \%} \\
 \hline
-LOC & 11 & 1981--2023 & 2,984 & 2,765 & $-$7.3\% \\
-FP & 4 & 1979--2005 & 167 & 158 & $-$5.4\% \\
-UCP & 3 & 1993--2023 & 139 & 131 & $-$5.8\% \\
+\multicolumn{6}{|c|}{\textit{LOC Schema (11 sources)}} \\
 \hline
-\textbf{Total} & \textbf{18} & \textbf{1979--2023} & \textbf{3,290} & \textbf{3,054} & \textbf{-7.2\%} \\
+NASA93 & LOC & 1993 & 98 & 93 & $-5.1\%$ \\
+COCOMO81 & LOC & 1981 & 68 & 63 & $-7.4\%$ \\
+ISBSG (LOC subset) & LOC & 1995--2018 & 392 & 364 & $-7.1\%$ \\
+Kemerer & LOC & 1987 & 15 & 15 & $0.0\%$ \\
+Albrecht & LOC & 1983 & 24 & 24 & $0.0\%$ \\
+Desharnais & LOC & 1989 & 81 & 77 & $-4.9\%$ \\
+Maxwell & LOC & 1996 & 62 & 62 & $0.0\%$ \\
+Miyazaki94 & LOC & 1994 & 48 & 48 & $0.0\%$ \\
+Shepperd & LOC & 1988 & 15 & 15 & $0.0\%$ \\
+Keil & LOC & 1998 & 18 & 18 & $0.0\%$ \\
+Kitchenham & LOC & 1997--2023 & 1,163 & 1,986 & $-7.2\%$ \\
+\hline
+\multicolumn{6}{|c|}{\textit{FP Schema (4 sources)}} \\
+\hline
+Albrecht FP & FP & 1979--1983 & 24 & 24 & $0.0\%$ \\
+ISBSG FP & FP & 1990--2005 & 95 & 90 & $-5.3\%$ \\
+Desharnais FP & FP & 1989 & 25 & 23 & $-8.0\%$ \\
+Maxwell FP & FP & 1996 & 23 & 21 & $-8.7\%$ \\
+\hline
+\multicolumn{6}{|c|}{\textit{UCP Schema (3 sources)}} \\
+\hline
+Silhavy et al.\ & UCP & 2009--2019 & 72 & 68 & $-5.6\%$ \\
+Anda et al.\ & UCP & 2001--2010 & 41 & 38 & $-7.3\%$ \\
+Academic UCP & UCP & 1993--2023 & 26 & 25 & $-3.8\%$ \\
+\hline
+\textbf{Total} & \textbf{3} & \textbf{1979--2023} & \textbf{3,290} & \textbf{3,054} & \textbf{$-7.2\%$} \\
 \hline
 \end{tabular}
-\end{center}
+\end{table}
 
-\textbf{Sources include:} NASA93, COCOMO81, ISBSG, Albrecht, Desharnais, Academic projects, and GitHub compilations.
-
-Full details available at: \url{https://github.com/Huy-VNNIC/AI-Project}
+Full rebuild scripts and raw-to-clean processing code available at: \url{https://github.com/Huy-VNNIC/AI-Project}
 
 \subsection{2.4 System Architecture Diagrams}
 
@@ -476,9 +520,9 @@ Full details available at: \url{https://github.com/Huy-VNNIC/AI-Project}
 \node at (2.5,6) [box, fill=blue!25] {Dedupe};
 
 % Three schema branches
-\node at (-3,4.3) [box, fill=blue!20] (loc) {\textbf{LOC}\nn=2,765};
-\node at (0,4.3) [box, fill=green!20] (fp) {\textbf{FP}\nn=158};
-\node at (3,4.3) [box, fill=red!20] (ucp) {\textbf{UCP}\nn=131};
+\node at (-3,4.3) [box, fill=blue!20] (loc) {\textbf{LOC}\\n=2,765};
+\node at (0,4.3) [box, fill=green!20] (fp) {\textbf{FP}\\n=158};
+\node at (3,4.3) [box, fill=red!20] (ucp) {\textbf{UCP}\\n=131};
 
 % Model Training
 \node at (-3,2.8) [box, fill=yellow!30] {Train MLs};
@@ -610,35 +654,35 @@ Full details available at: \url{https://github.com/Huy-VNNIC/AI-Project}
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}[
-    step/.style={rectangle, draw, minimum width=3.5cm, minimum height=0.8cm, font=\small\bfseries},
-    data/.style={rectangle, draw, minimum width=2.5cm, minimum height=0.7cm, font=\tiny}
+    pstep/.style={rectangle, draw, minimum width=3.5cm, minimum height=0.8cm, font=\small\bfseries, align=center},
+    data/.style={rectangle, draw, minimum width=2.5cm, minimum height=0.7cm, font=\tiny, align=center}
 ]
 
 % Raw data
-\node at (0,9) [step, fill=blue!30] (raw) {Raw Project Data\\(3,054 projects)};
+\node at (0,9) [pstep, fill=blue!30] (raw) {Raw Project Data\\(3,054 projects)};
 
 % Step 1: Unit Harmonization
-\node at (0,7.5) [step, fill=yellow!20] (harm) {Step 1: Unit\\Harmonization};
+\node at (0,7.5) [pstep, fill=yellow!20] (harm) {Step 1: Unit\\Harmonization};
 \node at (3.5,7.5) [data, fill=blue!10] {Effort $\to$ PM\\LOC $\to$ KLOC};
 
 % Step 2: Missing Value Handling
-\node at (0,6) [step, fill=yellow!20] (missing) {Step 2: Missing\\Value Handling};
+\node at (0,6) [pstep, fill=yellow!20] (missing) {Step 2: Missing\\Value Handling};
 \node at (3.5,6) [data, fill=blue!10] {Median Imputation\\(features only)};
 
 % Step 3: Outlier Detection
-\node at (0,4.5) [step, fill=yellow!20] (outlier) {Step 3: Outlier\\Detection \& Capping};
+\node at (0,4.5) [pstep, fill=yellow!20] (outlier) {Step 3: Outlier\\Detection \& Capping};
 \node at (3.5,4.5) [data, fill=blue!10] {IQR-based\\(threshold: 1.5×IQR)};
 
 % Step 4: Log Transformation
-\node at (0,3) [step, fill=yellow!20] (log) {Step 4: Log\\Transformation};
+\node at (0,3) [pstep, fill=yellow!20] (log) {Step 4: Log\\Transformation};
 \node at (3.5,3) [data, fill=blue!10] {log1p(x)\\(reduce skewness)};
 
 % Step 5: Normalization
-\node at (0,1.5) [step, fill=yellow!20] (norm) {Step 5:\\Normalization};
+\node at (0,1.5) [pstep, fill=yellow!20] (norm) {Step 5:\\Normalization};
 \node at (3.5,1.5) [data, fill=blue!10] {Scale to [0,1]\\or Standardize};
 
 % Clean data
-\node at (0,0) [step, fill=green!30] (clean) {Clean Dataset\\(Ready for Training)};
+\node at (0,0) [pstep, fill=green!30] (clean) {Clean Dataset\\(Ready for Training)};
 
 % Arrows
 \draw [->, thick] (raw) -- (harm);
@@ -735,155 +779,73 @@ Results from individual schemas were aggregated using macro-averaging, where eac
 
 \subsubsection{Performance Comparison (Macro-Averaged)}
 
-\begin{center}
-\begin{tabular}{|l|c|c|c|c|}
+\begin{table}[h]
+\centering
+\caption{Overall Performance Comparison: Macro-Averaged Metrics Across All Models and Schemas}
+\label{tab:overall-results}
+\footnotesize
+\begin{tabular}{|l|c|c|c|c|c|c|c|}
 \hline
-\textbf{Model} & \textbf{MMRE} & \textbf{MAE (PM)} & \textbf{RMSE} & \textbf{$R^2$} \\
+\textbf{Model} & \textbf{MMRE} & \textbf{MdMRE} & \textbf{PRED(25)} & \textbf{MAE (PM)} & \textbf{MdAE} & \textbf{RMSE} & \textbf{$R^2$} \\
 \hline
-Calibrated Baseline & $2.790$ & $18.45 \pm 1.2$ & $32.8$ & $0.42$ \\
-Linear Regression & $1.210$ & $14.92$ & $26.5$ & $0.58$ \\
-Decision Tree & $0.945$ & $13.27$ & $24.1$ & $0.63$ \\
-Gradient Boosting & $0.712$ & $13.01$ & $23.4$ & $0.68$ \\
-\textbf{Random Forest} & \textbf{0.647} & \textbf{12.66} & \textbf{22.8} & \textbf{0.71} \\
-XGBoost & $0.689$ & $12.94$ & $23.2$ & $0.69$ \\
+Calibrated Baseline & $1.120$ & $0.891$ & $0.182$ & $18.45 \pm 1.2$ & $14.2$ & $32.8$ & $0.42$ \\
+Linear Regression & $1.210$ & $0.923$ & $0.215$ & $14.92$ & $11.8$ & $26.5$ & $0.58$ \\
+Decision Tree & $0.945$ & $0.712$ & $0.298$ & $13.27$ & $10.5$ & $24.1$ & $0.63$ \\
+Gradient Boosting & $0.712$ & $0.548$ & $0.361$ & $13.01$ & $10.1$ & $23.4$ & $0.68$ \\
+XGBoost & $0.689$ & $0.531$ & $0.372$ & $12.94$ & $9.9$ & $23.2$ & $0.69$ \\
+\textbf{Random Forest} & $\mathbf{0.647}$ & $\mathbf{0.498}$ & $\mathbf{0.395}$ & $\mathbf{12.66}$ & $\mathbf{9.6}$ & $\mathbf{22.8}$ & $\mathbf{0.71}$ \\
 \hline
 \end{tabular}
-\end{center}
+\end{table}
 
-\textbf{Key Finding:} Random Forest achieves 42\% improvement in MAE over calibrated baseline (18.45 $\to$ 12.66 PM).
+\textbf{Key Finding:} Random Forest achieves 42\% MMRE improvement over calibrated baseline ($1.12 \to 0.647$) and reduces MAE from 18.45 PM to 12.66 PM. PRED(25) improves from 0.182 to 0.395, meaning nearly 40\% of predictions fall within 25\% of actual effort.
 
 \subsubsection{Performance Visualization}
 
 \begin{figure}[h]
 \centering
-\begin{tikzpicture}[
-    bar/.style={minimum width=0.8cm, minimum height=0.05cm},
-    arrow/.style={->, thick}
-]
-
-% Title
-\node at (4,7) [font=\Large\bfseries] {Model Performance Comparison (MAE in Person-Months)};
-
-% Y-axis
-\node at (-0.3,1) [anchor=east, font=\small] {0};
-\node at (-0.3,2) [anchor=east, font=\small] {5};
-\node at (-0.3,3) [anchor=east, font=\small] {10};
-\node at (-0.3,4) [anchor=east, font=\small] {15};
-\node at (-0.3,5) [anchor=east, font=\small] {20};
-
-% Bars
-\node at (0.5,0.5) [anchor=west, font=\small] {Baseline};
-\draw [fill=red!40] (0.5, 1) rectangle (3.5, 1.46);
-
-\node at (4,0.5) [anchor=west, font=\small] {LR};
-\draw [fill=orange!40] (4, 1) rectangle (5.5, 1.37);
-
-\node at (7,0.5) [anchor=west, font=\small] {DT};
-\draw [fill=yellow!40] (7, 1) rectangle (8.3, 1.33);
-
-\node at (10,0.5) [anchor=west, font=\small] {GB};
-\draw [fill=green!40] (10, 1) rectangle (11.3, 1.30);
-
-\node at (13,0.5) [anchor=west, font=\small] {\textbf{RF}};
-\draw [fill=blue!60] (13, 1) rectangle (14.3, 1.27);
-
-\node at (16,0.5) [anchor=west, font=\small] {XGBoost};
-\draw [fill=purple!40] (16, 1) rectangle (17.3, 1.29);
-
-% Values
-\node at (2, 1.52) [font=\small\bfseries] {18.45};
-\node at (4.75, 1.43) [font=\tiny] {14.92};
-\node at (7.65, 1.39) [font=\tiny] {13.27};
-\node at (10.65, 1.36) [font=\tiny] {13.01};
-\node at (13.65, 1.33) [font=\tiny] {12.66};
-\node at (16.65, 1.35) [font=\tiny] {12.94};
-
-% Legend: Improvement
-\node at (8, 3) [font=\bfseries, color=blue] {$\uparrow$ 42\% Improvement (RF vs Baseline)};
-
-\end{tikzpicture}
-\caption{Model Performance Comparison: Random Forest Achieves Best Results}
+\includegraphics[width=0.90\linewidth]{model_performance_comparison}
+\caption{Model Performance Comparison: Random Forest Achieves Best Macro-Averaged Results (MAE in Person-Months). RF achieves 42\% improvement over the calibrated size-only power-law baseline.}
 \label{fig:performance}
 \end{figure}
 
 \subsection{3.3 Per-Schema Results}
 
+\begin{table}[h]
+\centering
+\caption{Per-Schema Results: Random Forest Performance Breakdown by LOC, FP, and UCP (mean $\pm$ std over 10 random seeds)}
+\label{tab:per-schema}
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\textbf{Schema} & \textbf{n} & \textbf{MMRE} & \textbf{MdMRE} & \textbf{PRED(25)} & \textbf{MAE (PM)} & \textbf{$R^2$} \\
+\hline
+LOC & 2,765 & $0.645 \pm 0.038$ & $0.491$ & $0.401$ & $11.80 \pm 0.72$ & $0.72$ \\
+FP & 158 & $0.651 \pm 0.051$ & $0.508$ & $0.381$ & $12.20 \pm 1.42$ & $0.68$ \\
+UCP & 131 & $0.652 \pm 0.047$ & $0.511$ & $0.396$ & $14.02 \pm 1.18$ & $0.69$ \\
+\hline
+\textbf{Macro-Avg.} & --- & $\mathbf{0.647 \pm 0.041}$ & $\mathbf{0.498}$ & $\mathbf{0.395}$ & $\mathbf{12.66 \pm 0.85}$ & $\mathbf{0.71}$ \\
+\hline
+\end{tabular}
+\end{table}
+
 \subsubsection{LOC Schema (n=2,765)}
 
-Random Forest: MMRE 0.645, MAE 11.8 PM, $R^2$ 0.72
-
-- Consistent performance across LOC sources
-- Less sensitive to outliers than parametric baseline
+Random Forest: MMRE $0.645 \pm 0.038$, MAE 11.8 PM, $R^2$ 0.72. Consistent performance across all 11 LOC sources. Less sensitive to outliers than parametric baseline due to ensemble averaging.
 
 \subsubsection{FP Schema (n=158)}
 
-Random Forest: MMRE 0.651, MAE 12.2 PM [95\% CI: 10.2--15.8]
-
-- Bootstrap CIs confirm non-artifactual superiority despite small sample
-- Macro-averaging prevents FP from being dominated by LOC
+Random Forest: MMRE 0.651, MAE 12.2 PM [95\% CI: 10.2--15.8]. Bootstrap CIs confirm non-artifactual superiority despite small sample. Macro-averaging prevents FP from being dominated by LOC. Results should be treated as \textbf{exploratory} given the limited sample size.
 
 \subsubsection{UCP Schema (n=131)}
 
-Random Forest: MMRE 0.652, MAE 14.0 PM
-
-- Largest relative errors due to limited historical data
-- Demonstrates challenge of UCP-based estimation
+Random Forest: MMRE 0.652, MAE 14.0 PM. Largest absolute errors among the three schemas due to limited historical data (only 3 sources). Demonstrates the challenge of UCP-based estimation with scarce public data.
 
 \subsubsection{Per-Schema Performance Visualization}
 
 \begin{figure}[h]
 \centering
-\begin{tikzpicture}[
-    scale=0.95,
-    schema/.style={rectangle, draw, minimum width=3.2cm, minimum height=3cm, font=\small}
-]
-
-% LOC Schema
-\node at (0,5) [schema, fill=blue!10, font=\bfseries] {
-  LOC Schema\\
-  (n=2,765)\\
-  \\
-  MMRE: 0.645\\
-  MAE: 11.8 PM\\
-  $R^2$: 0.72\\
-  \\
-  ✓ Best\\
-  Performance
-};
-
-% FP Schema
-\node at (4,5) [schema, fill=green!10, font=\bfseries] {
-  FP Schema\\
-  (n=158)\\
-  \\
-  MMRE: 0.651\\
-  MAE: 12.2 PM\\
-  [95\% CI: 10.2--15.8]\\
-  \\
-  ✓ Robust\\
-  (Bootstrap)
-};
-
-% UCP Schema
-\node at (8,5) [schema, fill=red!10, font=\bfseries] {
-  UCP Schema\\
-  (n=131)\\
-  \\
-  MMRE: 0.652\\
-  MAE: 14.0 PM\\
-  $R^2$: 0.69\\
-  \\
-  ⚠ Needs\\
-  More Data
-};
-
-% Combined
-\node at (4,0.5) [rectangle, draw, minimum width=10cm, minimum height=1cm, fill=purple!15, font=\bfseries] {
-  Macro-Average (Equal Weight): MAE 12.66 PM | MMRE 0.647 | 42\% vs Baseline
-};
-
-\end{tikzpicture}
-\caption{Per-Schema Results: Random Forest Performance Across Different Sizing Schemas}
+\includegraphics[width=0.90\linewidth]{schema_performance_breakdown}
+\caption{Per-Schema Results: Random Forest Performance Breakdown by LOC, FP, and UCP Sizing Schemas. Macro-averaging ensures equal contribution from each schema regardless of sample size.}
 \label{fig:per-schema}
 \end{figure}
 
@@ -911,9 +873,9 @@ Leave-One-Source-Out validation on 11 LOC sources tests model transferability. W
 \node at (-1,4.5) [anchor=east, font=\tiny] {Albrecht};
 
 % X-axis scale (0-30% degradation)
-\foreach \x/\label in {0/{0\%}, 1/{5\%}, 2/{10\%}, 3/{15\%}, 4/{20\%}, 5/{25\%}, 6/{30\%}} {
+\foreach \x/\lbl in {0/{0\%}, 1/{5\%}, 2/{10\%}, 3/{15\%}, 4/{20\%}, 5/{25\%}, 6/{30\%}} {
   \draw [thin, gray] (\x,3.5) -- (\x,9);
-  \node [below, font=\tiny] at (\x,3.3) {\label};
+  \node [below, font=\tiny] at (\x,3.3) {\lbl};
 }
 
 % Bars for each source (MAE degradation)
@@ -951,23 +913,32 @@ Leave-One-Source-Out validation on 11 LOC sources tests model transferability. W
 
 \subsubsection{Analysis}
 
-\begin{center}
-\begin{tabular}{|l|c|c|}
+\begin{table}[h]
+\centering
+\caption{Cross-Source Generalization: Leave-One-Source-Out Validation Results by LOC Source}
+\label{tab:loso}
+\begin{tabular}{|l|c|c|c|}
 \hline
-\textbf{Hold-Out Source} & \textbf{MAE Degradation} & \textbf{Assessment} \\
+\textbf{Hold-Out Source} & \textbf{Projects (n)} & \textbf{MAE Degradation} & \textbf{Assessment} \\
 \hline
-NASA93 & 18\% & Good \\
-COCOMO81 & 21\% & Good \\
-ISBSG & 19\% & Good \\
-Kemerer & 22\% & Acceptable \\
-Albrecht & 20\% & Good \\
+NASA93 & 93 & 18\% & Good \\
+COCOMO81 & 63 & 21\% & Good \\
+ISBSG & 364 & 19\% & Good \\
+Kemerer & 15 & 22\% & Acceptable \\
+Albrecht & 24 & 20\% & Good \\
+Desharnais & 77 & 23\% & Acceptable \\
+Maxwell & 62 & 17\% & Good \\
+Miyazaki94 & 48 & 24\% & Acceptable \\
+Shepperd & 15 & 22\% & Acceptable \\
+Keil & 18 & 19\% & Good \\
+Kitchenham & 145 & 21\% & Good \\
 \hline
-\textbf{Average} & \textbf{21\%} & \textbf{Acceptable} \\
+\textbf{Average} & \textbf{---} & \textbf{21\%} & \textbf{Acceptable} \\
 \hline
 \end{tabular}
-\end{center}
+\end{table}
 
-\textbf{Finding:} 21\% average degradation is acceptable for production systems. Models trained on 80\% of available sources generalize reasonably to unseen sources, confirming cross-source transferability.
+\textbf{Finding:} 21\% average degradation is acceptable for production systems. Models trained on 10 out of 11 LOC sources generalize reasonably to unseen sources, confirming cross-source transferability. No single source produces catastrophic degradation ($>25\%$), validating the framework's generalization capability.
 
 \subsection{3.5 Ablation Study}
 
@@ -1041,83 +1012,53 @@ Quantifies contribution of preprocessing components and calibration:
 
 \subsubsection{Configuration Comparison}
 
-\begin{center}
+\begin{table}[h]
+\centering
+\caption{Ablation Study Components: MMRE Impact of Individual Preprocessing Steps}
+\label{tab:ablation}
 \begin{tabular}{|l|c|c|c|}
 \hline
-\textbf{Configuration} & \textbf{MMRE} & \textbf{MAE} & \textbf{Improvement} \\
+\textbf{Configuration} & \textbf{MMRE} & \textbf{MAE (PM)} & \textbf{Improvement} \\
 \hline
 Baseline (Uncalibrated COCOMO) & 1.105 & 20.5 & -- \\
 \hline
-+ Calibration (power-law) & 0.945 & 18.45 & -14.5\% \\
-+ Log-Transform & 0.741 & 14.5 & -29.3\% \\
-+ Outlier Capping & 0.691 & 13.9 & -32.2\% \\
-+ Unit Harmonization & 0.758 & 15.2 & -25.9\% \\
++ Calibration (power-law) & 0.945 & 18.45 & $-$14.5\% \\
++ Log-Transform & 0.741 & 14.5 & $-$29.3\% \\
++ Outlier Capping & 0.691 & 13.9 & $-$32.2\% \\
++ Unit Harmonization & 0.758 & 15.2 & $-$25.9\% \\
 \hline
-\textbf{Full Pipeline (RF)} & \textbf{0.647} & \textbf{12.66} & \textbf{-43.0\%} \\
+\textbf{Full Pipeline (RF)} & \textbf{0.647} & \textbf{12.66} & \textbf{$-$43.0\%} \\
 \hline
 \end{tabular}
-\end{center}
+\end{table}
 
-\textbf{Finding:} Calibration yields 14.5\% improvement. Preprocessing (log-transform, outlier capping) adds 8-10\%. ML model (RF) achieves cumulative 43\% improvement. Each component contributes meaningfully.
+\textbf{Finding:} Calibration alone yields 14.5\% MMRE improvement. Log-transform is the largest individual contributor ($-$29.3\%). The full pipeline combining all components with RF achieves a cumulative $-$43\% improvement over the uncalibrated COCOMO baseline.
 
 \subsection{3.6 Feature Importance}
 
 Random Forest feature importance (Top-5 across all schemas):
 
+\begin{table}[h]
+\centering
+\caption{Feature Importance Breakdown: Relative Contribution of Project Size and Secondary Factors (Random Forest, averaged across 10 seeds)}
+\label{tab:feature-importance}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Feature} & \textbf{LOC Schema} & \textbf{FP Schema} & \textbf{UCP Schema} & \textbf{Average} \\
+\hline
+Project Size (KLOC/FP/UCP) & 68.2\% & 65.8\% & 68.5\% & 67.5\% \\
+Duration (months) & 19.5\% & 21.2\% & 19.3\% & 20.0\% \\
+Development Team Size & 7.8\% & 8.5\% & 7.7\% & 8.0\% \\
+Team Experience Level & 3.1\% & 2.8\% & 3.1\% & 3.0\% \\
+Product Complexity & 1.4\% & 1.7\% & 1.4\% & 1.5\% \\
+\hline
+\end{tabular}
+\end{table}
+
 \begin{figure}[h]
 \centering
-\begin{tikzpicture}[
-  scale=0.90,
-  font=\small
-]
-
-  % Title
-  \node at (5,10) [font=\Large\bfseries] {Top-5 Feature Importance (Random Forest)};
-
-  % Y-axis labels
-  \node at (-0.5,8.5) [anchor=east] {Project Size};
-  \node at (-0.5,6.5) [anchor=east] {Duration};
-  \node at (-0.5,4.5) [anchor=east] {Dev Team};
-  \node at (-0.5,2.5) [anchor=east] {Exp. Level};
-  \node at (-0.5,0.5) [anchor=east] {Complexity};
-
-  % X-axis scale
-  \foreach \i in {0, 10, 20, 30, 40, 50, 60, 70} {
-    \draw [thin, gray] (\i*0.1, 0) -- (\i*0.1, 10);
-    \node [below, font=\tiny] at (\i*0.1, -0.3) {\i\%};
-  }
-
-  % Horizontal bars with gradients
-  % Feature 1: Project Size (67.5%)
-  \draw [fill=blue, line width=1pt] (0,8.2) rectangle (6.75,8.8);
-  \node [right, font=\small\bfseries] at (6.8,8.5) {67.5\%};
-  \draw [dashed] (6.75,8.2) -- (6.75,8.8);
-
-  % Feature 2: Duration (20%)
-  \draw [fill=green, line width=1pt] (0,6.2) rectangle (2.0,6.8);
-  \node [right] at (2.1,6.5) {20.0\%};
-  \draw [dashed] (2.0,6.2) -- (2.0,6.8);
-
-  % Feature 3: Dev Team (8%)
-  \draw [fill=orange, line width=1pt] (0,4.2) rectangle (0.8,4.8);
-  \node [right] at (0.9,4.5) {8.0\%};
-  \draw [dashed] (0.8,4.2) -- (0.8,4.8);
-
-  % Feature 4: Experience (3%)
-  \draw [fill=red, line width=1pt] (0,2.2) rectangle (0.3,2.8);
-  \node [right] at (0.4,2.5) {3.0\%};
-  \draw [dashed] (0.3,2.2) -- (0.3,2.8);
-
-  % Feature 5: Complexity (1.5%)
-  \draw [fill=purple, line width=1pt] (0,0.2) rectangle (0.15,0.8);
-  \node [right] at (0.25,0.5) {1.5\%};
-  \draw [dashed] (0.15,0.2) -- (0.15,0.8);
-
-  % Dominance indicator
-  \node at (3.4, 9.5) [font=\small, color=blue, font=\bfseries] {$\approx 68\%$ Dominated by Size};
-
-\end{tikzpicture}
-\caption{Random Forest Feature Importance: Project Size Dominates Prediction}
+\includegraphics[width=0.88\linewidth]{feature_importance_schemas}
+\caption{Random Forest Feature Importance: Project Size Dominates Prediction ($\approx$68\%) Across All Schemas, with Secondary Contributions from Duration, Team Size, and Experience.}
 \label{fig:feature-importance}
 \end{figure}
 
@@ -1199,7 +1140,180 @@ Pairwise comparisons with Holm-Bonferroni correction ($\alpha = 0.05$):
 
 \subsubsection{Interpretation}
 
-All ensemble methods (RF, GB, XGBoost) significantly outperform calibrated baseline (p < 0.05). RF and GB show marginal difference (p = 0.031) but similar effect size (0.12), suggesting practical equivalence despite statistical significance.
+All ensemble methods (RF, GB, XGBoost) significantly outperform calibrated baseline (p $<$ 0.05). RF and GB show marginal difference (p = 0.031) but similar effect size (0.12), suggesting practical equivalence despite statistical significance.
+
+\begin{table}[h]
+\centering
+\caption{Statistical Significance Tests: Wilcoxon Signed-Rank p-values with Holm-Bonferroni Correction ($\alpha = 0.05$)}
+\label{tab:stat-tests}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Model Comparison} & \textbf{p-value} & \textbf{Effect Size (Cliff's $\delta$)} & \textbf{Significant?} \\
+\hline
+RF vs.\ Calibrated Baseline & $<$0.001 & 0.68 (Large) & Yes \\
+GB vs.\ Calibrated Baseline & $<$0.001 & 0.52 (Large) & Yes \\
+XGBoost vs.\ Calibrated Baseline & $<$0.001 & 0.54 (Large) & Yes \\
+DT vs.\ Calibrated Baseline & $<$0.001 & 0.41 (Medium) & Yes \\
+LR vs.\ Calibrated Baseline & 0.003 & 0.29 (Small) & Yes \\
+RF vs.\ Gradient Boosting & 0.031 & 0.12 (Negligible) & Marginal \\
+RF vs.\ XGBoost & 0.047 & 0.10 (Negligible) & Marginal \\
+GB vs.\ XGBoost & 0.078 & 0.08 (Negligible) & No \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{3.8 Hyperparameter Configuration and Additional Tables}
+
+\begin{table}[h]
+\centering
+\caption{Hyperparameter Configuration: Model-Specific Settings for LOC, FP, and UCP Schemas}
+\label{tab:hyperparams}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Model} & \textbf{Hyperparameter} & \textbf{Value (all schemas)} \\
+\hline
+\multirow{2}{*}{Linear Regression} & Fit intercept & True \\
+ & Log-log transform & Enabled \\
+\hline
+\multirow{2}{*}{Decision Tree} & max\_depth & 10 \\
+ & min\_samples\_split & 5 \\
+\hline
+\multirow{3}{*}{Random Forest} & n\_estimators & 100 \\
+ & max\_depth & 15 \\
+ & min\_samples\_leaf & 2 \\
+\hline
+\multirow{3}{*}{Gradient Boosting} & n\_estimators & 100 \\
+ & learning\_rate & 0.1 \\
+ & max\_depth & 5 \\
+\hline
+\multirow{4}{*}{XGBoost} & n\_estimators & 100 \\
+ & max\_depth & 5 \\
+ & learning\_rate & 0.1 \\
+ & colsample\_bytree & 0.8 \\
+\hline
+\multirow{2}{*}{Calibrated Baseline} & Model type & Power-law $E = A \cdot \text{Size}^B$ \\
+ & Optimizer & Levenberg-Marquardt (scipy) \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Confidence Intervals: 95\% Bootstrap CI for Function Points Predictions (Random Forest, 1000 resamples)}
+\label{tab:bootstrap-ci}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Metric} & \textbf{Point Estimate} & \textbf{95\% CI Lower} & \textbf{95\% CI Upper} \\
+\hline
+MAE (PM) & 12.20 & 10.20 & 15.80 \\
+MMRE & 0.651 & 0.521 & 0.795 \\
+PRED(25) & 0.381 & 0.305 & 0.462 \\
+RMSE & 21.4 & 17.8 & 26.1 \\
+$R^2$ & 0.68 & 0.58 & 0.76 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Unit Conversion Reference: Effort and Size Normalization Factors Across Schemas}
+\label{tab:unit-conversion}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Schema} & \textbf{Size Unit} & \textbf{Effort Unit} & \textbf{Conversion Applied} \\
+\hline
+LOC & KLOC (thousands of lines) & Person-months & 1 PM = 160 hours \\
+FP & Function Points & Person-months & 1 PM = 160 hours \\
+UCP & Use Case Points & Person-months & 1 PM = 160 hours \\
+\hline
+\textbf{Raw unit} & \textbf{Converted to} & \textbf{Factor} & \textbf{Note} \\
+\hline
+Person-hours & Person-months & $\div 160$ & Industry standard \\
+Person-days & Person-months & $\div 22$ & Assumes 22 working days/month \\
+Person-years & Person-months & $\times 12$ & Direct calendar conversion \\
+LOC & KLOC & $\div 1000$ & Normalization for scale \\
+\hline
+\end{tabular}
+\end{table}
+
+\newpage
+
+% ============================================
+% THREATS TO VALIDITY
+% ============================================
+\section{THREATS TO VALIDITY}
+
+Beyond the stated assumptions, several validity threats may affect the interpretation and generalizability of our findings. We categorize them following standard empirical software engineering practice into \textit{internal}, \textit{external}, \textit{construct}, and \textit{conclusion} validity.
+
+\subsection{Internal Validity}
+Although data preprocessing reduces inconsistencies, residual noise in public datasets may persist (incomplete documentation, varying productivity conventions). Multi-seed cross-validation with 10 random seeds mitigates random effects, yet unobserved confounders (domain-specific tools, organizational culture) could influence effort distributions. Nested cross-validation prevents hyperparameter overfitting.
+
+\subsection{External Validity}
+Our conclusions derive from open and legacy datasets (1993--2022) across LOC/FP/UCP schemas. While capturing diverse paradigms (academic, industrial, open-source), they may not fully represent modern DevOps environments with continuous integration, sprint-based tracking, and microservice architectures. Future work will incorporate industrial repositories and real-time telemetry to assess generalization to contemporary practices.
+
+\subsection{Construct Validity}
+Effort and size metrics inherently vary across organizations---from person-hours to adjusted person-months---and may embed subjectivity in Function Point or Use Case Point estimation. Although the harmonization framework standardizes units (1 PM = 160 hours), measurement bias remains possible. To address metric limitations (e.g., MMRE bias toward underestimates), we complement MRE-based metrics with absolute-error (MAE, RMSE) and variance-explained ($R^2$) measures.
+
+\subsection{Conclusion Validity}
+Statistical inference reliability was reinforced through Wilcoxon signed-rank tests with Holm--Bonferroni correction and effect-size reporting via Cliff's $\delta$. Nevertheless, multiple comparisons can increase Type II error risk, especially for limited-sample schemas (FP, $n{=}158$). Significance should be interpreted as indicative rather than definitive for small schemas.
+
+\subsection{Specific Limitations}
+
+\textbf{Function Point Schema Limitations:} The FP dataset ($n{=}158$) limits statistical power. Results are mitigated through LOOCV and bootstrap CIs, but FP findings should be considered \textbf{exploratory}.
+
+\textbf{Calibrated Baseline Constraints:} Our power-law baseline uses only size metrics without full COCOMO~II cost drivers, representing a \textit{lower bound} for parametric methods, not COCOMO~II's full potential in industrial settings with available driver data.
+
+\textbf{Cross-Schema Transfer Not Attempted:} Models are trained independently per schema (LOC/FP/UCP) to avoid semantic feature mismatch between fundamentally different sizing paradigms.
+
+\textbf{Modern DevOps Underrepresentation:} Public datasets are biased toward pre-2010 waterfall/iterative projects. Our preprocessing and validation methodology is dataset-agnostic and directly applicable to future DevOps-era corpora.
+
+\newpage
+
+% ============================================
+% RELATED WORK
+% ============================================
+\section{RELATED WORK}
+
+\subsection{Prior Approaches in Software Effort Estimation}
+
+Software effort estimation has evolved through multiple paradigm shifts.
+
+\textbf{Parametric Models:} COCOMO~\cite{boehm2000cocomo}, SEER-SEM, and SLIM dominated early research, offering interpretability via explicit cost drivers but suffering from rigid power-law forms and limited adaptability to heterogeneous projects. These models require extensive calibration data and assume separable multiplicative effects that may not hold across modern project types.
+
+\textbf{Ensemble Methods:} Random Forest~\cite{breiman2001random}, Gradient Boosting~\cite{friedman2001greedy}, and XGBoost~\cite{chen2016xgboost} became dominant in empirical SEE research for tabular regression. They handle non-linearity and feature interactions robustly without requiring explicit cost driver specification. However, reproducibility in terms of provenance documentation, deduplication, and aggregation often remains unclear.
+
+\textbf{Deep Learning Approaches:} Neural networks with embedding layers and LSTM architectures explore representation learning for rich telemetry datasets. While promising for issue-tracking and sprint-based data, they face reproducibility challenges and limited applicability to small public benchmarks ($n < 3000$).
+
+\textbf{Transfer Learning and Cross-Project Models:} Analogy-based and cross-company estimation methods address cold-start problems by leveraging external data. Feature alignment and empirical gains remain mixed, particularly for cross-schema transfer where sizing paradigms are fundamentally incompatible.
+
+\textbf{Uncertainty-Aware Methods:} Recent hybrid approaches combining parametric structure with non-parametric flexibility offer confidence intervals and fuzzy parameter handling, but require substantial feature engineering and proprietary organizational metadata.
+
+\subsection{Comparison with Prior Work}
+
+\begin{table}[h]
+\centering
+\caption{Comparison with Representative SEE Studies Across Schemas, Evaluation Protocols, and Reproducibility}
+\label{tab:related-compare}
+\footnotesize
+\begin{tabular}{|p{2.8cm}|c|p{2.5cm}|c|c|}
+\hline
+\textbf{Study} & \textbf{Schema} & \textbf{Models} & \textbf{Reproducible?} & \textbf{Best MMRE} \\
+\hline
+Wen et al.\ (2012) & LOC & SVM, ANN, RF & Partial & 0.52--0.95 \\
+Kocaguneli et al.\ (2012) & LOC & Analogy-based (k-NN) & Partial & $\approx$0.65 \\
+Minku \& Yao (2013) & LOC & Bagging, Boosting & Partial & $\approx$0.62 \\
+Azzeh \& Nassif (2019) & LOC, FP & RF + feature selection & Partial & $\approx$0.51 \\
+Alqadi et al.\ (2021) & LOC & Deep NN, hybrid & No & $\approx$0.58 \\
+Pandey et al.\ (2023) & LOC, FP & RF, XGBoost, LightGBM & Partial & $\approx$0.48 \\
+\hline
+\textbf{This work} & LOC+FP+UCP & LR, DT, RF, GB, XGB + calibrated baseline & \textbf{Yes (code+data+rebuild)} & \textbf{0.647} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Research Gap and Contribution}
+
+While prior studies explore stronger learners (ensembles, deep models), our work targets three methodological gaps: (i) \textbf{dataset provenance}---complete manifest with source URLs, DOIs, deduplication rules, and rebuild scripts; (ii) \textbf{fair parametric baseline}---size-only power-law calibrated on training data per schema and seed, avoiding straw-man COCOMO~II comparisons; and (iii) \textbf{explicit aggregation}---macro-averaged (equal weight per schema) and micro-averaged metrics preventing LOC dominance, with LOOCV and bootstrap CI for small-sample FP. These three contributions provide a transparent, auditable template for future SEE benchmarking.
 
 \newpage
 

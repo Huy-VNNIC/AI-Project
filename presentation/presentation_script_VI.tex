@@ -1,0 +1,601 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{soul}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+
+% Custom colors
+\definecolor{slidenum}{RGB}{52,152,219}
+\definecolor{keypoint}{RGB}{39,174,96}
+\definecolor{timing}{RGB}{243,156,18}
+
+% Custom commands
+\newcommand{\slide}[1]{\section*{\textcolor{slidenum}{Slide #1}}}
+\newcommand{\timing}[1]{\textcolor{timing}{\textit{[#1]}}}
+\newcommand{\keypoint}[1]{\textcolor{keypoint}{\textbf{#1}}}
+\newcommand{\pause}{\textit{[Tạm dừng]}}
+
+\title{\textbf{Kịch Bản Thuyết Trình} \\ Ước Tính Công Sức Phát Triển Phần Mềm Đa Schema Sử Dụng Máy Học}
+\author{Phan Hoàng Long}
+\date{15 tháng 12 năm 2025}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+% ===============================================
+\slide{1: Slide Tiêu Đề}
+\timing{30 giây}
+
+Chào buổi sáng/chiều tất cả mọi người. Tên tôi là Phan Hoàng Long, đến từ Bộ môn Khoa học Máy tính tại Đại học Quốc gia Chungbuk.
+
+Hôm nay, tôi sẽ trình bày nghiên cứu của mình về \keypoint{Ước Tính Công Sức Phát Triển Phần Mềm Đa Schema Sử Dụng Máy Học}, đề xuất tiếp cận COCOMO II nâng cao với tích hợp dữ liệu không đồng nhất.
+
+\pause Chúng ta bắt đầu nào.
+
+% ===============================================
+\slide{2: Động Lực}
+\timing{2 phút}
+
+Trước tiên, hãy để tôi giải thích \keypoint{tại sao ước tính công sức quan trọng}.
+
+\textbf{Vấn đề:}
+\begin{itemize}
+    \item Ước tính công sức không chính xác dẫn đến vượt ngân sách và thất bại dự án
+    \item COCOMO II truyền thống có khả năng thích ứng hạn chế với các dự án đa dạng hiện đại
+    \item Dữ liệu thực tế không đồng nhất và không nhất quán trên các tổ chức khác nhau
+\end{itemize}
+
+\textbf{Tác động là đáng kể:}
+\begin{itemize}
+    \item Các nghiên cứu cho thấy 85\% dự án phần mềm gặp vấn đề ngân sách
+    \item 78\% gặp khó khăn về lịch trình
+    \item Và 42\% có nguy cơ thất bại hoàn toàn
+\end{itemize}
+
+Như bạn có thể thấy trong hình vẽ, các thách thức hiện tại trong ước tính công sức là rất nghiêm trọng.
+
+\textbf{Khoảng cách nghiên cứu:} Thiếu một khuôn khổ thống nhất để xử lý dữ liệu dự án không đồng nhất trên các schema định kích thước khác nhau như Lines of Code, Function Points, và Use Case Points.
+
+\pause Đây là vấn đề mà chúng ta đang giải quyết hôm nay.
+
+% ===============================================
+\slide{3: Đóng Góp Nghiên Cứu}
+\timing{1.5 phút}
+
+Nghiên cứu của chúng tôi tạo ra \keypoint{ba đóng góp chính}:
+
+\textbf{Thứ nhất - Tích Hợp Dữ Liệu:} Chúng tôi phát triển một đường dẫn chuẩn hóa tự động cho các schema LOC, Function Points, và Use Case Points. Điều này cho phép chúng tôi tích hợp dữ liệu từ nhiều nguồn một cách liền mạch.
+
+\textbf{Thứ hai - Mô Hình Máy Học:} Chúng tôi so sánh COCOMO II với bốn mô hình ML: Linear Regression, Decision Tree, Random Forest, và Gradient Boosting.
+
+\textbf{Thứ ba - Triển Khai:} Chúng tôi xây dựng một REST API cho sử dụng thế giới thực, làm cho hệ thống thực tế và dễ tiếp cận.
+
+\textbf{Kết Quả Chính:}
+\begin{itemize}
+    \item Chúng tôi tích hợp hơn 320 dự án từ nhiều nguồn
+    \item Mô hình tốt nhất của chúng tôi, Random Forest, đạt 38\% MMRE và 58\% PRED(25)
+    \item Điều này giảm lỗi ước tính 34\% so với baseline COCOMO II
+\end{itemize}
+
+\pause Đây là những cải thiện đáng kể so với các phương pháp truyền thống.
+
+% ===============================================
+\slide{4: Nền Tảng COCOMO II}
+\timing{2 phút}
+
+Hãy để tôi tóm tắt lại \keypoint{mô hình COCOMO II} đóng vai trò là baseline của chúng tôi.
+
+Như shown trong công thức, COCOMO II ước tính công sức sử dụng ba thành phần chính:
+
+\textbf{Thứ nhất:} Hằng số hiệu chỉnh A, bằng 2.94
+\textbf{Thứ hai:} Kích thước được nâng lên lũy thừa E, bao gồm các yếu tố tỷ lệ như khả năng ưu tiên trước và tính linh hoạt
+\textbf{Thứ ba:} Tích của các bộ nhân công sức - có 17 trình điều khiển chi phí ảnh hưởng đến ước tính cuối cùng
+
+Từ công sức, chúng tôi có thể dẫn xuất thời lượng và quy mô nhóm sử dụng các công thức bổ sung.
+
+\textbf{Tuy nhiên, hạn chế} của COCOMO II truyền thống là nó giả định dữ liệu đồng nhất và yêu cầu hiệu chỉnh thủ công. Điều này không khả thi cho các dự án đa dạng hiện đại với các nguồn dữ liệu không đồng nhất.
+
+\pause Đây là lý do tại sao chúng ta cần một tiếp cận máy học.
+
+% ===============================================
+\slide{5: Tổng Quan Bộ Dữ Liệu}
+\timing{1.5 phút}
+
+Bây giờ, hãy xem \keypoint{các nguồn dữ liệu} của chúng tôi.
+
+Chúng tôi thu thập dữ liệu từ ba schema khác nhau:
+\begin{itemize}
+    \item \textbf{Dữ liệu dựa trên LOC:} 180 dự án từ các bộ dữ liệu NASA COCOMO và COC81
+    \item \textbf{Function Points:} 95 dự án từ các bộ dữ liệu Desharnais và Albrecht
+    \item \textbf{Use Case Points:} 45 dự án từ nhiều nguồn
+\end{itemize}
+
+Tổng cộng, chúng tôi có 320 dự án với các chỉ số hỗn hợp.
+
+\textbf{Thách thức chính} là không đồng nhất dữ liệu:
+\begin{itemize}
+    \item Các chỉ số kích thước khác nhau trên các schema
+    \item Các đơn vị công sức không nhất quán - một số tính bằng giờ, những cái khác tính bằng người-tháng
+    \item Giá trị bị thiếu và các bối cảnh khác nhau
+\end{itemize}
+
+\textbf{Giải pháp của chúng tôi:} Chúng tôi phát triển một đường dẫn phát hiện schema tự động và chuẩn hóa đơn vị để xử lý không đồng nhất này.
+
+\pause Hãy để tôi chỉ cho bạn cách nó hoạt động.
+
+% ===============================================
+\slide{6: Hình Dung Không Đồng Nhất Dữ Liệu}
+\timing{1.5 phút}
+
+Hình ảnh này minh họa \keypoint{thách thức của không đồng nhất dữ liệu}.
+
+\textbf{Trước chuẩn hóa:} Bạn có thể thấy chúng tôi có các schema không tương thích - một số dự án được đo lường bằng LOC, những cái khác là Function Points hoặc Use Case Points. Các đơn vị không nhất quán.
+
+\textbf{Sau chuẩn hóa thống nhất của chúng tôi:} Tất cả dữ liệu được tiêu chuẩn hóa và sẵn sàng cho máy học.
+
+Đường dẫn của chúng tôi xử lý ba khía cạnh chính:
+\begin{enumerate}
+    \item \textbf{Chuyển đổi đơn vị:} Chuyển đổi giờ thành người-tháng, LOC thành KLOC
+    \item \textbf{Giá trị bị thiếu:} Sử dụng phát hiện ngoại lệ dựa trên IQR và imputation trung vị
+    \item \textbf{Tag Schema:} Chúng tôi bảo toàn thông tin gốc để mô hình hóa dành riêng cho schema
+\end{enumerate}
+
+\pause Tiền xử lý này rất quan trọng cho tiếp cận đa schema của chúng tôi.
+
+% ===============================================
+\slide{7: Đường Dẫn Tiền Xử Lý}
+\timing{2 phút}
+
+Đây là \keypoint{đường dẫn tiền xử lý tự động từ đầu đến cuối} của chúng tôi.
+
+Quá trình tuân theo sáu bước chính:
+
+\textbf{Bước 1:} Phát hiện schema - tự động xác định liệu dữ liệu là LOC, Function Points, hay Use Case Points
+
+\textbf{Bước 2:} Tiêu đề hóa đơn vị - chuyển đổi tất cả các phép đo sang đơn vị chung
+
+\textbf{Bước 3:} Xử lý ngoại lệ sử dụng phương pháp IQR để loại bỏ các giá trị cực trị sẽ làm sai lệch các mô hình của chúng tôi
+
+\textbf{Bước 4:} Biến đổi log1p để tuyến tính hóa - giúp chuẩn hóa phân bố công sức bị nghiêng
+
+\textbf{Bước 5:} Scaling và mã hóa tính năng - tiêu chuẩn hóa các tính năng số và mã hóa những cái phân loại
+
+\textbf{Bước 6:} Xuất dữ liệu sẵn sàng cho ML có thể được trực tiếp đưa vào các mô hình của chúng tôi
+
+\pause Đường dẫn này hoàn toàn tự động và có thể xử lý dữ liệu mới mà không cần can thiệp thủ công.
+
+% ===============================================
+\slide{8: Thiết Lập Thử Nghiệm}
+\timing{2 phút}
+
+Bây giờ hãy thảo luận về \keypoint{thiết lập thử nghiệm} của chúng tôi.
+
+\textbf{Mô Hình Được Đánh Giá:}
+Chúng tôi so sánh năm cách tiếp cận:
+\begin{itemize}
+    \item COCOMO II như baseline phân tích của chúng tôi
+    \item Linear Regression
+    \item Decision Tree
+    \item Random Forest
+    \item Gradient Boosting
+\end{itemize}
+
+\textbf{Chiến Lược Huấn Luyện:}
+\begin{itemize}
+    \item Chia tách 80/20 train-test
+    \item GridSearchCV cho tối ưu hóa siêu tham số
+    \item Xác thực chéo 5-fold để đảm bảo tính mạnh mẽ
+\end{itemize}
+
+\textbf{Chỉ Số Đánh Giá:}
+Chúng tôi sử dụng năm chỉ số tiêu chuẩn:
+\begin{itemize}
+    \item MAE và RMSE - thấp hơn là tốt hơn
+    \item MMRE - Mean Magnitude Relative Error, thấp hơn là tốt hơn
+    \item PRED(25) - tỷ lệ phần trăm dự đoán trong 25\% thực tế, cao hơn là tốt hơn
+    \item R-squared cho độ phù hợp
+\end{itemize}
+
+Theo Conte et al., công nghiệp coi MMRE nhỏ hơn 0,25 và PRED(25) lớn hơn 0,75 là hiệu suất chấp nhận được.
+
+\pause Hãy xem kết quả của chúng tôi.
+
+% ===============================================
+\slide{9: Kết Quả Tổng Thể}
+\timing{2 phút}
+
+Đây là \keypoint{kết quả chính} của chúng tôi.
+
+Như bạn có thể thấy từ các biểu đồ, \textbf{Random Forest đạt hiệu suất tốt nhất trên tất cả các chỉ số}.
+
+\textbf{Các Phát Hiện Chính:}
+\begin{itemize}
+    \item Random Forest giảm MMRE 34\% - từ 0,58 trong COCOMO II xuống 0,38
+    \item PRED(25) cải thiện thành 58\% - có nghĩa là 58\% dự đoán của chúng tôi nằm trong 25\% công sức thực tế
+    \item Các phương pháp ensemble - Random Forest và Gradient Boosting - rõ ràng vượt trội hơn các baseline đơn giản
+\end{itemize}
+
+Cải thiện là nhất quán trên tất cả bốn chỉ số: MAE, RMSE, MMRE, và PRED(25).
+
+Mặc dù chúng tôi chưa đạt được các ngưỡng lý tưởng, nhưng điều này đại diện cho \textbf{tiến bộ đáng kể} so với COCOMO II truyền thống, đặc biệt là xét đến tính không đồng nhất của bộ dữ liệu của chúng tôi.
+
+\pause Bây giờ hãy nhìn vào hiệu suất dành riêng cho schema.
+
+% ===============================================
+\slide{10: Hiệu Suất Dành Riêng Cho Schema}
+\timing{1.5 phút}
+
+Biểu đồ này cho thấy \keypoint{hiệu suất thay đổi theo schema} do tính sẵn có dữ liệu.
+
+\textbf{LOC Schema - hiển thị bằng màu xanh lá:}
+\begin{itemize}
+    \item 180 mẫu có sẵn
+    \item Cung cấp dự đoán ổn định và đáng tin cậy
+    \item Đây là schema hoạt động tốt nhất của chúng tôi
+\end{itemize}
+
+\textbf{Function Points Schema - hiển thị bằng màu xanh dương:}
+\begin{itemize}
+    \item 95 mẫu
+    \item Đạt độ chính xác vừa phải
+    \item Vẫn tốt nhưng đáng tin cậy hơn một chút so với LOC
+\end{itemize}
+
+\textbf{Use Case Points Schema - hiển thị bằng màu cam:}
+\begin{itemize}
+    \item Chỉ 45 mẫu
+    \item Hiển thị độ không chắc chắn cao hơn
+    \item Điều này cần thu thập dữ liệu thêm trong công việc tương lai
+\end{itemize}
+
+Insight chính ở đây là \textbf{số lượng dữ liệu quan trọng}. Các schema có nhiều ví dụ huấn luyện hơn hoạt động tốt hơn, đó là điều mong đợi trong máy học.
+
+\pause Nhưng tiếp cận đa schema của chúng tôi vẫn hoạt động trên cả ba loại.
+
+% ===============================================
+\slide{11: Phân Tích Lỗi}
+\timing{2 phút}
+
+Hãy xem xét \keypoint{phân tích lỗi và khả năng giải thích mô hình}.
+
+\textbf{Biểu đồ bên trái - Thực Tế so với Dự Đoán:}
+\begin{itemize}
+    \item Các điểm gần đường chéo chỉ ra dự đoán chính xác
+    \item Mô hình Random Forest của chúng tôi hoạt động tốt trên tất cả các kích thước dự án
+    \item Không có sự thiên vị hệ thống - chúng tôi không ước tính quá nhiều hoặc dưới
+\end{itemize}
+
+\textbf{Biểu đồ bên phải - Tầm Quan Trọng Tính Năng:}
+Điều này cho thấy những tính năng nào góp phần nhiều nhất vào dự đoán:
+\begin{itemize}
+    \item \textbf{Chỉ số kích thước} là yếu tố dự đoán chính đạt 38\% tầm quan trọng - điều này có ý nghĩa trực quan
+    \item \textbf{Loại schema} góp phần 22\% - điều này chứng minh tiếp cận đa schema của chúng tôi
+    \item Các trình điều khiển chi phí COCOMO II khác cũng góp phần đáng kể
+\end{itemize}
+
+Thực tế là loại schema có 22\% tầm quan trọng xác nhận rằng \textbf{các schema khác nhau mang thông tin khác nhau}, và tiếp cận thống nhất của chúng tôi thành công tận dụng được điều này.
+
+\pause Điều này xác thực các quyết định thiết kế của chúng tôi.
+
+% ===============================================
+\slide{12: Phân Tích Phần Dư}
+\timing{1.5 phút}
+
+Đối với \keypoint{chẩn đoán mô hình}, chúng tôi thực hiện phân tích phần dư.
+
+Các biểu đồ cho thấy ba xác thực quan trọng:
+
+\textbf{Bên trái - Biểu Đồ Tan Phần Dư:}
+\begin{itemize}
+    \item Phân tán ngẫu nhiên quanh 0 - không có thiên vị hệ thống
+    \item Mẫu đồng phương sai - phương sai không đổi trên phạm vi dự đoán
+    \item Điều này chỉ ra các giả định mô hình của chúng tôi là hợp lệ
+\end{itemize}
+
+\textbf{Bên phải - Phân Bố Phần Dư:}
+\begin{itemize}
+    \item Phân bố gần với bình thường
+    \item Điều này cho phép chúng tôi tính toán các khoảng tin cậy đáng tin cậy
+    \item Độ lệch chuẩn nhỏ chỉ ra dự đoán nhất quán
+\end{itemize}
+
+Các chẩn đoán này xác nhận rằng mô hình Random Forest của chúng tôi là \textbf{về mặt thống kê}  và không overfitting hoặc underfitting dữ liệu.
+
+\pause Bây giờ hãy chuyển sang triển khai thực tế.
+
+% ===============================================
+\slide{13: Kiến Trúc Triển Khai}
+\timing{2 phút}
+
+Chúng tôi triển khai giải pháp của chúng tôi như một \keypoint{REST API cho sử dụng sản xuất}.
+
+Kiến trúc có bốn thành phần chính:
+
+\textbf{1. Định Tuyến Nhận Thức Schema:}
+\begin{itemize}
+    \item Tự động phát hiện liệu đầu vào là LOC, Function Points, hay Use Case Points
+    \item Định tuyến đến đường dẫn tiền xử lý thích hợp
+\end{itemize}
+
+\textbf{2. Bộ Đăng Ký Mô Hình:}
+\begin{itemize}
+    \item Duy trì các mô hình được huấn luyện riêng biệt cho mỗi schema
+    \item Đảm bảo hiệu suất tối ưu cho từng loại schema
+\end{itemize}
+
+\textbf{3. Khả Năng Truy Cập:}
+\begin{itemize}
+    \item Bảo toàn thông tin nguồn dữ liệu
+    \item Cung cấp điểm số tin cậy với mỗi dự đoán
+\end{itemize}
+
+\textbf{4. Khả Năng Mở Rộng:}
+\begin{itemize}
+    \item Sẵn sàng để tích hợp với các công cụ phân tích yêu cầu
+    \item Có thể kết nối với Jira để ước tính tự động
+\end{itemize}
+
+API chấp nhận các chỉ số dự án làm đầu vào và trả lại các ước tính nỗ lực, thời lượng và kích thước nhóm cùng với các khoảng tin cậy.
+
+\pause Điều này làm cho nghiên cứu của chúng tôi thực tế hữu ích.
+
+% ===============================================
+\slide{14: Ứng Dụng Thực Tế}
+\timing{2 phút}
+
+Hãy để tôi làm nổi bật \keypoint{các ứng dụng thực tế và trường hợp sử dụng}.
+
+\textbf{Triển Khai Hiện Tại:}
+\begin{itemize}
+    \item Chúng tôi có điểm cuối API tại /api/estimate
+    \item Đầu vào: Yêu cầu hoặc chỉ số dự án
+    \item Đầu ra: Công sức, Thời lượng, Kích thước Nhóm cộng với điểm số tin cậy
+\end{itemize}
+
+\textbf{Các Chế Độ Được Hỗ Trợ:}
+Hệ thống hoạt động ở bốn chế độ:
+\begin{enumerate}
+    \item Ước tính dựa trên LOC
+    \item Ước tính Function Point
+    \item Ước tính Use Case Point
+    \item Chế độ hỗn hợp với phát hiện tự động
+\end{enumerate}
+
+\textbf{Các Tiện Ích Mở Rộng trong Tương Lai mà chúng tôi đang lên kế hoạch:}
+\begin{itemize}
+    \item \textbf{Tích Hợp NLP:} Trích xuất chỉ số tự động từ các tài liệu yêu cầu
+    \item \textbf{Ánh Xạ Điểm Câu Chuyện:} Hỗ trợ cho các dự án Agile
+    \item \textbf{Plugin Jira:} Ước tính thời gian thực trong các hệ thống theo dõi vấn đề
+    \item \textbf{Học Tập Liên Tục:} Vòng phản hồi để cải thiện mô hình liên tục
+\end{itemize}
+
+\textbf{Tác Động:} Hệ thống của chúng tôi giảm thời gian ước tính thủ công 70\% trong khi cải thiện độ chính xác 34\%.
+
+\pause Điều này chứng minh giá trị kinh doanh thực tế.
+
+% ===============================================
+\slide{15: Hạn Chế \& Công Việc Tương Lai}
+\timing{2 phút}
+
+Bây giờ, hãy để tôi thật thà về \keypoint{các hạn chế hiện tại của chúng tôi}.
+
+\textbf{Ba hạn chế chính tồn tại:}
+
+\textbf{Thứ nhất - Thiếu Dữ Liệu trong Schema UCP:}
+\begin{itemize}
+    \item Chỉ 45 mẫu dẫn đến độ không chắc chắn cao hơn
+    \item Chúng tôi cần thêm các dự án Use Case Point
+\end{itemize}
+
+\textbf{Thứ hai - Các Yếu Tố Bối Cảnh Không Được Nắm Bắt Đầy Đủ:}
+\begin{itemize}
+    \item Có thể vẫn cần hiệu chỉnh dành riêng cho miền
+    \item Bối cảnh ngành ảnh hưởng đến ước tính nhưng không được mô hình hóa đầy đủ
+\end{itemize}
+
+\textbf{Thứ ba - Các Mô Hình Tĩnh Cần Đào Tạo Lại Định Kỳ:}
+\begin{itemize}
+    \item Tiến hóa công nghệ không được theo dõi tự động
+    \item Các mô hình có thể trở nên lỗi thời theo thời gian
+\end{itemize}
+
+\textbf{Đánh giá Thành Thật:} Mô hình của chúng tôi hoạt động tốt nhất cho các loại dự án tương tự. Các ngoại lệ cực kỳ vẫn còn thách thức.
+
+\textbf{Lộ Trình Tương Lai:}
+\begin{enumerate}
+    \item \textbf{Tăng Cường Dữ Liệu:} Thu thập thêm các dự án UCP, có thể sử dụng dữ liệu tổng hợp
+    \item \textbf{Học Sâu:} Mạng nơ-ron để các mối quan hệ phi tuyến tính phức tạp
+    \item \textbf{Học Trực Tuyến:} Cập nhật tăng dần từ phản hồi dự án
+    \item \textbf{Đầu Vào Đa Phương Thức:} Kết hợp các chỉ số, yêu cầu văn bản và dữ liệu lịch sử
+    \item \textbf{Định Lượng Độ Không Chắc Chắn:} Dự đoán xác suất với các khoảng tin cậy
+\end{enumerate}
+
+\pause Những cải thiện này sẽ làm cho hệ thống thậm chí còn mạnh mẽ hơn.
+
+% ===============================================
+\slide{16: Kết Luận}
+\timing{1.5 phút}
+
+Hãy để tôi kết luận bằng \keypoint{tóm tắt các đóng góp của chúng tôi}.
+
+\textbf{Chúng tôi cung cấp ba đóng góp chính:}
+\begin{enumerate}
+    \item \textbf{Đường Dẫn Thống Nhất:} Chuẩn hóa tự động cho dữ liệu LOC, Function Points, và Use Case Points
+    \item \textbf{Xác Thực:} Random Forest giảm MMRE 34\% so với COCOMO II
+    \item \textbf{Triển Khai:} REST API cho sử dụng thực tế
+\end{enumerate}
+
+\textbf{Các Điểm Chính:}
+\begin{itemize}
+    \item Tích hợp dữ liệu là rất quan trọng cho ước tính phần mềm hiện đại
+    \item Các phương pháp máy học ensemble vượt trội hơn các tiếp cận truyền thống
+    \item Mô hình nhận thức schema xử lý dữ liệu không đồng nhất một cách hiệu quả
+\end{itemize}
+
+\textbf{Tác Động:}
+\begin{itemize}
+    \item Cho phép lập kế hoạch dự án dựa trên dữ liệu
+    \item Giảm thiên vị ước tính đáng kể
+    \item Cung cấp hỗ trợ đa schema cho các tổ chức đa dạng
+\end{itemize}
+
+\textbf{Cảm ơn bạn đã lắng nghe!}
+
+Bây giờ tôi rất vui lòng trả lời các câu hỏi của bạn và thảo luận bất kỳ khía cạnh nào của nghiên cứu này.
+
+\pause
+
+% ===============================================
+\section*{Sự Chuẩn Bị: Các Câu Hỏi \& Câu Trả Lời Dự Kiến}
+
+\subsection*{Q1: Tại sao không sử dụng học sâu thay vì Random Forest?}
+
+\textbf{Câu trả lời:} Câu hỏi tuyệt vời. Chúng tôi thực sự đã xem xét học sâu, nhưng vì ba lý do, Random Forest phù hợp hơn cho vấn đề này:
+
+\begin{enumerate}
+    \item \textbf{Kích Thước Bộ Dữ Liệu:} Với chỉ 320 mẫu, học sâu sẽ có khả năng overfit. Random Forest hoạt động tốt với các bộ dữ liệu nhỏ hơn.
+    \item \textbf{Khả Năng Giải Thích:} Random Forest cung cấp các điểm số tầm quan trọng tính năng, giúp chúng tôi hiểu những gì thúc đẩy ước tính công sức. Học sâu là một hộp đen nhiều hơn.
+    \item \textbf{Hiệu Suất:} Trong các thử nghiệm của chúng tôi, Random Forest đạt kết quả tốt nhất. Thêm độ phức tạp không luôn cải thiện hiệu suất.
+\end{enumerate}
+
+Tuy nhiên, khi chúng tôi thu thập thêm dữ liệu - đặc biệt là đạt hàng nghìn dự án - học sâu sẽ trở nên khả thi hơn và chắc chắn nằm trong lộ trình tương lai của chúng tôi.
+
+\subsection*{Q2: Bạn xử lý các trình điều khiển chi phí COCOMO II mới như thế nào không có trong dữ liệu huấn luyện?}
+
+\textbf{Câu trả lời:} Đây là một câu hỏi thực tế quan trọng. Chúng tôi xử lý điều này theo hai cách:
+
+\begin{enumerate}
+    \item \textbf{Giá Trị Mặc Định:} Đối với các trình điều khiển chi phí bị thiếu, chúng tôi sử dụng giá trị mặc định COCOMO II là 1.0, đại diện cho các bộ nhân nỗ lực danh nghĩa.
+    \item \textbf{Phát Hiện Schema:} Đường dẫn của chúng tôi xác định schema mà dữ liệu mới thuộc về và áp dụng tiền xử lý thích hợp.
+\end{enumerate}
+
+Tuy nhiên, nếu một dự án có các đặc điểm hoàn toàn mới chưa bao giờ xuất hiện trong huấn luyện, điểm số tin cậy của chúng tôi sẽ phản ánh độ không chắc chắn cao hơn. Đây là nơi học tập liên tục phát huy tác dụng - chúng tôi có thể đào tạo lại các mô hình khi dữ liệu mới có sẵn.
+
+\subsection*{Q3: Chi phí tính toán của tiếp cận của bạn là bao nhiêu?}
+
+\textbf{Câu trả lời:} Câu hỏi tuyệt vời về triển khai thực tế.
+
+\textbf{Thời Gian Huấn Luyện:}
+\begin{itemize}
+    \item Huấn luyện Random Forest: khoảng 8 giây trên bộ dữ liệu của chúng tôi
+    \item Chi phí một lần, chỉ cần khi đào tạo lại
+\end{itemize}
+
+\textbf{Thời Gian Dự Đoán:}
+\begin{itemize}
+    \item Ít hơn 50 mili giây cho mỗi dự án
+    \item Điều này bao gồm tiền xử lý và dự đoán
+    \item Nhanh đủ cho các phản hồi API thời gian thực
+\end{itemize}
+
+Vì vậy chi phí tính toán là rất hợp lý, thậm chí để triển khai quy mô lớn. Một máy chủ duy nhất có thể xử lý hàng nghìn yêu cầu ước tính mỗi giờ.
+
+\subsection*{Q4: Tiếp cận của bạn so sánh như thế nào với các bài báo học sâu gần đây?}
+
+\textbf{Câu trả lời:} Chúng tôi thực hiện một đánh giá tài liệu và có thể chia sẻ một số so sánh:
+
+\textbf{Các Tiếp Cận Học Sâu Gần Đây:}
+\begin{itemize}
+    \item Đạt 15-25\% MMRE trên các bộ dữ liệu schema đơn
+    \item Nhưng yêu cầu 1000+ mẫu huấn luyện
+    \item Và thường tập trung vào một schema duy nhất
+\end{itemize}
+
+\textbf{Tiếp Cận của Chúng Tôi:}
+\begin{itemize}
+    \item Đạt 38\% MMRE trên dữ liệu không đồng nhất đa schema
+    \item Hoạt động với 320 mẫu trên ba schema
+    \item Cung cấp hỗ trợ đa schema thực tế
+\end{itemize}
+
+Sự khác biệt chính là chúng tôi xử lý \textbf{dữ liệu thế giới thực không đồng nhất}, trong khi nhiều bài báo nghiên cứu sử dụng các bộ dữ liệu sạch hơn, từ một nguồn duy nhất. Tỷ lệ lỗi cao hơn của chúng tôi là sự cân bằng cho khả năng áp dụng thực tế lớn hơn.
+
+\subsection*{Q5: Bạn có thể giải thích cải thiện 34\% rõ ràng hơn được không?}
+
+\textbf{Câu trả lời:} Chắc chắn. Hãy để tôi chia nhỏ cải thiện 34\%:
+
+\textbf{Baseline COCOMO II:}
+\begin{itemize}
+    \item MMRE = 0,58
+    \item Điều này có nghĩa là trung bình, các ước tính bị tắt 58\%
+\end{itemize}
+
+\textbf{Random Forest:}
+\begin{itemize}
+    \item MMRE = 0,38
+    \item Lỗi ước tính trung bình là 38\%
+\end{itemize}
+
+\textbf{Tính Toán Cải Thiện:}
+\begin{itemize}
+    \item Cải thiện tuyệt đối: 0,58 - 0,38 = 0,20
+    \item Cải thiện tương đối: 0,20 / 0,58 = 34\%
+\end{itemize}
+
+Vì vậy chúng tôi đã giảm lỗi ước tính một phần ba so với COCOMO II truyền thống. Điều này có ý nghĩa trong thực tế - nó có nghĩa là ít lỗi ngân sách vượt quá hơn và lập kế hoạch dự án tốt hơn.
+
+\subsection*{Q6: Điều gì về các miền phần mềm khác nhau - ứng dụng web, hệ thống nhúng, v.v.?}
+
+\textbf{Câu trả lời:} Một câu hỏi tuyệt vời khác về tổng quát hóa.
+
+Bộ dữ liệu hiện tại của chúng tôi bao gồm các dự án từ nhiều miền, nhưng chúng tôi không có đủ mẫu trên mỗi miền để xây dựng các mô hình dành riêng cho miền nhất.
+
+\textbf{Tiếp Cận Hiện Tại:}
+\begin{itemize}
+    \item Chúng tôi sử dụng loại ứng dụng COCOMO II làm tính năng
+    \item Mô hình tìm hiểu các khác biệt miền ngầm
+\end{itemize}
+
+\textbf{Cải Thiện Tương Lai:}
+\begin{itemize}
+    \item Thu thập dữ liệu được gắn nhãn miền
+    \item Xây dựng các mô hình ensemble với các nhánh dành riêng cho miền
+    \item Cho phép người dùng chỉ định miền để hiệu chỉnh tốt hơn
+\end{itemize}
+
+Đây chắc chắn là một lĩnh vực cho nghiên cứu tương lai - thích ứng miền trong ước tính công sức phần mềm.
+
+\subsection*{Q7: Bạn đảm bảo API không bị lạm dụng hoặc tạo ra các ước tính sai được không?}
+
+\textbf{Câu trả lời:} An toàn và độ tin cậy là rất quan trọng cho triển khai sản xuất.
+
+\textbf{Chúng tôi thực hiện một số biện pháp bảo vệ:}
+
+\begin{enumerate}
+    \item \textbf{Xác Thực Đầu Vào:}
+    \begin{itemize}
+        \item Kiểm tra phạm vi trên tất cả các chỉ số
+        \item Xác thực tính nhất quán schema
+        \item Từ chối các đầu vào rõ ràng không hợp lệ
+    \end{itemize}
+    
+    \item \textbf{Điểm Số Tin Cậy:}
+    \begin{itemize}
+        \item Mỗi dự đoán đi kèm với điểm số tin cậy
+        \item Tin cậy thấp kích hoạt cảnh báo
+        \item Người dùng thấy ước tính độ không chắc chắn
+    \end{itemize}
+    
+    \item \textbf{Giới Hạn Tỷ Lệ:}
+    \begin{itemize}
+        \item Khóa API bắt buộc
+        \item Chuỗi yêu cầu cho mỗi người dùng
+        \item Ngăn ngừa lạm dụng
+    \end{itemize}
+    
+    \item \textbf{Ghi Nhật Ký và Giám Sát:}
+    \begin{itemize}
+        \item Tất cả các dự đoán được ghi nhật ký
+        \item Phát hiện dị thường trên các đầu vào
+        \item Hệ thống cảnh báo cho các mẫu đáng ngờ
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Quan trọng nhất:} Chúng tôi làm cho rõ ràng rằng ước tính là \textbf{hướng dẫn, không bảo đảm}. Phán xét của con người sẽ luôn được liên quan trong các quyết định cuối cùng.
+
+\end{document}

@@ -324,8 +324,24 @@ textarea.form-control {
 
 .chart-container {
   position: relative;
-  height: 300px;
+  height: 400px;
   margin: 1.5rem 0;
+  padding: 15px;
+}
+
+.chart-container canvas {
+  max-height: 100%;
+}
+
+/* Scale toggle buttons */
+.scale-toggle {
+  margin-left: auto;
+}
+
+.scale-toggle .btn {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
 }
 
 /* Confidence indicators */
@@ -515,4 +531,72 @@ textarea.form-control {
   .result-value {
     font-size: 1.5rem;
   }
+}
+
+/* Model comparison table styles */
+#modelDetailsContent .table {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+#modelDetailsContent .table thead {
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: white;
+}
+
+#modelDetailsContent .table thead th {
+  border: none;
+  padding: 12px;
+  font-weight: 600;
+}
+
+#modelDetailsContent .table tbody tr {
+  transition: all 0.2s ease;
+}
+
+#modelDetailsContent .table tbody tr:hover {
+  background-color: rgba(67, 97, 238, 0.05);
+  transform: scale(1.01);
+}
+
+#modelDetailsContent .table tbody td {
+  vertical-align: middle;
+  padding: 12px;
+}
+
+#modelDetailsContent .progress {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Analysis details styles */
+#analysisDetailsContent .card {
+  border-left: 4px solid var(--primary);
+  transition: all 0.3s ease;
+}
+
+#analysisDetailsContent .card:hover {
+  border-left-color: var(--success);
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+#analysisDetailsContent .card-title {
+  color: var(--primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+#analysisDetailsContent .card-text {
+  color: var(--dark);
+  font-weight: 700;
+}
+
+/* Accordion improvements for details */
+.accordion-button:not(.collapsed) {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--primary);
+}
+
+.accordion-button:focus {
+  box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
 }
